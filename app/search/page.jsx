@@ -1,8 +1,5 @@
 import Svgs from '@utils/Svgs';
 import './Search.css';
-// import Card from '@components/Card';
-// import testImage from '@assets/images/test.jpg';
-// import MapGif from '@assets/icons/map.gif';
 import Image from 'next/image';
 
 const page = () => {

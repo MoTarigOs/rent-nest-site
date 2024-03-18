@@ -107,7 +107,7 @@
             left: calc(50% - 50vw);
             top: 0;
             z-index: -1;
-            background: url(../../assets/images/landing-section-background.jpg) center center/cover no-repeat;
+            background: url(../../assets/images/test.jpg) center center/cover no-repeat;
         }
         
         &::after{
