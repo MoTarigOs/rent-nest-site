@@ -1,0 +1,55 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+:root{
+    --backgroundMainColor: white;
+    --white: white;
+    --secondColor: #00cacd;
+    --secondColorDark: #005d5f;
+    --thirdColor: rgb(0, 181, 221);
+    --thirdColorHover: rgb(0, 149, 183);
+    --secondColorHover: #00afb2;
+    --darkWhite: #f3f3f3;
+    --darkWhiteHover: #d7d7d7;
+    --softRed: rgb(255, 113, 130);
+    --headerHeight: 172px;
+    --headerHeightMobile: 84px;
+}
+
+body{
+    overflow-x: hidden;
+}
+
+.main {
+    max-width: 100vw;
+    height: fit-content;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(to right, var(--backgroundGradientColor1), var(--backgroundGradientColor2));
+    overflow-x: hidden;
+    
+    main {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        min-height: 100vh;
+
+        .home{
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: end;
+            align-items: end;
+            max-width: 1300px;
+            overflow-x: visible;
+        }
+    }
+}

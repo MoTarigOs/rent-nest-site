@@ -1,0 +1,86 @@
+.inputDiv{
+    width: 100%;
+    position: relative;
+    margin-bottom: 48px;
+
+    input{
+        width: 100%;
+        padding: 16px;
+        outline: none;
+        border: 2px solid var(--secondColor);
+        background: transparent;
+    }
+
+    textarea{
+        width: 100%;
+        width: 100%;
+        padding: 16px;
+        outline: none;
+        border: 2px solid var(--secondColor);
+        background: transparent;
+        resize: vertical;
+    }
+
+    span{
+        position: absolute;
+        top: -16px;
+        right: 32px;
+        padding: 0 16px;
+        background: white;
+        color: var(--secondColor);
+    }
+
+    svg{
+        position: absolute;
+        top: -16px;
+        left: 32px;
+        width: 32px;
+        height: 32px;
+        padding: 0 8px;
+        background: var(--darkWhite);
+        cursor: pointer;
+    }
+
+    label{
+        color: var(--softRed);
+        font-size: 0.9rem;
+        display: block;
+        margin-top: 4px;
+    }
+
+    #show-password{
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 52px;
+        width: 52px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        svg{
+            position: unset;
+            top: unset;
+            left: unset;
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        span{
+            position: absolute;
+            top: 12px;
+            right: 25px;
+            margin: 0;
+            padding: 0;
+            width: 2px;
+            height: 28px;
+            border-radius: 8px;
+            transform: rotate(45deg);
+            background: rgb(118, 118, 118);
+        }
+    }
+}

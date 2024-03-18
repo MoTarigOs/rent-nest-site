@@ -1,0 +1,37 @@
+.catagoryCard{
+    width: 180px;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    align-items: center;
+    border: 2px solid var(--secondColor);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease-out;
+
+    img{
+        width: 120px;
+        height: 120px;
+        object-fit: contain;
+        transition: all 0.1s ease-out;
+    }
+
+    h3{
+        font-size: 1.2rem;
+        color: var(--secondColor);
+        text-align: center;
+    }
+}
+
+.catagoryCard:hover{
+    opacity: 0.7;
+    transition: all 0.3s ease-in;
+}
+
+.selectedCatgoryVehicle{
+    background: var(--secondColor);
+
+    h3{
+        color: white;
+    }
+}

@@ -1,0 +1,106 @@
+.card{
+    width: 100%;
+    max-width: 299px;
+    min-width: 200px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.12s ease-out;
+
+    h3, h2, a{
+        margin-left: 12px;
+        margin-right: 12px;
+    }
+
+    .rateanddiscount{
+        display: flex;
+        width: 100%;
+        margin-top: 8px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 12px;
+            
+        h4{
+            margin-top: 4px;
+            font-weight: 500;
+            padding: 4px 8px;
+            font-size: 0.9rem;
+            border-radius: 50px;
+            color: white;
+            background: var(--secondColor);
+        }
+
+        strong{
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+            font-weight: 400;
+            color: rgb(97, 97, 97);
+    
+            img{
+                width: 16px;
+                height: 16px;
+                margin-left: 4px;
+            }
+        }
+    }
+
+    h3{
+        font-weight: 400;
+        color: grey;
+        margin-top: 12px;
+        display: flex;
+        font-size: 1rem;
+        align-items: center;
+    }
+
+    h4{
+        font-weight: 400;
+        color: grey;
+        margin-top: 8px;
+        display: flex;
+        font-size: 1rem;
+        align-items: center;
+        padding: 0 16px;
+        margin-bottom: auto;
+    }
+
+    h2{
+        margin-top: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    a{
+        border: none;
+        background: var(--secondColor);
+        color: white;
+        padding: 8px 12px;
+        margin-top: 8px;
+        border-radius: 4px;
+        margin-bottom: 12px;
+        font-size: 0.96rem;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s ease-out;
+    }
+
+    a:hover{
+        background: var(--secondColorHover);
+        transition: all 0.3s ease-in;
+    }
+
+    &:hover{
+        scale: 1.05;
+        transition: all 0.12s ease-in;
+
+        .arrow{
+            opacity: 1;
+            transition: all 0.2s ease-in;
+        }
+    }
+}

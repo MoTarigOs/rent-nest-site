@@ -1,0 +1,196 @@
+.properitiesPage{
+    width: 100%;
+    max-width: 1300px;
+    position: relative;
+    padding: 16px;
+    margin-top: var(--headerHeight);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .resultUL{
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: start;
+        gap: 24px;
+    }
+
+    .pagesHandler{
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: end;
+        margin-top: 64px;
+
+        .pageNum{
+            padding: 8px;
+            font-size: 0.8rem;
+            text-align: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-left: 16px;
+            color: grey;
+            cursor: pointer;
+            transition: all 0.2s ease-in;
+        }
+
+        .selectedPage{
+            background: var(--secondColor);
+            color: white;
+            font-weight: 500;
+        }
+
+        .pageNum:hover{
+            opacity: 0.7;
+            transition: all 0.2s ease-in;
+        }
+
+        .dotsBetweenPages{
+            font-size: 0.9rem;
+            color: grey;
+            margin-left: 16px;
+        }
+
+        div{
+            width: 32px;
+            height: 32px;
+            padding: 4px;
+            background: var(--secondColor);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 50%;
+            margin-left: 16px;
+
+            svg{
+                width: 32px;
+                height: 32px;
+                transform: rotate(-90deg);
+
+                path{
+                    stroke: white;
+                    fill: white;
+                }
+            }
+        }
+
+        div:hover{
+            background: var(--secondColorHover);
+        }
+
+        h4{
+            height: 100%;
+            padding: 12px 16px;
+            font-weight: 500;
+        }
+
+        :last-child{
+            margin-left: 0;
+
+            svg{
+                
+                transform: rotate(90deg);
+            }
+        }
+    }
+
+    .filterHeaderDiv{
+        background: var(--secondColor);
+        position: absolute;
+        top: 90vh;
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        color: white;
+
+        button{
+            background: var(--secondColor);
+            padding: 12px;
+            border-top-right-radius: 50px;
+            border-bottom-right-radius: 50px;
+            border: none;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.1s ease-in;
+        }
+
+        #secondFilterHeaderDivBtn{
+            border-top-right-radius: unset;
+            border-bottom-right-radius: unset;
+            border-top-left-radius: 50px;
+            border-bottom-left-radius: 50px;
+        }
+
+        button:hover{
+            background: var(--secondColorHover);
+            transition: all 0.1s ease-in;
+        }
+
+        svg{
+            width: 20px;
+            height: 20px;
+            margin-left: 8px;
+            
+            path{
+                stroke: white;
+                fill: white;
+            }
+        }
+
+        span{
+            height: 24px;
+            width: 1px;
+            background: white;
+        }
+    }
+
+    #moreProperties{
+        color: var(--secondColor);
+        background: transparent;
+        cursor: pointer;
+        border: none;
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin-top: 32px;
+        
+        &:hover{
+            text-decoration: underline;
+        }
+    }
+}
+
+@media screen and (max-width: 1160px){
+    .properitiesPage{
+        margin-top: var(--headerHeightMobile);
+
+        .resultUL{
+            .card{
+                max-width: 48%;
+            }
+        }
+
+        .pagesHandler{
+            justify-content: center;
+        }
+    }
+}
+
+@media screen and (max-width: 680px){
+    .properitiesPage{
+        .resultUL{
+            align-items: center;
+            flex-direction: column;
+
+            .card{
+                width: 100%;
+                max-width: 480px;
+            }
+        }
+    }
+}

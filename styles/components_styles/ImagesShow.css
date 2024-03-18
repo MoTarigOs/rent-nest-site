@@ -1,0 +1,250 @@
+.imagesDiv{
+    width: 100%;
+    height: 200px;
+    position: relative;
+
+    h1{
+        position: absolute;
+        top: 30%;
+        color: white;
+        z-index: 10;
+        left: 0;
+    }
+
+    .swiper-images-show{
+        width: 100%;
+        height: 100%;
+
+        .swiper-wrapper{
+
+            .swiper-slide{
+                display: block;
+                height: 100%;
+                width: 100%;
+
+                img{
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                video{
+                    width: 100%;
+                    height: 100%;
+                }
+
+                .images-show-text{
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    padding: 0 64px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: start;
+                    justify-content: center;
+
+                    h2{
+                        font-size: 2rem;
+                        color: white;
+                        margin-bottom: 24px;
+                        text-align: center;
+                        max-width: 480px;
+                    }
+
+                    p{
+                        color: white;
+                        margin-bottom: 24px;
+                        font-size: 1rem;
+                        max-width: 480px;
+                    }
+
+                    button{
+                        width: 100%;
+                        padding: 12px;
+                        border: 2px solid white;
+                        color: white;
+                        background: transparent;
+                        cursor: pointer;
+                        border-radius: 8px;
+                        max-width: 280px;
+                        font-size: 1.1rem;
+                        font-weight: 500;
+                        transition: all 0.2s ease-out;
+                    }
+
+                    button:hover{
+                        background: white;
+                        color: var(--secondColor);
+                        transition: all 0.2s ease-in;
+                    }
+                }
+            }
+        }
+
+        .swiper-pagination-bullet {
+            width: 12px;
+            height: 12px;
+            text-align: center;
+            line-height: 30px;
+            font-size: 12px;
+            color:#000;
+            opacity: 1;
+            transition: all 0.2s ease-out;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .swiper-pagination-bullet-active {
+            width: 32px;
+            border-radius: 50px;
+            color:#fff;
+            background: var(--secondColor);
+            transition: all 0.2s ease-in;
+        }
+    }
+
+    .not-exist{
+        width: 100%;
+        height: 100%;
+        color: rgb(78, 78, 78);
+        background: var(--darkWhite);
+        display: flex;
+        font-size: 1.2rem;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #wishlistDiv{
+        position: absolute;
+        left: 0;
+        top: 0;
+        margin-top: 12px;
+        margin-left: 12px;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+
+        svg{
+            width: 100%;
+            height: 100%;
+        
+            path{
+                fill: white;
+            }
+        }
+    }
+
+    .arrow{
+        display: flex;
+        opacity: 1;
+        position: absolute;
+        width: 36px;
+        height: 36px;
+        padding: 4px;
+        align-items: center;
+        justify-content: center;
+        top: calc(50% - 12px);
+        left: 12px;
+        background: rgba(255, 255, 255, 0.552);
+        border-radius: 50%;
+        transition: all 0.2s ease-out;
+        cursor: pointer;
+        background: var(--darkWhite);
+        z-index: 1;
+
+        svg{
+            width: 28px;
+            height: 28px;
+            transition: all 0.3s ease-out;
+            transform: rotate(90deg);
+        }
+    }
+
+    .arrow:hover{
+        background: var(--darkWhiteHover);
+        transition: all 0.3s ease-in;
+
+        svg{
+            scale: 1.1;
+            transition: all 0.3s ease-in;
+        }
+    }
+
+    .rightArrow{
+        left: unset;
+        right: 12px;
+
+        svg{
+            transform: rotate(-90deg);
+        }
+    }
+
+    .dots{
+        list-style: none;
+        width: 100%;
+        position: absolute;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        bottom: 12px;
+        left: 0;
+        padding: 0 16px;
+        overflow: hidden;
+        z-index: 1;
+
+        li{
+            width: 8px;
+            height: 8px;
+            background: rgb(81, 81, 81);
+            opacity: 0.5;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease-out;
+        }
+
+        li:hover{
+            scale: 1.1;
+            transition: all 0.3s ease-in;
+        }
+    }
+
+    .landingDots{
+        bottom: 64px;
+        width: fit-content;
+        left: unset;
+        right: 64px;
+
+        li{
+            width: 12px;
+            height: 12px;
+            opacity: 0.7;
+        }
+    }
+}
+
+#selectedDot{
+    opacity: 1;
+    background: var(--thirdColor);
+    width: 24px;
+    border-radius: 50px;
+}
+
+@media screen and (max-width: 960px){
+    .imagesDiv{
+        .swiper-images-show{
+            .swiper-wrapper{
+                .swiper-slide{
+                    .images-show-text{
+                        align-items: center;
+
+                        p{
+                            text-align: center;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

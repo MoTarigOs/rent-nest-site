@@ -1,0 +1,370 @@
+.hero{
+    width: 100%;
+    max-width: 1300px;
+
+    .ourDeals{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+
+        h1{
+            color: var(--secondColor);
+            margin-bottom: 24px;
+        }
+
+        p{
+            margin-bottom: 72px;
+            font-size: 1.1rem;
+            color: rgb(72, 72, 72);
+        }
+
+
+        .citiesDiv{
+            width: 100vw;
+            cursor: grab;
+
+            .swiperDiv{
+                padding: 0 calc(50vw - 160px);
+
+                overflow: visible;
+                .wrapperDiv{
+                    width: fit-content;
+                    align-items: center;
+                }
+            }
+
+            .cityItem{
+                width: 360px;
+                min-width: 360px;
+                height: 240px;
+                padding: 0 32px;
+                scroll-snap-align: center;
+                cursor: grab;
+                transition: all 0.2s ease-out;
+
+                div{
+                    width: 100%;
+                    height: 100%;
+                    overflow: hidden;
+                    border-radius: 16px;
+                    border: 2px solid var(--darkWhite);
+                    transition: all 0.2s ease-out;
+                
+                    img{
+                        width: 100%;
+                        height: 176px;
+                        cursor: pointer;
+                    }
+    
+                    h3{
+                        display: flex;
+                        align-items: center;
+                        color: var(--secondColor);
+                        padding: 12px 24px;
+                    }
+                }
+            }
+
+            .swiper-button-next, .swiper-button-prev{
+                background: white;
+                height: 100%;
+                top: 0;
+                right: 0;
+                padding: 0 32px 0 48px;
+                margin: 0;
+
+                span{
+                    position: absolute;
+                    left: -200%;
+                    top: -25%;
+                    width: 200%;
+                    height: 150%;
+                    background: linear-gradient(to right, rgba(255, 255, 255, 0), white);
+                }
+
+                svg{
+                    width: 44px;
+                    height: 44px;
+                    padding: 8px;
+                    transform: rotate(-90deg);
+                    position: absolute;
+                    background: var(--darkWhite);
+                    border-radius: 50%;
+                    margin-right: 32px;
+                }
+
+                &::after{
+                    display: none;
+                }
+            }
+
+            .swiper-button-next{
+                left: 0;
+                right: unset;
+                padding: 0 48px 0 32px;
+
+                span{
+                    left: 100%;
+                    background: linear-gradient(to left, rgba(255, 255, 255, 0), white);
+                }
+
+                svg{
+                    transform: rotate(90deg);
+                    margin-right: unset;
+                    margin-left: 32px;
+                }
+            }
+
+            .selectedCity{
+                scale: 1.2;
+                transition: all 0.2s ease-in;
+
+                div{
+                    border: none;
+                    box-shadow: 4px 4px 24px rgba(0, 0, 0, 0.236);
+                    transition: all 0.2s ease-in;
+                }
+            }
+        }
+    }
+
+    .allOffersCatagories{
+        width: 100%;
+        margin-top: 128px;
+        margin-bottom: 128px;
+        padding: 0 24px;
+
+        ul{
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            list-style: none;
+            gap: 24px;
+
+            li{
+                width: 100%;
+                max-width: 280px;
+                padding: 4px 0;
+
+                h3{
+                    color: var(--secondColorDark);
+                    font-size: 1.2rem;
+                    font-weight: 500;
+                    cursor: pointer;
+                }
+            }
+
+            li h3:hover{
+                text-decoration: underline;
+            }
+        }
+
+        button{
+            background: transparent;
+            margin-top: 32px;
+            border: none;
+            font-size: 1rem;
+            color: grey;
+            padding: 4px 8px;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.2s ease-out;
+        }
+
+        button:hover{
+            background: var(--darkWhite);
+            transition: all 0.2s ease-in;
+        }
+    }
+
+    .ourOffers{
+        width: 100%;
+        height: fit-content;
+        padding: 0 32px;
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        justify-content: center;
+        position: relative;
+
+        ul{
+            width: 100%;
+            height: 550px;
+            padding: 32px 0;
+            max-width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            overflow-y: scroll;
+
+            li{
+                width: 100%;
+
+                img{
+                    width: 100%;
+                    height: 250px;
+                    border-radius: 24px;
+                }
+            }
+
+            &::-webkit-scrollbar{
+                display: none;
+            }
+        }
+
+        .text{
+            padding: 32px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            h2{
+                color: white;
+                width: 100%;
+                text-align: center;
+                font-size: 2.2rem;
+                margin-bottom: 40px;
+            }
+
+            p{
+                color: white;
+                text-align: center;
+                margin-bottom: 40px;
+            }
+
+            button{
+                background: transparent;
+                border: 2px solid var(--darkWhite);
+                color: white;
+                padding: 8px 16px;
+                font-size: 1.1rem;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.2s ease-out;
+            }
+
+            button:hover{
+                background: white;
+                color: var(--secondColor);
+                transition: all 0.2s ease-in;
+            }
+        }
+
+        &::after{
+            position: absolute;
+            content: '';
+            width: 100vw;
+            height: 100%;
+            top: 0;
+            left: calc(50% - 50vw);
+            background: var(--secondColor);
+            z-index: -1;
+        }
+    }
+}
+
+@media screen and (max-width: 1100px){
+    .hero{
+        .ourOffers{
+            height: fit-content;
+            padding: 24px;
+            flex-wrap: wrap;
+            justify-content: center;
+    
+            ul{
+                width: 180px;
+                height: 180px;
+                padding: 0;
+                max-width: 180px;
+                cursor: pointer;
+                gap: 24px;
+                overflow-y: scroll;
+                margin: 0 auto;
+    
+                li{
+                    width: 100%;
+    
+                    img{
+                        width: 100%;
+                        height: 180px;
+                        border-radius: 24px;
+                    }
+                }
+            }
+    
+            .text{
+                margin: 16px 0;
+    
+                h2{
+                    font-size: 2rem;
+                    margin-bottom: 24px;
+                }
+    
+                p{
+                    margin-bottom: 24px;
+                }
+    
+                button{
+                    border: 2px solid rgba(255, 255, 255, 0.366);
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 960px){
+    .hero{
+
+        .ourDeals{
+            justify-content: center;
+            padding: 0 32px;
+
+            h1, p{
+                text-align: center;
+            }
+            
+            .citiesDiv{
+
+                .cityItem{
+                    width: 320px;
+                    min-width: 320px;
+                    height: 200px;
+
+                    div{
+                    
+                        img{
+                            height: 150px;
+                        }
+        
+                        h3{
+                            padding: 8px 24px;
+                            font-size: 0.96rem;
+                        }
+                    }
+                }
+
+                .swiper-button-next, .swiper-button-prev{
+                    display: none;
+                }
+            }
+        }
+
+        .allOffersCatagories{
+    
+            ul{
+    
+                li{
+                    width: 40%;
+                    max-width: none;
+                    min-width: none;
+    
+                    h3{
+                        font-size: 1rem;
+                    }
+                }
+            }
+        }
+    }
+}

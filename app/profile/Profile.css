@@ -1,0 +1,110 @@
+.profile{
+    width: 100%;
+    max-width: 1300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: var(--headerHeight);
+    padding: 16px;
+
+    .details{
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        
+        #username{
+            font-size: 1.8rem;
+            font-weight: 400;
+            margin-bottom: 16px;
+            width: 100%;
+            max-width: 916px;
+            color: rgb(70, 70, 70);
+        }
+
+        #underusername{
+            font-size: 1rem;
+            color: rgb(110, 110, 110);
+            width: 100%;
+            max-width: 916px;
+        }
+
+        .tabButtons{
+            width: 100%;
+            max-width: 960px;
+            display: flex;
+            list-style: none;
+            border-radius: 50px;
+            margin-top: 48px;
+            border: 1px solid rgb(228, 228, 228);
+            padding: 2px;
+            margin-bottom: 64px;
+
+            li{
+                padding: 12px;
+                width: 100%;
+                border-radius: 50px;
+                text-align: center;
+                color: var(--secondColorDark);
+                cursor: pointer;
+                transition: all 0.2s ease-out;
+            }
+
+            li:hover{
+                color: var(--secondColorHover);
+                transition: all 0.2s ease-in;
+            }
+
+            .selectedTab{
+                background: var(--secondColor);
+                color: white;
+                transition: all 0.2s ease-in;
+            }
+
+            .selectedTab:hover{
+                background: var(--secondColorHover);
+                color: white;
+                transition: all 0.2s ease-in;
+            }
+        }
+        
+        .itemsOffered{
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: start;
+            gap: 24px;
+            list-style: none;
+
+            .card{
+                width: 299px;
+            }
+        }
+    }
+}
+
+
+@media screen and (max-width: 1160px){
+    .profile{
+        margin-top: var(--headerHeightMobile);
+    }
+}
+
+@media screen and (max-width: 680px){
+    .profile{
+        .details{
+            .tabButtons{
+                li{
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+            }
+
+            .itemsOffered{
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    }
+}

@@ -1,0 +1,153 @@
+.cityPopup{
+    width: 320px;
+    height: 400px;
+    background: white;
+    box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.164);
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    top: 100%;
+    right: -60px;
+    overflow: hidden;
+    border-radius: 12px;
+
+    .cityPopupSearchDiv{
+        width: 100%;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        border-bottom: 2px solid var(--darkWhite);
+
+        svg{
+            width: 14px;
+            height: 14px;
+
+            path{
+                stroke: b;
+                fill: b;
+            }
+        }
+
+        input{
+            width: 100%;
+            margin-right: 16px;
+            font-size: 1.1rem;
+            border: none;
+            outline: none;
+        }
+    }
+
+    ul{
+        width: 100%;
+        height: 100%;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        list-style: none;
+
+        li{
+            width: 100%;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        li:hover{
+            background: var(--darkWhite);
+        }
+    }
+}
+
+.catagoryPopup{
+    width: 320px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    background: white;
+    top: 100%;
+    left: -32px;
+    cursor: default;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.164);
+
+    ul{
+        display: flex;
+        flex-direction: column;
+        list-style: none;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        height: 100%;
+
+        li{
+            width: 100%;
+            display: flex;
+            padding: 16px 24px;
+            cursor: pointer;
+
+            svg{
+                width: 24px;
+                height: 24px;
+                margin-left: 12px;
+                stroke: var(--secondColorDark);
+                fill: var(--secondColorDark);
+
+                path{
+                    stroke: var(--secondColorDark);
+                    fill: var(--secondColorDark);    
+                }
+            }
+
+            h3{
+                color: var(--secondColorDark);
+                margin-left: auto;
+            }
+        }
+
+        #allCtgLi{
+            border-bottom: 2px solid var(--darkWhite);
+        }
+
+        li:hover{
+            background: var(--darkWhite);
+        }
+    }
+
+    button{
+        width: 100%;
+        border: none;
+        background: var(--darkWhite);
+        padding: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    button:hover{
+        background: var(--darkWhiteHover);
+    }
+}
+
+.calenderPopup{
+    position: absolute;
+    background: white;
+    top: 100%;
+    left: -350px;
+    cursor: default;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.164);
+}
+
+
+#righticonspan{
+    width: 8px;
+    height: 20px;
+    border-right: 2px solid var(--secondColorDark);
+    border-bottom: 2px solid var(--secondColorDark);
+    transform: rotate(45deg);
+}

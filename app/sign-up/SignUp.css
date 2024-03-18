@@ -1,0 +1,134 @@
+.SignUp{
+    width: 100%;
+    height: fit-content;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--white);
+    padding: 24px;
+    margin-top: var(--headerHeight);
+
+    .formDiv{
+        width: 100%;
+        max-width: 680px;
+        padding: 32px;
+        border-radius: 4px;
+        border: 2px solid var(--secondColor);
+
+        h1{
+            margin-bottom: 64px;
+            color: var(--secondColor);
+        }
+
+        form{
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+
+            .policies{
+                display: flex;
+                width: 100%;
+                height: fit-content;
+                align-items: center;
+                margin-bottom: 32px;
+
+                input[type=checkbox]{
+                    width: fit-content;
+                    height: fit-content;
+                    margin-left: 8px;
+                    cursor: pointer;
+                    accent-color: var(--secondColor);
+                }
+
+                p{
+                    color: grey;
+                }
+    
+                span{
+                    color: var(--secondColorHover);
+                    cursor: pointer;
+                    margin: 0 8px;
+                    word-break: break-all;
+                }
+            }
+        }
+
+        button{
+            width: 100%;
+            padding: 16px;
+            background: var(--secondColor);
+            border: none;
+            color: white;
+            border-radius: 4px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease-out;
+        }
+
+        button:hover{
+            transition: all 0.3s ease-in;
+            background: var(--secondColorHover);
+        }
+
+        strong{
+            font-size: 1.3rem;
+            color: grey;
+            font-weight: 400;
+            width: 100%;
+            display: block;
+            margin: 32px 0;
+            text-align: center;
+        }
+
+        a{
+            text-decoration: none;
+            color: var(--secondColor);
+            width: 100%;
+            display: block;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 500;
+            transition: all 0.2s ease-in;
+        }
+
+        a:hover{
+            color: var(--secondColorHover);
+            transition: all 0.2s ease-in;
+        }
+    }
+
+    #error, #success{
+        width: 100%;
+        color: rgb(255, 74, 96);
+        padding: 12px;
+        font-size: 0.9rem;
+        background: var(--darkWhite);
+        margin-bottom: 16px;
+    }
+
+    #success{
+        color: var(--secondColor);
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+
+        a{
+            width: fit-content;
+            font-size: 1rem;
+        }
+    }
+}
+
+@media screen and (max-width: 680px){
+    .SignUp{
+        align-items: start;
+        min-height: unset;
+        padding: 12px;
+
+        .formDiv{
+            padding: 12px;
+        }
+    }
+}
