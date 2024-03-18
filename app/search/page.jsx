@@ -1,17 +1,17 @@
-import Svgs from '@utils/Svgs';
-import './Search.css';
-import Image from 'next/image';
+// import Svgs from '@utils/Svgs';
+// import './Search.css';
+// import Image from 'next/image';
 
 const page = () => {
 
-  //fetch result
-  const result = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+  // //fetch result
+  // const result = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
   return (
 
     <div className='search'>
       
-      <div className="searchDiv">
+      {/* <div className="searchDiv">
 
         <div className="topSearch">
 
@@ -49,7 +49,9 @@ const page = () => {
         ))}
       </ul>
 
-      <button id='moreResult'>المزيد</button>
+      <button id='moreResult'>المزيد</button> */}
+
+      search
 
     </div>
 
