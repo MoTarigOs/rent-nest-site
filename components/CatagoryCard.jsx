@@ -1,5 +1,3 @@
-'use client';
-
 import '@styles/components_styles/CatagoryCard.css';
 import Image from 'next/image';
 

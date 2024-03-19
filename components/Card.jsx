@@ -1,5 +1,3 @@
-'use client';
-
 import '@styles/components_styles/Card.css';
 import Image from 'next/image';
 import RatingStar from '@assets/icons/rating.png';

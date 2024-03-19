@@ -18,10 +18,10 @@ const AboutSection = () => {
     { _id: '3', iconName: 'book', title: 'best offers you can get', slogan: 'what is more exciting' },
   ];
 
-  const [swiper, setSwiper] = useState(null);
+  let swiper = null;
 
   useEffect(() => {
-    setSwiper(new Swiper('.about-swiper', {
+    swiper = new Swiper('.about-swiper', {
       // Optional parameters
       direction: "horizontal",
       loop: false,
@@ -32,7 +32,7 @@ const AboutSection = () => {
           nextEl: ".about-arrow-slide-next",
           prevEl: ".about-arrow-slide-prev",
       },
-  }))
+  })
   }, []);
 
   return (

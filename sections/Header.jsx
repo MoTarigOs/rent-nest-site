@@ -20,6 +20,7 @@ const Header = () => {
 
 
     const [isScrolled, setIsScrolled] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
     const [runOnce, setRunOnce] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [isMenu, setIsMenu] = useState(false);
@@ -41,9 +42,18 @@ const Header = () => {
       arrangeValue, setArrangeValue
     } = useContext(Context);
 
+    const settingMobile = () => {
+      if(window.innerWidth < 1160){
+        setIsMobile(true);
+      } else {
+        setIsMobile(false);
+      }
+    };
 
     useEffect(() => {
+
       setRunOnce(true);
+
       window.addEventListener('scroll', () => {
         if(window.scrollY > 96){
           setIsScrolled(true);
@@ -52,13 +62,27 @@ const Header = () => {
         }
       });
 
-      return () => window.removeEventListener('scroll', () => {
-        if(window.scrollY > 96){
-          setIsScrolled(true);
-        } else {
-          setIsScrolled(false);
-        }
+      settingMobile();
+
+      window.addEventListener('resize', () => {
+        settingMobile();
       });
+
+      return () => {
+        
+        window.removeEventListener('scroll', () => {
+          if(window.scrollY > 96){
+            setIsScrolled(true);
+          } else {
+            setIsScrolled(false);
+          }
+        });
+
+        window.removeEventListener('resize', () => {
+          settingMobile();
+        });
+
+      }
     }, []);
 
     useEffect(() => {
@@ -111,9 +135,9 @@ const Header = () => {
         
         </div>
 
-        {pathname === '/' ? <motion.div className={`headerSearchDiv ${isScrolled && 'scrolledSearhDiv'}`}
+        {pathname === '/' ? <motion.div className={`headerSearchDiv ${(isScrolled && isMobile) && 'scrolledSearhDiv'}`}
           initial={{ y: 0 }}
-          animate={{ y: isScrolled ? -78 : 0, transition: { damping: 50 } }}
+          animate={{ y: (isScrolled && isMobile) ? -78 : 0, transition: { damping: 50 } }}
         >
           <div className='searchDiv'>
             <ul>
