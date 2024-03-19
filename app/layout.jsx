@@ -19,21 +19,21 @@ const Layout = ({ children }) => {
 
             <body>
 
-                <DataContext>
-
                     <div className="main">
+
+                        <DataContext>
                                     
-                        <Header />
+                            <Header />
 
-                        <main className='app'>
-                            {children}
-                        </main>
+                            <main className='app'>
+                                {children}
+                            </main>
 
-                        <Footer />
+                            <Footer />
+                        
+                        </DataContext>
 
                     </div>
-
-                </DataContext>
 
             </body>
 
