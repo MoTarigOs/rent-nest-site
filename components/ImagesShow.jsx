@@ -79,9 +79,11 @@ const ImagesShow = ({ images, videos, handleWishList, type, type_is_video }) => 
                     <div className='swiper-slide'>
                         <Image src={type === 'landing' ? img.image : `${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${img}`} fill={true} alt='sdsd'/>
                         <div className='images-show-text' style={{ display: type !== 'landing' && 'none' }}>
-                            <h2>{img.title}</h2>
-                            <p>{img.desc}</p>
-                            <button>{img.btnTitle}</button>
+                            <div>
+                                <h2>{img.title}</h2>
+                                <p>{img.desc}</p>
+                                <button>{img.btnTitle}</button>
+                            </div>
                         </div>
                     </div>
                 ))}</> : <>
