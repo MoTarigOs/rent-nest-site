@@ -57,15 +57,17 @@ const ImagesShow = ({ images, videos, handleWishList, type, type_is_video }) => 
     useEffect(() => {
 
             if(!type_is_video){
-                if(prevButtonRef.current)
+                if(prevButtonRef.current){
                     for (let i = 0; i <= images.length; i++) {
-                        prevButtonRef.current.click();
+                        prevButtonRef?.current?.click();
                     }
+                }
             } else {
-                if(prevButtonVideoRef)
+                if(prevButtonVideoRef.current){
                     for (let i = 0; i <= selectedImageIndex; i++) {
-                        prevButtonVideoRef.current.click();
+                        prevButtonVideoRef?.current?.click();
                     }
+                }
             }
 
     }, [type_is_video]);
