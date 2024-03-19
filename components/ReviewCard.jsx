@@ -1,3 +1,5 @@
+'use client';
+
 import '@styles/components_styles/ReviewCard.css';
 import Svgs from '@utils/Svgs';
 import Image from 'next/image';

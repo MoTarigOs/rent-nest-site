@@ -1,3 +1,5 @@
+'use client';
+
 import '@styles/components_styles/Arrange.css';
 
 const Arrange = ({ isArrange, setIsArrange, arrangeValue, setArrangeValue }) => {

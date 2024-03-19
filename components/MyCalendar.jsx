@@ -1,3 +1,5 @@
+'use client';
+
 import '@styles/components_styles/Calendar.css';
 import { maxBookDateYears } from '@utils/Data';
 import Calendar from 'react-calendar';

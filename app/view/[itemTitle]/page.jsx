@@ -2,7 +2,7 @@
 
 import './View.css';
 import ImagesShow from "@components/ImagesShow";
-import { JordanCities, testImage } from "@utils/Data";
+import { JordanCities } from "@utils/Data";
 import GoogleMapImage from '@assets/images/google-map-image.jpg';
 import Image from "next/image";
 import LocationGif from '@assets/icons/location.gif';
@@ -28,40 +28,6 @@ const page = () => {
   const [isMap, setIsMap] = useState(false);
   const [isTerms, setIsTerms] = useState(false);
   const id = useSearchParams().get('id');
-
-  // const item = {
-  //   title: 'عنوان الخدمة و ما تقدمه لك',
-  //   desc: 'تفاصيل اكثر عن الخدمة و ما هي وظائفها تفاصيل اكثر عن الخدمة و ما هي وظائفها تفاصيل اكثر عن الخدمة و ما هي وظائفها',
-  //   details: {
-  //     insurance: false,
-  //     guest_rooms: ['غرفة 16 * 16 متر'],
-  //     facilities: ['حمام', 'انترنت مجاني'],
-  //     bathrooms: ['حمام 16 متر مربع'],
-  //     kitchen: ['ثلاجة', 'بوتوجاز'],
-  //     rooms: ['غرفة نوم بسرير كبير']
-  //   },
-  //   address: 'عمان, حي الرمال',
-  //   price: 120,
-  //   ratings: { val: 4.5, no: 32 },
-  //   area: 32,
-  //   terms_and_conditions: ['الشرط الأول في حجز الخدمة', 'الشرط الأول في حجز الخدمة'],
-  //   reviews: [
-  //     {_id: '13746174', pic: GoogleMapImage, name: 'حامد', text: 'المنزل رائع جدا', rating: 4 },
-  //     {_id: '13746174', pic: GoogleMapImage, name: 'احمد', text: 'المنزل رائع جدا', rating: 4 },
-  //     {_id: '13746174', pic: GoogleMapImage, name: 'محمد', text: 'المنزل رائع جدا', rating: 4 },
-  //     {_id: '13746174', pic: GoogleMapImage, name: 'حمد', text: 'المنزل رائع جدا', rating: 4 }
-  //   ],
-  //   discount: {
-  //     num_of_day_for_discount: 3, percentage: 25
-  //   }
-  // };
-
-  const LandingImagesArray = [
-    { _id: '0', title: 'عيش التجربة الأفضل', desc: 'استمتع بعدد من الوحدات السكنية استمتع بعدد من الوحدات السكنية استمتع بعدد من الوحدات السكنية', btnTitle: 'تصفح قائمة البيوت', image: testImage() },
-    { _id: '1', title: 'عيش التجربة الأفضل', desc: 'استمتع بعدد من الوحدات السكنية استمتع بعدد من الوحدات السكنية استمتع بعدد من الوحدات السكنية', btnTitle: 'تصفح قائمة البيوت', image: testImage() },
-    { _id: '2', title: 'عيش التجربة الأفضل', desc: 'استمتع بعدد من الوحدات السكنية استمتع بعدد من الوحدات السكنية استمتع بعدد من الوحدات السكنية', btnTitle: 'تصفح قائمة البيوت', image: testImage() },
-    { _id: '3', title: 'عيش التجربة الأفضل', desc: 'استمتع بعدد من الوحدات السكنية استمتع بعدد من الوحدات السكنية استمتع بعدد من الوحدات السكنية', btnTitle: 'تصفح قائمة البيوت', image: testImage() },
-  ];
 
   function getNumOfBookDays (){
   

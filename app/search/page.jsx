@@ -7,11 +7,7 @@ const page = () => {
   // //fetch result
   // const result = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-  return (
-
-    <div className='search'>
-      
-      {/* <div className="searchDiv">
+   {/* <div className="searchDiv">
 
         <div className="topSearch">
 
@@ -50,6 +46,12 @@ const page = () => {
       </ul>
 
       <button id='moreResult'>المزيد</button> */}
+
+  return (
+
+    <div className='search'>
+      
+     
 
       search
 

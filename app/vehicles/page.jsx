@@ -2,7 +2,7 @@
 
 import Card from "@components/Card";
 import Svgs from "@utils/Svgs";
-import '../properties/Properties.css';
+import '@app/properties/Properties.css';
 import { useContext, useEffect, useState } from "react";
 import { Context } from "@utils/Context";
 import { getProperties } from "@utils/api";
