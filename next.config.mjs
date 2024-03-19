@@ -7,6 +7,11 @@ const nextConfig = {
                 hostname: 'localhost',
                 port: '5500',
             },
+            {
+                protocol: 'https',
+                hostname: 'rent-nest-storage-server.onrender.com',
+                port: '5500',
+            },
         ],
     }
 };
