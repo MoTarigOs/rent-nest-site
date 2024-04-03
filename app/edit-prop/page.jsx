@@ -1,7 +1,7 @@
 'use client';
 
 import '../add/Add.css';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { Suspense, useContext, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import CustomInputDiv from '@components/CustomInputDiv';
 import { deleteFiles, deleteProp, deletePropFiles, editProperty, fetchPropertyDetails, setBookable, setNewBookedDays, showProp, uploadFiles } from '@utils/api';
@@ -15,7 +15,7 @@ import HeaderPopup from '@components/popups/HeaderPopup';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
 
-const page = () => {
+const Page = () => {
 
     const id = useSearchParams().get('id');
 
@@ -771,6 +771,12 @@ const page = () => {
 
     </div>
   )
-}
+};
 
-export default page
+const SuspenseWrapper = () => (
+	<Suspense>
+		<Page />
+	</Suspense>
+);
+
+export default SuspenseWrapper;

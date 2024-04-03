@@ -3,7 +3,7 @@
 import Card from "@components/Card";
 import Svgs from "@utils/Svgs";
 import './Properties.css';
-import { useContext, useEffect, useState } from "react";
+import { Suspense, useContext, useEffect, useState } from "react";
 import { getLocation, getProperties } from "@utils/api";
 import { Context } from "@utils/Context";
 import { ProperitiesCatagories, maximumPrice, minimumPrice } from "@utils/Data";
@@ -12,7 +12,7 @@ import { useSearchParams } from "next/navigation";
 import MySkeleton from "@components/MySkeleton";
 import NotFound from "@components/NotFound";
 
-const page = () => {
+const Page = () => {
 
     const catagoryParam = useSearchParams().get('catagory');
     const [runOnce, setRunOnce] = useState(false);
@@ -221,4 +221,10 @@ const page = () => {
   )
 }
 
-export default page
+const SuspenseWrapper = () => (
+	<Suspense>
+		<Page />
+	</Suspense>
+);
+
+export default SuspenseWrapper;

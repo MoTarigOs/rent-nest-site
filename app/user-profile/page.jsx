@@ -3,7 +3,7 @@
 import { useSearchParams } from 'next/navigation';
 import '../profile/Profile.css';
 import Svgs from '@utils/Svgs';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { Suspense, useContext, useEffect, useRef, useState } from 'react';
 import Card from '@components/Card';
 import InfoDiv from '@components/InfoDiv';
 import ReCAPTCHA from 'react-google-recaptcha';
@@ -15,7 +15,7 @@ import { blockUser, deleteAccountAdmin, deleteUserAccountFilesAdmin, getOwnerPro
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
 
-const page = () => {
+const Page = () => {
 
     const id = useSearchParams().get('id');
     const username = useSearchParams().get('username');
@@ -504,4 +504,10 @@ const page = () => {
   )
 }
 
-export default page
+const SuspenseWrapper = () => (
+	<Suspense>
+		<Page />
+	</Suspense>
+);
+
+export default SuspenseWrapper;
