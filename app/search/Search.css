@@ -5,137 +5,17 @@
     flex-direction: column;
     align-items: center;
     padding: 0 16px;
-
-    .searchDiv{
-        width: 100%;
-        max-width: 1010px;
-        display: flex;
-        flex-direction: column;
-        border-radius: 12px;
-        box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.212);
-        position: relative;
-        padding: 48px 0;
-
-        .topSearch{
-            width: 100%;
-            height: 64px;
-            display: flex;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-            overflow: hidden;
-
-            input{
-                width: 100%;
-                outline: none;
-                border: none;
-                background: white;
-                padding-right: 16px;
-                font-size: 1.2rem;
-            }
-
-            button{
-                height: 100%;
-                padding: 0 32px;
-                font-size: 1.3rem;
-                background: var(--secondColor);
-                border: none;
-                color: #e9e9ee;
-                cursor: pointer;
-                transition: all 0.3s ease-out;
-            }
-
-            button:hover{
-                background: var(--secondColorHover);
-                transition: all 0.3s ease-in;
-            }
-        }
-
-        .bottomSearch{
-            width: 100%;
-            height: 52px;
-            border-bottom-left-radius: 12px;
-            border-bottom-right-radius: 12px;
-            overflow: hidden;
-
-            ul{
-                height: 100%;
-                display: flex;
-                justify-content: space-between;
-                width: 100%;
-                list-style: none;
-
-                li{
-                    width: 100%;
-                    height: 100%;
-                    background: white;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border-left: 2px solid rgba(0, 0, 0, 0.163);
-                    border-top: 2px solid rgba(0, 0, 0, 0.163);;
-                    cursor: pointer;
-                    transition: all 0.3s ease-out;
-
-                    svg{
-                        height: 24px;
-                        width: 24px;
-                        margin-right: 8px;
-                        transform: translateY(2px);
-                    }
-                }
-
-                #lastFilter{
-                    border-left: none;
-                }
-
-                li:hover{
-                    background: #e9e9e9;
-                    transition: all 0.3s ease-in;
-
-                    svg{
-                        scale: 0.9;
-                    }
-                }
-            }
-        }
-
-        &::before{
-            content: '';
-            position: absolute;
-            width: 100vw;
-            height: 100%;
-            left: calc(50% - 50vw);
-            top: 0;
-            z-index: -1;
-            background: url(../../assets/images/test.jpg) center center/cover no-repeat;
-        }
-        
-        &::after{
-            content: '';
-            position: absolute;
-            width: 100vw;
-            height: 100%;
-            left: calc(50% - 50vw);
-            top: 0;
-            z-index: -1;
-            background: rgba(0, 0, 0, 0.334);
-        }
-    }
-
-    .or{
-        margin: 32px 0;
-    }
+    margin-top: calc(var(--headerHeight) + 48px);
 
     .searchByMap{
-        max-width: 1010px;
         display: flex;
         justify-content: center;
         align-items: center;
         border: 2px solid rgba(0, 0, 0, 0.181);
         border-radius: 8px;
         padding: 16px;
-        cursor: pointer;
-        transition: all 0.3s ease-in;
+        margin-bottom: 64px;
+        cursor: default;
 
         h2{
             font-size: 2.1rem;
@@ -149,18 +29,117 @@
         }
     }
 
-    .searchByMap:hover{
-        background: #e9e9e9;
-        transition: all 0.3s ease-in;
+    .map-div{
+        width: 100%;
+        height: 420px;
+        overflow: hidden;
+        display: flex;
+        padding: 12px;
+        margin-bottom: 44px;
+
+        .card{
+            margin-left: 24px;
+
+            &:hover{
+                scale: 1;
+            }
+        }
+    }
+    
+    #all-results{
+        color: var(--secondColor);
+        font-weight: 400;
+        font-size: 2.2rem;
+        margin-bottom: 44px;
     }
     
     .resultUL{
-        margin-top: 96px;
         width: 100%;
         display: flex;
         flex-wrap: wrap;
-        justify-content: center;
+        justify-content: start;
         gap: 24px;
+    }
+
+    .pagesHandler{
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: end;
+        margin-top: 64px;
+
+        .pageNum{
+            padding: 8px;
+            font-size: 0.8rem;
+            text-align: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-left: 16px;
+            color: grey;
+            cursor: pointer;
+            transition: all 0.2s ease-in;
+        }
+
+        .selectedPage{
+            background: var(--secondColor);
+            color: white;
+            font-weight: 500;
+        }
+
+        .pageNum:hover{
+            opacity: 0.7;
+            transition: all 0.2s ease-in;
+        }
+
+        .dotsBetweenPages{
+            font-size: 0.9rem;
+            color: grey;
+            margin-left: 16px;
+        }
+
+        div{
+            width: 32px;
+            height: 32px;
+            padding: 4px;
+            background: var(--secondColor);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 50%;
+            margin-left: 16px;
+
+            svg{
+                width: 32px;
+                height: 32px;
+                transform: rotate(-90deg);
+
+                path{
+                    stroke: white;
+                    fill: white;
+                }
+            }
+        }
+
+        div:hover{
+            background: var(--secondColorHover);
+        }
+
+        h4{
+            height: 100%;
+            padding: 12px 16px;
+            font-weight: 500;
+        }
+
+        :last-child{
+            margin-left: 0;
+
+            svg{
+                
+                transform: rotate(90deg);
+            }
+        }
     }
 
     #moreResult{
@@ -175,6 +154,46 @@
 
         &:hover{
             text-decoration: underline;
+        }
+    }
+}
+
+@media screen and (max-width: 680px){
+    .search{
+        margin-top: calc(var(--headerHeight) + 24px);
+        .pagesHandler{
+            justify-content: center;
+        }
+        .searchByMap{
+            margin-bottom: 16px;
+            h2{
+                font-size: 1rem;
+            }
+            img{
+                width: 24px;
+                height: 24px;
+            }
+        }
+        .map-div{
+            height: fit-content;
+            flex-direction: column-reverse;
+
+            .google-map-popup-wrapper{
+                height: 240px;
+            }
+
+            .card{
+                margin-top: 24px;
+                width: 100%;
+                height: 280px;
+                max-width: 680px;
+            }
+        }
+        .resultUL{
+            justify-content: center;
+        }
+        #all-results{
+            font-size: 1.4rem;
         }
     }
 }

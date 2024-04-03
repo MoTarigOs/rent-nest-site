@@ -4,21 +4,42 @@ import '@styles/sections_styles/AboutSection.css';
 import Image from 'next/image';
 import AboutBackgroundImage from '@assets/images/about-section-background.png';
 import Svgs from '@utils/Svgs';
-import { testImage } from '@utils/Data';
+import { ProperitiesCatagories, VehicleCatagories, testImage } from '@utils/Data';
 import Swiper from 'swiper/bundle';
 import 'swiper/swiper-bundle.css';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
+import FarmImage from '@assets/images/farm.jpg';
+import HomeImage from '@assets/images/landing2.webp';
+import CarImage from '@assets/images/cars.jpg';
+import { Context } from '@utils/Context';
 
 const AboutSection = () => {
 
   const whatWeOfferArray = [
-    { _id: '0', iconName: 'book', title: 'best offers you can get', slogan: 'what is more exciting' },
-    { _id: '1', iconName: 'book', title: 'best offers you can get', slogan: 'what is more exciting' },
-    { _id: '2', iconName: 'book', title: 'best offers you can get', slogan: 'what is more exciting' },
-    { _id: '3', iconName: 'book', title: 'best offers you can get', slogan: 'what is more exciting' },
+    { _id: '0', iconName: 'rent', title: 'أفضل عروض الايجار', slogan: 'نقدم أفضل عروض ايجار السيارات و العقارات' },
+    { _id: '1', iconName: 'prices', title: 'أسعار تناسب الجميع', slogan: 'ستجد ما يناسبك من حيث الاسعار و المواصفات' },
+    { _id: '2', iconName: 'advertise', title: 'اعلن لدينا', slogan: 'اعرض سيارة أو عقار للإِيجار' },
+    { _id: '3', iconName: 'seller', title: 'مرونة للمعلن و المشتري', slogan: 'ستجد مرونة كبيرة في تعديل العرض و مرنوة في اختيار تاريخ الحجز' }
   ];
 
+  const { setIsMobileHomeFilter, setCatagory } = useContext(Context);
+
   let swiper = null;
+
+  const getImage = (type) => {
+    switch(type.value){
+      case 'farm':
+        return FarmImage;
+      case 'apartment':
+        return HomeImage;
+      case 'resort':
+        return HomeImage;
+      case 'commercial':
+        return HomeImage;
+      default:
+        return CarImage;
+    }
+  };
 
   useEffect(() => {
     swiper = new Swiper('.about-swiper', {
@@ -44,7 +65,7 @@ const AboutSection = () => {
               
               <h2>ايجارك المثالي</h2>
 
-              <p>illo dicta eveniet, error possimus tempora neque ut.</p>
+              <p>تمتع بمرونة كبيرة في الأسعار و الخيارات.</p>
           
               <h4>تفقد آخر العروض الحصرية</h4>
 
@@ -59,13 +80,11 @@ const AboutSection = () => {
 
               <div className='about-swiper swiperAboutDiv'>
                 <div className='swiper-wrapper wrapperDiv'>
-                  <div className='swiper-slide aboutListItem'><Image src={testImage()}/><h3>شقق و سيارات</h3></div>
-                  <div className='swiper-slide aboutListItem'><Image src={testImage()}/><h3>شقق و سيارات</h3></div>
-                  <div className='swiper-slide aboutListItem'><Image src={testImage()}/><h3>شقق و سيارات</h3></div>
-                  <div className='swiper-slide aboutListItem'><Image src={testImage()}/><h3>شقق و سيارات</h3></div>
-                  <div className='swiper-slide aboutListItem'><Image src={testImage()}/><h3>شقق و سيارات</h3></div>
-                  <div className='swiper-slide aboutListItem'><Image src={testImage()}/><h3>شقق و سيارات</h3></div>
-                  <div className='swiper-slide aboutListItem'><Image src={testImage()}/><h3>شقق و سيارات</h3></div>
+                  {[...ProperitiesCatagories, ...VehicleCatagories].map((item) => (
+                    <div className='swiper-slide aboutListItem' onClick={() => {
+                      setCatagory(item.value); setIsMobileHomeFilter(true);
+                    }}><Image src={getImage(item)} loading='eager' alt={item.arabicName}/><h3>{item.arabicName}</h3></div>
+                  ))}
                 </div>
               </div>
 
@@ -83,11 +102,11 @@ const AboutSection = () => {
           
               <ul>
                 {whatWeOfferArray.map((offer) => (
-                  <li>
-                    <Svgs name={'search'}/>
+                  <li key={offer._id}>
+                    <Svgs name={offer.iconName}/>
                     <div>
-                      <h4>{'افضل الخدمات'}</h4> {/* offer.iconName, title, slogan */}
-                      <h5>{'نقدم افضل الخدمات بارخص الاسعار'}</h5>
+                      <h4>{offer.title}</h4>
+                      <h5>{offer.slogan}</h5>
                     </div>
                   </li>
                 ))}
@@ -96,7 +115,7 @@ const AboutSection = () => {
             </div>
             
             <div className='whatWeOfferImageDiv'>
-              <Image src={AboutBackgroundImage}/>
+              <Image src={AboutBackgroundImage} loading='eager' alt='عن منصة rent nest للايجارات'/>
             </div>
 
         </div>

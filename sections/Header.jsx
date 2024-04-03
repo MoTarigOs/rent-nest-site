@@ -14,24 +14,21 @@ import Filter from '@components/Filter';
 import Arrange from '@components/popups/Arrange';
 import { Context } from '@utils/Context';
 import { getUserInfo } from '@utils/api';
-import { getArabicNameCatagory } from '@utils/Logic';
+import { getArabicNameCatagory, getReadableDate } from '@utils/Logic';
+import GoogleMapPopup from '@components/popups/GoogleMapPopup';
+import MobileFilter from '@components/popups/MobileFilter';
 
 const Header = () => {
-
 
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [runOnce, setRunOnce] = useState(false);
-    const [searchText, setSearchText] = useState('');
     const [isMenu, setIsMenu] = useState(false);
     const [isCityFilter, setIsCityFilter] = useState(false);
     const [isCatagoryFilter, setIsCatagoryFilter] = useState(false);
     const [isCalendarFilter, setIsCalendarFilter] = useState(false);
-
-
-    const [calender, setCalender] = useState([new Date, new Date]);
+    
     const [isFilter, setIsFilter] = useState(false);
-    const [selectedCatagories, setSelectedCatagories] = useState([]);
     const [isArrange, setIsArrange] = useState(false);
     const pathname = usePathname();
 
@@ -39,7 +36,13 @@ const Header = () => {
       userId, userUsername, userRole, setUserId, 
       setUserUsername, setUserRole, city, setCity,
       catagory, setCatagory, triggerFetch, setTriggerFetch,
-      arrangeValue, setArrangeValue
+      arrangeValue, setArrangeValue, setUserEmail, setIsVerified,
+      setUserPhone, setUserAddress, setBooksIds, booksIds, 
+      setFavouritesIds, mapType, mapArray, isMap, setIsMap, 
+      latitude, setLatitude, longitude, setLongitude,
+      calendarDoubleValue, setCalendarDoubleValue, setIsMobileHomeFilter,
+      isCalendarValue, setIsCalendarValue, setLoadingUserInfo,
+      isMobileHomeFilter
     } = useContext(Context);
 
     const settingMobile = () => {
@@ -50,19 +53,25 @@ const Header = () => {
       }
     };
 
+    const settingScroll = () => {
+      if(window.scrollY > 96){
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
     useEffect(() => {
 
       setRunOnce(true);
 
-      window.addEventListener('scroll', () => {
-        if(window.scrollY > 96){
-          setIsScrolled(true);
-        } else {
-          setIsScrolled(false);
-        }
-      });
-
       settingMobile();
+
+      settingScroll();
+
+      window.addEventListener('scroll', () => {
+        settingScroll();
+      });
 
       window.addEventListener('resize', () => {
         settingMobile();
@@ -71,11 +80,7 @@ const Header = () => {
       return () => {
         
         window.removeEventListener('scroll', () => {
-          if(window.scrollY > 96){
-            setIsScrolled(true);
-          } else {
-            setIsScrolled(false);
-          }
+          settingMobile();
         });
 
         window.removeEventListener('resize', () => {
@@ -86,14 +91,38 @@ const Header = () => {
     }, []);
 
     useEffect(() => {
-      if(runOnce === true && (userId.length <= 0 || !userId))
-        getUserInfo(setUserId, setUserUsername, setUserRole);
+      if(runOnce === true){
+        setLoadingUserInfo(true);
+        getUserInfo(
+          setUserId, setUserUsername, setUserRole, 
+          setUserEmail, setIsVerified, setUserAddress,
+          setUserPhone, setBooksIds, setFavouritesIds, setLoadingUserInfo
+        );
+      }
     }, [runOnce]);
+
+    useEffect(() => {
+      if(longitude) setLongitude(null);
+      if(latitude) setLatitude(null);
+      setIsMobileHomeFilter(false);
+    }, [pathname]);
+
+    useEffect(() => {
+      setTriggerFetch(!triggerFetch);
+      setIsCalendarValue(true);
+    }, [calendarDoubleValue]);
+
+    useEffect(() => {
+      if(isCalendarFilter)
+        setIsCalendarValue(false);
+    }, [isCalendarFilter]);
 
   return (
 
     <div className='header' style={{ 
-      position: 'fixed', zIndex: (isArrange || isFilter || isMenu) && 11
+      position: 'fixed', zIndex: (isArrange || isFilter || isMenu || isMap 
+          || isCatagoryFilter || isCityFilter || isCalendarFilter
+          || isMobileHomeFilter) && 11
     }} suppressHydrationWarning={true}>
       
         <div className='desktopWrapper'>
@@ -106,25 +135,35 @@ const Header = () => {
                 شاليهات, منتجعات, استراحات
             </Link>
 
-            <Link href={'/properties?catagory=apartments'} className={'navBtn'}>
+            <Link href={'/properties?catagory=apartment'} className={'navBtn'}>
                 شقق و بيوت
             </Link>
 
-            <Link href={'/properties?catagory=farms'} className={'navBtn'}>
+            <Link href={'/properties?catagory=farm'} className={'navBtn'}>
                 مزارع و مخيمات
             </Link>
 
-            <Link href={'/vehicles'}  className={'navBtn'}>
+            <Link href={'/vehicles'} style={{ marginLeft: 'auto' }} className={'navBtn'}>
                 سيارات
             </Link>
 
-            <Link href={'/add'} className='addItemHeaderDiv'>أضف عقارك</Link>
+            <Link href={'/add'} style={{ display: !userId?.length > 0 ? 'none' : null }} className='addItemHeaderDiv'>أضف عقارك</Link>
 
             <div className='user'>
               <Link href={userId?.length > 0 ? `/profile?id=${userId}` : '/sign-up'}>
                 <div className='profileSvg'><Svgs name={'profile'}/></div>
                 <p>{userId?.length > 0 ? userUsername : 'الدخول أو انشاء حساب'}</p>
                 <div className='arrowSvg'><Svgs name={'dropdown arrow'}/></div>
+              </Link>
+            </div>
+
+            <div className='user admin-header-button' style={{ 
+              display: (userRole === 'admin' || userRole === 'owner') ? null : 'none' 
+            }}>
+              <Link href={(userRole === 'admin' || userRole === 'owner') 
+              ? `/admin` : ''}>
+                <Svgs name={'management'}/>
+                <p>صفحة الادارة</p>
               </Link>
             </div>
             
@@ -135,41 +174,43 @@ const Header = () => {
         
         </div>
 
-        {pathname === '/' ? <motion.div className={`headerSearchDiv ${(isScrolled && isMobile) && 'scrolledSearhDiv'}`}
+        {(pathname === '/' || pathname === '/search') ? <motion.div className={`headerSearchDiv ${(isScrolled && isMobile) && 'scrolledSearhDiv'}`}
           initial={{ y: 0 }}
           animate={{ y: (isScrolled && isMobile) ? -78 : 0, transition: { damping: 50 } }}
         >
           <div className='searchDiv'>
             <ul>
-                <li className='desktopSearchDivLI' onClick={() => {setIsCityFilter(true); setIsCatagoryFilter(false); setIsCalendarFilter(false);}}>{isCityFilter && <HeaderPopup type={'city'} city={city} setCity={setCity}/>}<h4>اختر المدينة</h4><h3>{!city.value ? 'كل المدن' : city.arabicName}</h3></li>
-                <li className='desktopSearchDivLI' onClick={() => {setIsCityFilter(false); setIsCatagoryFilter(true); setIsCalendarFilter(false);}}>{isCatagoryFilter && <HeaderPopup type={'catagory'} catagory={catagory} setCatagory={setCatagory}/>}<h4>التصنيف</h4><h3>{catagory === '' ? 'كل التصنيفات' : getArabicNameCatagory(catagory)}</h3></li>
-                <li className='desktopSearchDivLI' onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4>تاريخ الحجز</h4><h3 suppressHydrationWarning={true}>{calender[0].getDay()}</h3>{isCalendarFilter && <HeaderPopup type={'calendar'} calendar={calender.toString()} setCalender={setCalender}/>}</li>
-                <li className='desktopSearchDivLI' onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4>تاريخ انتهاءالحجز</h4><h3 suppressHydrationWarning={true}>{calender[0].getDay()}</h3></li>
+                <li className='desktopSearchDivLI' onClick={() => {setIsCityFilter(true); setIsCatagoryFilter(false); setIsCalendarFilter(false);}}>{isCityFilter && <HeaderPopup type={'city'} city={city} setCity={setCity}/>}<h4>اختر المدينة</h4><h3>{!city?.value ? 'كل المدن' : city.arabicName}</h3></li>
+                <li className='desktopSearchDivLI' onClick={() => {setIsCityFilter(false); setIsCatagoryFilter(true); setIsCalendarFilter(false);}}>{isCatagoryFilter && <HeaderPopup type={'catagory'} pathname={pathname} handleChoose={() => setIsCatagoryFilter(false)} catagory={catagory} setCatagory={setCatagory}/>}<h4>التصنيف</h4><h3>{catagory === '' ? 'كل التصنيفات' : getArabicNameCatagory(catagory)}</h3></li>
+                <li className='desktopSearchDivLI' onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4>تاريخ الحجز</h4><h3 suppressHydrationWarning={true}>{getReadableDate(calendarDoubleValue?.at(0), true)}</h3>{isCalendarFilter && <HeaderPopup type={'calendar'} calendar={calendarDoubleValue?.toString()} setCalendarDoubleValue={setCalendarDoubleValue}/>}</li>
+                <li className='desktopSearchDivLI' onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4>تاريخ انتهاءالحجز</h4><h3 suppressHydrationWarning={true}>{getReadableDate(calendarDoubleValue?.at(1), true)}</h3></li>
+                <li className='header-search-btn'>
+                  <Link href={'/search'}><Svgs name={'search'}/></Link>
+                </li>
                 <li className='mobileSearchDiv mobileSearchDivLI'>
-                  <Link href={'/properties'}>
+                  <div onClick={() => setIsMobileHomeFilter(true)}>
                     <Svgs name={'search'}/>
                     <p>ابحث عن سيارة أو عقار</p>
-                  </Link>
+                  </div>
                 </li>
             </ul>
             <div id='invertedIconDivLeft'><Image src={InvertedIcon}/></div>
             <div id='invertedIconDivRight'><Image src={InvertedIcon}/></div>
           </div>
-
           <span id='rightSpanHeaderSearch'/>
-            <span id='leftSpanHeaderSearch'/>
+          <span id='leftSpanHeaderSearch'/>
         </motion.div> : (pathname === '/vehicles' || pathname === '/properties') && <div className='headerSearchOtherDiv'>
           <ul className='headerNavUL'>
             <li className='headerNavLi' id='searchLiHeaderOther'><Svgs name={'search'}/></li>
             <li className='headerNavLi' onClick={() => {setIsCityFilter(true); setIsCatagoryFilter(false); setIsCalendarFilter(false);}}><h4>{!city.value ? 'كل المدن' : city.arabicName}</h4>{isCityFilter && <HeaderPopup type={'city'} city={city} setCity={setCity}/>}</li>
-            <li className='headerNavLi' onClick={() => {setIsCatagoryFilter(true); setIsCityFilter(false); setIsCalendarFilter(false)}}><h4>{catagory === '' ? 'كل التصنيفات' : getArabicNameCatagory(catagory)}</h4>{isCatagoryFilter && <HeaderPopup type={'catagory'} catagory={catagory} setCatagory={setCatagory}/>}</li>
-            <li className='headerNavLi' onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4 suppressHydrationWarning={true}>{calender[0].getDay()}</h4>{isCalendarFilter && <HeaderPopup type={'calendar'} calendar={calender.toString()} setCalender={setCalender}/>}</li>
-            <li className='headerNavLi' style={{ border: 'none' }} onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4 suppressHydrationWarning={true}>{calender[1].getDay()}</h4></li>
+            <li className='headerNavLi' onClick={() => {setIsCatagoryFilter(true); setIsCityFilter(false); setIsCalendarFilter(false)}}><h4>{catagory === '' ? 'كل التصنيفات' : getArabicNameCatagory(catagory)}</h4>{isCatagoryFilter && <HeaderPopup pathname={pathname} type={'catagory'} handleChoose={() => setIsCatagoryFilter(false)} catagory={catagory} setCatagory={setCatagory}/>}</li>
+            <li className='headerNavLi' onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4 suppressHydrationWarning={true}>{getReadableDate(calendarDoubleValue?.at(0), true)}</h4>{isCalendarFilter && <HeaderPopup type={'calendar'} setCalendarDoubleValue={setCalendarDoubleValue}/>}</li>
+            <li className='headerNavLi' style={{ border: 'none' }} onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4 suppressHydrationWarning={true}>{getReadableDate(calendarDoubleValue?.at(1), true)}</h4></li>
           </ul>
-          <div className='showMap'>
+          <Link className='showMap' href={'/search'}>
             <Svgs name={'search'}/>
             عرض الخريطة
-          </div>
+          </Link>
         </div>}
 
         <div className="mobileHeader" style={{ zIndex: isMenu && 11 }}>
@@ -220,24 +261,33 @@ const Header = () => {
                   شاليهات, منتجعات, استراحات
               </Link>
 
-              <Link onClick={() => setIsMenu(false)} href={'/properties?catagory=apartments'} className={'navBtn'}>
+              <Link onClick={() => setIsMenu(false)} href={'/properties?catagory=apartment'} className={'navBtn'}>
                   <Svgs name={'star'}/>
                   شقق و بيوت
               </Link>
 
-              <Link onClick={() => setIsMenu(false)} href={'/properties?catagory=farms'} className={'navBtn'}>
+              <Link onClick={() => setIsMenu(false)} href={'/properties?catagory=farm'} className={'navBtn'}>
                   <Svgs name={'star'}/>
                   مزارع و مخيمات
               </Link>
 
-              <Link onClick={() => setIsMenu(false)} href={'/vehicles'}  className={'navBtn'}>
+              <Link onClick={() => setIsMenu(false)} href={'/vehicles'} style={{ marginBottom: 'auto' }} 
+                className={'navBtn'}>
                 <Svgs name={'star'}/>
                   سيارات
               </Link>
+              
+              {(userRole === 'admin' || userRole === 'owner') && <Link 
+                onClick={() => setIsMenu(false)} href={'/admin'}  
+                className={'navBtn'}  style={{ display: userId ? null : 'none' }}>
+                <Svgs name={'management'}/>
+                  صفحة الادارة
+              </Link>}
 
-              <Link onClick={() => setIsMenu(false)} href={'/add'} className='addItemHeaderDiv'>أضف عقارك</Link>
+              <Link onClick={() => setIsMenu(false)} style={{ display: !userId?.length > 0 ? 'none' : null }} 
+                href={'/add'} className='addItemHeaderDiv'>أضف عقارك</Link>
 
-              <div className='lang'>
+              <div className='lang' style={{ marginTop: 'auto' }}>
                   <h5>Browse in</h5>
                   <a>English</a>
               </div>
@@ -260,7 +310,13 @@ const Header = () => {
 
         <Filter type={'prop'} isFilter={isFilter} setIsFilter={setIsFilter} triggerFetch={triggerFetch} setTriggerFetch={setTriggerFetch}/>
 
-        <Arrange isArrange={isArrange} setIsArrange={setIsArrange} arrangeValue={arrangeValue} setArrangeValue={setArrangeValue}/>
+        <Arrange isArrange={isArrange} setIsArrange={setIsArrange} setTriggerFetch={setTriggerFetch} triggerFetch={triggerFetch} arrangeValue={arrangeValue} setArrangeValue={setArrangeValue}/>
+
+        <GoogleMapPopup isShow={isMap} setIsShow={setIsMap} mapType={mapType} 
+        mapArray={mapArray} longitude={longitude} setLongitude={setLongitude} 
+        latitude={latitude} setLatitude={setLatitude}/>
+
+        {isMobile && (pathname === '/' || pathname === '/search') && <MobileFilter />}
 
     </div>
   )

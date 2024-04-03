@@ -1,19 +1,33 @@
 import '@styles/components_styles/ReviewCard.css';
 import Svgs from '@utils/Svgs';
-import Image from 'next/image';
 
-const ReviewCard = ({ item }) => {
+const ReviewCard = ({ item, on_click, setReportDiv, setWriterId, isAdmin, revsToDeleteAdmin, setRevsToDeleteAdmin }) => {
   return (
-    <li className='reviewCard'>
+    <li className='reviewCard' onClick={on_click}>
       
       <div>
-        <Image src={item.pic}/>
         <h3>{item.username}</h3>
-        <Svgs name={'star'} styling={item.rating > 0 ? true : false}/>
-        <Svgs name={'star'} styling={item.rating > 1 ? true : false}/>
-        <Svgs name={'star'} styling={item.rating > 2 ? true : false}/>
-        <Svgs name={'star'} styling={item.rating > 3 ? true : false}/>
-        <Svgs name={'star'} styling={item.rating > 4 ? true : false}/>
+        <Svgs name={'star'} styling={Math.round(item.user_rating) > 0 ? true : false}/>
+        <Svgs name={'star'} styling={Math.round(item.user_rating) > 1 ? true : false}/>
+        <Svgs name={'star'} styling={Math.round(item.user_rating) > 2 ? true : false}/>
+        <Svgs name={'star'} styling={Math.round(item.user_rating) > 3 ? true : false}/>
+        <Svgs name={'star'} styling={Math.round(item.user_rating) > 4 ? true : false}/>
+        <span>({item.user_rating})</span>
+        <h4 style={{ display: (isAdmin && !revsToDeleteAdmin) ? 'none' : null }} 
+          onClick={() => { 
+            if(item.writer_id){ 
+              setReportDiv(true); 
+              setWriterId(item.writer_id); 
+              
+            }
+        }}>إِبلاغ <Svgs name={'report'}/></h4>
+        {(isAdmin && revsToDeleteAdmin) && <h3 className='delete-file' style={{ display: revsToDeleteAdmin.includes(item) ? 'none' : null }} onClick={() => {
+          if(!revsToDeleteAdmin.includes(item.writer_id))
+            setRevsToDeleteAdmin([...revsToDeleteAdmin, item]);
+        }}>
+          اضافة الى السلة
+          <Svgs name={'delete'}/>
+        </h3>}
       </div>
 
       <p>{item.text}</p>

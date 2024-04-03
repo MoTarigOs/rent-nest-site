@@ -2,7 +2,7 @@
     width: 100%;
     max-width: 1300px;
     position: relative;
-    padding: 16px;
+    padding: 128px 16px;
     margin-top: var(--headerHeight);
     display: flex;
     flex-direction: column;

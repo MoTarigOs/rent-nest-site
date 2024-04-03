@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import './Add.css';
 import CatagoryCard from '@components/CatagoryCard';
 import Image from 'next/image';
@@ -8,12 +8,22 @@ import GoogleMapImage from '@assets/images/google-map-image.jpg';
 import VehicleImage from '@assets/images/sedan-car.png';
 import PropertyImage from '@assets/images/property.png';
 import PropertyWhiteImage from '@assets/images/property-white.png';
-import { ProperitiesCatagories, VehicleCatagories } from '@utils/Data';
+import { JordanCities, ProperitiesCatagories, VehicleCatagories, isInsideJordan } from '@utils/Data';
 import CustomInputDiv from '@components/CustomInputDiv';
 import { createProperty, uploadFiles } from '@utils/api';
 import HeaderPopup from '@components/popups/HeaderPopup';
+import { getOptimizedAttachedFiles } from '@utils/Logic';
+import ReCAPTCHA from 'react-google-recaptcha';
+import { Context } from '@utils/Context';
+import NotFound from '@components/NotFound';
 
 const page = () => {
+
+    const { 
+        userId, setIsMap, setMapType,
+        latitude, setLatitude,
+        longitude, setLongitude
+    } = useContext(Context);
 
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/mp4', 'video/avi'];
     const inputFilesRef = useRef();
@@ -24,6 +34,7 @@ const page = () => {
     const [cityPopup, setCityPopup] = useState(false);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [mapUsed, setMapUsed] = useState(false);
 
     const [specificCatagory, setSpecificCatagory] = useState('-1');
     const [itemTitle, setItemTitle] = useState('');
@@ -33,6 +44,8 @@ const page = () => {
     const [itemPrice, setItemPrice] = useState(0);
     const [requireInsurance, setRequireInsurance] = useState(false);
     const [attachedFilesUrls, setAttachedFilesUrls] = useState([]);
+    const [itemLong, setItemLong] = useState(null);
+    const [itemLat, setItemLat] = useState(null);
 
     const [guestRoomsDetailArray, setGuestRoomsDetailArray] = useState([]);
     const [companionsDetailArray, setCompanionsDetailArray] = useState([]);
@@ -104,13 +117,19 @@ const page = () => {
         }
 
         if(!itemNeighbour || typeof itemNeighbour !== 'string' || itemNeighbour.length > 100){
-            setItemNeighbour('-1');
-            errorEncountered = true;
+            setItemNeighbour('');
         }
         
         if(!itemPrice || typeof itemPrice !== 'number' || itemPrice <= 0 || itemPrice > 10000000000000){
             setItemPrice(-1);
             errorEncountered = true;
+        }
+
+        if(itemLong || itemLat){
+            if(!isInsideJordan(itemLong, itemLat)){
+                setError('خطأ في بيانات الموقع, الرجاء تحديد موقع صالح عللا الخريطة');
+                errorEncountered = true;
+            }
         }
 
         if(errorEncountered === true){
@@ -122,39 +141,42 @@ const page = () => {
             return;
         }
 
-        //attached file, atleast one
-        if(attachedFilesUrls.length <= 0){
-            attahcedFilesError = true;
-            errorEncountered = true;
-        }
-
-        //check for valid details
-        if((selectedCatagories === '1' && (guestRoomsDetailArray.length + companionsDetailArray.length 
-            + bathroomsDetailArray.length + kitchenDetailArray.length
-            + roomsDetailArray.length + conditionsAndTerms.length) < 2)
-            || (selectedCatagories === '0' && (vehicleSpecifications.length + vehicleFeatures.length) < 2)
-            ){
-            setError(attahcedFilesError ? 'أضف صور و فيديوهات تعبر عن المعروض و أضف على الأقل تفيصلتان في خانة التفاصيل.' : 'أضف على الأقل تفيصلتان في خانة التفاصيل.');
-            errorEncountered = true;
-        } else {
-            if(attahcedFilesError === true) setError('أضف صور و فيديوهات تعبر عن المعروض.');
-        }
-
-        if(errorEncountered === true) {
-            if(attachImagesDivRef.current){
-                window.scrollTo({
-                    top: window.scrollY + attachImagesDivRef.current.getBoundingClientRect().top, behavior: 'smooth'
-                });
-            }
-            setSuccess(false);
-            return;
-        };
-
-        setLoading(true);
-
-        //optimise files
-
         try {
+
+            setLoading(true);
+
+            const optimizedFiles = await getOptimizedAttachedFiles(attachedFilesUrls);
+
+            setAttachedFilesUrls(optimizedFiles.optArr);
+
+            //attached file, atleast one
+            if(optimizedFiles.optArr.length <= 0){
+                attahcedFilesError = true;
+                errorEncountered = true;
+            }
+
+            //check for valid details
+            if((selectedCatagories === '1' && (guestRoomsDetailArray.length + companionsDetailArray.length 
+                + bathroomsDetailArray.length + kitchenDetailArray.length
+                + roomsDetailArray.length + conditionsAndTerms.length) < 2)
+                || (selectedCatagories === '0' && (vehicleSpecifications.length + vehicleFeatures.length) < 2)
+                ){
+                setError(attahcedFilesError ? 'أضف صور و فيديوهات تعبر عن المعروض و أضف على الأقل تفيصلتان في خانة التفاصيل.' : 'أضف على الأقل تفيصلتان في خانة التفاصيل.');
+                errorEncountered = true;
+            } else {
+                if(attahcedFilesError === true) setError('أضف صور و فيديوهات تعبر عن المعروض.');
+            }
+
+            if(errorEncountered === true) {
+                if(attachImagesDivRef.current){
+                    window.scrollTo({
+                        top: window.scrollY + attachImagesDivRef.current.getBoundingClientRect().top, behavior: 'smooth'
+                    });
+                }
+                setSuccess(false);
+                setLoading(false);
+                return;
+            };
 
             /*  create property or vehicle instance then 
                 upload images with the id of the created instance  */
@@ -174,7 +196,7 @@ const page = () => {
             const res = await createProperty(
                 selectedCatagories === '0' ? true : false, 
                 specificCatagory, itemTitle, itemDesc, 
-                itemCity.value, itemNeighbour, null, itemPrice, 
+                itemCity.value, itemNeighbour, [itemLong, itemLat], itemPrice, 
                 xDetails, conditionsAndTerms);
 
             console.log('res: ', res);    
@@ -186,7 +208,7 @@ const page = () => {
                 return;
             }
 
-            const uploadFilesRes = await uploadFiles(attachedFilesUrls, 'property', res.dt.id);
+            const uploadFilesRes = await uploadFiles(optimizedFiles.optArr, 'property', res.dt.id);
 
             console.log('upload res: ', uploadFilesRes);
 
@@ -209,13 +231,42 @@ const page = () => {
 
     };
 
+    const showMap = () => {
+        setIsMap(true);            
+        if(mapUsed === false || !itemLong || !itemLat || !JordanCities || JordanCities.length <= 0){
+            const obj = JordanCities.find(i => i.city_id === itemCity?.city_id);
+            setLatitude(obj?.lat ? obj.lat : null);
+            setLongitude(obj?.long ? obj.long : null);
+        }
+        setMapUsed(true);
+        setMapType('select-point');
+    };
+
     useEffect(() => {
         setSpecificCatagory('-1');
     }, [selectedCatagories]);
 
     useEffect(() => {
+        if(mapUsed === true){
+            setItemLong(longitude);
+            setItemLat(latitude);
+        }
+    }, [longitude, latitude]);
+
+    useEffect(() => {
+        console.log('city changed');
+        setMapUsed(false);
+    }, [itemCity]);
+
+    useEffect(() => {
         console.log(guestRoomsDetailArray);
     }, [guestRoomsDetailArray]);
+
+    if(!userId?.length > 0){
+        return (
+            <NotFound type={'not allowed'}/>
+        )
+    }
 
   return (
     <div className='add'>
@@ -256,7 +307,8 @@ const page = () => {
                 <CustomInputDiv title={'الحي'} listener={(e) => setItemNeighbour(e.target.value)} type={'text'}/>
             </div>
 
-            <div className='googleMapDiv'>
+            <div className='googleMapDiv' onClick={showMap}>
+                <span>تحديد الموقع باستخدام الخريطة</span>
                 <Image src={GoogleMapImage}/>
             </div>
 
@@ -348,6 +400,8 @@ const page = () => {
                 <h4>- قم بإِضافة صور واضحة و معبرة</h4>
 
                 <h4>- أضف أكبر قدر من المعلومات في خانة التفاصيل</h4>
+
+                <ReCAPTCHA sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}/>
 
                 <label id='error2' style={{ padding: error.length <= 0 && 0, margin: error.length <= 0 && 0 }}>{error}</label>
                 

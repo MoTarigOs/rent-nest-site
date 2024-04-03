@@ -5,24 +5,28 @@ import Svgs from "@utils/Svgs";
 import '@app/properties/Properties.css';
 import { useContext, useEffect, useState } from "react";
 import { Context } from "@utils/Context";
-import { getProperties } from "@utils/api";
+import { getLocation, getProperties } from "@utils/api";
 import { maximumPrice, minimumPrice } from "@utils/Data";
 import { arrangeArray } from "@utils/Logic";
+import MySkeleton from "@components/MySkeleton";
+import NotFound from "@components/NotFound";
 
 const page = () => {
 
+    const [runOnce, setRunOnce] = useState(false);
     const [fetching, setFetching] = useState(false);
     const [properitiesArray, setProperitiesArray] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [indexSlide, setIndexSlide] = useState(0);
     const [pagesNumber, setPagesNumber] = useState(1);
     const [skip, setSkip] = useState(0);
-    const cardsPerPage = 4;
+    const cardsPerPage = 24;
 
     const { 
         currentMinPrice, currentMaxPrice, city, catagory, 
         ratingScore, triggerFetch, searchText, 
-        arrangeValue, setArrangeValue
+        arrangeValue, calendarDoubleValue, 
+        isCalendarValue,
     } = useContext(Context);
 
     const handleArrowPagesNav = (isPrev) => {
@@ -40,12 +44,20 @@ const page = () => {
         try {
 
             setFetching(true);
+
+            let addressLong, addressLat;
+
+            if(arrangeValue === 'address'){
+                const loc = await getLocation();
+                addressLong = loc.long;
+                addressLat = loc.lat;
+            };
             
             const res = await getProperties(
                 city.value, true, catagory, 
                 (currentMinPrice !== minimumPrice || currentMaxPrice !== maximumPrice) 
                     ? `${currentMinPrice},${currentMaxPrice}` : null,
-                ratingScore, searchText, null, skip    
+                ratingScore, searchText, arrangeValue, addressLong, addressLat, skip    
             );
 
             if(res.success !== true) {
@@ -53,11 +65,27 @@ const page = () => {
                 return;
             };
 
-            setProperitiesArray(res.dt);
+            let arr = [];
 
-            setCurrentPage(1);
+            if(isCalendarValue && calendarDoubleValue){
+                for (let i = 0; i < res.dt.length; i++) {
+                    if(isOkayBookDays(calendarDoubleValue, res.dt?.at(i)?.booked_days))
+                        arr.push(res.dt[i]);
+                }
+            };
+
+            if(skip > 0){
+                setProperitiesArray([...properitiesArray, ...((isCalendarValue && calendarDoubleValue) ? arr : res.dt)]);
+            } else { 
+                setProperitiesArray(((isCalendarValue && calendarDoubleValue) ? arr : res.dt));
+            }
+
+            console.log('arr: ', (isCalendarValue && calendarDoubleValue), arr);
 
             setFetching(false);
+
+            if(isCalendarValue && skip === 0 && res.dt.length === 300 && arr.length <= 50)
+                setSkip(skip + 1);
 
         } catch (err) {
             console.log(err);
@@ -66,8 +94,12 @@ const page = () => {
     };
 
     useEffect(() => {
-        settingPropertiesArray();
+        setRunOnce(true);
     }, []);
+
+    useEffect(() => {
+        if(runOnce) settingPropertiesArray();
+    }, [runOnce]);
 
     useEffect(() => {
         if(currentPage > pagesNumber) setCurrentPage(pagesNumber);
@@ -85,22 +117,23 @@ const page = () => {
     }, [properitiesArray]);
 
     useEffect(() => {
-        settingPropertiesArray();
+        if(runOnce) settingPropertiesArray();
     }, [triggerFetch]);
 
     useEffect(() => {
-        setProperitiesArray(arrangeArray(arrangeValue.toString(), properitiesArray));
+        if(runOnce) setProperitiesArray(arrangeArray(arrangeValue.toString(), properitiesArray));
     }, [arrangeValue]);
 
+    useEffect(() => {
+        console.log(skip);
+        if(runOnce) settingPropertiesArray();
+    }, [skip]);
 
     if(!properitiesArray || properitiesArray.length <= 0){
         return (
-            <div className="properitiesPage">
-                {fetching ? 'جاري تحميل العروض' : 'لم يتم ايجاد أي عروض'}
-            </div>
+            fetching ? <MySkeleton loadingType={'cards'}/> : <NotFound />
         )
     }
-
     
   return (
     <div className="properitiesPage">
@@ -164,8 +197,10 @@ const page = () => {
           <div onClick={() => handleArrowPagesNav(false)}><Svgs name={'dropdown arrow'}/></div>
 
         </div>
-
-        <button id="moreProperties" style={{ display: (currentPage === pagesNumber && pagesNumber * cardsPerPage >= 300) ? 'block' : 'none' }} onClick={() => setSkip(skip + 1)}>تحميل المزيد من المعروضات</button>
+        
+        <button id="moreProperties" style={{
+             display: currentPage === pagesNumber ? 'block' : 'none'
+        }} onClick={() => setSkip(skip + 1)}>تحميل المزيد من المعروضات</button>
 
     </div>
   )

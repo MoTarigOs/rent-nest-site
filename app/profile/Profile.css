@@ -4,8 +4,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: var(--headerHeight);
+    margin-top: var(--headerHeightMobile);
     padding: 16px;
+    overflow-y: hidden;
 
     .details{
         width: 100%;
@@ -68,7 +69,7 @@
             }
         }
         
-        .itemsOffered{
+        .items{
             width: 100%;
             display: flex;
             flex-wrap: wrap;
@@ -80,6 +81,551 @@
                 width: 299px;
             }
         }
+        
+        hr{
+            max-width: 480px;
+            margin: 32px 0;
+            border-color: rgba(82, 82, 82, 0.104);
+        }
+
+        .changePassword{
+            width: 100%;
+            max-width: 480px;
+
+            button{
+                width: fit-content;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background: transparent;
+                border: none;
+                margin-bottom: 32px;
+
+                svg{
+                    width: 16px;
+                    height: 16px;
+                    margin-right: 4px;
+                }
+            }
+        }
+
+        .profileDetails{
+            width: 100%;
+            max-width: 960px;
+
+            .verifyEmailDiv{
+                width: 100%;
+                max-width: 480px;
+                margin-top: 24px;
+                display: flex;
+                flex-direction: column;
+
+                p{
+                    color: var(--secondColor);
+                    margin-bottom: 24px;
+                    margin-top: 4px;
+                }
+
+                div{
+                    display: flex;
+                    height: 52px;
+                    width: 100%;
+                    gap: 12px;
+
+                    button{
+                        width: fit-content;
+                        margin: 0;
+                        border-radius: 2px;
+                        padding: 12px 24px;
+                    }
+
+                    .inputDiv{
+                        margin: 0;
+                    }
+                }
+            }
+
+            .changePass, .deleteAccountDiv{
+                width: 100%;
+                max-width: 480px;
+                margin-bottom: 32px;
+
+                .first-btn{
+                    margin-bottom: 4px;
+                }
+
+                .inputDiv{
+                    margin-bottom: 32px;
+                }
+            }
+
+            .deleteAccountDiv{
+                p{
+                    color: var(--softRed);
+                    font-size: 0.9rem;
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 12px;
+
+                    svg{
+                        width: 16px;
+                        height: 16px;
+                        margin-left: 8px;
+                        path{
+                            fill: var(--softRed);
+                            stroke-width: 0;
+                        }
+                    }
+                }
+
+                .verifyEmailDiv{
+                    button{
+                        margin-top: 32px;
+                    }
+                }
+                
+                #delete-account-info{
+                    color: var(--secondColor);
+                }
+
+                .delete-account-info-error{
+                    color: var(--softRed);
+                }
+
+                .btnbackscndclr{
+                    margin: 0;
+                    background: var(--softRed);
+                }
+
+                .btnbackscndclr:hover{
+                    background: rgb(255, 70, 70);
+                }
+            }
+
+            .edit-profile-details{
+                width: 100%;
+                max-width: 480px;
+
+                .edit-profile-header{
+                    width: 100%;
+                    display: flex;
+                    margin-bottom: 24px;
+                    
+                    h2{
+                        width: fit-content;
+                        margin-left: auto;
+                    }
+                }
+
+                .infodiv{
+                    margin-top: 16px;
+                }
+
+                .inputDiv{
+                    margin-top: 32px;
+                    margin-bottom: 0;
+                }
+
+                button{
+                    margin-top: 24px;
+                }
+
+                #edit-info-p{
+                    color: var(--secondColor);
+                    margin-top: 8px;
+                    display: flex;
+                    align-items: center;
+                    font-size: 0.96rem;
+
+                    svg{
+                        width: 16px;
+                        height: 16px;
+                        margin-left: 8px;
+
+                        path{
+                            stroke: transparent;
+                            fill: var(--secondColor);
+                        }
+                    }
+                }
+
+                .edit-info-p-error{
+                    color: var(--softRed);
+                    svg path{
+                        fill: var(--softRed);
+                    }
+                }
+            }
+        }
+
+        .signOut{
+            button{
+                font-size: 1rem;
+            }
+            p{
+                color: rgb(159, 159, 159);
+                margin-bottom: 12px;
+                display: flex;
+                align-items: center;
+                font-size: 0.9rem;
+
+                svg{
+                    width: 16px;
+                    height: 16px;
+                    margin-left: 4px;
+
+                    path{
+                        stroke: transparent;
+                        fill: rgb(159, 159, 159);
+                    }
+                }
+            }
+        }
+    }
+
+    .profileDetails{
+        width: 100%;
+        max-width: 960px;
+
+        .verifyEmailDiv{
+            width: 100%;
+            max-width: 480px;
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+
+            p{
+                color: var(--secondColor);
+                margin-bottom: 24px;
+                margin-top: 4px;
+            }
+
+            div{
+                display: flex;
+                height: 52px;
+                width: 100%;
+                gap: 12px;
+
+                button{
+                    width: fit-content;
+                    margin: 0;
+                    border-radius: 2px;
+                    padding: 12px 24px;
+                }
+
+                .inputDiv{
+                    margin: 0;
+                }
+            }
+        }
+
+        .changePass, .deleteAccountDiv{
+            width: 100%;
+            max-width: 480px;
+            margin-bottom: 32px;
+
+            .chngpassbtn{
+                svg{
+                    transform: rotate(180deg) translateY(-2px);
+                }
+            }
+
+            .first-btn{
+                margin-bottom: 4px;
+            }
+
+            .inputDiv{
+                margin-bottom: 32px;
+            }
+        }
+
+        .deleteAccountDiv{
+            p{
+                color: var(--softRed);
+                font-size: 0.9rem;
+                display: flex;
+                align-items: center;
+                margin-bottom: 12px;
+
+                svg{
+                    width: 16px;
+                    height: 16px;
+                    margin-left: 8px;
+                    path{
+                        fill: var(--softRed);
+                        stroke-width: 0;
+                    }
+                }
+            }
+
+            .verifyEmailDiv{
+                button{
+                    margin-top: 32px;
+                }
+            }
+            
+            #delete-account-info{
+                color: var(--secondColor);
+            }
+
+            .delete-account-info-error{
+                color: var(--softRed);
+            }
+
+            .btnbackscndclr{
+                margin: 0;
+                background: var(--softRed);
+            }
+
+            .btnbackscndclr:hover{
+                background: rgb(255, 70, 70);
+            }
+        }
+
+        .edit-profile-details{
+            width: 100%;
+            max-width: 480px;
+
+            .edit-profile-header{
+                width: 100%;
+                display: flex;
+                margin-bottom: 24px;
+                
+                h2{
+                    width: fit-content;
+                    margin-left: auto;
+                }
+            }
+
+            .infodiv{
+                margin-top: 16px;
+            }
+
+            .inputDiv{
+                margin-top: 32px;
+                margin-bottom: 0;
+            }
+
+            button{
+                margin-top: 24px;
+            }
+
+            #edit-info-p{
+                color: var(--secondColor);
+                margin-top: 8px;
+                display: flex;
+                align-items: center;
+                font-size: 0.96rem;
+
+                svg{
+                    width: 16px;
+                    height: 16px;
+                    margin-left: 8px;
+
+                    path{
+                        stroke: transparent;
+                        fill: var(--secondColor);
+                    }
+                }
+            }
+
+            .edit-info-p-error{
+                color: var(--softRed);
+                svg path{
+                    fill: var(--softRed);
+                }
+            }
+        }
+    }
+    
+    .btnbackscndclr{
+        width: 100%;
+        padding: 12px;
+        background: var(--secondColor);
+        color: white;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.2s ease-out;
+    }
+
+    .btnbackscndclr:hover{
+        background: var(--secondColorHover);
+        transition: all 0.2s ease-in;
+    }
+
+    .editDiv{
+        width: fit-content;
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        border: 2px solid rgba(0, 0, 0, 0.129);
+        border-radius: 8px;
+        cursor: pointer;
+
+        svg{
+            width: 24px;
+            height: 24px;
+            margin-right: 2px;
+        }
+    }
+
+    .editDiv:hover{
+        background: rgba(0, 0, 0, 0.126);
+    }
+
+    .chngpassbtn{
+        svg{
+            transform: rotate(180deg) translateY(-2px);
+        }
+    }
+
+    #p-info{
+        color: var(--secondColor);
+        margin-top: 6px;
+    }
+
+    #p-info-error{
+        color: var(--softRed);
+    }
+}
+
+.user-profile{
+    align-items: start;
+    overflow: hidden;
+
+    .profileDetails{
+        max-width: 480px;
+        align-items: start;
+
+        .items{
+            width: 100vw;
+            max-width: 1300px;
+
+            ul{
+                width: fit-content;
+                overflow-x: scroll;
+                width: 100%;
+                display: flex;
+                margin-top: 24px;
+                padding: 8px;
+                list-style: none;
+                border-radius: 12px;
+                box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.163);
+    
+                li{
+                    margin-left: 24px;
+                    
+                    .card{
+                        width: 299px;
+                        margin-bottom: 10px;
+    
+                        &:hover{
+                            scale: 1;
+                        }
+                    }
+                }
+    
+                .empty-holder{
+                    width: 260px;
+                    height: 260px;
+    
+                    img{
+                        width: 100%;
+                        height: 100%;
+                    }
+                }
+            }
+        }
+
+        .verifyEmailDiv{
+
+            p{
+                margin: 12px 0;
+            }
+
+            button{
+                margin: 0;
+            }
+
+            .inputDiv{
+                margin-bottom: 24px;
+            }
+        }
+
+        h2{
+            margin-bottom: 32px;
+            font-weight: 400;
+
+            span{
+                margin-right: 4px;
+                text-decoration: underline;
+            }
+        }
+    
+        .infodiv{
+            margin-bottom: 24px;
+        }
+
+        .block-user{
+            margin-top: 32px;
+            position: relative;
+
+            .infodiv h3{
+                font-size: 1rem;
+                color: rgb(87, 87, 87);
+            }
+
+            #select-duration{
+                width: fit-content;
+                padding: 16px;
+                display: block;
+                background: var(--darkWhite);
+                margin-bottom: 24px;
+                cursor: pointer;
+
+                span{
+                    font-size: 500;
+                    font-size: 1.1rem;
+                    margin-right: 8px;
+                    text-decoration: underline;
+                }
+            }
+
+            .cityPopup{
+                height: fit-content;
+                top: 64px;
+                right: 0;
+                z-index: 12;
+            }
+
+            p{
+                color: var(--secondColor);
+                display: flex;
+                align-items: center;
+                margin-top: 4px;
+            }
+        }
+    }
+
+    #closePopubs{
+        position: fixed;
+        top: 0;
+        left: calc(50% - 50vw);
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.688);
+        z-index: 11;
+    }
+
+    hr{
+        margin: 32px 0;
+        border-color: rgba(0, 0, 0, 0.133);
+    }
+
+    .deleteAccountDiv{
+        flex-direction: column;
     }
 }
 

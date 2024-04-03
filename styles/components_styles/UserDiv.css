@@ -1,0 +1,29 @@
+
+.userDiv{
+    width: fit-content;
+    border: 2px solid var(--darkWhite);
+    padding: 12px;
+    cursor: pointer;
+
+    .infodiv{
+        cursor: pointer;
+        margin-bottom: 16px;
+
+        h3{
+            white-space: nowrap;
+        }
+    }
+
+    label{
+        cursor: pointer;
+    }
+
+    input{
+        height: fit-content;
+        word-wrap: break-word;
+    }
+}
+
+.userDiv:hover{
+    background: var(--darkWhite);
+}

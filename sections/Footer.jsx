@@ -1,8 +1,11 @@
+'use client'
+
 import '@styles/Footer.css';
 import Image from 'next/image';
 import LogoImage from '@assets/icons/rentnext-logo.png';
 import FacebookImage from '@assets/icons/facebook-icon.svg';
 import Link from 'next/link';
+import { sendTest } from '@utils/api';
 
 const Footer = () => {
   return (
@@ -11,7 +14,7 @@ const Footer = () => {
       <div className="topOfFooter">
 
         <div className='logo'>
-          <Image src={LogoImage} alt='Rent Next logo'/>
+          <Image src={LogoImage} loading='eager' alt='Rent Next logo'/>
         </div>
 
         <ul>
@@ -31,10 +34,11 @@ const Footer = () => {
         <h4>Rent Nest 2024</h4>
         
         <ul>
-          <li><Link href={''}><Image src={FacebookImage} alt='facebook icon'/></Link></li>
-          <li><Link href={''}><Image src={FacebookImage} alt='facebook icon'/></Link></li>
-          <li><Link href={''}><Image src={FacebookImage} alt='facebook icon'/></Link></li>
-          <li><Link href={''}><Image src={FacebookImage} alt='facebook icon'/></Link></li>
+          <li onClick={() => sendTest()}><Image src={FacebookImage} loading='eager' alt='facebook icon'/></li>
+          <li><Link href={'/'}><Image src={FacebookImage} loading='eager' alt='facebook icon'/></Link></li>
+          <li><Link href={'/'}><Image src={FacebookImage} loading='eager' alt='facebook icon'/></Link></li>
+          <li><Link href={'/'}><Image src={FacebookImage} loading='eager' alt='facebook icon'/></Link></li>
+          <li><Link href={'/'}><Image src={FacebookImage} loading='eager' alt='facebook icon'/></Link></li>
         </ul>
 
       </div>

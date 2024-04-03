@@ -1,41 +1,16 @@
 .cityPopup{
     width: 320px;
     height: 400px;
-    background: white;
     box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.164);
     position: absolute;
     display: flex;
     flex-direction: column;
     top: 100%;
     right: -60px;
+    padding: 0;
     overflow: hidden;
+    background: white;
     border-radius: 12px;
-
-    .cityPopupSearchDiv{
-        width: 100%;
-        padding: 16px;
-        display: flex;
-        align-items: center;
-        border-bottom: 2px solid var(--darkWhite);
-
-        svg{
-            width: 14px;
-            height: 14px;
-
-            path{
-                stroke: b;
-                fill: b;
-            }
-        }
-
-        input{
-            width: 100%;
-            margin-right: 16px;
-            font-size: 1.1rem;
-            border: none;
-            outline: none;
-        }
-    }
 
     ul{
         width: 100%;
@@ -44,6 +19,7 @@
         overflow-x: hidden;
         display: flex;
         flex-direction: column;
+        padding: 0;
         list-style: none;
 
         li{
@@ -63,7 +39,8 @@
 
 .catagoryPopup{
     width: 320px;
-    height: 400px;
+    height: fit-content;
+    max-height: 420px;
     display: flex;
     flex-direction: column;
     position: absolute;
@@ -79,6 +56,7 @@
         display: flex;
         flex-direction: column;
         list-style: none;
+        height: 100%;
         overflow-y: scroll;
         overflow-x: hidden;
         height: 100%;
@@ -115,20 +93,6 @@
         li:hover{
             background: var(--darkWhite);
         }
-    }
-
-    button{
-        width: 100%;
-        border: none;
-        background: var(--darkWhite);
-        padding: 12px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-    button:hover{
-        background: var(--darkWhiteHover);
     }
 }
 

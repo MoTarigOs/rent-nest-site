@@ -1,0 +1,218 @@
+.mobileFilter{
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding-top: 30%;
+    overflow-y: scroll;
+    z-index: 120;
+
+    #close-span{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.677);
+        z-index: -1;
+    }
+
+    .filter-content{
+        width: 100%;
+        height: fit-content;
+        background: white;
+        border-top-left-radius: 24px;
+        border-top-right-radius: 24px;
+        padding: 16px 32px 32px 32px;
+
+        #mobile-filter-header{
+            width: 100%;
+            height: 4px;
+            margin-bottom: 44px;
+            position: relative;
+
+            &::after{
+                position: absolute;
+                content: '';
+                width: 78px;
+                height: 6px;
+                top: 0;
+                left: calc(50% - 39px);
+                border-radius: 4px;
+                background: rgb(97, 97, 97);
+            }
+        }
+
+        #close-popups{
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        hr{
+            margin: 32px 0;
+            opacity: 0.3;
+        }
+
+        .city-div-filter{
+            width: 100%;
+            position: relative;
+
+            .inputDiv{
+
+                input{
+                    border-radius: 8px;
+                    cursor: pointer;    
+                }
+                
+                &:hover{
+                    border-color: var(--secondColorHover);
+
+                    span{
+                        color: var(--secondColorHover);
+                    }
+                }
+            }
+
+            .cityPopup{
+                position: absolute;
+                top: 110%;
+                right: 0;
+                left: unset;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                z-index: 3;
+            }
+        }
+
+        h2{
+            color: var(--secondColor);
+            margin-bottom: 32px;
+        }
+
+        .selectCatagory{
+            display: flex;
+            gap: 24px;
+            margin-bottom: 48px;
+            width: 100%;
+
+            li{
+                width: 100%;
+                max-width: 160px;
+                height: 140px;
+                min-height: 140px;
+                max-height: 140px;
+
+                img{
+                    width: 100%;
+                    height: 85px;
+                }
+            }
+        }
+
+        .catagory{
+            width: 100%;
+            margin-top: 32px;
+
+            ul{
+                width: 100%;
+                display: flex;
+                flex-wrap: wrap;
+                list-style: none;
+                gap: 8px;
+
+                li{
+                    padding: 4px 8px;
+                    cursor: pointer;
+                    border: 2px solid black;
+                    opacity: 0.3;
+                    transition: all 0.3s ease-out;
+                }
+
+                li:hover{
+                    opacity: 0.7;
+                    transition: all 0.3s ease-in;
+                }
+
+                .selectedCatagory{
+                    opacity: 1;
+                    background: var(--secondColor);
+                    color: white;
+                    border-color: transparent;
+                }
+            }
+        }
+
+        .book-date{
+            position: relative;
+            display: flex;
+            gap: 24px;
+
+            .calendar-div{
+                border: 2px solid rgb(242, 242, 242);
+                box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.137);
+                background: white;
+                padding: 8px;
+                border-radius: 12px;
+                position: absolute;
+                bottom: 110%;
+                left: 0;
+                width: 100%;
+                z-index: 3;
+                height: fit-content;
+            }
+
+            .bookingDate{
+                color: grey;
+                cursor: pointer;
+                font-size: 0.9rem;
+
+                h3{
+                    color: var(--secondColorDark);
+                    margin-top: 4px;
+                    font-weight: 500;
+                    font-size: 0.96rem;
+                }
+            }
+        }
+
+        .mobile-filter-buttons{
+            width: 100%;
+            display: flex;
+            gap: 16px;
+
+            a{
+                width: 100%;
+                background: var(--secondColor);
+                color: white;
+                padding: 16px 24px;
+                text-align: center;
+                text-decoration: none;
+                border-radius: 8px;
+                font-size: 1.2rem;
+                font-weight: 500;
+                transition: all 0.2s ease-out;
+                z-index: 3;
+            }
+
+            #skip-filter{
+                background: var(--darkWhite);
+                color: grey;
+            }
+
+            a:hover{
+                opacity: 0.7;
+                transition: all 0.2s ease-in;
+            }
+        }
+    }
+
+    &::-webkit-scrollbar{
+        display: none;
+    }
+}

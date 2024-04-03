@@ -17,7 +17,7 @@ const CustomInputDiv = ({ isTextArea, type, settingFocused, isCity, listener, va
         type={type ? (type === 'password' ? (passwordTypeShow ? 'text' : 'password') : type) : 'text'} onChange={listener} style={{ borderColor: isError && 'var(--softRed)'}}/>
         : <textarea onChange={listener} style={{ borderColor: isError && 'var(--softRed)'}}/>}
       <span style={{ color: isError && 'var(--softRed)' }}>{title}</span>
-      {deletable && <Svgs name={'wishlist'} on_click={handleDelete}/>}
+      {deletable && <Svgs name={'delete'} on_click={handleDelete}/>}
       {type === 'password' && <div id="show-password">
         <Svgs name={'show password'} on_click={() => setPasswordTypeShow(!passwordTypeShow)}/>
         <span style={{ display: !passwordTypeShow && 'none' }}/>

@@ -17,7 +17,7 @@
     --darkWhiteHover: #d7d7d7;
     --softRed: rgb(255, 113, 130);
     --headerHeight: 172px;
-    --headerHeightMobile: 84px;
+    --headerHeightMobile: 76px;
 }
 
 body{
@@ -25,12 +25,13 @@ body{
 }
 
 .main {
-    width: 100vw;
+    width: 100%;
     height: fit-content;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow: hidden;
     
     main {
         width: 100%;
@@ -38,7 +39,6 @@ body{
         flex-direction: column;
         align-items: center;
         min-height: 100vh;
-        overflow-x: hidden;
 
         .home{
             width: 100%;

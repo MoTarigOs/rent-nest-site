@@ -7,45 +7,81 @@ import GoogleMapImage from '@assets/images/google-map-image.jpg';
 import Image from "next/image";
 import LocationGif from '@assets/icons/location.gif';
 import Svgs from '@utils/Svgs';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import ReviewCard from '@components/ReviewCard';
 import HeaderPopup from '@components/popups/HeaderPopup';
 import { useSearchParams } from 'next/navigation';
-import { fetchPropertyDetails } from '@utils/api';
+import { deleteFiles, deletePropFilesAdmin, deleteReviewsAdmin, deleteSpecificPropFilesAdmin, fetchPropertyDetails, handleBooksAddRemove, handleFavourite, handlePropAdmin, makeReport, sendReview } from '@utils/api';
+import CustomInputDiv from '@components/CustomInputDiv';
+import { Context } from '@utils/Context';
+import { getNumOfBookDays, getReadableDate, isOkayBookDays } from '@utils/Logic';
+import MySkeleton from '@components/MySkeleton';
+import NotFound from '@components/NotFound';
 
 const page = () => {
 
+  const { 
+    favouritesIds, setFavouritesIds, booksIds, 
+    setBooksIds, userId, userRole, setIsMap, 
+    setMapType, setLatitude, setLongitude,
+    calendarDoubleValue, setCalendarDoubleValue,
+    isCalendarValue, setIsCalendarValue
+  } = useContext(Context);
+
   const [loading, setLoading] = useState(false);
+  const [canBook, setCanBook] = useState(false);
   const [runOnce, setRunOnce] = useState(false);
   const [item, setItem] = useState(null);
   const [isVideosFiles, setIsVideosFiles] = useState(false);
+  const [imageFullScreen, setImageFullScreen] = useState('-1');
+  const [shareDiv, setShareDiv] = useState(false);
+
+  const [adminSending, setAdminSending] = useState(false);
+  const [adminType, setAdminType] = useState('pass-property');
+  const [adminError, setAdminError] = useState('');
+  const [adminSuccess, setAdminSuccess] = useState('');
+  
+  const [filesToDeleteAdmin, setFilesToDeleteAdmin] = useState([]);
+  const [deletingFiles, setDeletingFiles] = useState(false);
+  const [isDeleteFiles, setIsDeleteFiles] = useState(false);
+  const [deleteFilesError, setDeleteFilesError] = useState('');
+  const [deleteFilesSuccess, setDeleteFilesSuccess] = useState('');
+
+  const [revsToDeleteAdmin, setRevsToDeleteAdmin] = useState([]);
+  const [deletingRevs, setDeletingRevs] = useState(false);
+  const [isDeleteRevs, setIsDeleteRevs] = useState(false);
+  const [deleteRevsError, setDeleteRevsError] = useState('');
+  const [deleteRevsSuccess, setDeleteRevsSuccess] = useState('');
 
   const [reviewsNumber, setReviewsNumber] = useState(1);
   const [isCalendar, setIsCalendar] = useState(false);
-  const [bookDate, setBookDate] = useState([new Date, new Date]);
+  const [bookDate, setBookDate] = useState(calendarDoubleValue);
   const [isSpecifics, setIsSpecifics] = useState(true);
   const [isReviews, setIsReviews] = useState(false);
-  const [isMap, setIsMap] = useState(false);
+  const [isMap, setIsMapDiv] = useState(false);
   const [isTerms, setIsTerms] = useState(false);
+
+  const [sendingReview, setSendingReview] = useState(false);
+  const [sendReviewError, setSendReviewError] = useState('');
+  const [sendReviewSuccess, setSendReviewSuccess] = useState('');
+  const [scoreRate, setScoreRate] = useState(null);
+  const [reviewText, setReviewText] = useState('');
+
+  const [reportDiv, setReportDiv] = useState(false);
+  const [writerId, setWriterId] = useState('');
+  const [reportText, setReportText] = useState('');
+  const [reporting, setReporting] = useState(false);
+
+  const [addingToFavs, setAddingToFavs] = useState(false);
+  const [addingToBooks, setAddingToBooks] = useState(false);
+
   const id = useSearchParams().get('id');
-
-  function getNumOfBookDays (){
-  
-    if(!bookDate || !bookDate[0] || !bookDate[1] || bookDate[0] === bookDate[1]) return 1;
-
-    const x = Math.ceil((bookDate[1].getTime() - bookDate[0].getTime()) / (1000 * 60 * 60 * 24)) - 1;
-
-    if(x > 1) return x;
-    
-    return 1;
-
-  };
 
   async function fetchItemDetails () {
 
     try {
 
-      if(!id || id.length < 10) return;
+      if(!id || id.length < 10 || loading) return;
 
       setLoading(true);
 
@@ -67,35 +103,452 @@ const page = () => {
 
   };
 
+  const writeReview = async() => {
+
+    try {
+
+      if(!id || id.length <= 10 || !userId || userId.length <= 10) return;
+
+      if(!scoreRate || typeof scoreRate !== 'number') {
+        setSendReviewError('من فضلك اختر تقييما للعرض');
+        setSendReviewSuccess('');
+        return;
+      }
+
+      if(!reviewText){
+        setSendReviewError('اكتب شرحا عن لماذا اخترت هذا التقييم');
+        setSendReviewSuccess('');
+        return;
+      }
+
+      console.log('score: ', scoreRate, ' typeof: ', typeof scoreRate, ' text ', reviewText);
+
+      setSendingReview(true);
+
+      const res = await sendReview(scoreRate, reviewText, id);
+
+      if(res.success !== true) {
+        setSendReviewError(res.dt);
+        setSendReviewSuccess('');
+        setSendingReview(false);
+        return;
+      };
+
+      setSendReviewError('');
+      setSendReviewSuccess('تم اضافة المراجعة بنجاح');
+      setSendingReview(false);
+      
+    } catch (err) {
+      console.log(err.message);
+      setSendReviewError(err,message);
+      setSendReviewSuccess('');
+      setSendingReview(false);
+    }
+
+  };
+
+  const report = async(writerId) => {
+
+    try {
+
+      if(!reportText || reportText.length <= 0) return setReportText('-1');
+
+      setReporting(true);
+
+      const res = await makeReport(
+        reportText, id, writerId
+      );
+
+      console.log(res);
+
+      setReporting(false);
+      
+    } catch (err) {
+      console.log(err.message);
+    }
+
+  };
+
+  const handleFav = async() => {
+
+    try {
+
+      if(!userId || userId.length <= 10) return;
+
+      setAddingToFavs(true);
+
+      const res = await handleFavourite(id, favouritesIds.includes(id));
+
+      console.log(res);
+
+      if(res.success === true && res.dt){
+        setFavouritesIds(res.dt);
+      }
+
+      setAddingToFavs(false);
+      
+    } catch (err) {
+      console.log(err.message);
+      setAddingToFavs(false);
+    }
+
+  };
+
+  const handleBook = async() => {
+
+    try {
+
+      if(!userId || userId.length <= 10 || userId === item.owner_id || !canBook) return;
+
+      setAddingToBooks(true);
+
+      const res = await handleBooksAddRemove(
+        id, 
+        booksIds.find(i => i.property_id === id) ? true : false, 
+        bookDate[0].getTime(), 
+        bookDate[1].getTime()
+      );
+
+      console.log(res);
+
+      if(res.success === true && res.dt){
+        setBooksIds(res.dt);
+      }
+
+      setAddingToBooks(false);
+      
+    } catch (err) {
+      console.log(err.message);
+      setAddingToBooks(false);
+    }
+
+    
+  };
+
+  const getShareUrl = () => {
+    return window.location.origin.toString() + '/view/item?id=' + id;
+  };
+
+  const sendAdmin = async() => {
+
+    try {
+
+      if(adminSending) return;
+
+      if(adminType === 'show-property' && item.visible) return;
+      if(adminType === 'hide-property' && !item.visible) return;
+      if(adminType === 'pass-property' && item.checked) return;
+      if(adminType === 'delete-property' && !item) return;
+
+      setAdminSending(true);
+
+      if(adminType === 'delete-property'){
+        const deleteFilesRes = await deletePropFilesAdmin(id);
+        if (deleteFilesRes.success !== true) {
+          setAdminError(deleteFilesRes.dt);
+          setAdminSuccess('');
+          setAdminSending(false);
+          return;
+        }
+      } else {
+        setAdminError('');
+        setAdminSuccess('');
+      };
+      
+      console.log('admin send reached, sending: ', adminSending, ' type: ', adminType);
+
+      const res = await handlePropAdmin(id, adminType);
+
+      console.log('res: ', res);
+
+      if(res.success !== true) {
+        setAdminError(res.dt);
+        setAdminSuccess('');
+        setAdminSending(false);
+        return;
+      }
+
+      setAdminError('');
+      setAdminSuccess('تم التحديث بنجاح');
+      if(adminType === 'pass-property') setItem(res.dt);
+
+      if(adminType === 'hide-property') {
+        setItem(res.dt);
+        setAdminType('show-property');
+      };
+
+      if(adminType === 'show-property') {
+        setItem(res.dt);
+        setAdminType('hide-property');
+      };
+
+      if(adminType === 'delete-property') setTimeout(() => { setItem(null) }, [5000]);
+      setAdminSending(false);
+      
+    } catch (err) {
+      console.log(err.message);
+      setAdminError('حدث خطأ ما');
+      setAdminSuccess('');
+      setAdminSending(false);
+    }
+
+  };
+
+  const handleDeleteFilesAdmin = async() => {
+
+    try {
+
+      if(deletingFiles) return;
+
+      setDeletingFiles(true);
+
+      const res = await deleteSpecificPropFilesAdmin(id, filesToDeleteAdmin);
+
+      if(res.success !== true) {
+        setDeleteFilesError(res.dt);
+        setDeleteFilesSuccess('');
+        setDeletingFiles(false);
+        return;
+      }
+
+      setDeleteFilesError('');
+      setDeleteFilesSuccess('تم الحذف بنجاح');
+      setDeletingFiles(false);
+      
+    } catch (err) {
+      console.log(err.message);
+      setDeleteFilesError('حدث خطأ');
+      setDeleteFilesSuccess('');
+      setDeletingFiles(false);
+    }
+
+  };
+
+  const handleDeleteRevsAdmin = async() => {
+
+    try {
+
+      if(deletingRevs) return;
+
+      setDeletingRevs(true);
+
+      const res = await deleteReviewsAdmin(id, revsToDeleteAdmin);
+
+      if(res.success !== true) {
+        setDeleteRevsError(res.dt);
+        setDeleteRevsSuccess('');
+        setDeletingRevs(false);
+        return;
+      }
+
+      setDeleteRevsError('');
+      setDeleteRevsSuccess('تم الحذف بنجاح');
+      setItem(res.dt);
+      setDeletingRevs(false);
+      
+    } catch (err) {
+      console.log(err.message);
+      setDeleteRevsError('حدث خطأ');
+      setDeleteRevsSuccess('');
+      setDeletingRevs(false);
+    }
+
+  };
+
+  const isAdmin = () => {
+    if(userRole === 'admin' || userRole === 'owner'){
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  const showMap = () => {
+
+    setIsMap(true);  
+    
+    const obj = JordanCities.find(i => i.city_id === item?.city_id);
+
+    if(item?.map_coordinates?.at(1)){
+      setLatitude(item.map_coordinates[1]);
+    } else {
+      setLatitude(obj?.lat ? obj.lat : null);
+    }
+
+    if(item?.map_coordinates?.at(0)){
+      setLongitude(item.map_coordinates[0]);
+    } else {
+      setLongitude(obj?.long ? obj.long : null);
+    }
+
+    setMapType('view');
+
+  };
+
+  const isAbleToBook = () => {
+    if(!item?.is_able_to_book) return false;
+    if(!isOkayBookDays(calendarDoubleValue, item.booked_days)) return false;
+    return true;
+  };
+
   useEffect(() => {
     setRunOnce(true);
+    setAdminSending(false);
+    setCanBook(isAbleToBook());
   }, []);
 
   useEffect(() => {
-    if(runOnce === true) fetchItemDetails();
+    setCanBook(isAbleToBook());
+  }, [item]);
+
+  useEffect(() => {
+    if(runOnce === true) {
+      fetchItemDetails();
+      const obj = booksIds.find(i => i.property_id === id);
+      if(obj && obj.date_of_book_start > Date.now()){
+        setBookDate([
+          new Date(obj.date_of_book_start),
+          new Date(obj.date_of_book_end)
+        ]);
+      }
+    }
   }, [runOnce]);
 
+  useEffect(() => {
+    if(calendarDoubleValue?.at(1)?.getTime() - calendarDoubleValue?.at(0)?.getTime() < 80000000)
+      setBookDate([new Date, new Date(Date.now() + 86400000)]);
+    setCanBook(isAbleToBook());
+  }, [bookDate]);
+
+  useEffect(() => {
+    setCanBook(isAbleToBook());
+  }, [calendarDoubleValue]);
+
   if(!item){
-    return(
-      <div className='view'>{loading ? 'جاري التحميل' : 'لم يتم ايجاد العرض'}</div>
+    return (
+        loading ? <MySkeleton /> : <NotFound />
     )
   }
 
   return (
-    <div className="view">
+    <div className="view" style={{ overflow: 'hidden' }}>
+
+      {reportDiv && <div className='reportDiv'>
+
+        <h2>إِبلاغ عن {writerId?.length > 0 ? 'هذه المراجعة' : 'هذا العرض'} <Svgs name={'cross'} on_click={() => { setReportDiv(false); setWriterId(''); }}/></h2>
+
+        <CustomInputDiv title={'سبب الإِبلاغ'} isError={reportText === '-1' && true} errorText={'الرجاء كتابة سبب للإِبلاغ'} value={reportText === '-1' ? '' : reportText} listener={(e) => setReportText(e.target.value)}/>
+
+        <button onClick={() => {
+          if(writerId?.length > 0) {
+            report(writerId);
+          } else {
+            report(null);
+          }
+        }}>{reporting ? 'جاري الإِبلاغ...' : 'إِبلاغ'}</button>
+
+      </div>}
+
+      {shareDiv && <div className='reportDiv'>
+        <h2>استعمل هذا الرابط للاشارة الى هذا العرض
+          <Svgs name={'cross'} on_click={() => setShareDiv(false)}/>
+        </h2>  
+        <p>{getShareUrl()}</p>
+      </div>}
+
+      {isAdmin() && <div className='view-admin-section'>
+
+        <h2>قسم المسؤول للتحكم بالعرض</h2>
+        
+        <div className='status'>حالة العرض <span>{item.visible ? 'مرئي' : 'مخفي'}</span> <span>{item.checked ? 'مقبول' : 'غير مقبول'}</span></div>
+
+        <h3>ماذا تريد الفعل بهذا العرض ؟</h3>
+
+        <ul>
+          <li className={adminType === 'pass-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('pass-property')}>قبول العرض</li>
+          <li className={adminType === 'delete-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('delete-property')}>حذف العرض</li>
+          <li className={(adminType === 'hide-property' || adminType === 'show-property') ? 'selected-admin-type' : ''} onClick={() => setAdminType(item.visible ? 'hide-property' : 'show-property')}>{item.visible ? 'إِخفاء العرض' : 'إِظهار العرض'}</li>
+        </ul>
+
+        <button className='btnbackscndclr' onClick={sendAdmin}>{adminSending ? 'جاري تحديث حالة العرض...' : 'تأكيد'}</button>
+        
+        <p style={{ color: adminError?.length > 0 ? 'var(--softRed)' : null }}>{adminError?.length > 0 ? adminError : adminSuccess}</p>
+
+        <hr />
+
+        <button className={`editDiv ${isDeleteFiles ? 'rotate-svg' : ''}`} onClick={() => setIsDeleteFiles(!isDeleteFiles)}>حذف صور و ملفات <Svgs name={'dropdown arrow'}/></button>
+
+        <div className='files-to-delete' style={{ display: !isDeleteFiles ? 'none' : null }}>
+
+          {filesToDeleteAdmin?.length > 0 
+          ? <><span id='info-span'>
+            <Svgs name={'info'}/>
+            سيتم حذف هذه الملفات من العرض, لن يتأثر العرض بشكل كامل, انقر على الملف لحذفه
+          </span>
+          <ul>
+            {filesToDeleteAdmin.map((file, index) => (
+              <li onClick={() => {console.log('file: ', file); setFilesToDeleteAdmin(
+                filesToDeleteAdmin.filter(i => i !== file)
+              )}} 
+              key={index}>
+                {(file?.split('.')?.at(1) === 'png' || file?.split('.')?.at(1) === 'jpg')
+                ? <Image width={120} height={120} src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${file}`} alt='صور العرض'/>
+                : ((file?.split('.')?.at(1) === 'mp4' || file?.split('.')?.at(1) === 'avi') && <video src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${file}`}/>)}
+              </li>
+            ))}
+          </ul>
+          <button className='btnbackscndclr' onClick={handleDeleteFilesAdmin}>{deletingFiles? 'جاري الحذف...' : 'الحذف'}</button>
+          <p style={{ color: deleteFilesError?.length > 0 ? 'var(--softRed)' : null }}>{deleteFilesError?.length > 0 ? deleteFilesError : deleteFilesSuccess}</p>
+          </>
+          : <span id='choose-files-span'>اختر ملفات من العرض لحذفها</span>}
+
+        </div>
+
+        <hr />
+
+        <button className={`editDiv ${isDeleteRevs ? 'rotate-svg' : ''}`} onClick={() => setIsDeleteRevs(!isDeleteRevs)}>ازالة مراجعات <Svgs name={'dropdown arrow'}/></button>
+
+        <div className='files-to-delete revs-to-delete' style={{ display: !isDeleteRevs ? 'none' : null }}>
+
+          {revsToDeleteAdmin?.length > 0 
+          ? <><span id='info-span'>
+            <Svgs name={'info'}/>
+            سيتم حذف هذه المراجعات, لالغاء التحديد اضغط على المراجعة
+          </span>
+          <ul>
+            {revsToDeleteAdmin.map((rv, index) => (
+                <ReviewCard key={index} isAdmin={isAdmin()} item={rv} 
+                  on_click={() => setRevsToDeleteAdmin(
+                    revsToDeleteAdmin.filter(i => i.writer_id !== rv?.writer_id)
+                  )}/>
+            ))}
+          </ul>
+          <button className='btnbackscndclr' onClick={handleDeleteRevsAdmin}>{deletingRevs ? 'جاري الحذف...' : 'الحذف'}</button>
+          <p style={{ color: deleteRevsError?.length > 0 ? 'var(--softRed)' : null }}>{deleteRevsError.length > 0 ? deleteRevsError : deleteRevsSuccess}</p>
+          </>
+          : <span id='choose-files-span'>اختر مراجعات لحذفها </span>}
+
+        </div>
+
+      </div>}
+
+      {imageFullScreen !== '-1' && <div className='full-screen'>
+        <Svgs name={'full screen down'} on_click={() => setImageFullScreen('-1')}/>
+        <Image src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${imageFullScreen}`} fill={true} alt='صورة بوضع الشاشة الكامل عن العرض' />
+      </div>}
 
       <div className='intro'>
 
         <div className='itemIntro'>
 
-          <h1>{item.title}</h1>
+          <h1>{item.title} <h4 onClick={() => { setReportDiv(true); setWriterId(''); }}>إِبلاغ <Svgs name={'report'}/></h4></h1>
 
           <ul>
-            <li><Svgs name={'star'}/> {item.ratings.val} ({item.ratings.no} تقييم)</li>
-            <li><Svgs name={'star'}/> {JordanCities.find(i => i.value === item.city).arabicName}, {item.neighbourhood}</li>
-            <li><Svgs name={'star'}/> المساحة {item.area} م2</li>
-            <li id='giveThisMarginRight'><Svgs name={'wishlist'}/> اضف الى المفضلة</li>
-            <li><Svgs name={'share'}/> مشاركة</li>
+            <li><Svgs name={'star'}/> {Number(item.ratings?.val).toFixed(2)} ({item.ratings?.no} تقييم)</li>
+            <li><Svgs name={item.type_is_vehicle ? 'loc vehicle' : 'location'}/> {JordanCities.find(i => i.value === item.city)?.arabicName}, {item.neighbourhood}</li>
+            {!item.type_is_vehicle && <li><Svgs name={'area'}/> المساحة {item.area} م2</li>}
+            <li id='giveThisMarginRight' onClick={handleFav}><Svgs name={`wishlist${favouritesIds.includes(id) ? ' filled' : ''}`}/> {addingToFavs ? 'جاري الاضافة...' : (favouritesIds.includes(id) ? 'أزل من المفضلة' : 'اضف الى المفضلة')}</li>
+            <li style={{ marginLeft: 0 }} onClick={() => setShareDiv(!shareDiv)}><Svgs name={'share'}/> مشاركة</li>
           </ul>
 
         </div>
@@ -105,7 +558,10 @@ const page = () => {
             <button onClick={() => setIsVideosFiles(false)} className={!isVideosFiles && 'selectedFileType'}>الصور</button>
             <button onClick={() => setIsVideosFiles(true)} className={isVideosFiles && 'selectedFileType'}>الفيديوهات</button>
           </div>
-          <ImagesShow handleWishList={() => {}} images={item.images} videos={item.videos} type_is_video={isVideosFiles}/>
+          <ImagesShow images={item.images} type={'view'} isAdmin={isAdmin()} 
+          setImageFullScreen={setImageFullScreen} videos={item.videos} 
+          type_is_video={isVideosFiles} filesToDeleteAdmin={filesToDeleteAdmin}
+          setFilesToDeleteAdmin={setFilesToDeleteAdmin}/>
         </div>
 
       </div>
@@ -119,10 +575,10 @@ const page = () => {
           <p>{item.description}</p>
 
           <ul className='tabButtons'>
-            <li className={isSpecifics && 'selectedTab'} onClick={() => {setIsSpecifics(true); setIsReviews(false); setIsMap(false); setIsTerms(false)}}>المواصفات</li>
-            <li className={isReviews && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(true); setIsMap(false); setIsTerms(false)}}>التقييمات</li>
-            <li className={isMap && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(false); setIsMap(true); setIsTerms(false)}}>الخريطة</li>
-            <li className={isTerms && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(false); setIsMap(false); setIsTerms(true)}}>الشروط و الأحكام</li>
+            <li className={isSpecifics && 'selectedTab'} onClick={() => {setIsSpecifics(true); setIsReviews(false); setIsMapDiv(false); setIsTerms(false)}}>المواصفات</li>
+            <li className={isReviews && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(true); setIsMapDiv(false); setIsTerms(false)}}>التقييمات</li>
+            <li className={isMap && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(false); setIsMapDiv(true); setIsTerms(false)}}>الخريطة</li>
+            <li className={isTerms && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(false); setIsMapDiv(false); setIsTerms(true)}}>الشروط و الأحكام</li>
           </ul>
 
           <h2>{isSpecifics ? 'المواصفات' : isReviews ? 'التقييمات' : isMap ? 'الخريطة' : isTerms ? 'الأحكام و الشروط' : ''}</h2>
@@ -141,11 +597,30 @@ const page = () => {
             </>}
           </ul>
 
-          <div className='reviews' style={{ display: !isReviews && 'none' }}>
+          <div className='reviews' style={{ display: !isReviews ? 'none' : null }}>
+
+            {(booksIds.find(i => i.property_id === id) && item.owner_id !== userId) 
+            && <div className='write-review'>
+              <h3>قيم و صف تجربتك مع هذا العرض</h3>
+              <h4>تقييمك للعرض (<input max="5" min="0" step="0.1" type='number' value={scoreRate} onChange={(e) => setScoreRate(Number(e.target.value))}/>)</h4>
+              <div className="rating">
+                <Svgs name={'star'} styling={Math.round(scoreRate) > 0 ? true : false} on_click={() => {if(Math.round(scoreRate) === 0){ setScoreRate(1) } else { setScoreRate(0) }}}/>
+                <Svgs name={'star'} styling={Math.round(scoreRate) > 1 ? true : false} on_click={() => setScoreRate(2)}/>
+                <Svgs name={'star'} styling={Math.round(scoreRate) > 2 ? true : false} on_click={() => setScoreRate(3)}/>
+                <Svgs name={'star'} styling={Math.round(scoreRate) > 3 ? true : false} on_click={() => setScoreRate(4)}/>
+                <Svgs name={'star'} styling={Math.round(scoreRate) > 4 ? true : false} on_click={() => setScoreRate(5)}/>
+              </div>
+              <textarea onChange={(e) => setReviewText(e.target.value)}/>
+              <button onClick={writeReview}>{sendingReview ? 'جاري الارسال...' : 'نشر'}</button>
+              <p style={{ color: sendReviewError.length > 0 && 'var(--softRed)' }}>
+                {sendReviewError.length > 0 ? sendReviewError : sendReviewSuccess}
+              </p>
+            </div>}
 
             <ul>
               {item.reviews.slice(0, reviewsNumber).map((rv) => (
-                <ReviewCard item={rv}/>
+                <ReviewCard item={rv} setReportDiv={setReportDiv} setWriterId={setWriterId}
+                  isAdmin={isAdmin()} revsToDeleteAdmin={revsToDeleteAdmin} setRevsToDeleteAdmin={setRevsToDeleteAdmin}/>
               ))}
             </ul>
 
@@ -155,12 +630,13 @@ const page = () => {
 
           <div className='mapDiv' style={{ display: !isMap && 'none' }}>
 
-            <div className='addressMapDiv'><Image src={LocationGif}/><h3>{JordanCities.find(i => i.value === item.city).arabicName}, {item.neighbourhood}</h3></div>
+            <div className='addressMapDiv'><Image src={LocationGif}/><h3>{JordanCities.find(i => i.value === item.city)?.arabicName}, {item.neighbourhood}</h3></div>
           
             <h5 className='moreDetailsAfterPay'><Svgs name={'info'}/>سنرسل لك تفاصيل دقيقة عن الموقع بعد تأكيد الشراء</h5>
 
-            <div className='mapImagePlaceholder'>
-              <Image src={GoogleMapImage}/>
+            <div className='googleMapDiv' onClick={showMap}>
+                <span>رؤية الموقع على الخريطة</span>
+                <Image src={GoogleMapImage}/>
             </div>
           
           </div>
@@ -180,7 +656,6 @@ const page = () => {
                 </ul>
             </li>
           </ul>
-          
 
         </div>
 
@@ -188,29 +663,36 @@ const page = () => {
 
         <div className='checkout'>
 
-          {isCalendar && <HeaderPopup type={'calendar'} setCalender={setBookDate}/>}
+          {isCalendar && <HeaderPopup type={'calendar'} isViewPage days={item.booked_days} setCalendarDoubleValue={setCalendarDoubleValue}/>}
 
           <div className='nightsDiv'>
             <h3 style={{ color: 'var(--secondColorDark)' }}>{item.price}<span>دولار / ليلة</span></h3>
-            <h3 style={{ color: '#777' }}><span>عدد الليالي</span> {getNumOfBookDays()}</h3>
+            <h3 style={{ color: '#777' }}><span>عدد الليالي</span> {getNumOfBookDays(calendarDoubleValue)}</h3>
           </div>
 
           <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
             تاريخ الحجز
-            <h3 suppressHydrationWarning>{bookDate[0].toLocaleDateString('ar', { weekday:"long", year:"numeric", month:"short", day:"numeric"})}</h3>
+            <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(0), true)}</h3>
           </div>
 
-          <div className='bookingDate' onClick={() => setIsCalendar(true)}>
+          <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
             تاريخ انتهاء الحجز
-            <h3 suppressHydrationWarning>{bookDate[1].toLocaleDateString('ar', { weekday:"long", year:"numeric", month:"short", day:"numeric"})}</h3>
+            <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true)}</h3>
           </div>
 
           <div className='cost'>
-            <h3>تخفيض {item.discount.percentage}% <span>- {(getNumOfBookDays() * item.price * item.discount.percentage / 100).toFixed(2)} دولار</span></h3>
-            <h3>اجمالي تكلفة {getNumOfBookDays()} ليلة <span>{((getNumOfBookDays() * item.price) - (getNumOfBookDays() * item.price * item.discount.percentage / 100)).toFixed(2)} دولار</span></h3>
+            <h3>تخفيض {item.discount.percentage}% <span>- {(getNumOfBookDays(calendarDoubleValue) * item.price * item.discount?.percentage / 100).toFixed(2)} دولار</span></h3>
+            <h3>اجمالي تكلفة {getNumOfBookDays(calendarDoubleValue)} ليلة <span>{((getNumOfBookDays(calendarDoubleValue) * item.price) - (getNumOfBookDays(calendarDoubleValue) * item.price * item.discount?.percentage / 100)).toFixed(2)} دولار</span></h3>
           </div>
 
-          <button id='bookButton'>احجز</button>
+          <button className='btnbackscndclr' id={(item.owner_id === userId || !canBook) ? 'disable-button' : ''} 
+            onClick={handleBook}>
+              {(item.owner_id !== userId) 
+                ? (canBook ? (addingToBooks 
+                  ? 'جاري الاضافة...' 
+                  : (booksIds.find(i => i.property_id === id) ? 'أزل من الحجز' : 'احجز')) : ((!isOkayBookDays(calendarDoubleValue, item.booked_days) && item.is_able_to_book) ? 'لا يمكن الحجز في هذه الأيام' : 'لا يمكن الحجز حاليا'))
+              : 'هذا عرضك الخاص'}
+          </button>
 
         </div>
 

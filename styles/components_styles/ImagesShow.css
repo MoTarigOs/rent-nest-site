@@ -47,10 +47,12 @@
                     div{
                         width: 100%;
                         max-width: 1300px;
+                        padding: 24px;
                         display: flex;
                         flex-direction: column;
                         justify-content: center;
                         align-items: flex-start;
+                        overflow: hidden;
                     }
 
                     h2{
@@ -65,10 +67,10 @@
                         color: white;
                         margin-bottom: 24px;
                         font-size: 1rem;
-                        max-width: 480px;
+                        max-width: 100%;
                     }
 
-                    button{
+                    a{
                         width: 100%;
                         padding: 12px;
                         border: 2px solid white;
@@ -79,10 +81,12 @@
                         max-width: 280px;
                         font-size: 1.1rem;
                         font-weight: 500;
+                        text-decoration: none;
+                        text-align: center;
                         transition: all 0.2s ease-out;
                     }
 
-                    button:hover{
+                    a:hover{
                         background: white;
                         color: var(--secondColor);
                         transition: all 0.2s ease-in;
@@ -234,6 +238,24 @@
             opacity: 0.7;
         }
     }
+
+    .full-screen-svg-div{
+        position: absolute;
+        top: 16px;
+        left: 16px;
+
+        svg{
+            width: 36px;
+            height: 36px;
+            background: var(--darkWhite);
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        svg:hover{
+            background: var(--darkWhiteHover);
+        }
+    }
 }
 
 #selectedDot{
@@ -256,6 +278,32 @@
 
                         p{
                             text-align: center;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 680px){
+    .imagesDiv{
+        .swiper-images-show{
+            .swiper-wrapper{
+                .swiper-slide{
+                    .images-show-text{
+    
+                        h2{
+                            font-size: 1.5rem;
+                        }
+    
+                        p{
+                            font-size: 0.9rem;
+                        }
+    
+                        a{
+                            max-width: 200px;
+                            font-size: 0.9rem;
                         }
                     }
                 }

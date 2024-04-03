@@ -200,8 +200,9 @@
                     margin-bottom: 32px;
 
                     svg{
-                        width: 32px;
-                        height: 32px;
+                        width: 24px;
+                        height: 24px;
+                        position: relative;
                         margin-left: 16px;
                     }
 
@@ -211,6 +212,11 @@
                         h4{
                             color: var(--secondColor);
                             margin-bottom: 2px;
+                        }
+
+                        h5{
+                            color: rgb(51, 51, 51);
+                            font-weight: 400;
                         }
                     }
                 }
@@ -293,6 +299,78 @@
             .whatWeOfferImageDiv{
                 margin-bottom: 64px;
                 height: 320px;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 680px){
+    .aboutSection{
+        padding: 12px;
+        margin: 0;
+
+        .perfectRent{
+            .textDiv{
+                margin-bottom: 32px;
+                h2{
+                    font-size: 1.5rem;
+                    margin-bottom: 16px;
+                }
+                p, h4{
+                    font-size: 1rem;
+                    margin-bottom: 16px;
+                }
+            }
+            .swiperAboutContainer{
+                .swiperAboutDiv{
+                    padding-left: 0;
+                    .wrapperDiv{
+                        .aboutListItem{
+                            width: 100%;
+                            max-width: 280px;
+                            margin-left: 16px;
+
+                            h3{
+                                font-size: 1rem;
+                           }
+                        }
+                    }
+                }
+            }
+        }
+        .whatWeOffer{
+            padding: 12px;
+            margin-top: 44px;
+
+            .whatWeOfferImageDiv{
+                width: 100%;
+                height: fit-content;
+                display: flex;
+                justify-content: center;
+
+                img{
+                    width: 240px;
+                    height: 240px;
+                }
+            }
+            .whatweoffercontent{
+                margin: 0;
+
+                h2{
+                    font-size: 1.5rem;
+                }
+
+                p{
+                    font-size: 0.9rem;
+                }
+
+                h4{
+                    font-size: 0.88rem;
+                }
+
+                h5{
+                    font-size: 0.76rem;
+                }
             }
         }
     }

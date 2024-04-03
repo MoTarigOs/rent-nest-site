@@ -7,6 +7,7 @@
     flex-direction: column;
     border-radius: 8px;
     overflow: hidden;
+    position: relative;
     box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.15);
     transition: all 0.12s ease-out;
 
@@ -72,6 +73,31 @@
         margin-top: 8px;
         font-size: 1rem;
         font-weight: 500;
+    }
+
+    .visible-span, .checked-span{
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        width: 52px;
+        height: 32px;
+        text-align: center;
+        background: var(--darkWhite);
+        padding: 4px 8px;
+        border-radius: 4px;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.237);
+        font-weight: 300;
+        z-index: 1;
+    }
+
+    .checked-span{
+        width: fit-content;
+        left: 68px;
+    }
+
+    .selected-card-span{
+        background: var(--secondColor);
+        color: white;
     }
 
     a{

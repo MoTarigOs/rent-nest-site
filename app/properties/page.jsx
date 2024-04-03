@@ -4,13 +4,18 @@ import Card from "@components/Card";
 import Svgs from "@utils/Svgs";
 import './Properties.css';
 import { useContext, useEffect, useState } from "react";
-import { getProperties } from "@utils/api";
+import { getLocation, getProperties } from "@utils/api";
 import { Context } from "@utils/Context";
-import { maximumPrice, minimumPrice } from "@utils/Data";
-import { arrangeArray } from "@utils/Logic";
+import { ProperitiesCatagories, maximumPrice, minimumPrice } from "@utils/Data";
+import { arrangeArray, isOkayBookDays } from "@utils/Logic";
+import { useSearchParams } from "next/navigation";
+import MySkeleton from "@components/MySkeleton";
+import NotFound from "@components/NotFound";
 
 const page = () => {
 
+    const catagoryParam = useSearchParams().get('catagory');
+    const [runOnce, setRunOnce] = useState(false);
     const [fetching, setFetching] = useState(false);
     const [properitiesArray, setProperitiesArray] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -22,7 +27,8 @@ const page = () => {
     const { 
         currentMinPrice, currentMaxPrice, city, catagory, 
         ratingScore, triggerFetch, searchText, 
-        arrangeValue, setArrangeValue
+        arrangeValue, setCatagory, calendarDoubleValue, 
+        isCalendarValue,
     } = useContext(Context);
 
     const handleArrowPagesNav = (isPrev) => {
@@ -40,24 +46,50 @@ const page = () => {
         try {
 
             setFetching(true);
+
+            let addressLong, addressLat;
+
+            if(arrangeValue === 'address'){
+                const loc = await getLocation();
+                addressLong = loc.long;
+                addressLat = loc.lat;
+            };
             
             const res = await getProperties(
                 city.value, false, catagory, 
                 (currentMinPrice !== minimumPrice || currentMaxPrice !== maximumPrice) 
                     ? `${currentMinPrice},${currentMaxPrice}` : null,
-                ratingScore, searchText, null, skip    
+                ratingScore, searchText, arrangeValue, addressLong, addressLat, skip    
             );
 
-            if(res.success !== true) {
+            if(res.success !== true || !res.dt?.length > 0) {
                 setFetching(false);
                 return;
             };
 
-            setProperitiesArray(res.dt);
+            console.log(res.dt);
 
-            setCurrentPage(1);
+            let arr = [];
+
+            if(isCalendarValue && calendarDoubleValue){
+                for (let i = 0; i < res.dt.length; i++) {
+                    if(isOkayBookDays(calendarDoubleValue, res.dt?.at(i)?.booked_days))
+                        arr.push(res.dt[i]);
+                }
+            };
+
+            if(skip > 0){
+                setProperitiesArray([...properitiesArray, ...((isCalendarValue && calendarDoubleValue) ? arr : res.dt)]);
+            } else { 
+                setProperitiesArray(((isCalendarValue && calendarDoubleValue) ? arr : res.dt));
+            }
+
+            console.log('arr: ', (isCalendarValue && calendarDoubleValue), arr);
 
             setFetching(false);
+
+            if(isCalendarValue && skip === 0 && res.dt.length === 300 && arr.length <= 50)
+                setSkip(skip + 1);
 
         } catch (err) {
             console.log(err);
@@ -66,8 +98,12 @@ const page = () => {
     };
 
     useEffect(() => {
-        settingPropertiesArray();
+        setRunOnce(true);
     }, []);
+
+    useEffect(() => {
+        if(runOnce) settingPropertiesArray();
+    }, [runOnce]);
 
     useEffect(() => {
         if(currentPage > pagesNumber) setCurrentPage(pagesNumber);
@@ -84,23 +120,33 @@ const page = () => {
         };
     }, [properitiesArray]);
 
-
     useEffect(() => {
-        console.log('context variables: ', currentMaxPrice, city, ratingScore);
-        settingPropertiesArray();
+        if(runOnce) settingPropertiesArray();
     }, [triggerFetch]);
 
     useEffect(() => {
-        console.log('arrange value: ', arrangeValue);
-        setProperitiesArray(arrangeArray(arrangeValue.toString(), properitiesArray));
+        if(runOnce) setProperitiesArray(arrangeArray(arrangeValue.toString(), properitiesArray));
     }, [arrangeValue]);
 
+    useEffect(() => {
+        if(ProperitiesCatagories.find(i => i.value === catagoryParam)){
+            setCatagory(catagoryParam);
+        }
+    }, [catagoryParam]);
+
+    useEffect(() => {
+        if(runOnce && catagory === catagoryParam)
+            settingPropertiesArray(); 
+    }, [catagory]);
+
+    useEffect(() => {
+        console.log(skip);
+        if(runOnce) settingPropertiesArray();
+    }, [skip]);
 
     if(!properitiesArray || properitiesArray.length <= 0){
         return (
-            <div className="properitiesPage">
-                {fetching ? 'جاري تحميل العروض' : 'لم يتم ايجاد أي عروض'}
-            </div>
+            fetching ? <MySkeleton loadingType={'cards'}/> : <NotFound />
         )
     }
 
@@ -167,7 +213,9 @@ const page = () => {
 
         </div>
 
-        <button id="moreProperties" style={{ display: (currentPage === pagesNumber && pagesNumber * cardsPerPage >= 300) ? 'block' : 'none' }} onClick={() => setSkip(skip + 1)}>تحميل المزيد من المعروضات</button>
+        <button id="moreProperties" style={{
+             display: currentPage === pagesNumber ? 'block' : 'none'
+        }} onClick={() => setSkip(skip + 1)}>تحميل المزيد من المعروضات</button>
 
     </div>
   )

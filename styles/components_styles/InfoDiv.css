@@ -1,0 +1,88 @@
+.infodiv{
+    width: 100%;
+    max-width: 480px;
+
+    label{
+        margin-left: 16px;
+        font-weight: 500;
+        color: rgb(91, 91, 91);
+        margin-bottom: 12px;
+        display: block;
+    }
+
+    h3{
+        padding: 16px;
+        border: 2px solid rgba(0, 0, 0, 0.13);
+        border-radius: 8px;
+    }
+
+    div{
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 8px;
+
+        p{
+            display: flex;
+            align-items: center;
+            color: rgba(76, 76, 76, 0.76);
+
+            svg{
+                width: 16px;
+                height: 16px;
+                margin-left: 4px;
+            }
+        }
+
+        .redpinfodiv{
+            color: var(--softRed);
+
+            svg path{
+                fill: var(--softRed);
+            }
+        }
+
+        button{
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            background: transparent;
+            color: var(--secondColor);
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease-out;
+
+            svg{
+                width: 16px;
+                height: 16px;
+                margin: 0 8px;
+
+                path{
+                    transition: all 0.2s ease-out;
+                    stroke: var(--secondColor);
+                    fill: var(--secondColor);
+                }
+            }
+        }
+
+        button:hover{
+            color: var(--secondColorHover);
+            transition: all 0.2s ease-in;
+
+            svg path{
+                stroke: var(--secondColorHover);
+                fill: var(--secondColorHover);
+                transition: all 0.2s ease-in;
+            }
+        }
+
+        .btnclckedinfodiv{
+            svg{
+                transform: rotate(180deg);
+            }
+        }
+    }
+}

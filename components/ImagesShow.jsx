@@ -6,15 +6,22 @@ import Svgs from '@utils/Svgs';
 import { useEffect, useRef, useState } from 'react';
 import Swiper from 'swiper/bundle';
 import 'swiper/swiper-bundle.css';
+import LoadingImageHolder from '@assets/images/about-section-background.png';
+import Link from 'next/link';
 
-
-const ImagesShow = ({ images, videos, handleWishList, type, type_is_video }) => {
+const ImagesShow = ({ 
+    images, videos, isAdmin, setFilesToDeleteAdmin, 
+    filesToDeleteAdmin,
+    handleWishList, type, type_is_video, 
+    setImageFullScreen 
+}) => {
 
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-    const [selectedVideoIndex, setSelectedVideoIndex] = useState(0);
     let swiper = null;
     const prevButtonRef = useRef(null);
+    const nextButtonRef = useRef(null);
     const prevButtonVideoRef = useRef(null);
+    const nextButtonVideoRef = useRef(null);
 
     const handleChange = (p) => {
         
@@ -22,11 +29,7 @@ const ImagesShow = ({ images, videos, handleWishList, type, type_is_video }) => 
 
         console.log(index);
 
-        if(!type_is_video){
-            setSelectedImageIndex(index);
-        } else {
-            setSelectedVideoIndex(index);
-        }
+        setSelectedImageIndex(index);
 
     };
 
@@ -73,18 +76,20 @@ const ImagesShow = ({ images, videos, handleWishList, type, type_is_video }) => 
     }, [type_is_video]);
 
   return (
-    <div className='imagesDiv' style={{ height: type === 'view' && 300 }}>
+    <div className='imagesDiv' style={{ height: type === 'view' && 420 }}>
 
         <div className='swiper-images-show'>
             <div className='swiper-wrapper'>
             {!type_is_video ? <> {images?.length ? <>{images.map((img) => (
-                    <div className='swiper-slide'>
-                        <Image src={type === 'landing' ? img.image : `${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${img}`} fill={true} alt='sdsd'/>
+                    <div className='swiper-slide' laz>
+                        <Image src={type === 'landing' ? img.image : `${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${img}`} 
+                        fill={type === 'landing' ? false : true} blurDataURL={LoadingImageHolder} 
+                        alt='صورة عن العرض' loading={type === 'landing' ? 'eager' : 'lazy'}/>
                         <div className='images-show-text' style={{ display: type !== 'landing' && 'none' }}>
                             <div>
                                 <h2>{img.title}</h2>
                                 <p>{img.desc}</p>
-                                <button>{img.btnTitle}</button>
+                                <Link href={img.btnLink ? img.btnLink : ''}>{img.btnTitle}</Link>
                             </div>
                         </div>
                     </div>
@@ -106,24 +111,59 @@ const ImagesShow = ({ images, videos, handleWishList, type, type_is_video }) => 
             </div>
 
             {!type_is_video ? <>{images?.length > 0 && <>
-                <div className='arrow leftArrow'><Svgs name={'dropdown arrow'}/></div>
+                <div className='arrow leftArrow' ref={nextButtonRef}><Svgs name={'dropdown arrow'}/></div>
                 <div className='arrow rightArrow' ref={prevButtonRef}><Svgs name={'dropdown arrow'}/></div>
             </>}</> : <>{videos?.length > 0 && <>
-                <div className='arrow leftArrow'><Svgs name={'dropdown arrow'}/></div>
+                <div className='arrow leftArrow' ref={nextButtonVideoRef}><Svgs name={'dropdown arrow'}/></div>
                 <div className='arrow rightArrow' ref={prevButtonVideoRef}><Svgs name={'dropdown arrow'}/></div>
             </>}</>}
 
+            {(type === 'view' && !type_is_video) && <div style={{ zIndex: 0 }} className='full-screen-svg-div'>
+                <Svgs name={'full screen up'} on_click={() => setImageFullScreen(images[selectedImageIndex])}/>
+            </div>}
+
+            {(isAdmin && ((type_is_video && videos?.length > 0) || (!type_is_video && images?.length > 0))) && <div className='delete-file' style={{ 
+                display: filesToDeleteAdmin.includes(type_is_video ? videos[selectedImageIndex] : images[selectedImageIndex]) 
+                    ? 'none' 
+                    : null
+            }} onClick={() => setFilesToDeleteAdmin([
+                ...filesToDeleteAdmin, type_is_video ? videos[selectedImageIndex] : images[selectedImageIndex]
+            ])}>
+                اضافة الى السلة 
+                <Svgs name={'delete'}/>
+            </div>}
+
         </div>
 
-        <div id='wishlistDiv'><Svgs name={'wishlist'} on_click={handleWishList ? handleWishList() : null}/></div>
+        <div id='wishlistDiv' style={{ display: type === 'view' && 'none' }}><Svgs name={'wishlist'} on_click={handleWishList ? handleWishList() : null}/></div>
 
-        {!type_is_video ? <ul className={type === 'landing' ? 'dots landingDots' : 'dots'}>
+        {!type_is_video ? <ul style={{ display: (type !== 'landing' && type !== 'view') && 'none' }} className={type === 'landing' ? 'dots landingDots' : 'dots'}>
             {images?.map((obj, index) => (
-                <li id={selectedImageIndex === index && 'selectedDot'}></li>
+                <li key={index} onClick={() => {
+                    if(selectedImageIndex - index > 0){
+                        for (let i = selectedImageIndex; i > index; i--) {
+                            prevButtonRef?.current?.click();
+                        }
+                    } else if(selectedImageIndex - index < 0){
+                        for (let i = selectedImageIndex; i < index; i++) {
+                            nextButtonRef?.current?.click();
+                        }
+                    }
+                }} id={selectedImageIndex === index ? 'selectedDot' : ''}></li>
             ))}
-        </ul> : <ul className={type === 'landing' ? 'dots landingDots' : 'dots'}>
+        </ul> : <ul style={{ display: (type !== 'landing' && type !== 'view') && 'none' }} className={type === 'landing' ? 'dots landingDots' : 'dots'}>
             {videos?.map((obj, index) => (
-                <li id={selectedVideoIndex === index && 'selectedDot'}></li>
+                <li onClick={() => {
+                    if(selectedImageIndex - index > 0){
+                        for (let i = selectedImageIndex; i > index; i--) {
+                            prevButtonVideoRef?.current?.click();
+                        }
+                    } else if(selectedImageIndex - index < 0){
+                        for (let i = selectedImageIndex; i < index; i++) {
+                            nextButtonVideoRef?.current?.click();
+                        }
+                    }
+                }} id={selectedImageIndex === index && 'selectedDot'}></li>
             ))}
         </ul>}
 

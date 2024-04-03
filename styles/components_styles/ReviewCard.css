@@ -12,16 +12,50 @@
         align-items: center;
         margin-bottom: 16px;
 
-        img{
-            width: 44px;
-            height: 44px;
-            margin-left: 16px;
-            border-radius: 50%;
-        }
-
         h3{
             font-size: 1.4rem;
             margin-left: 12px;
+        }
+
+        span{
+            font-size: 1.3rem;
+            margin-right: 4px;
+            font-weight: 300;
+            color: var(--secondColorDark);
+        }
+
+        h4{
+            padding: 8px 12px;
+            font-size: 1rem;
+            border: 2px solid rgba(0, 0, 0, 0.149);
+            border-radius: 4px;
+            margin-right: auto;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            color: grey;
+            transition: all 0.2s ease-out;
+
+            svg{
+                fill: grey;
+                margin-right: 6px;
+            }
+        }
+
+        h4:hover{
+            background: var(--darkWhite);
+            transition: all 0.2s ease-in;
+        }
+
+        .delete-file{
+            position: static;
+            font-size: 1rem;
+            margin-right: 16px;
+
+            svg{
+                width: 16px;
+                height: 16px;
+            }
         }
     }
 

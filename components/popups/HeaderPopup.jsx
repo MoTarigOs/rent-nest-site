@@ -8,7 +8,11 @@ import Svgs from '@utils/Svgs';
 import { useContext } from 'react';
 import { Context } from '@utils/Context';
 
-const HeaderPopup = ({ type, pathname, catagory, setCatagory, setCalender, itemCity, setItemCity }) => {
+const HeaderPopup = ({ 
+    type, pathname, catagory, setCatagory, handleChoose,
+    setCalendarDoubleValue, itemCity, setItemCity, isViewPage, days,
+    isCustom, setIsCustom, customArray, selectedCustom, setSelectedCustom 
+}) => {
 
     type = type.toLowerCase();
 
@@ -17,6 +21,8 @@ const HeaderPopup = ({ type, pathname, catagory, setCatagory, setCalender, itemC
     const getCatagories = () => {
         if(pathname === '/vehicles'){
             return VehicleCatagories;
+        } else if(pathname === '/search') {
+            return [...VehicleCatagories, ...ProperitiesCatagories];
         } else {
             return ProperitiesCatagories;
         }
@@ -32,19 +38,13 @@ const HeaderPopup = ({ type, pathname, catagory, setCatagory, setCalender, itemC
             initial={{ opacity: 0, scale: 0.7 }}
             animate={{ opacity: 1, scale: 1 }}
         >
-            
-            {/* <div className='cityPopupSearchDiv'>
-                <Svgs name={'search'}/>
-                <input placeholder='اختر مدينة'/>
-            </div> */}
-            
             <ul>
                 <li onClick={() => {
                     if(city !== {}){
                         setCity({});
                         setTriggerFetch(!triggerFetch);
                     }
-                }}>كل المدن{!city?.city_id && <RightIconSpan />}</li>
+                }}>كل المدن{!city.value && <RightIconSpan />}</li>
                 {JordanCities.map((cty) => (
                     <li onClick={() => {
                         if(city !== cty){
@@ -88,7 +88,6 @@ const HeaderPopup = ({ type, pathname, catagory, setCatagory, setCalender, itemC
                         setTriggerFetch(!triggerFetch);
                     }
                 }} id="allCtgLi">
-                    <Svgs name={'all-catagories'}/> 
                     <h3>كل التصنيفات</h3> 
                     {catagory === '' && <RightIconSpan />}
                 </li>
@@ -100,20 +99,36 @@ const HeaderPopup = ({ type, pathname, catagory, setCatagory, setCalender, itemC
                             setTriggerFetch(!triggerFetch);
                         }
                     }}>
-                        <Svgs name={ctg.value}/> 
                         <h3>{ctg.arabicName}</h3> 
                         {catagory === ctg.value && <RightIconSpan />}
                     </li>
                 ))}
             </ul>
-            <button>اختيار</button>
         </motion.div>}
 
         {type === 'calendar' && <motion.div className='calenderPopup'
             initial={{ opacity: 0, scale: 0.7 }}
             animate={{ opacity: 1, scale: 1 }}
         >
-                <MyCalendar setCalender={setCalender}/>
+                <MyCalendar setCalender={setCalendarDoubleValue} days={days} type={isViewPage ? 'view' : null}/>
+        </motion.div>}
+
+        {type === 'custom' && <motion.div className='cityPopup'
+            initial={{ opacity: 0, scale: 0.7 }}
+            animate={{ opacity: isCustom ? 1 : 0, scale: isCustom ? 1 : 0 }}
+        >
+            <ul>
+                {customArray.map((cst) => (
+                    <li onClick={() => {
+                        setSelectedCustom(cst);
+                        setIsCustom(false);
+                    }} key={cst.value}>
+                        {cst.arabicName} 
+                        {selectedCustom.value === cst.value && <RightIconSpan />}
+                    </li>
+                ))}
+            </ul>
+
         </motion.div>}
     </>
   )

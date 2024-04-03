@@ -4,9 +4,255 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: var(--headerHeight);
+    margin-top: var(--headerHeightMobile);
     padding: 12px;
     position: relative;
+
+    .reportDiv{
+        width: 100%;
+        max-width: 480px;
+        padding: 16px;
+        position: fixed;
+        top: var(--headerHeightMobile);
+        background: white;
+        box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.14);
+        border-radius: 12px;
+        z-index: 10;
+
+        h2{
+            margin-bottom: 32px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: rgb(85, 85, 85);
+            width: 100%;
+            display: flex;
+            align-items: center;
+
+            svg{
+                margin-right: auto;
+                cursor: pointer;
+                width: 32px;
+                height: 32px;
+                padding: 4px;
+                background: var(--darkWhite);
+                border-radius: 50%;
+            }
+
+            svg:hover{
+                background: var(--darkWhiteHover);
+            }
+        }
+
+        .inputDiv{
+            margin: 0;
+        }
+
+        button{
+            background: var(--secondColor);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            font-size: 1rem;
+            border-radius: 4px;
+            margin-top: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease-out;
+        }
+
+        button:hover{
+            background: var(--secondColorHover);
+            transition: all 0.2s ease-in;
+        }
+
+        p{
+            max-width: 100%;
+            padding: 16px;
+            border-radius: 2px;
+            background: var(--darkWhite);
+            direction: ltr;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            word-break: break-all;
+        }
+    }
+    
+    .full-screen{
+        width: 100%;
+        height: 100%;
+        z-index: 20;
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: rgba(0, 0, 0, 0.855);
+        padding: 12px;
+        
+        svg{
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 32px;
+            height: 32px;
+            background: var(--darkWhite);
+            border-radius: 12px;
+            padding: 4px;
+            cursor: pointer;
+            z-index: 1;
+        }
+
+        svg:hover{
+            background: var(--darkWhiteHover);
+        }
+
+        img{
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    }
+
+    .view-admin-section{
+        width: 100%;
+        padding: 16px;
+        margin-bottom: 48px;
+        background: var(--darkWhite);
+
+        hr{
+            margin: 32px 0;
+            border-color: var(--darkWhite);
+        }
+
+        h2{
+            margin-bottom: 24px;
+            font-weight: 400;
+        }
+
+        p{
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--secondColor);
+        }
+
+        .status{
+            font-size: 1rem;
+            font-weight: 500;
+            color: rgb(97, 97, 97);
+            margin-bottom: 24px;
+
+            span{
+                font-size: 1.1rem;
+                color: black;
+                text-decoration: underline;
+                margin: 0 4px;
+            }
+        }
+
+        h3{
+            font-weight: 400;
+            margin-bottom: 16px;
+        }
+
+        ul{
+            display: flex;
+            list-style: none;
+            margin-bottom: 24px;
+
+            li{
+                padding: 12px 24px;
+                background: var(--darkWhiteHover);
+                margin-left: 12px;
+                font-weight: 500;
+                color: rgb(92, 92, 92);
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            li:hover{
+                opacity: 0.7;
+            }
+
+            .selected-admin-type{
+                background: var(--secondColor);
+                color: white;
+            }
+        }
+
+        button{
+            width: fit-content;   
+            margin-bottom: 12px; 
+        }
+
+        .editDiv{
+            margin-bottom: 16px;
+        }
+
+        .rotate-svg{
+            svg{
+                transform: rotate(180deg);
+            }
+        }
+
+        .files-to-delete{
+            margin-bottom: 12px;
+
+            #choose-files-span{
+                width: fit-content;
+                display: block;
+            }
+
+            #info-span{
+                display: flex;
+                align-items: center;
+                color: rgb(83, 83, 83);
+                margin-bottom: 16px;
+                
+                svg{
+                    width: 16px;
+                    height: 16px;
+                    margin-left: 8px;
+                }
+            }
+
+            ul{
+                display: flex;
+                
+                li{
+                    width: 120px;
+                    height: 120px;
+                    padding: 0;
+                    overflow: hidden;
+
+                    img{
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                    }
+                }
+            }
+        }
+
+        .revs-to-delete{
+            ul {
+                flex-direction: column;
+                padding: 0;
+
+                .reviewCard{
+                    width: 100%;
+                    height: fit-content;
+                    max-width: 480px;
+                    padding: 16px;
+                    background: white;
+
+                    h3{
+                        margin: 0 0 0 12px;
+                    }
+                }
+            }
+        }
+
+        .show-files-to-delete-div{
+            display: none;
+        }
+    }
 
     .intro{
         width: 100%;
@@ -15,6 +261,35 @@
 
         .itemIntro{
             width: 100%;
+
+            h1{
+                width: 100%;
+                display: flex;
+
+                h4{
+                    margin-right: auto;
+                    padding: 8px 12px;
+                    font-size: 1rem;
+                    border: 2px solid rgba(0, 0, 0, 0.149);
+                    border-radius: 4px;
+                    margin-right: auto;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    color: grey;
+                    transition: all 0.2s ease-out;
+        
+                    svg{
+                        fill: grey;
+                        margin-right: 6px;
+                    }
+                }
+        
+                h4:hover{
+                    background: var(--darkWhite);
+                    transition: all 0.2s ease-in;
+                }
+            }
     
             ul{
                 width: 100%;
@@ -29,12 +304,23 @@
                     margin-left: 32px;
                     display: flex;
                     align-items: center;
+                    cursor: pointer;
     
                     svg{
                         width: 16px;
                         height: 16px;
                         margin-left: 8px;
+                        fill: var(--secondColorDark);
+
+                        path{
+                            fill: var(--secondColorDark);
+                            stroke: var(--secondColorDark);
+                        }
                     }
+                }
+
+                li:hover{
+                    color: var(--secondColorHover);
                 }
 
                 #giveThisMarginRight{
@@ -87,7 +373,8 @@
                 overflow: hidden;
                 height: 450px;
                 background: white;
-        
+                cursor: pointer;
+
                 .arrow{
                     opacity: 1;
                 }
@@ -200,6 +487,75 @@
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+
+                .write-review{
+                    margin-top: 16px;
+                    width: 100%;
+                    padding: 16px;
+                    background: var(--darkWhite);
+                    display: flex;
+                    flex-direction: column;
+                    border-radius: 2px;
+
+                    h3{
+                        font-weight: 400;
+                        color: rgb(85, 85, 85);
+                        margin-bottom: 24px;
+                    }
+
+                    h4{
+                        font-weight: 400;
+                        margin-bottom: 6px;
+                        display: flex;
+
+                        input{
+                            background: transparent;
+                            border: none;
+                            width: 36px;
+                            text-align: end;
+                            outline: none;
+                            margin: 0 4px;
+                            border-bottom: 1px solid rgba(0, 0, 0, 0.121);
+                        }
+                    }
+
+                    .rating{
+                        margin-bottom: 24px;
+
+                        svg{
+                            cursor: pointer;
+                            margin-left: 6px;
+                        }
+                    }
+
+                    textarea{
+                        border: none;
+                        padding: 12px;
+                        resize: vertical;
+                        outline: none;
+                        margin-bottom: 24px;
+                    }
+
+                    button{
+                        width: fit-content;
+                        font-size: 1rem;
+                        margin: 0;
+                        padding: 12px 24px;
+                        background: var(--secondColor);
+                        color: white;
+                        transition: all 0.2s ease-out;
+                    }
+
+                    button:hover{
+                        background: var(--secondColorHover);
+                        transition: all 0.2s ease-in;
+                    }
+
+                    p{
+                        color: var(--secondColor);
+                        margin-top: 12px;
+                    }
+                }
         
                 h2{
                     color: var(--secondColor);
@@ -291,13 +647,37 @@
                     }
                 }
 
-                .mapImagePlaceholder{
+                .googleMapDiv{
                     width: 100%;
-
+                    margin-bottom: 48px;
+                    cursor: pointer;
+                    border-radius: 8px;
+                    position: relative;
+                    overflow: hidden;
+        
+                    span{
+                        position: absolute;
+                        width: 100%;
+                        height: 100%;
+                        top: 0;
+                        left: 0;
+                        background: rgba(0, 0, 0, 0.56);
+                        color: var(--darkWhite);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 1.5rem;
+                        font-weight: 500;
+                        z-index: 1;
+                    }
+        
                     img{
                         width: 100%;
                         height: auto;
-                        border-radius: 16px;
+                    }
+        
+                    &:hover{
+                        opacity: 0.9;
                     }
                 }
             }
@@ -401,23 +781,9 @@
                 }
             }
 
-            #bookButton{
-                width: 100%;
-                background: var(--secondColor);
-                color: white;
-                border: none;
-                border-radius: 8px;
-                padding: 12px;
+            .btnbackscndclr{
                 font-size: 1.1rem;
-                font-weight: 500;
                 margin-top: 8px;
-                cursor: pointer;
-                transition: all 0.2s ease-out;
-            }
-
-            #bookButton:hover{
-                background: var(--secondColorHover);
-                transition: all 0.2s ease-in;
             }
         }
     }
@@ -478,6 +844,80 @@
         top: 0;
         left: calc(50% - 50vw);
         z-index: 1;
+    }
+
+    .editDiv{
+        width: fit-content;
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        border: 2px solid rgba(0, 0, 0, 0.129);
+        border-radius: 8px;
+        font-size: 1rem;
+        background: rgba(235, 235, 235, 0.564);
+        cursor: pointer;
+        text-decoration: none;
+        color: black;
+
+        svg{
+            width: 24px;
+            height: 24px;
+            margin-right: 2px;
+        }
+    }
+
+    .editDiv:hover{
+        background: rgba(0, 0, 0, 0.126);
+    }
+
+    .btnbackscndclr{
+        width: 100%;
+        padding: 12px 24px;
+        background: var(--secondColor);
+        color: white;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: all 0.2s ease-out;
+    }
+
+    .btnbackscndclr:hover{
+        background: var(--secondColorHover);
+        transition: all 0.2s ease-in;
+    }
+
+    .delete-file{
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        background: var(--softRed);
+        padding: 12px;
+        color: white;
+        font-weight: 500;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        z-index: 1;
+        cursor: pointer;
+
+        svg{
+            margin-right: 8px;
+            path{
+                fill: white;
+            }
+        }
+    }
+
+    .delete-file:hover{
+        background: rgb(255, 75, 75);
+    }
+
+    #disable-button{
+        background: var(--darkWhite);
+        color: rgb(172, 172, 172);
+        cursor: default;
     }
 }
 

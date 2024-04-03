@@ -1,0 +1,62 @@
+.google-map-popup-wrapper{
+    position: fixed;
+    top: 0;
+    left: calc(50% - 50vw);
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    z-index: 12;
+
+    .google-map-popup{
+        width: 100%;
+        height: calc(100% - var(--headerHeightMobile));
+        max-width: 680px;
+        max-height: 790px;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    span{
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.719);
+    }
+}
+
+.search-map{
+    position: relative;
+    top: unset;
+    left: unset;
+    height: fit-content;
+    z-index: 1;
+    width: 100%;
+    height: 400px;
+
+    .google-map-popup{
+        max-width: 1300px;
+        height: 100%;
+    }
+
+    .custom-marker{
+        width: 44px;
+        height: 44px;
+        cursor: pointer;
+        position: absolute;
+        padding: 0;
+
+        img{
+            width: 100%;
+            height: 100%;
+            scale: 2;
+        }
+    }
+
+    span{
+        display: none;
+    }
+}

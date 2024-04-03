@@ -1,8 +1,9 @@
 'use client';
 
 import '@styles/components_styles/Arrange.css';
+import { useEffect } from 'react';
 
-const Arrange = ({ isArrange, setIsArrange, arrangeValue, setArrangeValue }) => {
+const Arrange = ({ isArrange, setIsArrange, setTriggerFetch, triggerFetch, arrangeValue, setArrangeValue }) => {
 
     const arranges = [
         { _id: '0', name: 'default', arabicName: 'افتراضي' },
@@ -10,11 +11,17 @@ const Arrange = ({ isArrange, setIsArrange, arrangeValue, setArrangeValue }) => 
         { _id: '2', name: 'ratings', arabicName: 'الأعلى تقييما' },
         { _id: '3', name: 'low-price', arabicName: 'الأقل سعرا' },
         { _id: '4', name: 'high-price', arabicName: 'الأعلى سعرا' }
-    ]
+    ];
+
+    // use $near: https://www.mongodb.com/docs/manual/reference/operator/query/near/
 
     const RightIconSpan = () => {
         return <span id='righticonspan'/>
     }
+
+    useEffect(() => {
+        setTriggerFetch(!triggerFetch);
+    }, [arrangeValue]);
 
   return (
     <div className='arrangeWrapper' style={{ display: !isArrange && 'none' }}>
@@ -28,7 +35,7 @@ const Arrange = ({ isArrange, setIsArrange, arrangeValue, setArrangeValue }) => 
             <ul>
                 {arranges.map((arng) => (
                     <li onClick={() => {
-                        setArrangeValue(arng.name);
+                        setArrangeValue(arng.name === 'default' ? '' : arng.name);
                         setIsArrange(false);
                     }}>{arng.arabicName} {arrangeValue === arng.name && <RightIconSpan />}</li>
                 ))}

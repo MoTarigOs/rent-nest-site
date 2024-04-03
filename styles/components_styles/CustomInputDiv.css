@@ -39,6 +39,10 @@
         padding: 0 8px;
         background: var(--darkWhite);
         cursor: pointer;
+
+        path{
+            fill: var(--secondColorHover);
+        }
     }
 
     label{
@@ -68,6 +72,10 @@
             padding: 0;
             background: transparent;
             cursor: pointer;
+
+            path{
+                fill: unset;
+            }
         }
 
         span{
