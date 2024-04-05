@@ -21,8 +21,8 @@ const page = () => {
 
     const { 
         userId, setIsMap, setMapType,
-        latitude, setLatitude,
-        longitude, setLongitude
+        latitude, setLatitude, storageKey,
+        longitude, setLongitude, userEmail
     } = useContext(Context);
 
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/mp4', 'video/avi'];
@@ -208,7 +208,9 @@ const page = () => {
                 return;
             }
 
-            const uploadFilesRes = await uploadFiles(optimizedFiles.optArr, 'property', res.dt.id);
+            const uploadFilesRes = await uploadFiles(
+                optimizedFiles.optArr, res.dt.id, storageKey, userEmail
+            );
 
             console.log('upload res: ', uploadFilesRes);
 

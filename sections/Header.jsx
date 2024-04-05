@@ -42,7 +42,7 @@ const Header = () => {
       latitude, setLatitude, longitude, setLongitude,
       calendarDoubleValue, setCalendarDoubleValue, setIsMobileHomeFilter,
       isCalendarValue, setIsCalendarValue, setLoadingUserInfo,
-      isMobileHomeFilter
+      isMobileHomeFilter, setStorageKey
     } = useContext(Context);
 
     const settingMobile = () => {
@@ -96,7 +96,8 @@ const Header = () => {
         getUserInfo(
           setUserId, setUserUsername, setUserRole, 
           setUserEmail, setIsVerified, setUserAddress,
-          setUserPhone, setBooksIds, setFavouritesIds, setLoadingUserInfo
+          setUserPhone, setBooksIds, setFavouritesIds, 
+          setLoadingUserInfo, setStorageKey
         );
       }
     }, [runOnce]);

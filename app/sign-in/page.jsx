@@ -18,7 +18,12 @@ const page = () => {
   const [email, setEmail] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [password, setPassword] = useState('');
-  const { userId, setUserId, setUserUsername, setUserRole } = useContext(Context);
+  const { 
+    userId, setUserId, 
+    setUserUsername, setUserRole, setUserEmail, setIsVerified,
+    setUserPhone, setUserAddress, setBooksIds,
+    setFavouritesIds, setLoadingUserInfo, setStorageKey
+  } = useContext(Context);
 
   const handleChange = (e, type) => {
     switch(type){
@@ -72,8 +77,13 @@ const page = () => {
       }
       setError('');
       setSuccessLogin(true);
-      setLoading(false);
-      getUserInfo(setUserId, setUserUsername, setUserRole);
+      setLoading(false);        
+      getUserInfo(
+        setUserId, setUserUsername, setUserRole, 
+        setUserEmail, setIsVerified, setUserAddress,
+        setUserPhone, setBooksIds, setFavouritesIds, 
+        setLoadingUserInfo, setStorageKey
+      );
     } catch (err) {
       setError(err.message);
       setLoading(false);

@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useEffect, useState } from "react";
+import { createContext, useState } from "react";
 import { maximumPrice, minimumPrice } from "./Data";
 export const Context = createContext(null);
 
@@ -15,6 +15,7 @@ function DataContext({ children }) {
     const [loadingUserInfo, setLoadingUserInfo] = useState(false);
     const [isVerified, setIsVerified] = useState('');
     const [userRole, setUserRole] = useState('');
+    const [storageKey, setStorageKey] = useState('');
     const [booksIds, setBooksIds] = useState([]);
     const [favouritesIds, setFavouritesIds] = useState([]);
     const [city, setCity] = useState({});
@@ -45,6 +46,7 @@ function DataContext({ children }) {
             loadingUserInfo, setLoadingUserInfo,
             isVerified, setIsVerified,
             userRole, setUserRole,
+            storageKey, setStorageKey,
             booksIds, setBooksIds,
             favouritesIds, setFavouritesIds,
             city, setCity,

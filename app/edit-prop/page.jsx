@@ -11,7 +11,6 @@ import { Context } from '@utils/Context';
 import Link from 'next/link';
 import { getBookDateFormat, getOptimizedAttachedFiles } from '@utils/Logic';
 import MyCalendar from '@components/MyCalendar';
-import HeaderPopup from '@components/popups/HeaderPopup';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
 
@@ -20,7 +19,7 @@ const Page = () => {
     const id = useSearchParams().get('id');
 
     const {
-        userId
+        userId, storageKey, userEmail
     } = useContext(Context);
 
     const [fetchingOnce, setFetchingOnce] = useState(true);
@@ -265,7 +264,9 @@ const Page = () => {
             let uploadFilesRes = { success: true, dt: 'no files to upload' };
             
             if(optimizedFiles.optArr.length > 0) 
-                uploadFilesRes = await uploadFiles(optimizedFiles.optArr, null, id);
+                uploadFilesRes = await uploadFiles(
+                    optimizedFiles.optArr, id, storageKey, userEmail
+                );
 
             console.log('upload res: ', uploadFilesRes);
 
@@ -292,7 +293,9 @@ const Page = () => {
 
             console.log('files to delete: ', filesToDelete);
 
-            const deleteFilesRes = await deleteFiles(id, filesToDelete);
+            const deleteFilesRes = await deleteFiles(
+                id, filesToDelete, storageKey, userEmail
+            );
 
             if(deleteFilesRes.success !== true){
                 setError(res.dt.toString());
@@ -413,7 +416,7 @@ const Page = () => {
 
             setIsDeletingProp(true);
 
-            const deleteFilesRes = await deletePropFiles(id);
+            const deleteFilesRes = await deletePropFiles(id, userEmail);
 
             if(deleteFilesRes.success !== true){
                 setDeleteError(deleteFilesRes.dt);
@@ -547,7 +550,7 @@ const Page = () => {
         return () => clearTimeout(timeout);
     }, [calendarSelect]);
 
-    if(!item){
+    if(!item || !userId?.length > 0){
         return (
             fetchingOnce ? <MySkeleton /> : <NotFound />
         )

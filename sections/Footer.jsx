@@ -6,8 +6,13 @@ import LogoImage from '@assets/icons/rentnext-logo.png';
 import FacebookImage from '@assets/icons/facebook-icon.svg';
 import Link from 'next/link';
 import { sendTest } from '@utils/api';
+import { useContext } from 'react';
+import { Context } from '@utils/Context';
 
 const Footer = () => {
+
+  const { storageKey, userEmail } = useContext(Context);
+  
   return (
     <div className="footer">
 
@@ -34,7 +39,7 @@ const Footer = () => {
         <h4>Rent Nest 2024</h4>
         
         <ul>
-          <li onClick={() => sendTest()}><Image src={FacebookImage} loading='eager' alt='facebook icon'/></li>
+          <li onClick={() => sendTest(storageKey, userEmail)}><Image src={FacebookImage} loading='eager' alt='facebook icon'/></li>
           <li><Link href={'/'}><Image src={FacebookImage} loading='eager' alt='facebook icon'/></Link></li>
           <li><Link href={'/'}><Image src={FacebookImage} loading='eager' alt='facebook icon'/></Link></li>
           <li><Link href={'/'}><Image src={FacebookImage} loading='eager' alt='facebook icon'/></Link></li>

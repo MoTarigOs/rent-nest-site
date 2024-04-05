@@ -21,7 +21,7 @@ const Page = () => {
     const username = useSearchParams().get('username');
     const email = useSearchParams().get('email');
 
-    const { userEmail, userRole } = useContext(Context);
+    const { userEmail, userRole, storageKey } = useContext(Context);
 
     const [user, setUser] = useState(null);
 
@@ -298,7 +298,9 @@ const Page = () => {
 
       try {
 
-        const deleteFilesRes = await deleteUserAccountFilesAdmin(id, code);
+        const deleteFilesRes = await deleteUserAccountFilesAdmin(
+          id, code, storageKey, userEmail
+        );
 
         if(deleteFilesRes.success !== true){
           setDeleteAccountError(deleteFilesRes.dt);

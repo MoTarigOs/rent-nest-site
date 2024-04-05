@@ -68,7 +68,7 @@ export const getUserInfo = async(
     setUserId, setUserUsername, setUserRole, 
     setUserEmail, setIsVerified, setUserAddress,
     setUserPhone, setBooksIds, setFavouritesIds,
-    setLoading
+    setLoading, setStorageKey
 ) => {
 
     try {
@@ -87,8 +87,10 @@ export const getUserInfo = async(
         if(res.data.role) setUserRole(res.data.role);
         if(res.data.my_books) setBooksIds(res.data.my_books);
         if(res.data.my_fav) setFavouritesIds(res.data.my_fav);
+        if(res.data.storage_key) setStorageKey(res.data.storage_key);
         //res.data.tokenExp
         setLoading(false);
+        console.log('storage key: ', res.data.storage_key);
         return { success: true, dt: res.data };
     } catch (err) {
         setLoading(false);
@@ -239,13 +241,17 @@ export const editUser = async(infoObj) => {
 
 };
 
-export const deleteMyAccount = async(eCode) => {
+export const deleteMyAccount = async(eCode, key, email) => {
 
     try {
         
-        const deleteFilesUrl = `${uploadServerBaseUrl}/delete/multiple-properties-files?eCode=${eCode}`;
+        const deleteFilesUrl = `${uploadServerBaseUrl}/delete/multiple-properties-files?eCode=${eCode}&&email=${email}`;
 
-        const deleteFilesRes = await axios.delete(deleteFilesUrl, { withCredentials: true, 'Access-Control-Allow-Credentials': true });        
+        const deleteFilesRes = await axios.delete(deleteFilesUrl, { 
+            withCredentials: true, 
+            'Access-Control-Allow-Credentials': true, 
+            headers: {"authorization" : `Bearer ${key}`}
+        });        
 
         if(!deleteFilesRes?.status || deleteFilesRes.status !== 201){
             return { success: false, dt: getErrorText(res.data.message) };
@@ -402,11 +408,11 @@ export const editProperty = async(
 
 };
 
-export const uploadFiles = async(files, type, id) => {
+export const uploadFiles = async(files, id, key, email) => {
 
     try {
 
-        const url = `${uploadServerBaseUrl}/upload/property/${id}`;
+        const url = `${uploadServerBaseUrl}/upload/property/${id}?email=${email}`;
         
         const data = new FormData();
 
@@ -414,7 +420,11 @@ export const uploadFiles = async(files, type, id) => {
           data.append('FilesForUpload', file, file.name);
         });
 
-        const res = await axios.post(url, data, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+        const res = await axios.post(url, data, { 
+            withCredentials: true, 
+            'Access-Control-Allow-Credentials': true,
+            headers: {"authorization" : `Bearer ${key}`}
+        });
     
         if(res.status === 201) return { success: true, dt: res.data };
 
@@ -426,15 +436,19 @@ export const uploadFiles = async(files, type, id) => {
 
 };
 
-export const deleteFiles = async(id, filenames) => {
+export const deleteFiles = async(id, filenames, key, email) => {
 
     try {
 
-        const url = `${uploadServerBaseUrl}/delete/property-specific-files/${id}`;
+        const url = `${uploadServerBaseUrl}/delete/property-specific-files/${id}?email=${email}`;
         
         const body = { filenamesArray: filenames };
 
-        const res = await axios.post(url, body, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+        const res = await axios.post(url, body, { 
+            withCredentials: true, 
+            'Access-Control-Allow-Credentials': true,
+            headers: {"authorization" : `Bearer ${key}`}
+        });
     
         if(res.status === 201) return { success: true, dt: res.data };
 
@@ -649,13 +663,17 @@ export const deleteProp = async(propertyId) => {
 
 };
 
-export const deletePropFiles = async(propertyId) => {
+export const deletePropFiles = async(propertyId, email) => {
 
     try {
 
-        const url = `${uploadServerBaseUrl}/delete/property-files/${propertyId}`;
+        const url = `${uploadServerBaseUrl}/delete/property-files/${propertyId}?email=${email}`;
 
-        const res = await axios.delete(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+        const res = await axios.delete(url, { 
+            withCredentials: true, 
+            'Access-Control-Allow-Credentials': true,
+            headers: {"authorization" : `Bearer ${key}`}
+        });
         
         if(!res || !res.status || res.status !== 201) return { success: false, dt: getErrorText(res.data) };
 
@@ -783,15 +801,19 @@ export const getUserByEmailAdmin = async(email) => {
     }
 };
 
-export const deletePropFilesAdmin = async(propId) => {
+export const deletePropFilesAdmin = async(propId, key, email) => {
 
     try {
 
-        const url = `${uploadServerBaseUrl}/admin/property-files/${propId}`;
+        const url = `${uploadServerBaseUrl}/admin/property-files/${propId}?email=${email}`;
 
         console.log('url: ', url);
     
-        const res = await axios.delete(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+        const res = await axios.delete(url, { 
+            withCredentials: true, 
+            'Access-Control-Allow-Credentials': true,
+            headers: {"authorization" : `Bearer ${key}`}
+        });
     
         if(res.status === 201) return { success: true, dt: res.data };
 
@@ -839,17 +861,23 @@ export const handlePropAdmin = async(propertyId, type) => {
 
 };
 
-export const deleteSpecificPropFilesAdmin = async(propertyId, filenamesArray) => {
+export const deleteSpecificPropFilesAdmin = async(
+    propertyId, filenamesArray, key, email
+) => {
 
     try {
 
-        const url = `${uploadServerBaseUrl}/admin/specific-property-files/${propertyId}`;
+        const url = `${uploadServerBaseUrl}/admin/specific-property-files/${propertyId}?email=${email}`;
 
         const body = {
             filenamesArray
         };
     
-        const res = await axios.post(url, body, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+        const res = await axios.post(url, body, { 
+            withCredentials: true, 
+            'Access-Control-Allow-Credentials': true,
+            headers: {"authorization" : `Bearer ${key}`} 
+        });
     
         if(res.status === 201) return { success: true, dt: res.data };
 
@@ -862,13 +890,17 @@ export const deleteSpecificPropFilesAdmin = async(propertyId, filenamesArray) =>
 
 };
 
-export const deleteUserAccountFilesAdmin = async(userId, eCode) => {
+export const deleteUserAccountFilesAdmin = async(userId, eCode, key, email) => {
 
     try {
 
-        const url = `${uploadServerBaseUrl}/admin/multiple-properties-files/${userId}?eCode=${eCode}`;
+        const url = `${uploadServerBaseUrl}/admin/multiple-properties-files/${userId}?eCode=${eCode}&&email=${email}`;
 
-        const res = await axios.delete(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+        const res = await axios.delete(url, { 
+            withCredentials: true, 
+            'Access-Control-Allow-Credentials': true,
+            headers: {"authorization" : `Bearer ${key}`}
+        });
     
         if(res.status === 201) return { success: true, dt: res.data };
 
@@ -1001,10 +1033,14 @@ export const handlePromotion = async(type, userId, eCode) => {
 
 
 // test methods
-export const sendTest = async() => {
+export const sendTest = async(key, email) => {
     try {
-        const url = 'https://rent-nest-storage-server.onrender.com/test';
-        const res = await axios.get(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+        const url = `https://rent-nest-storage-server.onrender.com/test?email=${email}`;
+        const res = await axios.get(url, { 
+            withCredentials: true, 
+            'Access-Control-Allow-Credentials': true,
+            headers: {"authorization" : `Bearer ${key}`}
+        });
         console.log('نجاح التست');
     } catch (err) {
         console.log(err.message);

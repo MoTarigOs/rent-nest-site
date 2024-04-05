@@ -1,6 +1,5 @@
 'use client';
 
-import { useParams, useSearchParams } from 'next/navigation';
 import './Profile.css';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Context } from '@utils/Context';
@@ -18,7 +17,7 @@ const page = () => {
 
     const { 
       userId, setUserId, setUserUsername, userUsername, userEmail, isVerified,
-      userAddress, userPhone, userRole, loadingUserInfo
+      userAddress, userPhone, userRole, loadingUserInfo, storageKey
     } = useContext(Context);
 
     const [isProfileDetails, setIsProfileDetails] = useState(true);
@@ -29,8 +28,6 @@ const page = () => {
 
     const [fetchingUserInfo, setFetchingUserInfo] = useState(true);
 
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
     const [loadingItems, setLoadingItems] = useState(false);
 
     const [code, setCode] = useState('');
@@ -326,7 +323,7 @@ const page = () => {
 
         setDeletingAccount(true);
 
-        const res = await deleteMyAccount(code);
+        const res = await deleteMyAccount(code, storageKey, userEmail);
 
         if(res.success !== true) {
           setDeleteAccountError(res.dt);

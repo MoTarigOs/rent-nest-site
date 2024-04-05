@@ -1,13 +1,9 @@
 'use client';
 
-import Card from '@components/Card';
 import './Admin.css';
-import ReviewCard from '@components/ReviewCard';
 import { useContext, useEffect, useState } from 'react';
 import { getAdminProps, getReports, getUserByEmailAdmin, getUsersAdmin } from '@utils/api';
-import HeaderPopup from '@components/popups/HeaderPopup';
-import { getRoleArabicName, isValidEmail, propsSections, usersSections } from '@utils/Logic';
-import InfoDiv from '@components/InfoDiv';
+import {  isValidEmail, propsSections, usersSections } from '@utils/Logic';
 import Svgs from '@utils/Svgs';
 import CustomInputDiv from '@components/CustomInputDiv';
 import UserDiv from '@components/UserDiv';

@@ -11,7 +11,7 @@ import { useContext, useEffect, useState } from 'react';
 import ReviewCard from '@components/ReviewCard';
 import HeaderPopup from '@components/popups/HeaderPopup';
 import { useSearchParams } from 'next/navigation';
-import { deleteFiles, deletePropFilesAdmin, deleteReviewsAdmin, deleteSpecificPropFilesAdmin, fetchPropertyDetails, handleBooksAddRemove, handleFavourite, handlePropAdmin, makeReport, sendReview } from '@utils/api';
+import { deletePropFilesAdmin, deleteReviewsAdmin, deleteSpecificPropFilesAdmin, fetchPropertyDetails, handleBooksAddRemove, handleFavourite, handlePropAdmin, makeReport, sendReview } from '@utils/api';
 import CustomInputDiv from '@components/CustomInputDiv';
 import { Context } from '@utils/Context';
 import { getNumOfBookDays, getReadableDate, isOkayBookDays } from '@utils/Logic';
@@ -25,7 +25,7 @@ const page = () => {
     setBooksIds, userId, userRole, setIsMap, 
     setMapType, setLatitude, setLongitude,
     calendarDoubleValue, setCalendarDoubleValue,
-    isCalendarValue, setIsCalendarValue
+    storageKey, userEmail
   } = useContext(Context);
 
   const [loading, setLoading] = useState(false);
@@ -243,7 +243,7 @@ const page = () => {
       setAdminSending(true);
 
       if(adminType === 'delete-property'){
-        const deleteFilesRes = await deletePropFilesAdmin(id);
+        const deleteFilesRes = await deletePropFilesAdmin(id, storageKey, userEmail);
         if (deleteFilesRes.success !== true) {
           setAdminError(deleteFilesRes.dt);
           setAdminSuccess('');
@@ -302,7 +302,9 @@ const page = () => {
 
       setDeletingFiles(true);
 
-      const res = await deleteSpecificPropFilesAdmin(id, filesToDeleteAdmin);
+      const res = await deleteSpecificPropFilesAdmin(
+        id, filesToDeleteAdmin, storageKey, userEmail
+      );
 
       if(res.success !== true) {
         setDeleteFilesError(res.dt);
