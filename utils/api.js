@@ -302,6 +302,8 @@ export const handleFavourite = async(propId, isRemove) => {
 export const handleBooksAddRemove = async(propId, isRemove, startDate, endDate) => {
 
     try {
+
+        if(!startDate || !endDate) return { ok: false, dt: 'خطأ غير معروف' }
         
         const url = `${baseUrl}/user/books/${propId}`;
 

@@ -1,7 +1,6 @@
-import Footer from "@sections/Footer";
-import Header from "@sections/Header";
-import DataContext from "@utils/Context";
 import '@styles/Main.css';
+import MainWrapper from './MainWrapper';
+import DataContext from '@utils/Context';
 
 const Layout = ({ children }) => {
 
@@ -18,23 +17,9 @@ const Layout = ({ children }) => {
             </head>
 
             <body>
-
-                    <div className="main">
-
-                        <DataContext>
-                                    
-                            <Header />
-
-                            <main className='app'>
-                                {children}
-                            </main>
-
-                            <Footer />
-                        
-                        </DataContext>
-
-                    </div>
-
+                <DataContext>
+                    <MainWrapper children={children}/>    
+                </DataContext>
             </body>
 
         </html>

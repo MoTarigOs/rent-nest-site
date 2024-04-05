@@ -205,8 +205,8 @@ const page = () => {
       const res = await handleBooksAddRemove(
         id, 
         booksIds.find(i => i.property_id === id) ? true : false, 
-        bookDate[0].getTime(), 
-        bookDate[1].getTime()
+        calendarDoubleValue?.at(0)?.getTime(), 
+        calendarDoubleValue?.at(1)?.getTime()
       );
 
       console.log(res);

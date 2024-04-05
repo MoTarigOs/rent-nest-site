@@ -17,6 +17,7 @@ import { getUserInfo } from '@utils/api';
 import { getArabicNameCatagory, getReadableDate } from '@utils/Logic';
 import GoogleMapPopup from '@components/popups/GoogleMapPopup';
 import MobileFilter from '@components/popups/MobileFilter';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 const Header = () => {
 
@@ -30,7 +31,10 @@ const Header = () => {
     
     const [isFilter, setIsFilter] = useState(false);
     const [isArrange, setIsArrange] = useState(false);
+    const [notif, setNotification] = useState('');
     const pathname = usePathname();
+
+    const { executeRecaptcha } = useGoogleReCaptcha();
 
     const { 
       userId, userUsername, userRole, setUserId, 
@@ -60,6 +64,18 @@ const Header = () => {
         setIsScrolled(false);
       }
     };
+
+    const getRecaptchaToken = async() => {
+      if (!executeRecaptcha) {
+        console.log("Execute recaptcha not available yet");
+        setNotification("not set");
+        return;
+      }
+      const gReCaptchaToken = await executeRecaptcha('enquiryFormSubmit');
+
+      console.log('recaptcha token: ', gReCaptchaToken);
+    
+    }
 
     useEffect(() => {
 
@@ -131,6 +147,10 @@ const Header = () => {
             <Link href={'/'} className='logo'>
                 <Image src={LogoImage} alt='rentnext website logo image'/>
             </Link>
+
+            <a onClick={() => {
+              getRecaptchaToken()
+            }}>{notif ? notif : 'sdssdsd'}</a>
 
             <Link href={'/properties?catagory=resort'} className='navBtn'>
                 شاليهات, منتجعات, استراحات
