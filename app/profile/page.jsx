@@ -268,8 +268,6 @@ const page = () => {
 
       try {
 
-        console.log(editInfo);
-
         if(editInfo.editUsername.length <= 0 && editInfo.editAddress.length <= 0 && editInfo.editPhone.length <= 0){
           setEditInfoError('لا يوجد تغيير في البيانات');
           setEditInfoSuccess('');
@@ -288,12 +286,12 @@ const page = () => {
         }
 
         setEditInfoError('');
-        setEditInfoSuccess('');
+        setEditInfoSuccess('تم تعديل البيانات بنجاح.');
         setEditingInfo(false);
         
       } catch (err) {
         console.log(err.message);
-        setEditInfoError(err.message);
+        setEditInfoError('حدث خطأ ما');
         setEditInfoSuccess('');
         setEditingInfo(false);
       }
@@ -491,10 +489,10 @@ const page = () => {
                     <CustomInputDiv title={'ادخل عنوان جديد'} value={editInfo.editAddress} listener={(e) => setEditInfo({ editUsername: editInfo.editUsername, editAddress: e.target.value, editPhone: editInfo.editPhone })}/>
                     <CustomInputDiv title={'عدل رقم الهاتف'} value={editInfo.editPhone} listener={(e) => setEditInfo({ editUsername: editInfo.editUsername, editAddress: editInfo.editAddress, editPhone: e.target.value })}/>
                     <button className='btnbackscndclr' onClick={editUserInfo}>{editingInfo ? 'جاري التعديل...' : 'تعديل البيانات'}</button>
-                    <p id='edit-info-p' className={editInfoError.length > 0 && 'edit-info-p-error'}>
+                    {(editInfoError.length > 0 || editInfoSuccess.length > 0) && <p id={editInfoError.length > 0 ? 'edit-info-p-error' : 'edit-info-p'}>
                       <Svgs name={'info'}/>
                       {editInfoError.length > 0 ? editInfoError : editInfoSuccess}
-                    </p>
+                    </p>}
                   </>}
 
                 </div>

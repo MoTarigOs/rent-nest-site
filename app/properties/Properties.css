@@ -183,6 +183,8 @@
 
 @media screen and (max-width: 680px){
     .properitiesPage{
+        padding: 32px 12px;
+
         .resultUL{
             align-items: center;
             flex-direction: column;

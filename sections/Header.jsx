@@ -148,10 +148,6 @@ const Header = () => {
                 <Image src={LogoImage} alt='rentnext website logo image'/>
             </Link>
 
-            <a onClick={() => {
-              getRecaptchaToken()
-            }}>{notif ? notif : 'sdssdsd'}</a>
-
             <Link href={'/properties?catagory=resort'} className='navBtn'>
                 شاليهات, منتجعات, استراحات
             </Link>
@@ -278,23 +274,23 @@ const Header = () => {
             <ul>
 
               <Link onClick={() => setIsMenu(false)} href={'/properties?catagory=resort'} className='navBtn'>
-                  <Svgs name={'star'}/>
+                  <Svgs name={'layer'}/>
                   شاليهات, منتجعات, استراحات
               </Link>
 
               <Link onClick={() => setIsMenu(false)} href={'/properties?catagory=apartment'} className={'navBtn'}>
-                  <Svgs name={'star'}/>
+                  <Svgs name={'layer'}/>
                   شقق و بيوت
               </Link>
 
               <Link onClick={() => setIsMenu(false)} href={'/properties?catagory=farm'} className={'navBtn'}>
-                  <Svgs name={'star'}/>
+                  <Svgs name={'layer'}/>
                   مزارع و مخيمات
               </Link>
 
               <Link onClick={() => setIsMenu(false)} href={'/vehicles'} style={{ marginBottom: 'auto' }} 
                 className={'navBtn'}>
-                <Svgs name={'star'}/>
+                <Svgs name={'layer'}/>
                   سيارات
               </Link>
               

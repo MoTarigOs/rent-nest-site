@@ -77,7 +77,9 @@ const Filter = ({
                     <input placeholder={searchText.length <= 0 ? `ابحث عن ${type === 'prop' ? 'عقارات' : 'سيارات'}` : searchText} onChange={(e) => setSearchText(e.target.value)}/>
                     <Link href={'/search/map'}><Image src={MapImage}/></Link>
                 </div>
-                <button onClick={() => setTriggerFetch(!triggerFetch)}>ابحث</button>
+                <button onClick={() => { 
+                    setTriggerFetch(!triggerFetch); setIsFilter(false);
+                }}>ابحث</button>
             </div>
 
             <hr />
@@ -85,16 +87,20 @@ const Filter = ({
             <div className="price">
                 <h2>السعر</h2>
                 <div class="range-slider">
-                    <div class="range-fill" style={{ right: trackLeft, width: sliderWidth }}></div>
-                    <span ref={minSpanRef} style={{ right: trackLeft}}>${currentMinPrice}</span>
-                    <span ref={maxSpanRef} style={{ right: getTrackLeftPlusWidth() }}>${currentMaxPrice}</span>
+                    <div class="range-fill" style={{ left: trackLeft, width: sliderWidth }}></div>
+                    <input onChange={(e) => {
+                        setCurrentMinPrice(e.target.value); setTimeout(() => validateRange(), [100]);
+                    }} type='number' className='priceSpanInput' ref={minSpanRef} style={{ left: trackLeft}} value={currentMinPrice}/>
+                    <input onChange={(e) => { 
+                        setCurrentMaxPrice(e.target.value); setTimeout(() => validateRange(), [100]);
+                    }} type='number' className='priceSpanInput' ref={maxSpanRef} style={{ left: getTrackLeftPlusWidth() }} value={currentMaxPrice}/>
                     <input
                     type="range"
                     class="min-price"
                     min={minimumPrice}
                     max={maximumPrice}
                     step={priceStep}
-                    defaultValue="0"
+                    value={currentMinPrice}
                     ref={minPriceRef}
                     onChange={validateRange}
                     />
@@ -105,7 +111,7 @@ const Filter = ({
                     max={maximumPrice}
                     step={priceStep}
                     ref={maxPriceRef}
-                    defaultValue={maximumPrice}
+                    value={currentMaxPrice}
                     onChange={validateRange}
                     />
                 </div>
@@ -151,7 +157,9 @@ const Filter = ({
                 <Svgs name={'star'} styling={ratingScore > 4 ? true : false} on_click={() => setRatingScore(5)}/>
             </div>
 
-            <button style={{ width: '100%', marginTop: 32, borderRadius: 8 }} onClick={() => setTriggerFetch(!triggerFetch)}>ابحث</button>
+            <button style={{ width: '100%', marginTop: 32, borderRadius: 8 }} onClick={() => {
+                setTriggerFetch(!triggerFetch); setIsFilter(false);
+            }}>ابحث</button>
 
         </div>
         

@@ -510,7 +510,7 @@ const Page = () => {
             setItemPrice(item.price);
             setUploadedFiles([...item.images, ...item.videos]);
             setRequireInsurance(item.details.insurance);
-            setSelectBookedDays(item.booked_days);
+            setSelectBookedDays(item.booked_days || []);
 
             if(item.type_is_vehicle){
                 setVehicleSpecifications(item.details.vehicle_specifications);
@@ -535,18 +535,15 @@ const Page = () => {
     useEffect(() => {
         let timeout;
         const format = getBookDateFormat(calendarSelect);
-        if(selectBookedDays.includes(format)){
+        if(selectBookedDays?.includes(format)){
             setSelectBookedDays(selectBookedDays.filter(
                 i => i !== format
             ));
             setTriggerCalendarRender(false);
             timeout = setTimeout(() => setTriggerCalendarRender(true), [5]);
-        } else if(format) {
+        } else if(format && Array.isArray(selectBookedDays)) {
             setSelectBookedDays([...selectBookedDays, format]);
         }
-
-        console.log('selectBookedDays: ', selectBookedDays);
-
         return () => clearTimeout(timeout);
     }, [calendarSelect]);
 

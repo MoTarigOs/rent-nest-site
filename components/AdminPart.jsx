@@ -8,6 +8,7 @@ import HeaderPopup from "./popups/HeaderPopup";
 import Image from "next/image";
 import HolderImage from '@assets/images/test.jpg';
 import Svgs from "@utils/Svgs";
+import Skeleton from "react-loading-skeleton";
 
 const AdminPart = ({ 
     title, type, array, isShow, setIsShow, 
@@ -38,10 +39,9 @@ const AdminPart = ({
             </div>
 
             <ul className="my-list" style={{ display: !isShow && 'none' }}>
-                {(!array || array.length <= 0) && <li className="empty-holder">
-                    <Image src={HolderImage} alt="loading image"/>    
-                </li>}
-                {array.length > 0 && array.map((item, index) => (
+                {(!array.length > 0) ? <li className="empty-holder">
+                      <div><Skeleton width={'100%'} height={'100%'}/></div>
+                </li> : array.map((item, index) => (
                     <li key={index}>
                         {(type === 'reports' || type === 'properties') ?
                             <><Card item={item}/>

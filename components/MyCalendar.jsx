@@ -14,7 +14,7 @@ const MyCalendar = ({ setCalender, type, days }) => {
     showDoubleView={(type === 'edit-prop' || type === 'mobile-filter') ? false : true}
     goToRangeStartOnSelect={type === 'edit-prop' ? false : true} 
     tileClassName={({ date }) => {
-      if(type === 'edit-prop' && (!days || days.find(i => i === getBookDateFormat(date)))) {
+      if(type === 'edit-prop' && days && days.find(i => i === getBookDateFormat(date))) {
         return 'react-calendar__tile--active ';
       };
     }}

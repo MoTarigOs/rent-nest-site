@@ -8,7 +8,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 20;
+    z-index: 120;
     padding: 16px;
 
     #bgDiv{
@@ -86,24 +86,29 @@
             position: relative;
             display: flex;
             flex-direction: column;
+            direction: ltr;
 
             h2{
                 margin-bottom: 8px;
+                width: 100%;
+                text-align: end;
             }
             
             .range-slider {
                 width: 100%;
                 position: relative;
                 margin: 15px 0 30px 0;
+                direction: ltr;
 
-                span{
-                    width: 72px;
+                .priceSpanInput{
+                    width: 64px;
                     position: absolute;
                     top: 24px;
                     left: unset;
-                    margin-right: -36px;
+                    margin-left: -36px;
                     font-size: 0.86rem;
                     font-weight: 500;
+                    border: none;
                     text-align: center;
                 }
 
@@ -112,7 +117,7 @@
                     background-color: var(--secondColor);
                     position: absolute;
                     z-index: 1;
-                    right: 0;
+                    left: 0;
                     margin: 0;
                     padding: 0;
                   }
@@ -122,7 +127,7 @@
                     width: 100%;
                     background: transparent;
                     position: absolute;
-                    left: 0;
+                    right: 0;
                   }
                   
                   input[type="range"]::-webkit-slider-thumb {
@@ -240,6 +245,40 @@
 
         &::-webkit-scrollbar{
             display: none;
+        }
+    }
+}
+
+@media screen and (max-width: 480px){
+    .filterULDiv{
+        .wrapper{
+            padding: 12px;
+            .filterSearchDiv{
+                flex-direction: column;
+
+                svg{
+                    width: 100%;
+                }
+    
+                div{
+                    padding: 8px;
+                    height: 44px;
+    
+                    input{
+                        height: 100%;
+                        font-size: 1rem;
+                    }
+    
+                    img{
+                        width: 24px;
+                        height: 24px;
+                        margin-top: 6px;
+                    }
+                }
+                button{
+                    width: 100%;
+                }
+            }    
         }
     }
 }
