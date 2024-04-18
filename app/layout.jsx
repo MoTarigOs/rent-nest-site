@@ -15,9 +15,9 @@ const Layout = ({ children }) => {
 
                 <title>Rent Nest | منصة ايجار عقارات داخل الاردن</title>
 
-                <link rel="icon" sizes='256x256' href="https://f003.backblazeb2.com/file/personal-use-mot-tarig/his-logo.jpg" type='image/png'/>
+                <link rel="icon" sizes='256x256' href="/myicon.png" type='image/png'/>
 
-                <link rel="apple-touch-icon" href="https://f003.backblazeb2.com/file/personal-use-mot-tarig/his-logo.jpg" type="image/png" sizes="256x256"/>
+                <link rel="apple-touch-icon" href="/myicon.png" type="image/png" sizes="256x256"/>
 
                 <meta name="description" content="منصة Rent Nest , تقدم خدمات و إِيجار عقارات داخل دولة الاردن , حيث توجد عروض إِيجار شاليهات و شقق و بيوت و سكن طلاب و سيارات." />
 

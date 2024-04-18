@@ -12,7 +12,7 @@ import { JordanCities, ProperitiesCatagories, VehicleCatagories, contactsPlatfor
 import CustomInputDiv from '@components/CustomInputDiv';
 import { createProperty, uploadFiles } from '@utils/api';
 import HeaderPopup from '@components/popups/HeaderPopup';
-import { getOptimizedAttachedFiles } from '@utils/Logic';
+import { getOptimizedAttachedFiles, isValidContactURL } from '@utils/Logic';
 import { Context } from '@utils/Context';
 import NotFound from '@components/NotFound';
 import MySkeleton from '@components/MySkeleton';
@@ -408,7 +408,7 @@ const page = () => {
                 <div className='detailItem area-div' style={{ display: selectedCatagories === '0' ? 'none' : null}}>
                     <h3>اكتب مساحة العقار بالأمتار</h3>
                     <CustomInputDiv title={area > 0 ? `${area} متر مربع` : ''} max={1000000} min={0} myStyle={{ marginBottom: 0 }} placholderValue={'مثل: 40'} value={area > 0 ? area : 'مثل: 40'} type={'number'} isError={area === -1} errorText={'الرجاء ادخال مساحة صالحة'} listener={(e) => {
-                        if(Number(e.target.value)) setArea(e.target.value);
+                        if(Number(e.target.value)) setArea(Number(e.target.value));
                     }}/>
                 </div>
 
