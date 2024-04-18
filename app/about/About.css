@@ -1,0 +1,43 @@
+.about{
+    width: 100%;
+    max-width: 1300px;
+    margin-top: var(--headerHeightMobile);
+    padding: 16px;
+
+    .about-div{
+        width: 100%;
+        padding-top: 32px;
+
+        h1{
+            margin-bottom: 24px;
+            color: rgb(73, 73, 73);
+        }
+
+        p{
+            
+        }
+    }
+
+    hr{
+        margin-bottom: 44px;
+        border-color: rgba(0, 0, 0, 0.116);
+    }
+
+    #conditions, #terms{
+        padding-top: 44px;
+        
+        h2{
+            color: var(--secondColor);
+            margin-bottom: 24px;
+        }
+
+        ul{
+            padding: 0 17px;
+
+            li{
+                margin-bottom: 16px;
+                color: rgb(116, 116, 116);
+            }
+        }
+    }
+}

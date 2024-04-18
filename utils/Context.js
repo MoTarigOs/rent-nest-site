@@ -7,6 +7,8 @@ export const Context = createContext(null);
 function DataContext({ children }) {
 
     const [isSearchPage, setIsSearchPage] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+    const [isEnglish, setIsEnglish] = useState(false);
     const [userId, setUserId] = useState('');
     const [userUsername, setUserUsername] = useState('');
     const [userEmail, setUserEmail] = useState('');
@@ -16,6 +18,7 @@ function DataContext({ children }) {
     const [isVerified, setIsVerified] = useState('');
     const [userRole, setUserRole] = useState('');
     const [storageKey, setStorageKey] = useState('');
+    const [selectedTab, setSelectedTab] = useState('');
     const [booksIds, setBooksIds] = useState([]);
     const [favouritesIds, setFavouritesIds] = useState([]);
     const [city, setCity] = useState({});
@@ -38,6 +41,8 @@ function DataContext({ children }) {
     return (
         <Context.Provider value={{ 
             isSearchPage, setIsSearchPage,
+            isMobile, setIsMobile,
+            isEnglish, setIsEnglish,
             userId, setUserId,
             userUsername, setUserUsername,
             userEmail, setUserEmail,
@@ -47,6 +52,7 @@ function DataContext({ children }) {
             isVerified, setIsVerified,
             userRole, setUserRole,
             storageKey, setStorageKey,
+            selectedTab, setSelectedTab,
             booksIds, setBooksIds,
             favouritesIds, setFavouritesIds,
             city, setCity,

@@ -1,8 +1,7 @@
-* {
+*{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: sans-serif;
 }
 
 :root{
@@ -16,8 +15,10 @@
     --darkWhite: #f3f3f3;
     --darkWhiteHover: #d7d7d7;
     --softRed: rgb(255, 113, 130);
-    --headerHeight: 172px;
+    --headerHeight: 176px;
     --headerHeightMobile: 76px;
+    --softGreen: #c3fec8;
+    --softYellow: #ffefbc;
 }
 
 body{

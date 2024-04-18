@@ -9,20 +9,22 @@ import { useSearchParams } from 'next/navigation';
 import Svgs from '@utils/Svgs';
 import { Context } from '@utils/Context';
 import Link from 'next/link';
-import { getBookDateFormat, getOptimizedAttachedFiles } from '@utils/Logic';
+import { getBookDateFormat, getOptimizedAttachedFiles, isValidArrayOfStrings, isValidContactURL } from '@utils/Logic';
 import MyCalendar from '@components/MyCalendar';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
+import { contactsPlatforms } from '@utils/Data';
 
 const Page = () => {
 
     const id = useSearchParams().get('id');
 
     const {
-        userId, storageKey, userEmail
+        userId, storageKey, userEmail, loadingUserInfo
     } = useContext(Context);
 
     const [fetchingOnce, setFetchingOnce] = useState(true);
+    const [fetchingUserInfo, setFetchingUserInfo] = useState(true);
     const [fetching, setFetching] = useState(false);
     const [runOnce, setRunOnce] = useState(false);
     const [item, setItem] = useState(null);
@@ -30,6 +32,9 @@ const Page = () => {
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/mp4', 'video/avi'];
     const inputFilesRef = useRef();
     const attachImagesDivRef = useRef();
+
+    const [contacts, setContacts] = useState([]);
+    const [contactsError, setContactsError] = useState('');
 
     const [error, setError] = useState('');
     const [cityPopup, setCityPopup] = useState(false);
@@ -66,6 +71,8 @@ const Page = () => {
     const [requireInsurance, setRequireInsurance] = useState(false);
     const [uploadedFiles, setUploadedFiles] = useState([]);
     const [attachedFilesUrls, setAttachedFilesUrls] = useState([]);
+    const [discountPer, setDiscountPer] = useState(0);
+    const [discountNights, setDiscountNights] = useState(0);
 
     const [guestRoomsDetailArray, setGuestRoomsDetailArray] = useState([]);
     const [companionsDetailArray, setCompanionsDetailArray] = useState([]);
@@ -102,6 +109,20 @@ const Page = () => {
 
     const handleSubmit = async() => {
 
+        let tempContacts = [], tempItemContacts = [];
+
+        contacts.forEach((item) => {
+            tempContacts.push({
+                platform: item.platform, val: item.val
+            });
+        });
+
+        item.contacts?.forEach((item) => {
+            tempItemContacts.push({
+                platform: item.platform, val: item.val
+            });
+        });
+
         if(
             !item.type_is_vehicle 
             && itemTitle === item.title
@@ -117,7 +138,9 @@ const Page = () => {
             && attachedFilesUrls.length <= 0
             && uploadedFiles.toString() === [...item.images, ...item.videos].toString()
             && filesToDelete.length <= 0
-        ) {
+            && discountPer === item.discount?.percentage && discountNights === item.discount?.num_of_days_for_discount
+            && JSON.stringify(tempContacts) === JSON.stringify(tempItemContacts) || (tempContacts.length <= 0 && (item.contacts === null || item.contacts === undefined))
+        ){
             setError('لم يتم تعديل أي بيانات');
             setSuccess(false);
             return;
@@ -133,6 +156,8 @@ const Page = () => {
             && attachedFilesUrls.length <= 0
             && uploadedFiles.toString() === [...item.images, ...item.videos].toString()
             && filesToDelete.length <= 0
+            && discountPer === item.discount?.percentage && discountNights === item.discount?.num_of_days_for_discount
+            && JSON.stringify(tempContacts) === JSON.stringify(tempItemContacts) || (tempContacts.length <= 0 && (item.contacts === null || item.contacts === undefined))
         ) {
             setError('لم يتم تعديل أي بيانات');
             setSuccess(false);
@@ -158,14 +183,47 @@ const Page = () => {
             errorEncountered = true;
         }
 
+        if(!tempContacts?.length > 0){
+            setContactsError('الرجاء كتابة طريقة تواصل واحدة على الأقل.');
+            errorEncountered = true;
+        } else {
+            for (let i = 0; i < tempContacts.length; i++) {
+                if(!isValidContactURL(tempContacts[i])) {
+                    setContactsError('هنالك رابط غير صالح, الرجاء اختيار منصة و ادخال رابط صالح.');
+                    errorEncountered = true;
+                }
+            }
+        }
+
+        if(discountNights > 0 && (typeof discountNights !== 'number' || discountNights < 0 || discountNights > 2000)){
+            setDiscountNights(-1);
+            errorEncountered = true;
+        }
+
+        if(discountPer > 0 && (typeof discountPer !== 'number' || discountPer < 0 || discountPer > 100)){
+            setDiscountPer(-1);
+            errorEncountered = true;
+        }
+
         if(errorEncountered === true){
-            window.scrollTo({
-                top: 320, behavior: 'smooth'
-            });
+            if(!contactsError?.length > 0)
+                window.scrollTo({
+                    top: 320, behavior: 'smooth'
+                });
             setError('أكمل الحقول الفارغة.');
             setSuccess(false);
             return;
         }
+
+        setContactsError('');
+
+        const xDiscount = () => {
+            if(discountPer <= 0) return null;
+            return {
+                num_of_days_for_discount: (!discountNights || discountNights < 0) ? 0 : discountNights,
+                percentage: discountPer
+            };
+        };
 
         try {
 
@@ -190,7 +248,7 @@ const Page = () => {
                 setError(attahcedFilesError ? 'أضف صور و فيديوهات تعبر عن المعروض و أضف على الأقل تفيصلتان في خانة التفاصيل.' : 'أضف على الأقل تفيصلتان في خانة التفاصيل.');
                 errorEncountered = true;
             } else {
-                if(attahcedFilesError === true) setError('يجب أن يحتوي العرض على صولاة واحدة على الأقل.');
+                if(attahcedFilesError === true) setError('يجب أن يحتوي العرض على صورة واحدة على الأقل.');
             }
 
             if(errorEncountered === true) {
@@ -229,6 +287,8 @@ const Page = () => {
                 && bathroomsDetailArray === item.details.bathrooms
                 && kitchenDetailArray === item.details.kitchen
                 && roomsDetailArray === item.details.rooms
+                && discountPer === item.discount?.percentage && discountNights === item.discount?.num_of_days_for_discount
+                && JSON.stringify(tempContacts) === JSON.stringify(tempItemContacts) || (tempContacts.length <= 0 && (item.contacts === null || item.contacts === undefined))
             ){
                 res = { success: true, dt: { message: 'no details to add' } };
             } else if(
@@ -240,11 +300,14 @@ const Page = () => {
                 && conditionsAndTerms === item.terms_and_conditions
                 && vehicleSpecifications === item.details.vehicle_specifications
                 && vehicleFeatures === item.details.vehicle_addons
+                && discountPer === item.discount?.percentage && discountNights === item.discount?.num_of_days_for_discount
+                && JSON.stringify(tempContacts) === JSON.stringify(tempItemContacts) || (tempContacts.length <= 0 && (item.contacts === null || item.contacts === undefined))
             ) {
                 res = { success: true, dt: { message: 'no details to add' } };
             } else {
                 res = await editProperty(
-                    id, itemTitle, itemDesc, itemPrice, xDetails, conditionsAndTerms
+                    id, itemTitle, itemDesc, itemPrice, xDetails, conditionsAndTerms, 
+                    tempContacts?.length > 0 ? tempContacts : null, xDiscount()
                 );
             }
 
@@ -489,6 +552,43 @@ const Page = () => {
         return true;    
     };
 
+    const getInputPlaceHolder = (pl) => {
+        switch(pl){
+            case 'youtube':
+                return 'ادخل رابط يوتيوب';
+            case 'facebook':
+                return 'ادخل رابط فيسبوك';
+            case 'linkedin':
+                return 'ادخل رابط لينكدان';
+            default:
+                return 'ادخل رابط حسابك';    
+        }
+    };
+
+    const contactsIsChanged = () => {
+
+        let tempContacts = [], tempItemContacts = [];
+
+        contacts.forEach((item) => {
+            tempContacts.push({
+                platform: item.platform, val: item.val
+            });
+        });
+
+        item.contacts?.forEach((item) => {
+            tempItemContacts.push({
+                platform: item.platform, val: item.val
+            });
+        });
+
+        if(JSON.stringify(tempContacts) !== JSON.stringify(tempItemContacts) 
+            || (tempContacts.length > 0 && (item.contacts === null || item.contacts === undefined)) )
+            return true;
+
+        return false;
+
+    }
+
     useEffect(() => {
         setRunOnce(true);
     }, []);
@@ -508,9 +608,13 @@ const Page = () => {
             setItemTitle(item.title);
             setItemDesc(item.description);
             setItemPrice(item.price);
+            console.log('iterating this: ', item.images);
             setUploadedFiles([...item.images, ...item.videos]);
             setRequireInsurance(item.details.insurance);
             setSelectBookedDays(item.booked_days || []);
+            if(item.contacts) setContacts(item.contacts);
+            setDiscountNights(item.discount?.num_of_days_for_discount);
+            setDiscountPer(item.discount?.percentage);
 
             if(item.type_is_vehicle){
                 setVehicleSpecifications(item.details.vehicle_specifications);
@@ -547,9 +651,17 @@ const Page = () => {
         return () => clearTimeout(timeout);
     }, [calendarSelect]);
 
+    useEffect(() => {
+        if(!loadingUserInfo && userId?.length > 0) setFetchingUserInfo(false);
+    }, [fetchingUserInfo]);
+
+    const RightIconSpan = () => {
+        return <span id='righticonspan'/>
+    }
+
     if(!item || !userId?.length > 0){
         return (
-            fetchingOnce ? <MySkeleton /> : <NotFound />
+            (fetchingOnce || fetchingUserInfo) ? <MySkeleton isMobileHeader/> : <NotFound />
         )
     }
 
@@ -560,6 +672,21 @@ const Page = () => {
         <span id='closePopups' onClick={() => setCityPopup(false)} style={{ display: !cityPopup && 'none' }}/>
 
         <div className='wrapper editProp'>
+
+            {item.isRejected ? <div className='rejection-div'>
+                <div className='status'>العرض <span>مرفوض</span></div>
+                <h2>أسباب رفض العرض</h2>
+                <ul>
+                {item?.reject_reasons?.map((reason, index) => (
+                    <li key={index}>{reason}</li>
+                ))}
+                </ul>
+                <p><Svgs name={'info'}/>قم بتعديل العرض و ارساله مجددا</p>
+            </div> : <div className='rejection-div' style={{ 
+                background: !item.checked ? 'var(--softYellow)' : 'var(--softGreen)'
+             }}>
+                <div style={{ margin: 0 }} className='status'>حالة العرض <span>{!item.checked ? 'تحت المراجعة' : 'مقبول'}</span></div>
+            </div>}
 
             <button onClick={() => setIsVisibilty(!isVisibilty)} className={!isVisibilty ? 'editDiv' : 'editDiv chngpassbtn'}>ظهور العرض<Svgs name={'dropdown arrow'}/></button>
 
@@ -588,9 +715,10 @@ const Page = () => {
             <div className='hide-show-prop calendar-edit-prop' style={{ display: !isBookDays ? 'none' : null }}>
                 <p><Svgs name={'info'}/>حدد أيام لا يمكن الحجز فيها, تستطيع تغيير هذه الأيام في أي وقت.</p>
                 
-                <h3>الأيام المحجوزة حاليا</h3>
+                <h3 style={{ marginBottom: 20 }}>الأيام المحجوزة حاليا</h3>
 
-                <p id='detailed-by-color'>معلمة باللون <span /> , اضغط على اليوم لاضافته أو حذفه من قائمة الأيام.</p>
+                <p style={{ marginBottom: 8 }} id='detailed-by-color'>معلمة باللون <span />,</p> 
+                <p style={{ marginBottom: 24 }} id='detailed-by-color'>اضغط على اليوم لاضافته أو حذفه من قائمة الأيام.</p>
 
                 <div id='calendar-div'>
                     {triggerCalendarRender && <MyCalendar setCalender={setCalenderSelect} 
@@ -629,6 +757,21 @@ const Page = () => {
                 <strong>/</strong>
                 <h4>الليلة</h4>
             </div>
+
+            <div className='set-discount'>
+                <h3>تخفيض</h3>
+                <div><CustomInputDiv type={'number'} value={discountPer > 0 ? discountPer : null}
+                    placholderValue={'حدد نسبة'} 
+                    listener={(e) => setDiscountPer(Number(e.target.value))} 
+                    min={0} max={100} isError={discountPer === -1}/> %</div>
+                <h3>في حال حجز</h3>
+                <div><CustomInputDiv type={'number'} value={discountNights > 0 ? discountNights : null} 
+                    placholderValue={'عدد الليالي'}
+                    listener={(e) => setDiscountNights(Number(e.target.value))} 
+                    min={1} max={2000}/> ليلة أو أكثر</div>
+            </div>
+
+            <hr />
 
             <div className='attachFiles' ref={attachImagesDivRef}>
 
@@ -686,14 +829,64 @@ const Page = () => {
 
                 <div className='insuranceDetail'>
                     <h3>هل الايجار يتطلب تأمين؟</h3>
-                    <input type='radio' name='insurance_group' onChange={() => setRequireInsurance(true)}/><label>نعم</label>
-                    <input checked={requireInsurance ? false : true} type='radio' name='insurance_group' onChange={() => setRequireInsurance(false)}/><label>لا</label>
+                    <input type='radio' name='insurance_group' checked={item.details?.insurance} onChange={() => setRequireInsurance(true)}/><label>نعم</label>
+                    <input checked={item.details?.insurance} type='radio' name='insurance_group' onChange={() => setRequireInsurance(false)}/><label>لا</label>
+                </div>
+
+                <div className='detailItem contacts-div'>
+                    <h3>تعديل طرق تواصل</h3>
+                    <p style={{ marginBottom: contactsError?.length > 0 ? null : 0 }} id='error'>{contactsError}</p>
+                    <ul className='detailItem-ul'>
+                    {contacts?.map((c, index) => (
+                        <li key={index}>
+                            <CustomInputDiv isError={contactsError?.length > 0 && !isValidContactURL(c)} errorText={'رابط غير صالح'} value={c.val?.length > 0 ? c.val : null} placholderValue={getInputPlaceHolder(c.platform)}
+                            deletable handleDelete={() => {
+                                let arr = [];
+                                for (let i = 0; i < contacts.length; i++) {
+                                    if(i !== index){
+                                        arr.push(contacts[i]);
+                                    }
+                                }
+                                setContacts(arr);
+                            }}
+                            listener={(e) => {
+                                let arr = [...contacts];
+                                arr[index] = { platform: arr[index].platform, val: e.target.value, isPlatforms: arr[index].isPlatforms };
+                                setContacts(arr);
+                            }}/>
+                            <div className='choose-platform' id={contactsError?.length > 0 && !isValidContactURL(c) && !c.platform?.length > 0 ? 'choose-platform-error' : ''}>
+                                <button className={c.isPlatforms ? 'editDiv rotate-edit-div' : 'editDiv'} onClick={() => {
+                                    let arr = [...contacts];
+                                    arr[index] = { platform: arr[index].platform, val: arr[index].val, isPlatforms: !arr[index].isPlatforms };
+                                    for (let i = 0; i < contacts.length; i++) {
+                                        if(i !== index){
+                                            arr[i] =  { platform: arr[i].platform, val: arr[i].val, isPlatforms: false };
+                                        }
+                                    }
+                                    setContacts(arr);
+                                }}>
+                                    {c?.platform?.length > 0 ? c.platform : 'اختر منصة'} <Svgs name={'dropdown arrow'}/>
+                                </button>
+                                <ul style={{ display: c.isPlatforms ? null : 'none' }}>
+                                    {contactsPlatforms.map((p) => (
+                                        <li onClick={() => {
+                                            let arr = [...contacts];
+                                            arr[index] = { platform: p, val: arr[index].val, isPlatforms: false };
+                                            setContacts(arr);
+                                        }}>{p} {p === c.platform && <RightIconSpan />}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </li>
+                    ))}
+                    </ul>
+                    <button className='btnbackscndclr' onClick={() => setContacts([...contacts, { platform: '', val: '', isPlatforms: false }])}>أضف المزيد</button>
                 </div>
                 
                 {getDetails().map((item) => (
                     <div className='detailItem'>
                         <h3>{item.name}</h3>
-                        <ul>
+                        <ul className='detailItem-ul'>
                             {item.array.map((obj, myIndex) => (
                                 <li key={myIndex}>
                                     <CustomInputDiv placholderValue={obj} value={obj} deletable handleDelete={() => {
@@ -753,10 +946,12 @@ const Page = () => {
 
                 <div className='edits-info'>
                     سيتم تعديل  
-                    {itemTitle !== item.title && <h4 style={{ marginTop: 16}}> العنوان: {itemTitle}</h4>}
+                    {itemTitle !== item.title && <h4 style={{ marginTop: 24}}> العنوان: {itemTitle}</h4>}
                     {itemDesc !== item.description && <h4> الوصف: {itemDesc}</h4>}
                     {itemPrice !== item.price && <h4>السعر: {itemPrice}</h4>}
-                    {conditionsAndTerms !== item.terms_and_conditions && <h4>الشروط و الأحكام: {conditionsAndTerms}</h4>}
+                    {conditionsAndTerms !== item.terms_and_conditions && <h4>الشروط و الأحكام: {conditionsAndTerms.toString()}</h4>}
+                    {contactsIsChanged() && <h4>طرق التواصل</h4>}
+               
                 </div>
 
                 <label id='error2' style={{ padding: error.length <= 0 && 0, margin: error.length <= 0 && 0 }}>{error}</label>

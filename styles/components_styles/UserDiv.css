@@ -4,13 +4,21 @@
     border: 2px solid var(--darkWhite);
     padding: 12px;
     cursor: pointer;
+    position: relative;
+
+    a{
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
 
     .infodiv{
         cursor: pointer;
         margin-bottom: 16px;
+        overflow: hidden;
 
         h3{
-            white-space: nowrap;
+            white-space: wrap;
         }
     }
 
@@ -22,6 +30,23 @@
         height: fit-content;
         word-wrap: break-word;
     }
+}
+
+.btnbackscndclr{
+    width: 100%;
+    padding: 12px;
+    background: var(--secondColor);
+    color: white;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease-out;
+}
+
+.btnbackscndclr:hover{
+    background: var(--secondColorHover);
+    transition: all 0.2s ease-in;
 }
 
 .userDiv:hover{

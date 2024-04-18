@@ -7,24 +7,22 @@ import { JordanCities, homePageCatagories, testImage } from '@utils/Data';
 import Swiper from 'swiper/bundle';
 import 'swiper/swiper-bundle.css';
 import Svgs from '@utils/Svgs';
-import CityImage from '@assets/images/jordan-city.jpg';
-import LandImage1 from '@assets/images/test.jpg';
-import LandImage2 from '@assets/images/landing1.webp';
-import LandImage3 from '@assets/images/landing2.webp';
-import LandImage4 from '@assets/images/vehcile-for-rent.jpg';
 import { Context } from '@utils/Context';
+import { getNameByLang } from '@utils/Logic';
+import { getCityImage } from '@utils/Cities';
 
-const HeroSection = () => {
+const HeroSection = ({ isEnglish }) => {
 
-    const cities = [
-        { _id: 0, name: 'عمان', cityRef: useRef() },
-        { _id: 1, name: 'الزرقاء', cityRef: useRef() },
-        { _id: 2, name: 'اربد', cityRef: useRef() },
-        { _id: 5, name: 'الرمثا', cityRef: useRef() },
-        { _id: 22, name: 'الكرك', cityRef: useRef() },
-        { _id: 28, name: 'المؤتة', cityRef: useRef() },
-        { _id: 34, name: 'كريمة', cityRef: useRef() }
-    ];
+    let cities = [];
+
+    for (let i = 0; i < JordanCities.length; i++) {
+        cities.push({
+            _id: JordanCities[i].city_id,
+            value: JordanCities[i].value,
+            arabicName: JordanCities[i].arabicName,
+            cityRef: useRef()
+        });
+    };
 
     const swiperRef = useRef();
     const [selectedCity, setSelectedCity] = useState(cities[3]);
@@ -65,10 +63,10 @@ const HeroSection = () => {
             },
             on: {
                 sliderMove: () => {
-                        setTimeout(() => {handleChange()}, [500])
+                        setTimeout(() => {handleChange()}, [250])
                 },
                 slideChange: () => {
-                    setTimeout(() => {handleChange()}, [500])
+                    setTimeout(() => {handleChange()}, [250])
                 }
             }
         }));
@@ -105,11 +103,11 @@ const HeroSection = () => {
 
         <div className="hero">
             
-            <div className='ourDeals'>
+            <div className='ourDeals' dir='rtl'>
 
-                <h1>استفد من عروضنا الحصرية لإِيجار السيارات و العقارات في كل أنحاء الاردن</h1>
+                <h1>{getNameByLang('استفد من عروضنا الحصرية لإِيجار السيارات و العقارات في كل أنحاء الاردن', isEnglish)}</h1>
                 
-                <p>توجد لدينا عروض بمختلف أصناف العقارات و السيارات من شقق و منازل الى مزارع و مخيمات و سيارات أينما كنت في الاردن ستجد ما يناسبك</p>
+                <p>{getNameByLang('توجد لدينا عروض بمختلف أصناف العقارات و السيارات من شقق و منازل الى مزارع و مخيمات و سيارات أينما كنت في الاردن ستجد ما يناسبك', isEnglish)}</p>
 
                 <div className='citiesDiv'>
 
@@ -117,14 +115,14 @@ const HeroSection = () => {
 
                         <div class="swiper-wrapper wrapperDiv" onChange={() => console.log('changed')}>
                             {cities.map((c) => (
-                                <div onClick={() => {
+                                <div dir={isEnglish ? 'ltr' : null} onClick={() => {
                                     console.log('c: ', c, ' city: ', JordanCities.find(i => i.city_id === c._id));
                                     setIsMobileHomeFilter(true); 
                                     setCity(JordanCities.find(i => i.city_id === c._id));
                                 }} className={`swiper-slide cityItem ${c._id === selectedCity._id && 'selectedCity'}`} ref={c.cityRef}>
                                     <div>
-                                        <Image src={CityImage} loading='eager' alt={`${c.name} صورة`}/>
-                                        <h3>{c.name}</h3>
+                                        <Image src={getCityImage(c?.value)} loading='eager' alt={`${c.name} صورة`}/>
+                                        <h3>{isEnglish ? c.value : c.arabicName}</h3>
                                     </div>
                                 </div>
                             ))}
@@ -141,7 +139,7 @@ const HeroSection = () => {
 
             <div className='allOffersCatagories'>
                 <ul>
-                    {homePageCatagories.map((ctg) => (
+                    {homePageCatagories(isEnglish).map((ctg) => (
                         <li><h3>{ctg}</h3></li>
                     ))}
                 </ul>
@@ -149,18 +147,18 @@ const HeroSection = () => {
 
             <div className='ourOffers'>
 
-                <VerticalList list={[{image: LandImage1}, {image: LandImage1}, {image: LandImage1}]}/>
-                <VerticalList list={[{image: LandImage2}, {image: LandImage2}, {image: LandImage2}]}/>
+                <VerticalList list={[{image: getCityImage('Ajloun')}, {image: getCityImage('Zarqa')}, {image: getCityImage('Wadi Rum and Petra')}]}/>
+                <VerticalList list={[{image: getCityImage('Tafilah')}, {image: getCityImage('As-Salt')}, {image: getCityImage('Amman')}]}/>
 
 
                 <div className='text'>
-                    <h2>عروضنا المميزة</h2>
-                    <p>هل تبحث عن سيارة للإيجار أو شقة للإقامة؟ نحن هنا لمساعدتك في العثور على أفضل الخيارات, اختر من بين مجموعة متنوعة من السيارات، بدءًا من الاقتصادية إلى الفاخرة, بحث عن شقق مفروشة أو غير مفروشة، وفلل، وشقق مشتركة.</p>
-                    <button onClick={() => setIsMobileHomeFilter(true)}>استكشف</button>
+                    <h2>{getNameByLang('عروضنا المميزة', isEnglish)}</h2>
+                    <p>{getNameByLang('هل تبحث عن سيارة للإيجار أو شقة للإقامة؟ نحن هنا لمساعدتك في العثور على أفضل الخيارات, اختر من بين مجموعة متنوعة من السيارات، بدءًا من الاقتصادية إلى الفاخرة, بحث عن شقق مفروشة أو غير مفروشة، وفلل، وشقق مشتركة.', isEnglish)}</p>
+                    <button onClick={() => setIsMobileHomeFilter(true)}>{getNameByLang('استكشف', isEnglish)}</button>
                 </div>
 
-                <VerticalList list={[{image: LandImage3}, {image: LandImage3}, {image: LandImage3}]}/>
-                <VerticalList list={[{image: LandImage4}, {image: LandImage4}, {image: LandImage4}]}/>
+                <VerticalList list={[{image: getCityImage('Irbid')}, {image: getCityImage('Karak')}, {image: getCityImage('Aqaba')}]}/>
+                <VerticalList list={[{image: getCityImage('Mafraq')}, {image: getCityImage('Jerash')}, {image: getCityImage('Main')}]}/>
 
             </div>
         

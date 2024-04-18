@@ -11,17 +11,27 @@
         width: 100%;
         max-width: 1300px;
         display: flex;
+        justify-content: center;
         flex-wrap: wrap;
         gap: 24px;
 
-        div{
+        .skeleton-item{
           width: 100%;
-          max-width: 300px;
+          max-width: 250px;
           border-radius: 8px;
           overflow: hidden;
-          background: rgb(236, 236, 236);
-          padding: 0;
-          margin: 0;
+          background: white;
+          box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.179);
+          padding: 12px;
+        }
+
+        .skeleton-item-big{
+          width: 100%;
+          border-radius: 8px;
+          overflow: hidden;
+          background: white;
+          box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.179);
+          padding: 12px;
         }
     }
 
@@ -91,22 +101,20 @@
   }
 }
 
+@media screen and (max-width: 960px){
+  .skeleton{
+    padding-top: 32px;
+    margin-top: var(--headerHeightMobile);
+  }
+}
+
 @media screen and (max-width: 680px){
   .skeleton{
-    padding: 12px;
-
-    .div1, .div2, .div3{
-      gap: 8px;
-      margin-top: 8px;
-    }
-
     .container{
-      gap: 8px;
-
-      div{
-        max-width: 48%;
-      }
+      .skeleton-item{
+        max-width: 480px;
+      }  
     }
-  }
+  }  
 }
   

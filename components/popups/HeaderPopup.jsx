@@ -7,9 +7,10 @@ import { JordanCities, ProperitiesCatagories, VehicleCatagories } from '@utils/D
 import Svgs from '@utils/Svgs';
 import { useContext } from 'react';
 import { Context } from '@utils/Context';
+import { getNameByLang } from '@utils/Logic';
 
 const HeaderPopup = ({ 
-    type, pathname, catagory, setCatagory, handleChoose,
+    type, pathname, isEnglish, catagory, setCatagory, handleChoose,
     setCalendarDoubleValue, itemCity, setItemCity, isViewPage, days,
     isCustom, setIsCustom, customArray, selectedCustom, setSelectedCustom 
 }) => {
@@ -44,7 +45,7 @@ const HeaderPopup = ({
                         setCity({});
                         setTriggerFetch(!triggerFetch);
                     }
-                }}>كل المدن{!city.value && <RightIconSpan />}</li>
+                }}>{getNameByLang('كل المدن', pathname?.includes('/en'))}{!city.value && <RightIconSpan />}</li>
                 {JordanCities.map((cty) => (
                     <li onClick={() => {
                         if(city !== cty){
@@ -52,7 +53,7 @@ const HeaderPopup = ({
                             setTriggerFetch(!triggerFetch);
                         }
                     }} key={cty.city_id}>
-                        {cty.arabicName} 
+                        {pathname?.includes('/en') ? cty.value : cty.arabicName} 
                         {city.city_id === cty.city_id && <RightIconSpan />}
                     </li>
                 ))}
@@ -69,7 +70,7 @@ const HeaderPopup = ({
                 {JordanCities.map((cty) => (
                     <li onClick={() => { setItemCity(cty) }} 
                     key={cty.city_id}>
-                        {cty.arabicName} 
+                        {isEnglish ? cty.value : cty.arabicName} 
                         {itemCity.city_id === cty.city_id && <RightIconSpan />}
                     </li>
                 ))}
@@ -82,13 +83,14 @@ const HeaderPopup = ({
             animate={{ opacity: 1, scale: 1 }}
         >
             <ul>
-                <li onClick={() => {
+                <li style={{ margin: 0 }} onClick={() => {
                     if(catagory !== ''){
                         setCatagory('');
                         setTriggerFetch(!triggerFetch);
                     }
                 }} id="allCtgLi">
-                    <h3>كل التصنيفات</h3> 
+                    <Svgs name={'layer'}/>
+                    <h3>{getNameByLang('كل التصنيفات', pathname?.includes('/en'))}</h3> 
                     {catagory === '' && <RightIconSpan />}
                 </li>
 
@@ -99,7 +101,8 @@ const HeaderPopup = ({
                             setTriggerFetch(!triggerFetch);
                         }
                     }}>
-                        <h3>{ctg.arabicName}</h3> 
+                        <Svgs name={ctg.value}/>
+                        <h3>{getNameByLang(ctg.arabicName, pathname.includes('/en'))}</h3> 
                         {catagory === ctg.value && <RightIconSpan />}
                     </li>
                 ))}
@@ -123,7 +126,7 @@ const HeaderPopup = ({
                         setSelectedCustom(cst);
                         setIsCustom(false);
                     }} key={cst.value}>
-                        {cst.arabicName} 
+                        {isEnglish ? cst.value?.replaceAll('-', ' ')?.replaceAll('_', ' ') : cst.arabicName} 
                         {selectedCustom.value === cst.value && <RightIconSpan />}
                     </li>
                 ))}

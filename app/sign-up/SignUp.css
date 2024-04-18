@@ -28,6 +28,7 @@
 
             .policies{
                 display: flex;
+                flex-wrap: wrap;
                 width: 100%;
                 height: fit-content;
                 align-items: center;
@@ -39,17 +40,23 @@
                     margin-left: 8px;
                     cursor: pointer;
                     accent-color: var(--secondColor);
+
+                    &:dir(ltr){
+                        margin-left: 0;
+                        margin-right: 8px;
+                    }
                 }
 
                 p{
                     color: grey;
                 }
     
-                span{
+                a{
                     color: var(--secondColorHover);
                     cursor: pointer;
                     margin: 0 8px;
                     word-break: break-all;
+                    text-decoration: none;
                 }
             }
         }
@@ -82,7 +89,22 @@
             text-align: center;
         }
 
-        a{
+        #forget-password{
+            width: fit-content;
+            margin-top: -40px;
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: var(--secondColor);
+            margin-bottom: 32px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        #forget-password:hover{
+            color: var(--secondColorHover);
+        }
+
+        #navigate-to-sign{
             text-decoration: none;
             color: var(--secondColor);
             width: 100%;
@@ -93,7 +115,7 @@
             transition: all 0.2s ease-in;
         }
 
-        a:hover{
+        #navigate-to-sign:hover{
             color: var(--secondColorHover);
             transition: all 0.2s ease-in;
         }
@@ -117,7 +139,25 @@
         a{
             width: fit-content;
             font-size: 1rem;
+            color: var(--secondColorHover);
         }
+    }
+
+    hr{
+       margin: 40px 0 52px 0;
+       border-color: rgba(0, 0, 0, 0.142); 
+    }
+
+    #p-info{
+        color: var(--secondColor);
+        font-size: 0.9rem;
+        margin-top: 6px;
+    }
+
+    #p-info-error{
+        color: var(--softRed);
+        font-size: 0.9rem;
+        margin-top: 6px;
     }
 }
 

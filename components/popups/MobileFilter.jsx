@@ -10,12 +10,12 @@ import VehicleImage from '@assets/images/sedan-car.png';
 import PropertyImage from '@assets/images/property.png';
 import PropertyWhiteImage from '@assets/images/property-white.png';
 import { ProperitiesCatagories, VehicleCatagories } from '@utils/Data';
-import { getReadableDate } from '@utils/Logic';
+import { getNameByLang, getReadableDate } from '@utils/Logic';
 import Calendar from 'react-calendar';
 import MyCalendar from '@components/MyCalendar';
 import Link from 'next/link';
 
-const MobileFilter = () => {
+const MobileFilter = ({ isEnglish }) => {
 
     const { 
       isMobileHomeFilter, setIsMobileHomeFilter, city,
@@ -72,7 +72,9 @@ const MobileFilter = () => {
           <div id='mobile-filter-header'/>
 
           <div id='close-popups' style={{
-            display: (isCalendar || isCityDiv) ? null : 'none'
+            display: (isCalendar || isCityDiv) ? null : 'none',
+            width: '100%',
+            height: '100%'
           }} onClick={() => {
             setIsCalendar(false);
             setIsCityDiv(false);
@@ -81,8 +83,8 @@ const MobileFilter = () => {
           <div className='city-div-filter' onClick={() => {
             setIsCityDiv(!isCityDiv);
           }}>
-            <CustomInputDiv title={'اختر مدينة'} isCity value={city.arabicName === '' ? 'كل المدن' : city.arabicName} listener={() => setIsCityDiv(true)}/>
-            {isCityDiv && <HeaderPopup type={'city'} />}
+            <CustomInputDiv title={getNameByLang('المدينة', isEnglish)} isCity value={city.arabicName === '' ? getNameByLang('كل المدن', isEnglish) : isEnglish ? city.value : city.arabicName} listener={() => setIsCityDiv(true)}/>
+            {isCityDiv && <HeaderPopup type={'city'} isEnglish={isEnglish}/>}
           </div>
 
           <hr />
@@ -94,45 +96,33 @@ const MobileFilter = () => {
             </div>
 
             <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
-              تاريخ الحجز
-              <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(0), true)}</h3>
+              {getNameByLang('تاريخ الحجز', isEnglish)}
+              <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(0), true, isEnglish)}</h3>
             </div>
 
             <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
-              تاريخ انتهاء الحجز
-              <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true)}</h3>
+              {getNameByLang('تاريخ انتهاء الحجز', isEnglish)}
+              <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, isEnglish)}</h3>
             </div>
 
           </div>
 
           <hr />
 
-          <h2>ما الذي تريد إِيجاره</h2>
-
-          <ul className='selectCatagory'>
-
-              <CatagoryCard type={'add'} image={VehicleImage} title={'سيارة'} catagoryId={'0'} selectedCatagories={selectedCatagories} setSelectedCatagories={setSelectedCatagories}/>
-              
-              <CatagoryCard type={'add'} image={selectedCatagories !== '1' ? PropertyImage : PropertyWhiteImage} title={'عقار'} catagoryId={'1'} selectedCatagories={selectedCatagories} setSelectedCatagories={setSelectedCatagories}/>
-
-          </ul>
-
-          <hr />
-
-          <h2>حدد التصنيف</h2>
+          <h2>{getNameByLang('التصنيف', isEnglish)}</h2>
 
           <div className="catagory">
               <ul>
                   <li onClick={() => setCatagory('')}
                       className={catagory === '' && 'selectedCatagory'}
                   >
-                      كل التصنيفات
+                      {getNameByLang('كل التصنيفات', isEnglish)}
                   </li>
                   {getCatagoryArray().map((ctg) => (
                       <li onClick={() => setCatagory(ctg.value)}
                           className={catagory === ctg.value && 'selectedCatagory'}
                       >
-                          {ctg.arabicName}
+                          {getNameByLang(ctg.arabicName, isEnglish)}
                       </li>
                   ))}
               </ul>
@@ -141,13 +131,13 @@ const MobileFilter = () => {
           <hr />
 
           <div className='mobile-filter-buttons'>
-              <Link onClick={() => setIsMobileHomeFilter(false)} href={getNavLink()}>الذهاب</Link>
-              <Link onClick={() => {
+              <Link style={{ width: '100%' }} onClick={() => setIsMobileHomeFilter(false)} href={getNavLink()}>{getNameByLang('الذهاب', isEnglish)}</Link>
+              <Link style={{ width: '100%' }} onClick={() => {
                 setCatagory('');
                 setCity('');
                 setCalendarDoubleValue(null);
                 setIsMobileHomeFilter(false);
-              }} href={'/search'} id='skip-filter'>تخطي</Link>
+              }} href={'/search'} id='skip-filter'>{getNameByLang('تخطي', isEnglish)}</Link>
           </div>
 
         </div>

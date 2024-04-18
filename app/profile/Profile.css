@@ -5,7 +5,7 @@
     flex-direction: column;
     align-items: center;
     margin-top: var(--headerHeightMobile);
-    padding: 16px;
+    padding: 16px 16px 64px 16px;
     overflow-y: hidden;
 
     .details{
@@ -79,6 +79,12 @@
 
             .card{
                 width: 299px;
+                max-width: 299px;
+                min-width: 299px;
+            }
+
+            .skeleton{
+                margin-top: 0;
             }
         }
         
@@ -351,9 +357,15 @@
                     width: 16px;
                     height: 16px;
                     margin-left: 8px;
+
                     path{
                         fill: var(--softRed);
                         stroke-width: 0;
+                    }
+
+                    &:dir(ltr){
+                        margin-left: 0;
+                        margin-right: 8px;
                     }
                 }
             }
@@ -394,6 +406,11 @@
                 h2{
                     width: fit-content;
                     margin-left: auto;
+
+                    &:dir(ltr){
+                        margin-left: 0;
+                        margin-right: auto;
+                    }
                 }
             }
 
@@ -425,6 +442,11 @@
                     path{
                         stroke: transparent;
                         fill: var(--secondColor);
+                    }
+
+                    &:dir(ltr){
+                        margin-left: 0;
+                        margin-right: 8px;
                     }
                 }
             }
@@ -519,6 +541,8 @@
                     
                     .card{
                         width: 299px;
+                        max-width: 299px;
+                        min-width: 299px;
                         margin-bottom: 10px;
     
                         &:hover{
@@ -540,6 +564,7 @@
         }
 
         .verifyEmailDiv{
+            padding: 0;
 
             p{
                 margin: 12px 0;
@@ -582,7 +607,7 @@
                 padding: 16px;
                 display: block;
                 background: var(--darkWhite);
-                margin-bottom: 24px;
+                margin-bottom: 32px;
                 cursor: pointer;
 
                 span{
@@ -593,11 +618,20 @@
                 }
             }
 
+            .inputDiv{
+                margin-bottom: 28px;
+            }
+
             .cityPopup{
                 height: fit-content;
                 top: 64px;
                 right: 0;
                 z-index: 12;
+
+                &:dir(ltr){
+                    right: unset;
+                    left: 0;
+                }
             }
 
             p{
@@ -606,6 +640,16 @@
                 align-items: center;
                 margin-top: 4px;
             }
+        }
+    }
+
+    .empty-holder{
+        width: 260px;
+        height: 260px;
+
+        div{
+            width: 100%;
+            height: 100%;
         }
     }
 
@@ -633,11 +677,6 @@
 @media screen and (max-width: 1160px){
     .profile{
         margin-top: var(--headerHeightMobile);
-    }
-}
-
-@media screen and (max-width: 680px){
-    .profile{
         .details{
             .tabButtons{
                 li{
@@ -645,6 +684,23 @@
                     justify-content: center;
                     align-items: center;
                 }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 680px){
+    .profile{
+        padding: 24px 12px 32px 12px;
+        .details{
+            .tabButtons{
+                border-radius: 24px;
+                padding: 8px;
+                flex-wrap: wrap;
+            }
+
+            .items{
+                justify-content: center;
             }
 
             .itemsOffered{

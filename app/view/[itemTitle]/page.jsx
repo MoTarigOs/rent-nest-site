@@ -1,8 +1,8 @@
 'use client';
 
-import './View.css';
+import '../view-style/View.css';
 import ImagesShow from "@components/ImagesShow";
-import { JordanCities } from "@utils/Data";
+import { JordanCities, myConditions } from "@utils/Data";
 import GoogleMapImage from '@assets/images/google-map-image.jpg';
 import Image from "next/image";
 import LocationGif from '@assets/icons/location.gif';
@@ -11,12 +11,13 @@ import { useContext, useEffect, useState } from 'react';
 import ReviewCard from '@components/ReviewCard';
 import HeaderPopup from '@components/popups/HeaderPopup';
 import { useSearchParams } from 'next/navigation';
-import { deletePropFilesAdmin, deleteReviewsAdmin, deleteSpecificPropFilesAdmin, fetchPropertyDetails, handleBooksAddRemove, handleFavourite, handlePropAdmin, makeReport, sendReview } from '@utils/api';
+import { deletePropFilesAdmin, deleteReportOnProp, deleteReviewsAdmin, deleteSpecificPropFilesAdmin, fetchPropertyDetails, handleBooksAddRemove, handleFavourite, handlePropAdmin, makeReport, sendReview } from '@utils/api';
 import CustomInputDiv from '@components/CustomInputDiv';
 import { Context } from '@utils/Context';
-import { getNumOfBookDays, getReadableDate, isOkayBookDays } from '@utils/Logic';
+import { getNumOfBookDays, getReadableDate, isOkayBookDays, isValidArrayOfStrings, isValidContactURL, isValidNumber } from '@utils/Logic';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
+import Link from 'next/link';
 
 const page = () => {
 
@@ -25,21 +26,31 @@ const page = () => {
     setBooksIds, userId, userRole, setIsMap, 
     setMapType, setLatitude, setLongitude,
     calendarDoubleValue, setCalendarDoubleValue,
-    storageKey, userEmail
+    storageKey, userEmail, isMobile
   } = useContext(Context);
+  
+  const id = useSearchParams().get('id');
+  const isReportParam = useSearchParams().get('isReport');
+
+  const [bookSuccess, setBookSuccess] = useState(false);
 
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [canBook, setCanBook] = useState(false);
   const [runOnce, setRunOnce] = useState(false);
   const [item, setItem] = useState(null);
   const [isVideosFiles, setIsVideosFiles] = useState(false);
   const [imageFullScreen, setImageFullScreen] = useState('-1');
   const [shareDiv, setShareDiv] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const [adminSending, setAdminSending] = useState(false);
   const [adminType, setAdminType] = useState('pass-property');
   const [adminError, setAdminError] = useState('');
   const [adminSuccess, setAdminSuccess] = useState('');
+
+  const [rejectReasons, setRejectReasons] = useState(['']);
+  const [rejectError, setRejectError] = useState('');
   
   const [filesToDeleteAdmin, setFilesToDeleteAdmin] = useState([]);
   const [deletingFiles, setDeletingFiles] = useState(false);
@@ -75,7 +86,10 @@ const page = () => {
   const [addingToFavs, setAddingToFavs] = useState(false);
   const [addingToBooks, setAddingToBooks] = useState(false);
 
-  const id = useSearchParams().get('id');
+  const [deletingReport, setDeletingReport] = useState(false);
+  const [isDeleteReport, setIsDeleteReport] = useState(false);
+
+  const whatsappBaseUrl = 'https://wa.me/';
 
   async function fetchItemDetails () {
 
@@ -121,8 +135,6 @@ const page = () => {
         return;
       }
 
-      console.log('score: ', scoreRate, ' typeof: ', typeof scoreRate, ' text ', reviewText);
-
       setSendingReview(true);
 
       const res = await sendReview(scoreRate, reviewText, id);
@@ -136,6 +148,7 @@ const page = () => {
 
       setSendReviewError('');
       setSendReviewSuccess('تم اضافة المراجعة بنجاح');
+      if(res.dt) setItem(res.dt);
       setSendingReview(false);
       
     } catch (err) {
@@ -203,20 +216,44 @@ const page = () => {
       setAddingToBooks(true);
 
       const res = await handleBooksAddRemove(
-        id, 
+        id,
         booksIds.find(i => i.property_id === id) ? true : false, 
         calendarDoubleValue?.at(0)?.getTime(), 
         calendarDoubleValue?.at(1)?.getTime()
       );
-
-      console.log(res);
 
       if(res.success === true && res.dt){
         setBooksIds(res.dt);
       }
 
       setAddingToBooks(false);
-      
+
+      let whatsapp = item?.contacts?.find(i => i.platform === 'whatsapp');
+
+      if(whatsapp && !isNaN(Number(whatsapp.val))) {
+        if(whatsapp.val?.at(0) === '0' && whatsapp.val?.at(1) === '0') 
+          whatsapp = whatsapp.val?.replace('00', '+');
+        return window.open(`${whatsappBaseUrl}/${whatsapp.val}`, '_blank');
+      }
+
+      if(whatsapp && isValidContactURL(whatsapp))
+        return window.open(whatsapp.val, '_blank');
+
+      let telegram = item?.contacts?.find(i => i.platform === 'telegram');
+
+      if(telegram && isValidContactURL(telegram))
+        return window.open(telegram.val, '_blank');
+
+      if(!booksIds.find(i => i.property_id === id)){
+        setIsSpecifics(false); 
+        setIsReviews(false); 
+        setIsMapDiv(false); 
+        setIsTerms(true);  
+        setBookSuccess('تم الاضافة بنجاح, تواصل مع مقدم الخدمة من قسم الشروط و التواصل');
+      } else {
+        setBookSuccess('');
+      }
+
     } catch (err) {
       console.log(err.message);
       setAddingToBooks(false);
@@ -238,6 +275,11 @@ const page = () => {
       if(adminType === 'show-property' && item.visible) return;
       if(adminType === 'hide-property' && !item.visible) return;
       if(adminType === 'pass-property' && item.checked) return;
+      if(adminType === 'reject-property' && (item.isRejected || !isValidArrayOfStrings(rejectReasons))) {
+        setRejectError('الرجاء كتابة اسباب لرفض العرض');
+        return;
+      }
+      setRejectError('');
       if(adminType === 'delete-property' && !item) return;
 
       setAdminSending(true);
@@ -255,11 +297,7 @@ const page = () => {
         setAdminSuccess('');
       };
       
-      console.log('admin send reached, sending: ', adminSending, ' type: ', adminType);
-
-      const res = await handlePropAdmin(id, adminType);
-
-      console.log('res: ', res);
+      const res = await handlePropAdmin(id, adminType, rejectReasons);
 
       if(res.success !== true) {
         setAdminError(res.dt);
@@ -270,7 +308,10 @@ const page = () => {
 
       setAdminError('');
       setAdminSuccess('تم التحديث بنجاح');
+
       if(adminType === 'pass-property') setItem(res.dt);
+
+      if(adminType === 'reject-property') setItem(res.dt);
 
       if(adminType === 'hide-property') {
         setItem(res.dt);
@@ -282,7 +323,7 @@ const page = () => {
         setAdminType('hide-property');
       };
 
-      if(adminType === 'delete-property') setTimeout(() => { setItem(null) }, [5000]);
+      if(adminType === 'delete-property') setTimeout(() => { setItem(null) }, [2000]);
       setAdminSending(false);
       
     } catch (err) {
@@ -393,6 +434,65 @@ const page = () => {
     return true;
   };
 
+  const deleteReport = async() => {
+
+    if(deletingReport) return;
+
+    try {
+
+      setDeletingReport(true);
+
+      const res = await deleteReportOnProp(id);
+
+      if(!res.success !== true){
+        setDeletingReport(false);
+        return;
+      }
+
+      setItem(res.dt);
+      setDeletingReport(false);
+      
+    } catch (err) {
+      console.log(err);
+      setDeletingReport(false);
+    }
+  };
+
+  const copyUrl = async() => {
+    setCopied(false);
+    try {
+      await navigator.clipboard.writeText(getShareUrl());
+      setCopied(true);
+    } catch (err) {}
+  };
+
+  const getDesiredContact = (returnObj, isPhone) => {
+    if(!item.contacts || item.contacts.length <= 0) return null;
+    for (let i = 0; i < item.contacts.length; i++) {
+      if(item.contacts?.at(i)?.platform === 'whatsapp'){
+        if(returnObj) return item.contacts[i];
+        if(isValidContactURL(item.contacts[i])) return `${whatsappBaseUrl}/${item.contacts[i].val}`;
+        if(isValidNumber(item.contacts[i])) return item.contacts[i];
+      }
+    }
+    if(isValidContactURL(item.contacts[0]) && !isPhone)
+      return item.contacts[0];
+    return null;    
+  };
+
+  const openContactURL = (myContact) => {
+    console.log(myContact, isValidContactURL(myContact));
+    if(!myContact?.platform) return '';
+    if(myContact.platform === 'whatsapp'){
+      if(!isNaN(Number(myContact.val))) {
+        if(myContact.val?.at(0) === '0' && myContact.val?.at(1) === '0') 
+          myContact = myContact.val?.replace('00', '+');
+        return window.open(`${whatsappBaseUrl}/${myContact.val}`, '_blank');
+      }
+    }
+    if(isValidContactURL(myContact)) return window.open(myContact.val, '_blank');
+  };
+
   useEffect(() => {
     setRunOnce(true);
     setAdminSending(false);
@@ -401,6 +501,7 @@ const page = () => {
 
   useEffect(() => {
     setCanBook(isAbleToBook());
+    console.log(item?.booked_days);
   }, [item]);
 
   useEffect(() => {
@@ -426,9 +527,17 @@ const page = () => {
     setCanBook(isAbleToBook());
   }, [calendarDoubleValue]);
 
+  useEffect(() => {
+    if(!loading && item) setFetching(false);
+  }, [loading, item]);
+
+  const RightIconSpan = () => {
+    return <span id='righticonspan'/>
+  }
+
   if(!item){
     return (
-        loading ? <MySkeleton /> : <NotFound />
+        fetching ? <MySkeleton isMobileHeader={true}/> : <NotFound />
     )
   }
 
@@ -437,40 +546,72 @@ const page = () => {
 
       {reportDiv && <div className='reportDiv'>
 
-        <h2>إِبلاغ عن {writerId?.length > 0 ? 'هذه المراجعة' : 'هذا العرض'} <Svgs name={'cross'} on_click={() => { setReportDiv(false); setWriterId(''); }}/></h2>
+        {userId?.length > 0 
+        ? <h2>قم بالتسجيل أولاً للإبلاغ عن العروض والمراجعات</h2>
+        : <>
+          <h2>إِبلاغ عن {writerId?.length > 0 ? 'هذه المراجعة' : 'هذا العرض'} <Svgs name={'cross'} on_click={() => { setReportDiv(false); setWriterId(''); }}/></h2>
 
-        <CustomInputDiv title={'سبب الإِبلاغ'} isError={reportText === '-1' && true} errorText={'الرجاء كتابة سبب للإِبلاغ'} value={reportText === '-1' ? '' : reportText} listener={(e) => setReportText(e.target.value)}/>
+          <CustomInputDiv title={'سبب الإِبلاغ'} isError={reportText === '-1' && true} errorText={'الرجاء كتابة سبب للإِبلاغ'} value={reportText === '-1' ? '' : reportText} listener={(e) => setReportText(e.target.value)}/>
 
-        <button onClick={() => {
-          if(writerId?.length > 0) {
-            report(writerId);
-          } else {
-            report(null);
-          }
-        }}>{reporting ? 'جاري الإِبلاغ...' : 'إِبلاغ'}</button>
+          <button onClick={() => {
+            if(writerId?.length > 0) {
+              report(writerId);
+            } else {
+              report(null);
+            }
+          }}>{reporting ? 'جاري الإِبلاغ...' : 'إِبلاغ'}</button>
+        </>}
 
       </div>}
 
-      {shareDiv && <div className='reportDiv'>
+      {shareDiv && <div className='reportDiv shareDiv'>
         <h2>استعمل هذا الرابط للاشارة الى هذا العرض
           <Svgs name={'cross'} on_click={() => setShareDiv(false)}/>
         </h2>  
         <p>{getShareUrl()}</p>
+        <button className='editDiv' onClick={copyUrl}
+          id={copied ? 'share-url-copied' : ''}>
+          {copied ? 'تم النسخ' : 'نسخ'} 
+          {copied ? <RightIconSpan /> : <Svgs name={'copy'}/>}
+        </button>
       </div>}
 
       {isAdmin() && <div className='view-admin-section'>
 
         <h2>قسم المسؤول للتحكم بالعرض</h2>
         
-        <div className='status'>حالة العرض <span>{item.visible ? 'مرئي' : 'مخفي'}</span> <span>{item.checked ? 'مقبول' : 'غير مقبول'}</span></div>
+        <div className='status'>حالة العرض <span>{item.visible ? 'مرئي' : 'مخفي'}</span> <span>{item.checked ? 'مقبول' : item.isRejected ? 'مرفوض' : 'غير مقبول'}</span></div>
 
         <h3>ماذا تريد الفعل بهذا العرض ؟</h3>
 
         <ul>
-          <li className={adminType === 'pass-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('pass-property')}>قبول العرض</li>
+          <li id={item.checked ? 'unactive-btn' : null} className={adminType === 'pass-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('pass-property')}>قبول العرض</li>
+          <li id={(item.isRejected || item.checked) ? 'unactive-btn' : null} className={adminType === 'reject-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('reject-property')}>رفض العرض</li>
           <li className={adminType === 'delete-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('delete-property')}>حذف العرض</li>
           <li className={(adminType === 'hide-property' || adminType === 'show-property') ? 'selected-admin-type' : ''} onClick={() => setAdminType(item.visible ? 'hide-property' : 'show-property')}>{item.visible ? 'إِخفاء العرض' : 'إِظهار العرض'}</li>
         </ul>
+
+        <div className='reject-reasons' style={{ display: adminType === 'reject-property' ? null : 'none' }}>
+          <h2>أضف أسباب رفض العرض</h2>
+          {rejectReasons.map((reason, index) => (
+          <div key={index}><CustomInputDiv placholderValue={!reason?.length > 0 ? 'أضف سبب للرفض' : reason} value={reason} deletable handleDelete={() => {
+            let arr = [];
+            for (let i = 0; i < rejectReasons.length; i++) {
+                if(i !== index){
+                    arr.push(rejectReasons[i]);
+                }
+            }
+            setRejectReasons(arr);
+          }} 
+          listener={(e) => {
+            let arr = [...rejectReasons];
+            arr[index] = e.target.value;
+            setRejectReasons(arr);
+          }}/></div>
+          ))}
+          <button className='btnbackscndclr' onClick={() => setRejectReasons([...rejectReasons, ''])}>اضافة</button>
+          <p id={rejectError?.length > 0 ? 'p-info-error' : ''}>{rejectError}</p>
+        </div>
 
         <button className='btnbackscndclr' onClick={sendAdmin}>{adminSending ? 'جاري تحديث حالة العرض...' : 'تأكيد'}</button>
         
@@ -532,11 +673,31 @@ const page = () => {
 
         </div>
 
+        {isReportParam && <>
+        <hr />
+        <button className={`editDiv ${isDeleteReport ? 'rotate-svg' : ''}`} onClick={() => setIsDeleteReport(!isDeleteReport)}>حذف الابلاغ عن هذا العرض <Svgs name={'dropdown arrow'}/></button>
+        <span style={{ display: isDeleteReport ? 'block' : 'none', marginBottom: 16 }} id='info-span'>سيتم حذف الابلاغ عن هذا العرض أو اي ابلاغ عن مراجعة لهذا العرض</span>
+        <button className='btnbackscndclr' style={{ display: isDeleteReport ? null : 'none' }} 
+          onClick={deleteReport}>
+            {deletingReport ? 'جاري الحذف...' : 'حذف الابلاغ'}
+        </button></>}
+
       </div>}
 
       {imageFullScreen !== '-1' && <div className='full-screen'>
         <Svgs name={'full screen down'} on_click={() => setImageFullScreen('-1')}/>
         <Image src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${imageFullScreen}`} fill={true} alt='صورة بوضع الشاشة الكامل عن العرض' />
+      </div>}
+
+      {item.isRejected && <div className='rejection-div'>
+        <div className='status'>العرض <span>مرفوض</span></div>
+        <h2>أسباب رفض العرض</h2>
+        <ul>
+          {item?.reject_reasons?.map((reason, index) => (
+            <li key={index}>{reason}</li>
+          ))}
+        </ul>
+        <p><Svgs name={'info'}/> قم بتعديل العرض و ارساله مجددا من <Link href={`/edit-prop?id=${id}`}>هنا</Link></p>
       </div>}
 
       <div className='intro'>
@@ -548,7 +709,8 @@ const page = () => {
           <ul>
             <li><Svgs name={'star'}/> {Number(item.ratings?.val).toFixed(2)} ({item.ratings?.no} تقييم)</li>
             <li><Svgs name={item.type_is_vehicle ? 'loc vehicle' : 'location'}/> {JordanCities.find(i => i.value === item.city)?.arabicName}, {item.neighbourhood}</li>
-            {!item.type_is_vehicle && <li><Svgs name={'area'}/> المساحة {item.area} م2</li>}
+            {!(item.type_is_vehicle && item.area > 0) && <li><Svgs name={'area'}/> المساحة {item.area} م2</li>}
+            {getDesiredContact(true, true) && <li><Svgs name={getDesiredContact(true, true)?.platform}/> <Link href={getDesiredContact(null, true)}>{getDesiredContact(true, true)?.val}</Link></li>}
             <li id='giveThisMarginRight' onClick={handleFav}><Svgs name={`wishlist${favouritesIds.includes(id) ? ' filled' : ''}`}/> {addingToFavs ? 'جاري الاضافة...' : (favouritesIds.includes(id) ? 'أزل من المفضلة' : 'اضف الى المفضلة')}</li>
             <li style={{ marginLeft: 0 }} onClick={() => setShareDiv(!shareDiv)}><Svgs name={'share'}/> مشاركة</li>
           </ul>
@@ -580,7 +742,7 @@ const page = () => {
             <li className={isSpecifics && 'selectedTab'} onClick={() => {setIsSpecifics(true); setIsReviews(false); setIsMapDiv(false); setIsTerms(false)}}>المواصفات</li>
             <li className={isReviews && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(true); setIsMapDiv(false); setIsTerms(false)}}>التقييمات</li>
             <li className={isMap && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(false); setIsMapDiv(true); setIsTerms(false)}}>الخريطة</li>
-            <li className={isTerms && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(false); setIsMapDiv(false); setIsTerms(true)}}>الشروط و الأحكام</li>
+            <li className={isTerms && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(false); setIsMapDiv(false); setIsTerms(true)}}>الشروط و التواصل</li>
           </ul>
 
           <h2>{isSpecifics ? 'المواصفات' : isReviews ? 'التقييمات' : isMap ? 'الخريطة' : isTerms ? 'الأحكام و الشروط' : ''}</h2>
@@ -588,14 +750,16 @@ const page = () => {
           <ul className='specificationsUL' style={{ display: !isSpecifics && 'none' }}>
             {!item.type_is_vehicle ? <>
               <li><Svgs name={'insurance'}/><h3>{item.details.insurance === true ? 'يتطلب تأمين قبل الحجز' : 'لا يتطلب تأمين'}</h3></li>
-              <li><Svgs name={'guest room'}/><h3>غرف الضيوف</h3><ul>{item.details.guest_rooms.map((i) => (<li>{i}</li>))}</ul></li>
-              <li><Svgs name={'facilities'}/><h3>المرافق</h3><ul>{item.details.facilities.map((i) => (<li>{i}</li>))}</ul></li>
-              <li><Svgs name={'bathrooms'}/><h3>دورات المياه</h3><ul>{item.details.bathrooms.map((i) => (<li>{i}</li>))}</ul></li>
-              <li><Svgs name={'kitchen'}/><h3>المطبخ</h3><ul>{item.details.bathrooms.map((i) => (<li>{i}</li>))}</ul></li>
-              <li id='lastLiTabButtonUL' ><Svgs name={'rooms'}/><h3>الغرف</h3><ul>{item.details.bathrooms.map((i) => (<li>{i}</li>))}</ul></li>
+              <li><Svgs name={'guest room'}/><h3>غرف الضيوف</h3><ul>{item.details?.guest_rooms?.map((i) => (<li>{i}</li>))}</ul></li>
+              <li><Svgs name={'facilities'}/><h3>المرافق</h3><ul>{item.details?.facilities?.map((i) => (<li>{i}</li>))}</ul></li>
+              <li><Svgs name={'bathrooms'}/><h3>دورات المياه</h3><ul>{item.details?.bathrooms?.map((i) => (<li>{i}</li>))}</ul></li>
+              <li><Svgs name={'kitchen'}/><h3>المطبخ</h3><ul>{item.details?.bathrooms?.map((i) => (<li>{i}</li>))}</ul></li>
+              <li><Svgs name={''}/><h3>الأماكن القريبة</h3><ul>{item.details?.near_places?.map((i) => (<li>{i}</li>))}</ul></li>
+              <li id='lastLiTabButtonUL' ><Svgs name={'rooms'}/><h3>الغرف</h3><ul>{item.details?.bathrooms?.map((i) => (<li>{i}</li>))}</ul></li>
             </> : <>
               <li><Svgs name={'vehicle specifications'}/><h3>مواصفات السيارة</h3><ul>{item?.details?.vehicle_specifications?.map((i) => (<li>{i}</li>))}</ul></li>
               <li><Svgs name={'vehicle addons'}/><h3>ملحقات السيارة</h3><ul>{item?.details?.vehicle_addons?.map((i) => (<li>{i}</li>))}</ul></li>
+              <li><Svgs name={''}/><h3>الأماكن القريبة</h3><ul>{item.details?.near_places?.map((i) => (<li>{i}</li>))}</ul></li>
             </>}
           </ul>
 
@@ -634,7 +798,7 @@ const page = () => {
 
             <div className='addressMapDiv'><Image src={LocationGif}/><h3>{JordanCities.find(i => i.value === item.city)?.arabicName}, {item.neighbourhood}</h3></div>
           
-            <h5 className='moreDetailsAfterPay'><Svgs name={'info'}/>سنرسل لك تفاصيل دقيقة عن الموقع بعد تأكيد الشراء</h5>
+            <h5 className='moreDetailsAfterPay'><Svgs name={'info'}/>سيرسل لك المضيف تفاصيل دقيقة عن الموقع بعد تأكيد الحجز</h5>
 
             <div className='googleMapDiv' onClick={showMap}>
                 <span>رؤية الموقع على الخريطة</span>
@@ -653,8 +817,16 @@ const page = () => {
             </li>
             <li id='hostLiTermsUL'><h3>شروط و أحكام المنصة</h3>
                 <ul>
-                  <li>اختر شروطا هنا</li>
-                  <li>اختر شروطا هنا 2</li>
+                  {myConditions().map((term) => (
+                    <li>{term}</li>
+                  ))}
+                </ul>
+            </li>
+            <li id='hostLiTermsUL'><h3>طرق التواصل مع المضيف</h3>
+                <ul>
+                  {item.contacts?.map((contact, index) => (
+                    isValidContactURL(contact) && <li key={index} onClick={() => openContactURL(contact)}>{contact.platform}</li>
+                  ))}
                 </ul>
             </li>
           </ul>
@@ -683,8 +855,9 @@ const page = () => {
           </div>
 
           <div className='cost'>
-            <h3>تخفيض {item.discount.percentage}% <span>- {(getNumOfBookDays(calendarDoubleValue) * item.price * item.discount?.percentage / 100).toFixed(2)} دولار</span></h3>
-            <h3>اجمالي تكلفة {getNumOfBookDays(calendarDoubleValue)} ليلة <span>{((getNumOfBookDays(calendarDoubleValue) * item.price) - (getNumOfBookDays(calendarDoubleValue) * item.price * item.discount?.percentage / 100)).toFixed(2)} دولار</span></h3>
+            <h3 style={{ display: (getNumOfBookDays(calendarDoubleValue) >= item.discount?.num_of_days_for_discount && item.discount?.percentage > 0)
+              ? null : 'none' }}>تخفيض {item.discount?.percentage}% <span>- {(getNumOfBookDays(calendarDoubleValue) * item.price * item.discount?.percentage / 100).toFixed(2)} دولار</span></h3>
+            <h3>اجمالي تكلفة {getNumOfBookDays(calendarDoubleValue)} ليلة <span>{((getNumOfBookDays(calendarDoubleValue) * item.price) - (item.discount?.percentage ? (getNumOfBookDays(calendarDoubleValue) * item.price * item.discount.percentage / 100) : 0)).toFixed(2)} دولار</span></h3>
           </div>
 
           <button className='btnbackscndclr' id={(item.owner_id === userId || !canBook) ? 'disable-button' : ''} 
@@ -696,11 +869,15 @@ const page = () => {
               : 'هذا عرضك الخاص'}
           </button>
 
+          <p id='info-p' style={{ marginTop: bookSuccess?.length > 0 ? 8 : 0 }}>{bookSuccess}</p>
+
         </div>
 
       </div>
 
-      {isCalendar && <span onClick={() => setIsCalendar(false)} id='spanForClosingPopups'/>}
+      {(isCalendar || shareDiv || reportDiv) && <span onClick={() => {
+        setIsCalendar(false); setShareDiv(false); setReportDiv(false);
+      }} id='spanForClosingPopups'/>}
 
     </div>
   )

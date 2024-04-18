@@ -21,9 +21,9 @@
         z-index: 11;
     
         .navBtn{
+            width: fit-content;
             padding: 4px 2px;
             height: fit-content;
-            background: transparent;
             cursor: pointer;
             border: none;
             font-size: 1rem;
@@ -59,7 +59,7 @@
         padding: 16px;
         margin-top: 60px;
         position: absolute;
-        z-index: 9;
+        z-index: 20;
         top: 100%;
 
         &::before{
@@ -154,6 +154,14 @@
 
             .mobileSearchDivLI{
                 display: none;
+
+                &:dir(ltr){
+                    svg{
+                        margin-left: 0;
+                        margin-right: 16px;
+                        transform: rotateY(180deg);
+                    }
+                }
             }
 
             #searchSvg{
@@ -247,7 +255,7 @@
         top: 100%;
         display: flex;
         padding: 16px 0 32px 0;
-        margin-top: 64px;
+        margin-top: 68px;
         background: white;
         position: relative;
 
@@ -349,6 +357,15 @@
         justify-content: space-between;
         margin: 0;
 
+        #close-nav-span{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.748);
+        }
+
         .menuIconDiv{
             width: 24px;
             height: 18px;
@@ -377,7 +394,7 @@
             display: flex;
             flex-direction: column;
             overflow-y: scroll;
-            background: var(--white);
+            background: var(--darkWhite);
             box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.181);
             z-index: 120;
     
@@ -402,6 +419,15 @@
                         margin-left: 16px;
                         width: 24px;
                         height: 24px;
+                        
+                        path{
+                            fill: var(--secondColorHover);
+                        }
+
+                        &:dir(ltr){
+                            margin-left: 0;
+                            margin-right: 16px;
+                        }
                     }
                 }
 
@@ -413,6 +439,10 @@
                 .addItemHeaderDiv{
                     margin: 12px auto;
                     width: fit-content;
+                }
+
+                .admin-header-button{
+                    margin: 0;
                 }
 
                 .lang{
@@ -439,7 +469,11 @@
         position: absolute;
         top: 0;
         left: calc(50% - 50vw);
-        z-index: -1;
+        z-index: 19;
+    }
+
+    .cityPopup, .catagoryPopup, .calenderPopup{
+        z-index: 30;
     }
 
     .filterHeaderDiv{
@@ -496,14 +530,15 @@
     }
 
     .logo{
-        width: 120px;
-        height: 100%;
-        margin-left: 24px;
+        width: 160px;
+        min-width: 140px;
+        height: 54px;
+        margin-left: 44px;
 
         img{
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
         }
     }
 
@@ -530,15 +565,26 @@
         cursor: pointer;
         border-radius: 4px;
         margin-right: 16px;
-
+        text-decoration: none;
+        transition: all 0.2s ease-out;
+        
         h5{
             font-weight: 400;
+            font-size: 0.9rem;
+            color: rgba(130, 130, 130, 0.804);
             white-space: nowrap;
         }
 
-        a{
+        p{
             text-decoration: underline;
+            font-size: 1.1rem;
+            color: rgb(59, 59, 59);
         }
+    }
+
+    .lang:hover{
+        background: var(--darkWhite);
+        transition: all 0.2s ease-in;
     }
 
     .addItemHeaderDiv{
@@ -552,7 +598,13 @@
         color: black;
         font-weight: 500;
         border: 2px solid rgba(0, 0, 0, 0.184);
+        margin-right: 24px;
         transition: all 0.2s ease-out;
+    
+        &:dir(ltr){
+            margin-right: 16px;
+            margin-left: 24px;
+        }
     }
 
     .addItemHeaderDiv:hover{
@@ -593,6 +645,7 @@
     }
 
     .user{
+        max-width: 150px;
 
         a{
             padding: 8px 12px;
@@ -629,8 +682,18 @@
     
             p{
                 color: black;
+                max-width: 100%;
+                overflow: hidden;
+                -ms-text-overflow: ellipsis;
+                -o-text-overflow: ellipsis;
+                text-overflow: ellipsis;
+                white-space: nowrap;
                 font-weight: 500;
             }
+        }
+
+        &:dir(ltr){
+            margin-right: 16px;
         }
     }
 
@@ -652,6 +715,127 @@
 
         svg{
             margin-left: 12px;
+        }
+
+        &:dir(ltr){
+            margin-right: 0;
+
+            svg{
+                margin-left: 0;
+                margin-right: 12px;
+            }
+        }
+    }
+}
+
+.englishHeader{
+    
+    .logo{
+        margin-left: 0;
+        margin-right: 24px;
+        transform: translateY(-8px);
+    }
+    .user{
+        a{
+            .profileSvg{
+                margin-left: 0;
+                margin-right: 12px;
+            }
+    
+            .arrowSvg{
+                margin-right: 0;
+                margin-left: 12px;
+            }
+        }
+    }
+    .lang{
+        margin-right: 0;
+        margin-left: 16px;
+    }
+    .searchDiv{
+        ul{
+            padding-right: 0;
+            padding-left: 64px;
+        }
+    }
+    .filterHeaderDiv{
+        button{
+            border-top-left-radius: 50px;
+            border-bottom-left-radius: 50px;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        #secondFilterHeaderDivBtn{
+            border-top-left-radius: unset;
+            border-bottom-left-radius: unset;
+            border-top-right-radius: 50px;
+            border-bottom-right-radius: 50px;
+            padding-right: 16px;
+        }
+        svg{
+            margin-left: 0;
+            margin-right: 8px;
+        }
+    }
+    .headerSearchOtherDiv{
+
+        .headerNavUL{
+            margin-left: 0;
+            margin-right: 16px;
+
+            .headerNavLi{
+                margin-right: 0;
+                margin-left: 32px;
+                border-left: none;
+                border-right: 2px solid var(--darkWhite);
+            }
+        }
+
+        .showMap{
+            svg{
+                margin-left: 0;
+                margin-right: 8px;
+            }
+        }
+
+        &::before{
+            right: calc(50% - 50vw);
+            left: unset;
+        }
+
+        &::after{
+            right: calc(50% - 50vw);
+            left: unset;
+        }
+    }
+    .catagoryPopup{
+        right: -32px;
+        left: unset;
+
+        h3, svg{
+            margin-left: 0;
+        }
+        h3{
+            margin-right: auto;
+        }
+    }
+    .desktopWrapper{
+        gap: 0;
+
+        .navBtn{
+            margin-left: 0;
+            margin-right: 16px;
+            font-size: 0.96rem;
+        }
+    }
+}
+
+@media screen and (max-width: 1200px){
+    .header, .englishHeader{
+        .desktopWrapper{
+            .navBtn{
+                margin: 0;
+            }
         }
     }
 }
@@ -749,17 +933,18 @@
         .headerSearchDiv{
             max-width: 65%;
         }
-        .mobileSearchDiv{
-            a{
-                svg{
-                    width: 16px;
-                    min-width: 16px;
-                    height: 16px;
-                    min-height: 16px;
-                    display: block;
-                }
+        .searchDiv ul{
+
+            .mobileSearchDivLI{
+                padding: 0;
+
                 p{
-                    font-size: 3vw;
+                    font-size: 0.8rem;
+                }
+
+                svg{
+                    min-width: 16px;
+                    min-height: 16px;
                 }
             }
         }

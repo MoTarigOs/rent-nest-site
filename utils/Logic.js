@@ -1,4 +1,4 @@
-import { ProperitiesCatagories, VehicleCatagories } from "./Data";
+import { ProperitiesCatagories, VehicleCatagories, contactsPlatforms } from "./Data";
 import imageCompression from 'browser-image-compression';
 
 // new Compressor(image, {      //npm install compressorjs
@@ -10,6 +10,7 @@ import imageCompression from 'browser-image-compression';
 // },
 // });
 
+const allowedFilenameChar = 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz0123456789-_.';
 const testCharacaters = 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz -!_*&%?.#+/@0123456789أابتثجحخدذرزعغلمنهويئسشصضطكفقةىءؤ';
 const imageCompressionOptions = {
     maxSizeMB: 1,
@@ -21,13 +22,13 @@ const maxVideoSize = 128000000;
 const oneDayMillieseconds = 86400000;
 
 export const blockDurationsArray = [
-    { value: 86400000, arabicName: '1 يوم' },
-    { value: 120, arabicName: 'اسبوع' },
-    { value: 1200, arabicName: 'شهر' },
-    { value: 12000, arabicName: '6 شهور' },
-    { value: 120000, arabicName: 'سنة' },
-    { value: 1200000, arabicName: '10 سنة' },
-    { value: 12000000, arabicName: '100 سنة' },
+    { value: '1 day', ms: 86400000, arabicName: '1 يوم' },
+    { value: '1 week', ms: 604800000, arabicName: 'اسبوع' },
+    { value: '1 month', ms: 2629746000, arabicName: 'شهر' },
+    { value: '6 months', ms: 15778800000, arabicName: '6 شهور' },
+    { value: 'One year', ms: 31556952000, arabicName: 'سنة' },
+    { value: '10 years', ms: 315360000000   , arabicName: '10 سنة' },
+    { value: '100 years', ms: 3155695200000, arabicName: '100 سنة' }
 ];
 
 export const propsSections = [
@@ -98,21 +99,17 @@ export const isValidEmail = (email) => {
 
 };
 
-export const isValidPassword = (ps) => {
+export const isValidPassword = (ps, isEn) => {
 
-    if(typeof ps !== "string" || ps.length < 8 || ps.length > 30) return { ok: false };
+    if(typeof ps !== "string" || ps.length < 8 || ps.length > 30) return { ok: false,  };
 
+    if(ps.length < 8) return { ok: false, dt: isEn ? 'password is too short, must contain 8 characters or more.' : 'كلمة السر قصيرة جدا, يجب أن تنكون من 8 حروف على الأقل' }
+    
+    if(ps.length > 30) return { ok: false, dt: isEn ? 'password is too long, must not exceed 30 characters.' : 'كلمة السر طويلة جدا, يجب أن لاتزيد عن 30 حرف' };
+    
     for (let i = 0; i < ps.length; i++) {
-
-        let passed = false;
-
-        for (let j = 0; j < testCharacaters.length; j++) {
-            if(ps[i] === testCharacaters[j]) 
-                passed = true;
-        }
-
-        if(!passed) return { ok: false };
-
+        if(!testCharacaters.includes(ps[i])) 
+            return { ok: false, dt: isEn ? `this letter ${ps[i]} is not valid, please use another one.` : `هذا الحرف ${ps[i]} غير صالج, الرجاء استخدام حرف غيره.` };
     };
 
     return { ok: true };
@@ -226,8 +223,18 @@ export function getDurationReadable(milliseconds) {
 
 };
 
-export function getReadableDate (date, isSimple) {
-    if(!date || date <= 0) return 'غير محدد';
+export function getReadableFileSizeString(fileSizeInBytes) {
+    const byteUnits = [' B', ' kB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB'];
+    let i = 0;
+    while (fileSizeInBytes > 1024 && i < byteUnits.length - 1) {
+        fileSizeInBytes /= 1024;
+        i++;
+    }
+    return Math.max(fileSizeInBytes, 0.1).toFixed(1) + byteUnits[i];
+}
+
+export function getReadableDate (date, isSimple, isEnglish) {
+    if(!date || date <= 0) return isEnglish ? 'undefined' : 'غير محدد';
     let obj = {
         weekday: 'long',
         year: 'numeric',
@@ -238,7 +245,7 @@ export function getReadableDate (date, isSimple) {
         obj.hour = 'numeric';
         obj.minute = '2-digit';
     }
-    return (new Intl.DateTimeFormat('ar', obj)
+    return (new Intl.DateTimeFormat(isEnglish ? 'en' : 'ar', obj)
         .format(date).toString());
 };
 
@@ -266,9 +273,156 @@ export const getBookDateFormat = (date) => {
     } catch(err) {}
 };
 
+export const isValidText = (text, minLength) => {
+
+    if(!minLength && (!text || typeof text !== "string" || text.length <= 0)) return false;
+
+    if(minLength && (!text || typeof text !== "string" || text.length < minLength)) return false;
+
+    // for (let i = 0; i < text.length; i++) {
+
+    //     let passed = false;
+
+    //     for (let j = 0; j < testChars.length; j++) {
+    //         if(text[i] === testChars[j]) 
+    //             passed = true;
+    //     }
+
+    //     if(!passed) return false;
+
+    // };
+    
+    return true;
+};
+
+export const isValidNumber = (num, maxLength, minLength, type) => {
+
+    if(isNaN(Number(num))) return false;
+
+    if(Boolean(maxLength) && (typeof num !== "number" || num > maxLength)) return false;
+
+    if(Boolean(minLength <= 0 ? 1 : minLength) && (typeof num !== "number" || num < minLength)) return false;
+
+    if(!Boolean(maxLength) && !Boolean(minLength) && (typeof num !== "number" || num <= 0)) return false;
+    
+    return true;
+
+};
+
+export const isValidContactURL = (contact) => {
+
+    if(!isValidText(contact.val) || !contactsPlatforms.includes(contact.platform))
+        return false;
+
+    let origin;
+
+    try {
+        origin = (new URL(contact.val)).origin;
+    } catch(err) {
+        console.log(err);
+        if(contact.platform !== 'whatsapp' && contact.platform !== 'telegram')
+            return false;
+        if(!isValidNumber(Number(contact.val))) return false;
+    }
+
+    switch(contact.platform){
+        case 'youtube':
+            if(origin !== 'https://www.youtube.com' && origin !== 'https://youtu.be'){
+                return false;
+            } else {
+                return true;
+            }
+        case 'whatsapp':
+            if(origin && origin !== 'https://wa.me'){
+                return false;
+            } else if(!origin && !isValidNumber(Number(contact.val))){
+                return false;
+            } else {
+                return true;
+            }
+        case 'telegram':
+            if(origin !== 'https://t.me'){
+                return false;
+            } else {
+                return true;
+            }
+        case 'facebook':
+            if(origin !== 'https://www.youtube.com' && origin !== 'https://youtu.be'){
+                return false;
+            } else {
+                return true;
+            }
+        case 'snapchat':
+            if(origin !== 'https://www.youtube.com' && origin !== 'https://youtu.be'){
+                return false;
+            } else {
+                return true;
+            }
+        case 'linkedin':
+            if(origin !== 'https://www.youtube.com' && origin !== 'https://youtu.be'){
+                return false;
+            } else {
+                return true;
+            }
+        case 'instagram':
+            if(origin !== 'https://www.youtube.com' && origin !== 'https://youtu.be'){
+                return false;
+            } else {
+                return true;
+            }
+        default:
+            return false;
+    }
+
+};
+
+export const isValidArrayOfStrings = (arr) => {
+
+    if(!arr?.length > 0 || !Array.isArray(arr)) return false;
+
+    for (let i = 0; i < arr.length; i++) {
+        if(!isValidText(arr[i])) return false;
+    }
+
+    return true;
+
+};
+
+export const getExtension = (file) => {
+
+    if(file?.split('')?.reverse()?.join('')?.split('.')?.at(0)?.split('')?.reverse()?.join('') === 'png'
+        || file?.split('')?.reverse()?.join('')?.split('.')?.at(0)?.split('')?.reverse()?.join('') === 'jpg') 
+        return 'img';
+
+    if(file?.split('')?.reverse()?.join('')?.split('.')?.at(0)?.split('')?.reverse()?.join('') === 'mp4'
+        || file?.split('')?.reverse()?.join('')?.split('.')?.at(0)?.split('')?.reverse()?.join('') === 'avi') 
+        return 'video';
+
+    return null;    
+        
+};
+
+export const isValidFilename = (filename) => {
+
+    if(!getExtension(filename)) return false;
+
+    for (let i = 0; i < filename.length; i++) {
+        if(!allowedFilenameChar.includes(filename[i])){
+            return false;
+        }
+    }
+
+    return true;
+
+};
+
 export const isOkayBookDays = (dateArr, notAllowedDays) => {
 
-    if(!dateArr || !notAllowedDays) return false;
+    console.log('booked days: ', notAllowedDays);
+
+    if(!notAllowedDays) return true;
+
+    if(!dateArr) return false;
 
     const startDate = dateArr[0];
 
@@ -291,5 +445,75 @@ export const isOkayBookDays = (dateArr, notAllowedDays) => {
     }
 
     return true;
+
+};
+
+const names = [
+    ['عروضنا المميزة', 'Special Offers'],
+    ['هل تبحث عن سيارة للإيجار أو شقة للإقامة؟ نحن هنا لمساعدتك في العثور على أفضل الخيارات, اختر من بين مجموعة متنوعة من السيارات، بدءًا من الاقتصادية إلى الفاخرة, بحث عن شقق مفروشة أو غير مفروشة، وفلل، وشقق مشتركة.', 'Are you looking for a car to rent or an apartment to stay in? We are here to help you find the best options. Choose from a variety of cars, from economical to luxury. Search for furnished or unfurnished apartments, villas, and shared apartments.'],
+    ['استكشف', 'Explore'],
+    ['توجد لدينا عروض بمختلف أصناف العقارات و السيارات من شقق و منازل الى مزارع و مخيمات و سيارات أينما كنت في الاردن ستجد ما يناسبك', 'We have offers for various types of real estate and cars, from apartments and houses to farms, camps and cars. Wherever you are in Jordan, you will find what suits you.'],
+    ['استفد من عروضنا الحصرية لإِيجار السيارات و العقارات في كل أنحاء الاردن', 'Take advantage of our exclusive offers for car and real estate rentals throughout Jordan'],
+    ['ايجارك المثالي', 'Your Ideal Rent'],
+    ['تمتع بمرونة كبيرة في الأسعار و الخيارات.', 'Enjoy great flexibility in prices and options.'],
+    ['تفقد آخر العروض الحصرية', 'Check out the latest exclusive offers'],
+    ['ماذا نقدم لك؟', 'What do we offer you?'],
+    ['سنساعد في إِيجاد إِيجارك المثالي', 'We will help find your perfect rental'],
+    ['مزارع و شاليهات', 'Farms & Chalets'],
+    ['شقق و استوديوهات', 'Apartments and Studios'],
+    ['مخيمات و منتجعات', 'Camps & Resorts'],
+    ['سكن طلاب', 'Students housing'],
+    ['وسائل نقل', 'Vehicles'],
+    ['وسائل نقل و سيارات', 'Transports & Vehicles'],
+    ['أضف عقارك', 'Add Property'],
+    ['الدخول أو انشاء حساب', 'Log in or create an account'],
+    ['عرض الخريطة', 'Show map'],
+    ['اختر المدينة', 'choose a city'],
+    ['التصنيف', 'choose catagory'],
+    ['تاريخ الحجز', 'booking date'],
+    ['تاريخ انتهاء الحجز', 'expiry date'],
+    ['كل المدن', 'All cities'],
+    ['كل التصنيفات', 'All catagories'],
+    ['السعر', 'price'],
+    ['عقارات', 'properties'],
+    ['ابحث', 'Search'],
+    ['ابحث عن', 'Search about'],
+    ['أو أكثر', 'or more'],
+    ['التقييم', 'Evaluation'],
+    ['تقييم', 'Evaluation'],
+    ['ترتيب', 'Sort'],
+    ['تصفية', 'Filter'],
+    ['صفحة الادارة', 'Admin page'],
+    ['خطأ في سيرفر تخزين الملفات', 'Error occured in storage server'],
+    ['خطأ في السيرفر الأساسي', 'Error occured in the main server'],
+    ['حذف الخطأ', 'Delete error'],
+    ['جاري حذف الخطأ...', 'Deleting error...'],
+    ['المدينة', 'City'],
+    ['الذهاب', 'Go'],
+    ['تخطي', 'Skip'],
+    ['تواصل معنا', 'Contact Us'],
+    ['', ''],
+    ['', ''],
+    ['', ''],
+    ['', ''],
+    ['', ''],
+    ['', ''],
+];
+
+export const getNameByLang = (desired, isEn) => {
+
+    if(!desired) return '';
+
+    let desiredName = '';
+
+    const searchName = desired.toUpperCase();
+
+    for (let i = 0; i < names.length; i++) {
+        if(names[i][0].toUpperCase() === searchName){
+            desiredName = isEn && names[i][1].length > 0 ? names[i][1] : (names[i][0].length > 0 ? names[i][0] : desired)
+        }
+    }
+
+    return desiredName;
 
 };

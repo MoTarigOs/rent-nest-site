@@ -17,7 +17,8 @@ const page = () => {
 
     const { 
       userId, setUserId, setUserUsername, userUsername, userEmail, isVerified,
-      userAddress, userPhone, userRole, loadingUserInfo, storageKey
+      userAddress, userPhone, userRole, loadingUserInfo, storageKey,
+      selectedTab, setSelectedTab
     } = useContext(Context);
 
     const [isProfileDetails, setIsProfileDetails] = useState(true);
@@ -200,6 +201,8 @@ const page = () => {
 
       try {
 
+        if(!userId) return;
+
         if(!isSentCodeEmail) return setVerifyError('الرجاء ارسال رمز الى بريدك الالكتروني اولا');
 
         setIsVerifyFetching(true);
@@ -228,6 +231,8 @@ const page = () => {
     const changePassword = async() => {
 
       try {
+
+        if(!userId) return;
 
         if(!isSentCodePass) return changePasswordError('الرجاء ارسال رمز الى بريدك الالكتروني اولا');
         
@@ -268,6 +273,8 @@ const page = () => {
 
       try {
 
+        if(!userId) return;
+
         if(editInfo.editUsername.length <= 0 && editInfo.editAddress.length <= 0 && editInfo.editPhone.length <= 0){
           setEditInfoError('لا يوجد تغيير في البيانات');
           setEditInfoSuccess('');
@@ -302,10 +309,10 @@ const page = () => {
 
       try {
 
-        if(deletingAccount) return;
+        if(deletingAccount || !userId) return;
 
         if(!isSentCodeEmail || !code || code.length !== 6){
-          setDeleteAccountError('الرجاء ادخال رمز غير صالح.');
+          setDeleteAccountError('الرجاء ادخال رمز صالح.');
           setDeleteAccountSuccess('');
           return;
         }
@@ -359,11 +366,11 @@ const page = () => {
         
         setSignOutInfo('تم تسجيل الخروج بنجاح');
         setUserUsername('');
+        setUserId('');
 
         setTimeout(() => {
-          setUserId('');
           window.location = '/';
-        }, 10000);
+        }, 1000);
         
         setSigningOut(false);
         
@@ -393,9 +400,27 @@ const page = () => {
       return () => clearTimeout(timeout);   
     }, [loadingUserInfo]);
 
+    useEffect(() => {
+      if(isProfileDetails) setSelectedTab('profileDetails');
+      if(isItems) setSelectedTab('items');
+      if(isBooks) setSelectedTab('books');
+      if(isFavourites) setSelectedTab('favs');
+      if(isSignOut) setSelectedTab('signout');
+    }, [isProfileDetails, isItems, isBooks, isFavourites, isSignOut]);
+
+    useEffect(() => {
+      if(fetchingUserInfo){
+        if(selectedTab === 'profileDetails') { setIsProfileDetails(true); return; }
+        if(selectedTab === 'items') { setIsItems(true); setIsProfileDetails(false); return; }
+        if(selectedTab === 'books') { setIsBooks(true); setIsProfileDetails(false); return; }
+        if(selectedTab === 'favs') { setIsFavourites(true); setIsProfileDetails(false); return; }
+        if(selectedTab === 'signout') { setIsSignOut(true); setIsProfileDetails(false); return; }
+      }
+    }, [selectedTab]);
+
     if(!userId || userId.length <= 10){
       return (
-        fetchingUserInfo ? <MySkeleton /> : <NotFound />
+        fetchingUserInfo ? <MySkeleton isMobileHeader/> : <NotFound />
       )
     };
 
@@ -424,10 +449,6 @@ const page = () => {
                 handleClick={() => setIsVerifing(!isVerifing)} type={'email'}
                 btnAfterClck={'التوثيق لاحقا'} btnTitle={'توثيق الحساب'}/>
 
-                <hr />
-
-                <InfoDiv title={'الرتبة'} value={getRoleArabicName(userRole)}/>
-
                 <div className='verifyEmailDiv' style={{ display: !isVerifing && 'none' }}>
                   <button className='btnbackscndclr' onClick={() => sendCodeToEmail(null)}>{!sendingCode ? `ارسال رمز الى ${userEmail}` : 'جاري الارسال...'}</button>
                   <p style={{ color: sendCodeError.length > 0 && 'var(--softRed)' }}>{sendCodeError.length > 0 ? sendCodeError : (verifySuccess.length > 0 ? verifySuccess : sendCodeSuccess)}</p>
@@ -436,6 +457,10 @@ const page = () => {
                     <button className='btnbackscndclr' onClick={verifyEmail}>{isVerifyFetching ? 'جاري التوثيق...' : 'التوثيق'}</button>
                   </div>
                 </div>
+
+                <hr />
+
+                <InfoDiv title={'الرتبة'} value={getRoleArabicName(userRole)}/>
 
                 <hr />
 
@@ -448,7 +473,7 @@ const page = () => {
                     تغيير كلمة السر<Svgs name={'dropdown arrow'}/>
                   </button>
                   <div className='verifyEmailDiv' style={{ display: !isChangePasswordDiv && 'none' }}>
-                    <button className='btnbackscndclr first-btn' onClick={() => sendCodeToEmail(true, true)}>ارسال رمز الى البريد الالكتروني</button>
+                    <button className='btnbackscndclr first-btn' onClick={() => sendCodeToEmail(true, true)}>{!sendingCode ? `ارسال رمز الى ${userEmail}` : 'جاري الارسال...'}</button>
                     <p style={{ color: sendCodeErrorPass.length > 0 && 'var(--softRed)' }}>
                       {sendCodeErrorPass.length > 0 ? sendCodeErrorPass : (changePasswordSuccess ? changePasswordSuccess : sendCodeErrorPass)}</p>
                     <CustomInputDiv title={'ادخل كلمة السر الجديدة'} 
@@ -489,8 +514,7 @@ const page = () => {
                     <CustomInputDiv title={'ادخل عنوان جديد'} value={editInfo.editAddress} listener={(e) => setEditInfo({ editUsername: editInfo.editUsername, editAddress: e.target.value, editPhone: editInfo.editPhone })}/>
                     <CustomInputDiv title={'عدل رقم الهاتف'} value={editInfo.editPhone} listener={(e) => setEditInfo({ editUsername: editInfo.editUsername, editAddress: editInfo.editAddress, editPhone: e.target.value })}/>
                     <button className='btnbackscndclr' onClick={editUserInfo}>{editingInfo ? 'جاري التعديل...' : 'تعديل البيانات'}</button>
-                    {(editInfoError.length > 0 || editInfoSuccess.length > 0) && <p id={editInfoError.length > 0 ? 'edit-info-p-error' : 'edit-info-p'}>
-                      <Svgs name={'info'}/>
+                    {(editInfoError.length > 0 || editInfoSuccess.length > 0) && <p id={editInfoError.length > 0 ? 'p-info-error' : 'p-info'}>
                       {editInfoError.length > 0 ? editInfoError : editInfoSuccess}
                     </p>}
                   </>}
@@ -509,11 +533,10 @@ const page = () => {
                   </button>
                   <div className='verifyEmailDiv' style={{ display: !isDeleteAccountDiv ? 'none' : null }}>
                     <button className='btnbackscndclr' onClick={() => sendCodeToEmail(null, true)}>{!sendingCode ? `ارسال رمز الى ${userEmail}` : 'جاري الارسال...'}</button>
-                    <p style={{ marginBottom: 12 }} id={sendCodeError?.length > 0 ? 'p-info-error' : 'p-info'}>{sendCodeError.length > 0 ? sendCodeError : (deleteAccountSuccess.length > 0 ? deleteAccountSuccess : sendCodeSuccess)}</p>
+                    <p style={{ marginBottom: 16 }} id={sendCodeError?.length > 0 ? 'p-info-error' : 'p-info'}>{sendCodeError.length > 0 ? sendCodeError : (deleteAccountSuccess.length > 0 ? deleteAccountSuccess : sendCodeSuccess)}</p>
                     <CustomInputDiv title={'ادخل الرمز'} isError={sendCodeError.length > 0} listener={(e) => setCode(e.target.value)}/>
                     <p style={{ margin: '-16px 0 12px 0'}}><Svgs name={'info'}/>تحذير: سيتم حذف الحساب و كل ما يتعلق به نهائيا!</p>
-                    <ReCAPTCHA sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY} ref={reCaptchaRef}/>
-                    <button style={{ marginTop: 48 }} className='btnbackscndclr' onClick={deleteAccount}>{deletingAccount ? 'جاري حذف الجساب' :'حذف الحساب نهائيا'}</button>
+                    <button style={{ marginTop: 16 }} className='btnbackscndclr' onClick={deleteAccount}>{deletingAccount ? 'جاري حذف الجساب' :'حذف الحساب نهائيا'}</button>
                     <p id={deleteAccountError?.length > 0 ? 'p-info-error' : 'p-info'}>
                       {deleteAccountError.length > 0 ? deleteAccountError : deleteAccountSuccess}
                     </p>
@@ -523,21 +546,21 @@ const page = () => {
             </div>
 
             <ul className='items' style={{ display: !isItems && 'none' }}>
-              {itemsArray.map((item) => (
+              {itemsArray?.length > 0 ? itemsArray.map((item) => (
                   <li key={item._id}><Card item={item} type={'myProp'}/></li>
-              ))}
+              )) : loadingItems ? <MySkeleton loadingType={'cards'} /> : <NotFound />}
             </ul>
 
             <ul className='items' style={{ display: !isFavourites && 'none' }}>
-              {favArray.map((item) => (
+              {favArray?.length > 0 ? favArray.map((item) => (
                   <li key={item._id}><Card item={item}/></li>
-              ))}
+              )) : loadingItems ? <MySkeleton loadingType={'cards'} /> : <NotFound />}
             </ul>
 
             <ul className='items' style={{ display: !isBooks && 'none' }}>
-              {booksArray.map((item) => (
+              {booksArray?.length > 0 ? booksArray.map((item) => (
                   <li key={item._id}><Card item={item}/></li>
-              ))}
+              )) : loadingItems ? <MySkeleton loadingType={'cards'} /> : <NotFound />}
             </ul>
 
             <div className='profileDetails signOut' style={{ display: !isSignOut && 'none' }}>

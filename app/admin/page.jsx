@@ -2,8 +2,8 @@
 
 import './Admin.css';
 import { useContext, useEffect, useState } from 'react';
-import { getAdminProps, getReports, getUserByEmailAdmin, getUsersAdmin } from '@utils/api';
-import {  isValidEmail, propsSections, usersSections } from '@utils/Logic';
+import { deleteSpecificFile, getAdminErrors, getAdminProps, getFiles, getReports, getStorageSize, getUserByEmailAdmin, getUsersAdmin } from '@utils/api';
+import {  getReadableFileSizeString, isValidEmail, isValidFilename, propsSections, usersSections } from '@utils/Logic';
 import Svgs from '@utils/Svgs';
 import CustomInputDiv from '@components/CustomInputDiv';
 import UserDiv from '@components/UserDiv';
@@ -11,10 +11,13 @@ import AdminPart from '@components/AdminPart';
 import { Context } from '@utils/Context';
 import NotFound from '@components/NotFound';
 import MySkeleton from '@components/MySkeleton';
+import Image from 'next/image';
+import Skeleton from 'react-loading-skeleton';
+import { errorsSection } from '@utils/Data';
 
 const page = () => {
 
-    const { userId, userRole, loadingUserInfo } = useContext(Context);
+    const { userId, userEmail, userRole, loadingUserInfo, storageKey } = useContext(Context);
 
     const [fetchingUserInfo, setFetchingUserInfo] = useState(true);
 
@@ -47,6 +50,25 @@ const page = () => {
     const [userFindEmail, setUserFindEmail] = useState('');
     const [userFindError, setUserFindError] = useState('');
     const [userByEmailItem, setUserByEmailItem] = useState({});
+
+    const [fetchingFiles, setFetchingFiles] = useState(false);
+    const [isFiles, setIsFiles] = useState(false);
+    const [storageSize, setStorageSize] = useState('');
+    const [files, setFiles] = useState([]);
+    const [deleteingFile, setDeletingFile] = useState('');
+
+    const [isErrors, setIsErrors] = useState(false);
+    const [isErrorsFilterDiv, setIsErrorsFilterDiv] = useState(false);
+    const [errorsFilter, setErrorsFilter] = useState(errorsSection[0]);
+    const [errorsSkip, setErrorsSkip] = useState(0);
+    const [fetchingErrors, setFetchingErrors] = useState(false);
+    const [errors, setErrors] = useState([]);
+
+    const [deletingSpecificFile, setDeletingSpecificFile] = useState(false);
+    const [isFileDelete, setIsFileDelete] = useState(false);
+    const [fileDeleteError, setFileDeleteError] = useState('');
+    const [fileDeleteSuccess, setFileDeleteSuccess] = useState('');
+    const [filename, setFilename] = useState('');
 
     const fetchReports = async() => {
 
@@ -194,17 +216,159 @@ const page = () => {
 
     };
 
+    const fetchFiles = async() => {
+
+        if(fetchingFiles) return;
+
+        try {
+
+            setFetchingFiles(true);
+
+            const res = await getFiles(storageKey, userEmail);
+
+            if(!res.ok === true){
+                setFetchingFiles(false);
+                return;
+            }
+
+            setFiles(res.dt);
+
+            const sizeRes = await getStorageSize(storageKey, userEmail);
+
+            if(sizeRes.ok) setStorageSize(getReadableFileSizeString(sizeRes?.dt?.size?.toString()));
+
+            setFetchingFiles(false);
+            
+        } catch (err) {
+            console.log(err);
+            setFetchingFiles(false);
+        }
+
+    };
+
+    const getExtension = (file) => {
+
+        if(file?.split('')?.reverse()?.join('')?.split('.')?.at(0)?.split('')?.reverse()?.join('') === 'png'
+            || file?.split('')?.reverse()?.join('')?.split('.')?.at(0)?.split('')?.reverse()?.join('') === 'jpg') 
+            return 'img';
+    
+        if(file?.split('')?.reverse()?.join('')?.split('.')?.at(0)?.split('')?.reverse()?.join('') === 'mp4'
+            || file?.split('')?.reverse()?.join('')?.split('.')?.at(0)?.split('')?.reverse()?.join('') === 'avi') 
+            return 'video';
+    
+        return null;    
+            
+    };
+
+    const deleteThisFile = async(file) => {
+
+        if(deleteingFile === file) return;
+
+        try {
+
+            setDeletingFile(file);
+
+            const res = await deleteSpecificFile(storageKey, userEmail, file);
+
+            if(!res?.success === true){
+                setDeletingFile('');
+                return;
+            }
+
+            setFiles(files.filter(i => i !== file));
+            setDeletingFile('');
+
+        } catch (err) {
+            console.log(err);
+            setDeletingFile('');
+        }
+
+    };
+
+    const fetchErrors = async() => {
+
+        try {
+
+            if(fetchingErrors) return;
+
+            setFetchingErrors(true);
+
+            const res = await getAdminErrors(errorsFilter.value, errorsSkip);
+
+            console.log(res);
+
+            if(res.success !== true) {
+                setErrors([]);
+                setFetchingErrors(false);
+                return;
+            };
+
+            setErrors(res.dt);
+            setFetchingErrors(false);
+            
+        } catch (err) {
+            console.log(err.message);
+            setFetchingErrors(false);
+        }
+
+    };
+
+    const deleteFileByName = async() => {
+
+        if(deletingSpecificFile) return;
+
+        if(!isValidFilename(filename)){
+            setFileDeleteError('اسم ملف غير صالح');
+            return;
+        }
+
+        try {
+
+            setDeletingSpecificFile(true);
+
+            const res = await deleteSpecificFile(storageKey, userEmail, filename);
+
+            if(!res?.success === true){
+                setFileDeleteError(res.dt);
+                setFileDeleteSuccess('');
+                setDeletingSpecificFile(false);
+                return;
+            }
+
+            setFileDeleteError('');
+            setFileDeleteSuccess('تم حذف الملف بنجاح');
+            setDeletingSpecificFile(false);
+
+        } catch (err) {
+            console.log(err);
+            setDeletingSpecificFile(false);
+        }
+
+    };
+
+    const removeFromList = (errorId) => {
+        setErrors(errors.filter(i => i._id !== errorId));
+    };
+
     useEffect(() => {
         if(isReportsProps || isReportsRevs) fetchReports();
     }, [isReportsProps, isReportsRevs]);
 
     useEffect(() => {
         if(isProps) fetchProps();
-    }, [isProps, propsFilter]);
+    }, [isProps, propsFilter, propsSkip]);
 
     useEffect(() => {
         if(isUsers) fetchUsers();
-    }, [isUsers, userFilter]);
+    }, [isUsers, userFilter, usersSkip]);
+    
+    useEffect(() => {
+        if(isFiles) fetchFiles();
+    }, [isFiles]);
+
+    useEffect(() => {
+        if(isErrors) fetchErrors();
+    }, [isErrors, errorsFilter, errorsSkip]);
 
     useEffect(() => {
         let timeout;
@@ -228,7 +392,7 @@ const page = () => {
 
     if(!userId?.length > 0 || (userRole !== 'admin' && userRole !== 'owner')){
         return (
-            fetchingUserInfo ? <MySkeleton /> : <NotFound type={'not allowed'}/>
+            fetchingUserInfo ? <MySkeleton isMobileHeader/> : <NotFound type={'not allowed'}/>
         )
     }
 
@@ -244,15 +408,15 @@ const page = () => {
 
             <hr />
 
-            <AdminPart title={'الإِبلاغات عن عروض'} type={'reports'} array={reportsProps} isShow={isReportsProps} setIsShow={setIsReportsProps} skip={reportPropsSkip} setSkip={setReportPropsSkip}/>
+            <AdminPart trigger={() => setIsReportsRevs(false)} title={'الإِبلاغات عن عروض'} isFetching={fetchingReports} type={'reports'} array={reportsProps} isShow={isReportsProps} setIsShow={setIsReportsProps} skip={reportPropsSkip} setSkip={setReportPropsSkip}/>
             
             <hr />
             
-            <AdminPart title={'الإِبلاغات عن مراجعات'} type={'reviews'} array={reportsRevs} isShow={isReportsRevs} setIsShow={setIsReportsRevs} skip={reportRevsSkip} setSkip={setReportRevsSkip} handleReviewNav={navigateToViewFromReview}/>
+            <AdminPart trigger={() => setIsReportsProps(false)} title={'الإِبلاغات عن مراجعات'} isFetching={fetchingReports} type={'reviews'} array={reportsRevs} isShow={isReportsRevs} setIsShow={setIsReportsRevs} skip={reportRevsSkip} setSkip={setReportRevsSkip} handleReviewNav={navigateToViewFromReview}/>
             
             <hr />
 
-            <AdminPart title={'العروض'} type={'properties'} array={props} 
+            <AdminPart title={'العروض'} isFetching={fetchingProps} type={'properties'} array={props} 
             isShow={isProps} setIsShow={setIsProps} skip={propsSkip} 
             setSkip={setPropsSkip} isPartFilter={isPropsFilterDiv} 
             setIsPartFilter={setIsPropsFilterDiv} selected={propsFilter}
@@ -260,7 +424,7 @@ const page = () => {
             
             <hr />
 
-            <AdminPart title={'مستخدمين المنصة'} type={'users'} array={users} 
+            <AdminPart title={'مستخدمين المنصة'} isFetching={fetchingUsers} type={'users'} array={users} 
             isShow={isUsers} setIsShow={setIsUsers} skip={usersSkip} setSkip={setUsersSkip}
             isFilter={true} filterArray={usersSections} isPartFilter={isUsersFilterDiv}
             setIsPartFilter={setIsUsersFilterDiv} selected={userFilter} 
@@ -284,6 +448,60 @@ const page = () => {
                 <UserDiv isShow={userByEmailItem?._id ? true : false} item={userByEmailItem}/>
 
             </div>
+
+            <hr />
+
+            <button className={isUserByEmail ? 'editDiv chngpassbtn' : 'editDiv'} onClick={() => setIsFiles(!isFiles)}>
+                الملفات المرفوعة على المنصة 
+                <Svgs name={'dropdown arrow'}/>
+            </button>
+
+            <div className='files-uploaded' style={{ display: isFiles ? null : 'none' }}>
+
+                <button className='filter-btn'>
+                    حجم الملفات الكلي <span>{fetchingFiles ? 'جاري الحساب...' : storageSize}</span>
+                </button>
+
+                <ul>
+                    {(!files?.length > 0 && fetchingFiles) && <li>
+                        <Skeleton height={299} width={299}/>    
+                    </li>}
+                    {files.map((file, index) => (
+                        <li key={index}>
+                            {getExtension(file) === 'img' ? 
+                            <Image width={299} height={299} src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${file}`}/>
+                            : getExtension(file) === 'video' && <video width={299} height={299} controls autoPlay loop src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${file}`}/>}
+                            <button className='btnbackscndclr' onClick={() => deleteThisFile(file)}>{deleteingFile === file ? 'جاري الحذف...' : 'حذف'}</button>
+                        </li>
+                    ))}
+                </ul>
+
+            </div>
+
+            <hr />
+
+            <button className={isFileDelete ? 'editDiv chngpassbtn' : 'editDiv'} onClick={() => setIsFileDelete(!isFileDelete)}>
+                حذف ملف بالاسم 
+                <Svgs name={'dropdown arrow'}/>
+            </button>
+        
+            <div className='find-user-by-email' style={{ display: !isFileDelete ? 'none' : '' }}>
+
+                <CustomInputDiv title={'ادخل اسم الملف'} isError={filename === '-1'} errorText={'اسم ملف غير صالح'} value={filename} listener={(e) => setFilename(e.target.value)}/>
+            
+                <button className='btnbackscndclr' onClick={deleteFileByName}>{deletingSpecificFile ? 'جاري حذف الملف...' : 'حذف الملف'}</button>
+
+                <p id={fileDeleteError?.length > 0 ? 'p-info-error' : 'p-info'}>{fileDeleteError?.length > 0 ? fileDeleteError : fileDeleteSuccess}</p>
+
+            </div>
+
+            <hr />
+
+            <AdminPart title={'الأخطاء و المشاكل'} isFetching={fetchingErrors} type={'users'} array={errors} removeFromList={removeFromList}
+            isShow={isErrors} setIsShow={setIsErrors} skip={errorsSkip} 
+            setSkip={setErrorsSkip} isPartFilter={isErrorsFilterDiv} 
+            setIsPartFilter={setIsErrorsFilterDiv} selected={errorsFilter}
+            setSelected={setErrorsFilter} filterArray={errorsSection} isFilter={true}/>
 
         </div>
 

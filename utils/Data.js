@@ -1,8 +1,63 @@
-import testImagePic from '@assets/images/test.jpg';
-
 export const maxBookDateYears = 4;
 
+
+// تستطيع نغيير الأحكام و الشروط و المدن من هذا القسم
+
+export const myConditions = (isEnglish) => {
+
+  // قم بتعديل الشروط و الأحكام كما تشاء, ستظهر في صفحة عنا
+  // تأكد من اضافة الشرط باللغتين العربية و الانجليزية في اماكن متناظرة
+
+  return !isEnglish ? [
+    'شرط رقم واحد هنا',
+    'شرط رقم اثنين هنا',
+    'شرط رقم ثلاثة هنا',
+    'شرط رقم اربعة هنا',
+    'شرط رقم خمسة هنا',
+    'شرط رقم ستة هنا',
+  ] : [
+    'condition num 1',
+    'condition num 2',
+    'condition num 3',
+    'condition num 4',
+    'condition num 5',
+    'condition num 6',
+  ];
+};
+
 export const JordanCities = [
+
+    /* 
+      :تستطيع اضافة مدينة من هنا بهذا الشكل
+      
+      {
+        city_id: <اكتب اخر ايدي, مثلا اذا كانت المدينة السابقة 3 اكتب هنا 4 وهكذا>,
+        value: <اسم المدينة بالانجليزي مثل Amman>,       
+        arabicName: <اسم المدينة بالعربي مثل عمان>,   
+        long: <خط طول جغرافي للمدينة>,        
+        lat: <خط عرض جغرافي للمدينة>
+      }
+
+      ايضا يجب أن تضيف صورة المدينة الى فولدر 
+      assets/cities
+
+      ثم اذهب الى ملف
+      utils/Cities.js
+
+      قم باستيراد الصورة مثل
+      import AmmanCity from @assets/cities/amman-city.jpg
+
+      وضيفها الى 
+      function getCityImage(cityValue) {
+        switch(cityValue){
+          ...
+          case 'amman':
+            return AmmanCity;
+        }
+      }
+
+    */
+
     {
       city_id: 0,
       value: 'Amman',       
@@ -12,334 +67,102 @@ export const JordanCities = [
     },
     {
       city_id: 1,
-      value: 'Zarqa',       
-      arabicName: 'الزرقاء',
-      long: 36.0877,
-      lat: 32.0722
-    },
-    {
-      city_id: 2,
-      value: 'Irbid',
-      arabicName: 'اربد',
-      long: 35.8575,
-      lat: 32.5556
-    },
-    {
-      city_id: 3,
-      value: 'Russeifa',
-      arabicName: 'الرصيفة',
-      long: 35.8575,
-      lat: 32.5556
-    },
-    {
-      city_id: 4,
-      value: 'Sahab',
-      arabicName: 'السحاب',
-      long: 36.0075,
-      lat: 31.8787
-    },
-    {
-      city_id: 5,
-      value: 'Ar-Ramtha',
-      arabicName: 'الرمثا',
-      long: 36.0042,
-      lat: 32.5594
-    },
-    {
-      city_id: 6,
-      value: 'Aqaba',
-      arabicName: 'العقبة',
-      long: 35.0075,
-      lat: 29.5269
-    },
-    {
-      city_id: 7,
-      value: 'Mafraq',
-      arabicName: 'المفرق',
-      long: 36.2053,
-      lat: 32.3404
-    },
-    {
-      city_id: 8,
-      value: 'Madaba',
-      arabicName: 'مادبا',
-      long: 35.8,
-      lat: 31.7167
-    },
-    {
-      city_id: 9,
-      value: 'As-Salt',
-      arabicName: 'السلط',
-      long: 35.7273,
-      lat: 32.0392
-    },
-    {
-      city_id: 10,
-      value: 'Al-Jizah',
-      arabicName: 'الجيزة',
-      long: 35.9333,
-      lat: 31.95
-    },
-    {
-      city_id: 11,
-      value: 'Ain-Al-Basha',
-      arabicName: 'عين الباشا',
-      long: 35.75,
-      lat: 32
-    },
-    {
-      city_id: 12,
-      value: 'Aydoun',
-      arabicName: 'عيدون',
-      long: 35.8333,
-      lat: 32.5
-    },
-    {
-      city_id: 13,
-      value: 'Ad-Dhlail',
-      arabicName: 'الضليل',
-      long: 35.8333,
-      lat: 32.5
-    },
-    {
-      city_id: 14,
       value: 'Jerash',
       arabicName: 'جرش',
       long: 35.8961,
       lat: 32.2775
     },
     {
-      city_id: 15,
-      value: 'As-Sarih',
-      arabicName: 'السارحة',
-      long: 35.8333,
-      lat: 32.5
+      city_id: 2,
+      value: 'Ajloun',
+      arabicName: 'عجلون',
+      long: 35.7517,
+      lat: 32.3326
     },
     {
-      city_id: 16,
-      value: 'Al-Hashimiyah',
-      arabicName: 'الهاشمية',
-      long: 35.8333,
-      lat: 32.5
+      city_id: 3,
+      value: 'Dead Sea & Jordan Valley',
+      arabicName: 'البحر الميت و ألأغوار',
+      long: 35.5699,
+      lat: 32.3172
     },
     {
-      city_id: 17,
-      value: 'Maan',
-      arabicName: 'معان',
-      long: 35.7283,
-      lat: 30.192
+      city_id: 4,
+      value: 'Wadi Rum and Petra',
+      arabicName: 'وادي رم و البتراء',
+      long: 35.4444,
+      lat: 30.3285
     },
     {
-      city_id: 18,
-      value: 'Beit-Ras',
-      arabicName: 'بيت راس',
-      long: 35.8333,
-      lat: 32.5
+      city_id: 5,
+      value: 'Main',
+      arabicName: 'ماعين',
+      long: 35.7331,
+      lat: 31.6803
     },
     {
-      city_id: 19,
-      value: 'Al-Husn',
-      arabicName: 'الحصن',
-      long: 35.8333,
-      lat: 32.5
+      city_id: 6,
+      value: 'As-Salt',
+      arabicName: 'السلط',
+      long: 35.7273,
+      lat: 32.0392
     },
     {
-      city_id: 20,
-      value: 'At-Turrah',
-      arabicName: 'الطرة',
-      long: 35.8333,
-      lat: 32.5
+      city_id: 7,
+      value: 'Aqaba',
+      arabicName: 'العقبة',
+      long: 35.0075,
+      lat: 29.5269
     },
     {
-      city_id: 21,
-      value: 'Naour',
-      arabicName: 'ناعور',
-      long: 35.75,
-      lat: 31.95
+      city_id: 8,
+      value: 'Irbid',
+      arabicName: 'اربد',
+      long: 35.8575,
+      lat: 32.5556
     },
     {
-      city_id: 22,
+      city_id: 9,
+      value: 'Madaba',
+      arabicName: 'مادبا',
+      long: 35.8,
+      lat: 31.7167
+    },
+    {
+      city_id: 10,
       value: 'Karak',
       arabicName: 'الكرك',
       long: 35.7047,
       lat: 31.1837
     },
     {
-      city_id: 23,
-      value: 'Kufranjah',
-      arabicName: 'كفرنجة',
-      long: 35.8333,
-      lat: 32.5
+      city_id: 11,
+      value: 'Mafraq',
+      arabicName: 'المفرق',
+      long: 36.2053,
+      lat: 32.3404
     },
     {
-      city_id: 24,
-      value: 'Der-Abi-Saeed',
-      arabicName: 'دير أبي سعيد',
-      long: 35.8333,
-      lat: 32.5
+      city_id: 12,
+      value: 'Zarqa',       
+      arabicName: 'الزرقاء',
+      long: 36.0877,
+      lat: 32.0722
     },
     {
-      city_id: 25,
-      value: 'Noayymeh',
-      arabicName: 'نوعيمة',
-      long: 35.8333,
-      lat: 32.5
-    },
-    {
-      city_id: 26,
-      value: 'Ash-Shajarah',
-      arabicName: 'الشجرة',
-      long: 35.8333,
-      lat: 32.5
-    },
-    {
-      city_id: 27,
+      city_id: 13,
       value: 'Tafilah',
       arabicName: 'الطفيلة',
       long: 35.6,
       lat: 30.8333
     },
-    {
-      city_id: 28,
-      value: 'Mutah',
-      arabicName: 'المؤتة',
-      long: 35.7,
-      lat: 30.1667
-    },
-    {
-      city_id: 29,
-      value: 'Ghor-es-Safi',
-      arabicName: 'غور الصافي',
-      long: 35.7,
-      lat: 31.1833
-    },
-    {
-      city_id: 30,
-      value: 'Anjara',
-      arabicName: 'عنجرة',
-      long: 35.8333,
-      lat: 32.5
-    },
-    {
-      city_id: 31,
-      value: 'Al-Mashar’e',
-      arabicName: 'المشارع',
-      long: 35.8333,
-      lat: 32.5
-    },
-    {
-      city_id: 32,
-      value: 'Huwwarah',
-      arabicName: 'حوارة',
-      long: 35.8333,
-      lat: 32.5
-    },
-    {
-      city_id: 33,
-      value: 'Kufr-Yuba',
-      arabicName: 'كفر يوبا',
-      long: 35.8333,
-      lat: 32.5
-    },
-    {
-      city_id: 34,
-      value: 'Kuraymah',
-      arabicName: 'كريمة',
-      long: 35.8333,
-      lat: 32.5
-    },
-    {
-      city_id: 35,
-      value: 'At-Tayyibah',
-      arabicName: 'الطيبة',
-      long: 35.8333,
-      lat: 32.5
-    },
-    {
-      city_id: 36,
-      value: 'Al-Mazār-Ash-Shamālī ',
-      arabicName: 'المزار الشمالي',
-      long: 35.8333,
-      lat: 32.5
-    },
-    {
-      city_id: 37,
-      value: 'As-Sakhnah',
-      arabicName: 'السخنة',
-      long: 35.8333,
-      lat: 32.5
-    },
-    {
-      city_id: 38,
-      value: 'Al-Khālidīyah-Al-Jadīdah ',
-      arabicName: 'الخالدية الجديدة',
-      long: 35.8333,
-      lat: 32.5
-    },
-    {
-      city_id: 39,
-      value: 'Bashrah',
-      arabicName: 'بشرى',
-      long: 35.8333,
-      lat: 32.5
-    },
-    {
-      city_id: 40,
-      value: 'Umm-As-Summaq-Al-Janūbī',
-      arabicName: 'أم السماق الجنوبي',
-      long: 35.8333,
-      lat: 32.5
-    },
-    {
-      city_id: 41,
-      value: 'Judeiteh',
-      arabicName: 'جديتة',
-      long: 35.8333,
-      lat: 32.5
-    },
-    {
-      city_id: 42,
-      value: 'Al-Fuhays',
-      arabicName: 'الفحيص',
-      long: 35.75,
-      lat: 32.3333
-    },
-    {
-      city_id: 43,
-      value: 'Al-Mazār-Al-Janūbī',
-      arabicName: 'المزار الجنوبي',
-      long: 35.8333,
-      lat: 32.5
-    },
-    {
-      city_id: 44,
-      value: 'Shuna-Ash-Shamaliyeh ',
-      arabicName: 'شونة الشمالية',
-      long: 35.8575,
-      lat: 32.5556
-    },
-    {
-      city_id: 45,
-      value: 'Kafr-Al-Ma’',
-      arabicName: 'كفر الماء',
-      long: 35.7273,
-      lat: 32.3329
-    },
-    {
-      city_id: 46,
-      value: 'Mahis',
-      arabicName: 'محيس',
-      long: 35.7273,
-      lat: 30.1976
-    },    
-    {
-      city_id: 100,
-      value: 'other',
-      arabicName: 'اخرى',
-      long: null,
-      lat: null
-    }
 ];
+
+
+
+
+
+// خاص بتشغيل الموقع -----------------------------------------------------------------------------------------------
 
 const JordanBoundryPoints = [
   [35.0017, 29.6052],
@@ -770,111 +593,15 @@ export const isInsideJordan = (myLong, myLat) => {
    
 };
 
-// export const JordanCities = [
-//     { city_id: "AMM", value: "Amman", arabicName: "عمان", lat: 32, long: 36 }, 
-//     { city_id: "AQJ", value: "Aqaba", arabicName: "العقبة", lat: 32, long: 36 }, 
-//     { city_id: "IRB", value: "Irbid", arabicName: "اربد", lat: 32, long: 36 }, 
-//     { city_id: "ZAR", value: "Zarqa", arabicName: "الزرقاء", lat: 32, long: 36 }, 
-//     { city_id: "KWI", value: "Kufranjah", arabicName: "كفرنجة", lat: 32, long: 36 }, 
-//     { city_id: "MDA", value: "Madaba", arabicName: "مادبا", lat: 32, long: 36 }, 
-//     { city_id: "KAR", value: "Karak", arabicName: "الكرك", lat: 32, long: 36 }, 
-//     { city_id: "TAF", value: "Tafila", arabicName: "الطفيلة", lat: 32, long: 36 }, 
-//     { city_id: "MAF", value: "Maan", arabicName: "معان", lat: 32, long: 36 }, 
-//     { city_id: "AJL", value: "Ajloun", arabicName: "عجلون", lat: 32, long: 36 }
-// ];
-
-// export const RawJordanCities = [
-//     "عمان",
-//     "الزرقاء",
-//     "اربد",
-//     "الرصيفة",
-//     "السحاب",
-//     "الرمثا",
-//     "العقبة",
-//     "المفرق",
-//     "مادبا",
-//     "السلط",
-//     "الجيزة",
-//     "عين الباشا",
-//     "عيدون",
-//     "الضليل",
-//     "جرش",
-//     "السارحة",
-//     "الهاشمية",
-//     "معان",
-//     "بيت راس",
-//     "الحصن",
-//     "الطرة",
-//     "ناعور",
-//     "الكرك",
-//     "كفرنجة",
-//     "دير أبي سعيد",
-//     "نوعيمة",
-//     "الشجرة",
-//     "الطفيلة",
-//     "المؤتة",
-//     "غور الصافي",
-//     "عنجرة",
-//     "المشارع",
-//     "حوارة",
-//     "كفر يوبا",
-//     "كريمة",
-//     "الطيبة",
-//     "المزار الشمالي",
-//     "السخنة",
-//     "الخالدية الجديدة",
-//     "بشرى",
-//     "أم السماق الجنوبي",
-//     "جديتة",
-//     "الفحيص",
-//     "المزار الجنوبي",
-//     "شونة الشمالية",
-//     "كفر الماء",
-//     "محيس"
-// ];
-
 export const ProperitiesCatagories = [
-    { _id: '0', value: 'farm', arabicName: 'مزرعة' },
-    { _id: '1', value: 'apartment', arabicName: 'شقق و منازل سكنية' },
-    { _id: '2', value: 'resort', arabicName: 'منتجعات و استراحات' },
-    { _id: '3', value: 'commercial', arabicName: 'مراكز تجارية' },
-    // "سكني",
-    // "تجاري",
-    // "صناعي",
-    // "زراعي",
-    // "أرض فارغة",
-    // "استثمار",
-    // "فاخر",
-    // "شقة",
-    // "منزل منفصل",
-    // "منزل متنقل",
-    // "مزرعة",
-    // "ريفي",
-    // "حضري",
-    // "منتجع تزلج",
-    // "بناء جديد",
-    // "محتاج للتجديد",
-    // "شقة مفتوحة",
-    // "شقة مع سطح",
-    // "استوديو",
-    // "مستودع",
-    // "مطعم",
-    // "فندق",
-    // "منتجع",
-    // "مخيم",
-    // "منتجع صحي",
-    // "صالون",
-    // "مسرح",
-    // "معرض فني",
-    // "متحف",
-    // "مكتبة",
-    // "مركز مجتمعي",
-    // "مرفق ديني",
-    // "مدرسة",
-    // "مستشفى"
+    { _id: '0', value: 'farm', arabicName: 'مزارع و شاليهات' },
+    { _id: '1', value: 'apartment', arabicName: 'شقق و استوديوهات' },
+    { _id: '2', value: 'resort', arabicName: 'مخيمات و منتجعات' },
+    { _id: '3', value: 'students', arabicName: 'سكن طلاب' }
 ];
 
-export const homePageCatagories = [
+export const homePageCatagories = (isEn) => {
+  return !isEn ? [
     'البتراء احد عجائب الدنيا السبع',
     'البحر الميت',
     'وادي رم',
@@ -889,7 +616,24 @@ export const homePageCatagories = [
     'قلاع الكرك',
     'طبيعة الطفيلة',
     'السلط'
-];
+  ] : [
+    'Petra: One of the Seven Wonders of the World',
+    'Dead Sea',
+    'Wadi Rum',
+    'Madaba: Home to ancient mosaics,',
+    'Jerash Historical Ruins',
+    'Aqaba',
+    'Wadi Mujib Reserve',
+    'Desert Castles',
+    'Ajloun Highlands',
+    'Mount Nebo',
+    'Zarqa land of arts and culture',
+    'Kerak Castle',
+    'Nature of Tafilah',
+    'Salt'
+  ];
+  
+}
 
 export const VehicleCatagories = [
     { value: 'micro', arabicName: "سيارة مايكرو", _id: '0' }, 
@@ -898,6 +642,12 @@ export const VehicleCatagories = [
     { value: 'luxury', arabicName: "سيارة فاخرة", _id: '3' }, 
     { value: 'mini-bus', arabicName: "ميني باص", _id: '4' }, 
     { value: 'sport', arabicName: "سيارة رياضية", _id: '5' }, 
+];
+
+export const contactInfo = [
+  { name: 'facebook', val: 'https://www.facebook.com/elgade.websites' },
+  { name: 'whatsapp', val: 'https://wa.me/+963991012169' },
+  { name: 'x', val: 'https://www.facebook.com/elgade.websites' }
 ];
 
 export const AllCatgories = [
@@ -917,9 +667,14 @@ export const PropertyDetails = [
     { name: 'عدد الغرف', type: 'number' }
 ];
 
+export const errorsSection = [
+    { value: 'All errors', arabicName: 'كل الأخطاء' },
+    { value: 'Storage server errors', arabicName: 'أخطاء سيرفر تخزين الملفات' }
+];
+
+export const contactsPlatforms = [
+  'whatsapp', 'facebook', 'instagram', 'youtube'
+];
+
 export const minimumPrice = 5;
 export const maximumPrice = 100000;
-
-export const testImage = () => {
-    return testImagePic
-}

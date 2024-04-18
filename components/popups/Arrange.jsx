@@ -3,7 +3,7 @@
 import '@styles/components_styles/Arrange.css';
 import { useEffect } from 'react';
 
-const Arrange = ({ isArrange, setIsArrange, setTriggerFetch, triggerFetch, arrangeValue, setArrangeValue }) => {
+const Arrange = ({ isEnglish, isArrange, setIsArrange, setTriggerFetch, triggerFetch, arrangeValue, setArrangeValue }) => {
 
     const arranges = [
         { _id: '0', name: 'default', arabicName: 'افتراضي' },
@@ -12,8 +12,6 @@ const Arrange = ({ isArrange, setIsArrange, setTriggerFetch, triggerFetch, arran
         { _id: '3', name: 'low-price', arabicName: 'الأقل سعرا' },
         { _id: '4', name: 'high-price', arabicName: 'الأعلى سعرا' }
     ];
-
-    // use $near: https://www.mongodb.com/docs/manual/reference/operator/query/near/
 
     const RightIconSpan = () => {
         return <span id='righticonspan'/>
@@ -37,7 +35,7 @@ const Arrange = ({ isArrange, setIsArrange, setTriggerFetch, triggerFetch, arran
                     <li onClick={() => {
                         setArrangeValue(arng.name === 'default' ? '' : arng.name);
                         setIsArrange(false);
-                    }}>{arng.arabicName} {arrangeValue === arng.name && <RightIconSpan />}</li>
+                    }}>{isEnglish ? arng.name.replace('-', ' ') : arng.arabicName} {arrangeValue === arng.name && <RightIconSpan />}</li>
                 ))}
             </ul>
 
@@ -45,6 +43,6 @@ const Arrange = ({ isArrange, setIsArrange, setTriggerFetch, triggerFetch, arran
 
     </div>
   )
-}
+};
 
-export default Arrange
+export default Arrange;

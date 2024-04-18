@@ -7,6 +7,7 @@ import { useContext, useEffect, useState } from 'react';
 import { isValidEmail, isValidPassword } from '@utils/Logic';
 import { getUserInfo, login } from '@utils/api';
 import { Context } from '@utils/Context';
+import NotFound from '@components/NotFound';
 
 const page = () => {
 
@@ -44,6 +45,8 @@ const page = () => {
   const handleSubmit = async(e) => {
 
     e.preventDefault();
+
+    if(userId) return;
 
     let errorEncountered = false;
 
@@ -100,6 +103,10 @@ const page = () => {
       }
   }, [emailError, passwordError])
 
+  if(!successLogin && userId?.length > 10){
+    return <NotFound type={'user id exist'}/>
+  }
+
   return (
 
     <div className='SignUp'>
@@ -114,6 +121,8 @@ const page = () => {
 
           <CustomInputDiv isError={password === '-1' && true} errorText={passwordError} type={'password'} title={'ادخل كلمة مرور'} listener={(e) => handleChange(e, 'password')}/>
 
+          <Link href={'/forget-password'} id='forget-password'>نسيت كلمة السر</Link>
+
           <label id='error' style={{ padding: error.length <= 0 && 0, margin: error.length <= 0 && 0 }}>{error}</label>
 
           <label id='success' style={{ padding: !successLogin && 0, margin: !successLogin && 0 }}>{successLogin && 'تم تسجيل الدخول بنجاح'} <Link href={`/profile?id=${userId}`} style={{ display: !successLogin && 'none' }}>الذهاب الى الملف الشخصي</Link></label>
@@ -124,7 +133,7 @@ const page = () => {
 
         <strong>أو</strong>
 
-        <Link href={'/sign-up'}>إِنشاء حساب</Link>
+        <Link id='navigate-to-sign' href={'/sign-up'}>إِنشاء حساب</Link>
 
       </div>
 

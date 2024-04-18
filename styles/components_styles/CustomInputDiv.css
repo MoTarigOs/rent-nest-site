@@ -28,6 +28,11 @@
         padding: 0 16px;
         background: white;
         color: var(--secondColor);
+
+        &:dir(ltr){
+            right: unset;
+            left: 32px;
+        }
     }
 
     svg{
@@ -39,6 +44,11 @@
         padding: 0 8px;
         background: var(--darkWhite);
         cursor: pointer;
+
+        &:dir(ltr){
+            left: unset;
+            right: 32px;
+        }
 
         path{
             fill: var(--secondColorHover);
@@ -62,6 +72,11 @@
         display: flex;
         align-items: center;
         justify-content: center;
+
+        &:dir(ltr){
+            right: 0;
+            left: unset;
+        }
 
         svg{
             position: unset;
@@ -89,6 +104,11 @@
             border-radius: 8px;
             transform: rotate(45deg);
             background: rgb(118, 118, 118);
+
+            &:dir(ltr){
+                right: unset;
+                left: 25px;
+            }
         }
     }
 }

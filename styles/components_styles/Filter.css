@@ -27,6 +27,8 @@
         border-radius: 8px;
         overflow-y: scroll;
         z-index: 1;
+        -ms-overflow-style: none; /* IE 11 */
+        scrollbar-width: none; /* Firefox 64 */    
 
         .filterSearchDiv{
             width: 100%;
@@ -86,11 +88,10 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            direction: ltr;
 
             h2{
                 margin-bottom: 8px;
-                width: 100%;
+                width: fit-content;
                 text-align: end;
             }
             
@@ -225,6 +226,13 @@
                 margin-left: 12px;
                 width: 32px;
                 height: 32px;
+            }
+
+            &:dir(ltr){
+                svg{
+                    margin-left: 0;
+                    margin-right: 12px;
+                }
             }
         }
 

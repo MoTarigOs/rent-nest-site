@@ -11,6 +11,17 @@
     box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.15);
     transition: all 0.12s ease-out;
 
+    &:dir(ltr){
+        .rateanddiscount{
+            strong{
+                img{
+                    margin-left: 0;
+                    margin-right: 4px;
+                }
+            }
+        }
+    }
+
     h3, h2, a{
         margin-left: 12px;
         margin-right: 12px;
@@ -79,7 +90,7 @@
         position: absolute;
         top: 8px;
         left: 8px;
-        width: 52px;
+        width: 58px;
         height: 32px;
         text-align: center;
         background: var(--darkWhite);
@@ -92,12 +103,17 @@
 
     .checked-span{
         width: fit-content;
-        left: 68px;
+        left: 74px;
     }
 
     .selected-card-span{
         background: var(--secondColor);
         color: white;
+    }
+
+    .selected-reject-card-span{
+        background: rgb(255, 203, 189);
+        color: rgb(18, 18, 18);
     }
 
     a{

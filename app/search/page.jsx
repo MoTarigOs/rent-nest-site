@@ -9,20 +9,23 @@ import GoogleMapPopup from '@components/popups/GoogleMapPopup';
 import { useContext, useEffect, useState } from 'react';
 import { getLocation, getProperties } from '@utils/api';
 import { maximumPrice, minimumPrice } from '@utils/Data';
-import { arrangeArray, isOkayBookDays } from '@utils/Logic';
+import { arrangeArray, getNameByLang, getReadableDate, isOkayBookDays } from '@utils/Logic';
 import { Context } from '@utils/Context';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
+import MyCalendar from '@components/MyCalendar';
 
 const page = () => {
 
   const [properitiesArray, setProperitiesArray] = useState([]);
+  const [isCalendar, setIsCalendar] = useState(false);
   const [selectedProp, setSelectedProp] = useState(null);
   const [runOnce, setRunOnce] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [indexSlide, setIndexSlide] = useState(0);
   const [pagesNumber, setPagesNumber] = useState(1);
+  const [skipable, setSkipable] = useState(false);
   const [skip, setSkip] = useState(0);
   const cardsPerPage = 16;
 
@@ -30,7 +33,7 @@ const page = () => {
       currentMinPrice, currentMaxPrice, city, catagory, 
       ratingScore, triggerFetch, searchText, 
       arrangeValue, setCatagory, calendarDoubleValue, 
-      isCalendarValue,
+      isCalendarValue, setCalendarDoubleValue
   } = useContext(Context);
 
   const settingPropertiesArray = async() => {
@@ -57,9 +60,17 @@ const page = () => {
           );
 
           if(res.success !== true) {
+              setProperitiesArray([]);
+              setSkipable(false);
               setFetching(false);
               return;
           };
+
+          if(res?.dt?.length > 300){
+            setSkipable(true)
+          } else {
+            setSkipable(false);
+          }
 
           let arr = [];
 
@@ -158,12 +169,6 @@ const page = () => {
       if(runOnce) settingPropertiesArray();
   }, [skip]);
 
-  if(!properitiesArray || properitiesArray.length <= 0){
-    return (
-        fetching ? <MySkeleton loadingType={'cards'}/> : <NotFound />
-    )
-  }
-
   return (
     <div className='search'>
 
@@ -172,6 +177,27 @@ const page = () => {
           <h2>البحث عن طريق الخريطة</h2>
 
           <Image src={MapGif} alt='search by map gif'/>
+
+        </div>
+
+        <span id="close-popups" style={{ display: isCalendar ? null : 'none'}}
+            onClick={() => setIsCalendar(false)}/>
+
+        <div className='book-date'>
+
+            <div className='calendar-div' style={{ display: !isCalendar ? 'none' : null }}>
+                <MyCalendar type={'mobile-filter'} setCalender={setCalendarDoubleValue}/>
+            </div>
+
+            <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
+            {getNameByLang('تاريخ الحجز', false)}
+            <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(0), true, false)}</h3>
+            </div>
+
+            <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
+            {getNameByLang('تاريخ انتهاء الحجز', false)}
+            <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, false)}</h3>
+            </div>
 
         </div>
 
@@ -187,11 +213,11 @@ const page = () => {
 
         <h2 id='all-results'>كل النتائج</h2>
 
-        <ul className="resultUL">
+        {properitiesArray?.length > 0 ? <ul className="resultUL">
             {properitiesArray.slice(indexSlide, indexSlide + cardsPerPage).map((item) => (
                 <Card key={item._id} item={item}/>
             ))}
-        </ul>
+        </ul> : fetching ? <MySkeleton loadingType={'cards'}/> : <NotFound />}
 
         <div className="pagesHandler">
 
@@ -248,7 +274,7 @@ const page = () => {
         </div>
 
         <button id="moreResult" style={{
-             display: currentPage === pagesNumber ? 'block' : 'none'
+             display: (currentPage === pagesNumber && skipable) ? 'block' : 'none'
         }} onClick={() => setSkip(skip + 1)}>تحميل المزيد من المعروضات</button>
 
     </div>

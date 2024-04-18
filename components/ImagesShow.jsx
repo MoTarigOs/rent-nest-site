@@ -10,10 +10,10 @@ import LoadingImageHolder from '@assets/images/about-section-background.png';
 import Link from 'next/link';
 
 const ImagesShow = ({ 
-    images, videos, isAdmin, setFilesToDeleteAdmin, 
+    isEnglish, images, videos, isAdmin, setFilesToDeleteAdmin, 
     filesToDeleteAdmin,
     handleWishList, type, type_is_video, 
-    setImageFullScreen 
+    setImageFullScreen
 }) => {
 
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -76,16 +76,16 @@ const ImagesShow = ({
     }, [type_is_video]);
 
   return (
-    <div className='imagesDiv' style={{ height: type === 'view' && 420 }}>
+    <div className='imagesDiv' dir={isEnglish ? 'ltr' : null} style={{ height: type === 'view' && 420 }}>
 
         <div className='swiper-images-show'>
             <div className='swiper-wrapper'>
             {!type_is_video ? <> {images?.length ? <>{images.map((img) => (
-                    <div className='swiper-slide' laz>
+                    <div className='swiper-slide' id={type === 'landing' ? 'landing-item' : ''}>
                         <Image src={type === 'landing' ? img.image : `${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${img}`} 
                         fill={type === 'landing' ? false : true} blurDataURL={LoadingImageHolder} 
                         alt='صورة عن العرض' loading={type === 'landing' ? 'eager' : 'lazy'}/>
-                        <div className='images-show-text' style={{ display: type !== 'landing' && 'none' }}>
+                        <div className='images-show-text' style={{ display: type !== 'landing' && 'none', width: '100%' }}>
                             <div>
                                 <h2>{img.title}</h2>
                                 <p>{img.desc}</p>
@@ -95,7 +95,7 @@ const ImagesShow = ({
                     </div>
                 ))}</> : <>
                     <div className='not-exist'>
-                        لا توجد صور
+                        {isEnglish ? 'No images found' : 'لا توجد صور'}
                     </div>
                 </>}</> : <>
                     {videos?.length > 0 ? <>{videos.map((vd) => (
@@ -104,7 +104,7 @@ const ImagesShow = ({
                         </div>
                     ))}</> : <>
                         <div className='not-exist'>
-                            لا توجد فيديوهات
+                           {isEnglish ? 'No videos found' : 'لا توجد فيديوهات'}
                         </div>
                     </>}
                 </>}
@@ -129,7 +129,7 @@ const ImagesShow = ({
             }} onClick={() => setFilesToDeleteAdmin([
                 ...filesToDeleteAdmin, type_is_video ? videos[selectedImageIndex] : images[selectedImageIndex]
             ])}>
-                اضافة الى السلة 
+                {isEnglish ? 'Add to Bin' : 'اضافة الى السلة'}
                 <Svgs name={'delete'}/>
             </div>}
 

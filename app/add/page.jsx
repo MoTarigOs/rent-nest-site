@@ -8,26 +8,29 @@ import GoogleMapImage from '@assets/images/google-map-image.jpg';
 import VehicleImage from '@assets/images/sedan-car.png';
 import PropertyImage from '@assets/images/property.png';
 import PropertyWhiteImage from '@assets/images/property-white.png';
-import { JordanCities, ProperitiesCatagories, VehicleCatagories, isInsideJordan } from '@utils/Data';
+import { JordanCities, ProperitiesCatagories, VehicleCatagories, contactsPlatforms, isInsideJordan } from '@utils/Data';
 import CustomInputDiv from '@components/CustomInputDiv';
 import { createProperty, uploadFiles } from '@utils/api';
 import HeaderPopup from '@components/popups/HeaderPopup';
 import { getOptimizedAttachedFiles } from '@utils/Logic';
-import ReCAPTCHA from 'react-google-recaptcha';
 import { Context } from '@utils/Context';
 import NotFound from '@components/NotFound';
+import MySkeleton from '@components/MySkeleton';
+import Svgs from '@utils/Svgs';
 
 const page = () => {
 
     const { 
         userId, setIsMap, setMapType,
         latitude, setLatitude, storageKey,
-        longitude, setLongitude, userEmail
+        longitude, setLongitude, userEmail,
+        loadingUserInfo
     } = useContext(Context);
 
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/mp4', 'video/avi'];
     const inputFilesRef = useRef();
     const attachImagesDivRef = useRef();
+    const [fetching, setFetching] = useState(true);
 
     const [selectedCatagories, setSelectedCatagories] = useState('1');
     const [error, setError] = useState('');
@@ -40,6 +43,7 @@ const page = () => {
     const [itemTitle, setItemTitle] = useState('');
     const [itemDesc, setItemDesc] = useState('');
     const [itemCity, setItemCity] = useState({});
+    const [area, setArea] = useState(0);
     const [itemNeighbour, setItemNeighbour] = useState('');
     const [itemPrice, setItemPrice] = useState(0);
     const [requireInsurance, setRequireInsurance] = useState(false);
@@ -47,11 +51,15 @@ const page = () => {
     const [itemLong, setItemLong] = useState(null);
     const [itemLat, setItemLat] = useState(null);
 
+    const [contacts, setContacts] = useState([]);
+    const [contactsError, setContactsError] = useState('');
+
     const [guestRoomsDetailArray, setGuestRoomsDetailArray] = useState([]);
     const [companionsDetailArray, setCompanionsDetailArray] = useState([]);
     const [bathroomsDetailArray, setBathroomsDetailArray] = useState([]);
     const [kitchenDetailArray, setKitchenDetailArray] = useState([]);
     const [roomsDetailArray, setRoomsDetailArray] = useState([]);
+    const [nearPlaces, setNearPlaces] = useState([]);
     const [conditionsAndTerms, setConditionsAndTerms] = useState([]);
     const [vehicleSpecifications, setVehicleSpecifications] = useState([]);
     const [vehicleFeatures, setVehicleFeatures] = useState([]);
@@ -62,12 +70,15 @@ const page = () => {
         {name: 'دورات المياه', array: bathroomsDetailArray, setArray: setBathroomsDetailArray},
         {name: 'المطبخ', array: kitchenDetailArray, setArray: setKitchenDetailArray},
         {name: 'الغرف', array: roomsDetailArray, setArray: setRoomsDetailArray},
+        {name: 'الأماكن القريبة', array: nearPlaces, setArray: setNearPlaces},
         {name: 'شروط و أحكام الحجز', array: conditionsAndTerms, setArray: setConditionsAndTerms},
     ];
 
     const vehiclesDetails = [
         {name: 'مواصفات السيارة', array: vehicleSpecifications, setArray: setVehicleSpecifications},
-        {name: 'المزايا الاضافية', array: vehicleFeatures, setArray: setVehicleFeatures}
+        {name: 'المزايا الاضافية', array: vehicleFeatures, setArray: setVehicleFeatures},
+        {name: 'الأماكن القريبة', array: nearPlaces, setArray: setNearPlaces},
+        {name: 'شروط و أحكام الحجز', array: conditionsAndTerms, setArray: setConditionsAndTerms},
     ];
 
     const getDetails = () => {
@@ -109,6 +120,23 @@ const page = () => {
             errorEncountered = true;
         }
 
+        if(area === -1 || (area > 0 && (typeof area !== 'number' || area < 0 || area > 1000000))){
+            setArea(-1);
+            errorEncountered = true;
+        }
+
+        if(!contacts || !contacts?.length > 0){
+            setContactsError('الرجاء كتابة طريقة تواصل واحدة على الأقل.');
+            errorEncountered = true;
+        } else {
+            for (let i = 0; i < contacts.length; i++) {
+                if(!isValidContactURL(contacts[i])) {
+                    setContactsError('هنالك رابط غير صالح, الرجاء اختيار منصة و ادخال رابط صالح.');
+                    errorEncountered = true;
+                }
+            }
+        }
+
         if(!itemCity || itemCity === {} || typeof itemCity.value !== 'string' || itemCity.value.length <= 0){
             const obj = itemCity;
             obj.value = '-1';
@@ -134,12 +162,16 @@ const page = () => {
 
         if(errorEncountered === true){
             window.scrollTo({
-                top: 320, behavior: 'smooth'
+                top: contactsError?.length > 0 
+                ? window.scrollY + attachImagesDivRef.current.getBoundingClientRect().top 
+                : 320, behavior: 'smooth'
             });
             setError('أكمل الحقول الفارغة.');
             setSuccess(false);
             return;
         }
+
+        setContactsError('');
 
         try {
 
@@ -183,23 +215,32 @@ const page = () => {
 
             const xDetails = selectedCatagories === '0' ? {
                 vehicle_specifications: vehicleSpecifications,
-                vehicle_addons: vehicleFeatures
+                vehicle_addons: vehicleFeatures,
+                near_places: nearPlaces
             } : {
                 insurance:  requireInsurance, 
                 guest_rooms: guestRoomsDetailArray, 
                 facilities: companionsDetailArray, 
                 bathrooms: bathroomsDetailArray, 
                 kitchen: kitchenDetailArray, 
-                rooms: roomsDetailArray 
+                rooms: roomsDetailArray,
+                near_places: nearPlaces
             };
+
+            let tempContacts = [];
+
+            contacts.forEach((item) => {
+                tempContacts.push({
+                    platform: item.platform, val: item.val
+                });
+            });
             
             const res = await createProperty(
                 selectedCatagories === '0' ? true : false, 
                 specificCatagory, itemTitle, itemDesc, 
                 itemCity.value, itemNeighbour, [itemLong, itemLat], itemPrice, 
-                xDetails, conditionsAndTerms);
-
-            console.log('res: ', res);    
+                xDetails, conditionsAndTerms, area > 0 ? area : null,
+                tempContacts?.length > 0 ? tempContacts : null);
 
             if(res.success !== true){
                 setError(res.dt.toString());
@@ -261,12 +302,16 @@ const page = () => {
     }, [itemCity]);
 
     useEffect(() => {
-        console.log(guestRoomsDetailArray);
-    }, [guestRoomsDetailArray]);
+        if(!loadingUserInfo && userId?.length > 0) setFetching(false);
+    }, [userId]);
+
+    const RightIconSpan = () => {
+        return <span id='righticonspan'/>
+    }
 
     if(!userId?.length > 0){
         return (
-            <NotFound type={'not allowed'}/>
+            fetching ? <MySkeleton isMobileHeader={true}/> : <NotFound type={'not allowed'}/>
         )
     }
 
@@ -279,7 +324,7 @@ const page = () => {
 
             <h2>ما الذي تريد عرضه للإِيجار</h2>
 
-            <div className='selectCatagory'>
+            <div className='selectCatagory' style={{ width: '100%' }}>
 
                 <CatagoryCard type={'add'} image={VehicleImage} title={'سيارة'} catagoryId={'0'} selectedCatagories={selectedCatagories} setSelectedCatagories={setSelectedCatagories}/>
                 
@@ -359,11 +404,69 @@ const page = () => {
                     <input type='radio' name='insurance_group' onChange={() => setRequireInsurance(true)}/><label>نعم</label>
                     <input checked={requireInsurance ? false : true} type='radio' name='insurance_group' onChange={() => setRequireInsurance(false)}/><label>لا</label>
                 </div>
+
+                <div className='detailItem area-div' style={{ display: selectedCatagories === '0' ? 'none' : null}}>
+                    <h3>اكتب مساحة العقار بالأمتار</h3>
+                    <CustomInputDiv title={area > 0 ? `${area} متر مربع` : ''} max={1000000} min={0} myStyle={{ marginBottom: 0 }} placholderValue={'مثل: 40'} value={area > 0 ? area : 'مثل: 40'} type={'number'} isError={area === -1} errorText={'الرجاء ادخال مساحة صالحة'} listener={(e) => {
+                        if(Number(e.target.value)) setArea(e.target.value);
+                    }}/>
+                </div>
+
+                <div className='detailItem contacts-div'>
+                    <h3>اضافة طرق تواصل</h3>
+                    <p style={{ marginBottom: contactsError?.length > 0 ? null : 0 }} id='error'>{contactsError}</p>
+                    <ul className='detailItem-ul'>
+                    {contacts.map((c, index) => (
+                        <li key={index}>
+                            <CustomInputDiv value={c.val} 
+                            deletable handleDelete={() => {
+                                let arr = [];
+                                for (let i = 0; i < contacts.length; i++) {
+                                    if(i !== index){
+                                        arr.push(contacts[i]);
+                                    }
+                                }
+                                setContacts(arr);
+                            }}
+                            listener={(e) => {
+                                let arr = [...contacts];
+                                arr[index] = { platform: arr[index].platform, val: e.target.value, isPlatforms: arr[index].isPlatforms };
+                                setContacts(arr);
+                            }}/>
+                            <div className='choose-platform'>
+                                <button className={c.isPlatforms ? 'editDiv rotate-edit-div' : 'editDiv'} onClick={() => {
+                                    let arr = [...contacts];
+                                    arr[index] = { platform: arr[index].platform, val: arr[index].val, isPlatforms: !arr[index].isPlatforms };
+                                    for (let i = 0; i < contacts.length; i++) {
+                                        if(i !== index){
+                                            arr[i] =  { platform: arr[i].platform, val: arr[i].val, isPlatforms: false };
+                                        }
+                                    }
+                                    setContacts(arr);
+                                }}>
+                                    {c?.platform?.length > 0 ? c.platform : 'اختر منصة'} <Svgs name={'dropdown arrow'}/>
+                                </button>
+                                <ul style={{ display: c.isPlatforms ? null : 'none' }}>
+                                    {contactsPlatforms.map((p) => (
+                                        <li onClick={() => {
+                                            let arr = [...contacts];
+                                            arr[index] = { platform: p, val: arr[index].val, isPlatforms: false };
+                                            setContacts(arr);
+                                            console.log(arr, p);
+                                        }}>{p} {p === c.platform && <RightIconSpan />}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </li>
+                    ))}
+                    </ul>
+                    <button className='btnbackscndclr' onClick={() => setContacts([...contacts, { platform: '', val: '', isPlatforms: false }])}>أضف المزيد</button>
+                </div>
                 
                 {getDetails().map((item) => (
                     <div className='detailItem'>
                         <h3>{item.name}</h3>
-                        <ul>
+                        <ul className='detailItem-ul'>
                             {item.array.map((obj, myIndex) => (
                                 <li key={myIndex}>
                                     <CustomInputDiv placholderValue={obj} value={obj} deletable handleDelete={() => {
@@ -402,8 +505,6 @@ const page = () => {
                 <h4>- قم بإِضافة صور واضحة و معبرة</h4>
 
                 <h4>- أضف أكبر قدر من المعلومات في خانة التفاصيل</h4>
-
-                <ReCAPTCHA sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}/>
 
                 <label id='error2' style={{ padding: error.length <= 0 && 0, margin: error.length <= 0 && 0 }}>{error}</label>
                 

@@ -6,7 +6,6 @@ import Svgs from '@utils/Svgs';
 import { Suspense, useContext, useEffect, useRef, useState } from 'react';
 import Card from '@components/Card';
 import InfoDiv from '@components/InfoDiv';
-import ReCAPTCHA from 'react-google-recaptcha';
 import { blockDurationsArray, getDurationReadable, getReadableDate, getRoleArabicName } from '@utils/Logic';
 import HeaderPopup from '@components/popups/HeaderPopup';
 import { Context } from '@utils/Context';
@@ -14,6 +13,7 @@ import CustomInputDiv from '@components/CustomInputDiv';
 import { blockUser, deleteAccountAdmin, deleteUserAccountFilesAdmin, getOwnerProperties, getUserByEmailAdmin, handlePromotion, sendCode, unBlockUser } from '@utils/api';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
+import Skeleton from 'react-loading-skeleton';
 
 const Page = () => {
 
@@ -45,13 +45,11 @@ const Page = () => {
     const [sendCodeSuccess, setSendCodeSuccess] = useState('');
     const [isSentCodeEmail, setIsSentCodeEmail] = useState(false);
 
-    const reCaptchaPromoteRef = useRef(null);
     const [isPromoteDiv, setIsPromoteDiv] = useState(false);
     const [promoting, setPromoting] = useState(false);
     const [promoteError, setPromoteError] = useState('');
     const [promoteSuccess, setPromoteSuccess] = useState('');
 
-    const reCaptchaRef = useRef(null);
     const [isDeleteAccountDiv, setIsDeleteAccountDiv] = useState(false);
     const [deletingAccount, setDeletingAccount] = useState(false);
     const [deleteAccountError, setDeleteAccountError] = useState('');
@@ -184,8 +182,6 @@ const Page = () => {
 
       try {
 
-        //recaptcha
-
         if(promoting || !isNormalUser()) return;
 
         if(!isSentCodeEmail || !code || code.length !== 6){
@@ -234,8 +230,6 @@ const Page = () => {
     const demoteAdmin = async() => {
 
       try {
-
-        //recaptcha
 
         if(promoting || isNormalUser()) return;
 
@@ -350,7 +344,7 @@ const Page = () => {
 
     if(!user){
       return (
-        fetchingUserInfo ? <MySkeleton /> : <NotFound />
+        fetchingUserInfo ? <MySkeleton isMobileHeader/> : <NotFound />
       )
     };
 
@@ -378,7 +372,9 @@ const Page = () => {
 
             <div className='items'> 
               <ul style={{ display: !isHisProps ? 'none' : null }}>
-                  {props.map((item, index) => (
+                {(!props.length > 0) ? <li className="empty-holder">
+                      {fetchingProps ? <div><Skeleton width={'100%'} height={'100%'}/></div> : <NotFound />}
+                </li> : props.map((item, index) => (
                       <li key={index}><Card item={item}/></li>
                   ))}
               </ul>
@@ -446,11 +442,9 @@ const Page = () => {
 
               <div className='verifyEmailDiv' style={{ margin: -16, display: !isPromoteDiv && 'none' }}>
 
-                  <p style={{ marginBottom: 16 }}><Svgs name={'info'}/>تحذير: سيتم ترقية هذا المستخدم الى رتبة مسؤول, و سيكون لديه وصول أكبر الى حسابات المستخدمين الآخرين!</p>
-                  
-                  <ReCAPTCHA sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY} ref={reCaptchaPromoteRef}/>
-                  
-                  <button style={{ marginTop: 48 }} className='btnbackscndclr' onClick={isNormalUser() ? promoteAdmin : demoteAdmin}>
+                  <p><Svgs name={'info'}/>تحذير: سيتم ترقية هذا المستخدم الى رتبة مسؤول, و سيكون لديه وصول أكبر الى حسابات المستخدمين الآخرين!</p>
+     
+                  <button style={{ marginTop: 12 }} className='btnbackscndclr' onClick={isNormalUser() ? promoteAdmin : demoteAdmin}>
                     {promoting ? (isNormalUser() ? 'جاري الترقية...' : 'جاري تخفيض الرتبة...') 
                     : (isNormalUser() ? 'ترقية الى مسؤول' : 'تخفيض الرتبة الى مستخدم')}
                   </button>
@@ -485,9 +479,7 @@ const Page = () => {
                 
                     <p><Svgs name={'info'}/>تحذير: سيتم حذف حساب المستخدم و كل ما يتعلق به نهائيا!</p>
                     
-                    <ReCAPTCHA sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY} ref={reCaptchaRef}/>
-                    
-                    <button style={{ marginTop: 48 }} className='btnbackscndclr' onClick={deleteAccount}>{deletingAccount ? 'جاري حذف الحساب...' :'حذف الحساب نهائيا'}</button>
+                    <button style={{ marginTop: 12 }} className='btnbackscndclr' onClick={deleteAccount}>{deletingAccount ? 'جاري حذف الحساب...' :'حذف الحساب نهائيا'}</button>
                     
                     <p id={deleteAccountError?.length > 0 ? 'p-info-error' : 'p-info'}>
                         {deleteAccountError.length > 0 ? deleteAccountError : deleteAccountSuccess}

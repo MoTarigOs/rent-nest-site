@@ -1,7 +1,11 @@
 import '@styles/components_styles/ReviewCard.css';
 import Svgs from '@utils/Svgs';
 
-const ReviewCard = ({ item, on_click, setReportDiv, setWriterId, isAdmin, revsToDeleteAdmin, setRevsToDeleteAdmin }) => {
+const ReviewCard = ({ 
+  item, on_click, setReportDiv, setWriterId, 
+  isAdmin, revsToDeleteAdmin, setRevsToDeleteAdmin, 
+  isEnglish
+}) => {
   return (
     <li className='reviewCard' onClick={on_click}>
       
@@ -20,12 +24,12 @@ const ReviewCard = ({ item, on_click, setReportDiv, setWriterId, isAdmin, revsTo
               setWriterId(item.writer_id); 
               
             }
-        }}>إِبلاغ <Svgs name={'report'}/></h4>
+        }}>{isEnglish ? 'Report' : 'إِبلاغ'} <Svgs name={'report'}/></h4>
         {(isAdmin && revsToDeleteAdmin) && <h3 className='delete-file' style={{ display: revsToDeleteAdmin.includes(item) ? 'none' : null }} onClick={() => {
           if(!revsToDeleteAdmin.includes(item.writer_id))
             setRevsToDeleteAdmin([...revsToDeleteAdmin, item]);
         }}>
-          اضافة الى السلة
+          {isEnglish ? 'Add to delete basket' : 'اضافة الى السلة'}
           <Svgs name={'delete'}/>
         </h3>}
       </div>

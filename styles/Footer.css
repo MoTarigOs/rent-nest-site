@@ -15,10 +15,16 @@
 
         .logo{
             margin-left: auto;
+            cursor: pointer;
 
             img{
                 width: 160px;
                 height: auto;
+            }
+
+            &:dir(ltr){
+                margin-left: unset;
+                margin-right: auto;
             }
         }
 
@@ -68,11 +74,37 @@
 
             li{
                 margin-right: 24px;
+                padding: 8px;
+                border-radius: 6px;
+                background: var(--secondColor);
 
-                img{
+                svg{
                     width: 32px;
                     height: 32px;
                 }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 480px){
+    .footer{
+        padding: 12px 12px 96px 12px;
+        .topOfFooter{
+            flex-direction: column;
+            gap: 24px;
+        }
+        hr{
+            margin: 24px 0;
+        }
+        .bottomOfFooter{
+            flex-direction: column;
+            gap: 24px;
+            h4{
+                font-size: 1rem;
+            }
+            ul{
+                margin-right: 16px;
             }
         }
     }

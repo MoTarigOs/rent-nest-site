@@ -2,12 +2,16 @@
 
 import CustomInputDiv from '@components/CustomInputDiv';
 import './SignUp.css';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { isValidEmail, isValidPassword, isValidUsername } from '@utils/Logic';
 import Link from 'next/link';
 import { register } from '@utils/api';
+import NotFound from '@components/NotFound';
+import { Context } from '@utils/Context';
 
 const page = () => {
+
+  const { userId } = useContext(Context);
 
   const [loading, setLoading] = useState(false);
   const [successRegister, setSuccessRegister] = useState(false);
@@ -20,10 +24,20 @@ const page = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const agreeToTermsRef = useRef(null);
 
   const handleSubmit = async(e) => {
 
     e.preventDefault();
+
+    if(userId) return;
+
+    if(!agreeToTermsRef?.current?.checked) {
+      setError('الرجاء الموافقة على الشروط و الأحكام.');
+      return;
+    } else {
+      setError('');
+    }
 
     let errorEncountered = false;
 
@@ -57,8 +71,11 @@ const page = () => {
       errorEncountered = true;
     };
 
-    if(errorEncountered === true) return;
-    
+    if(errorEncountered === true) {
+      setError('هنالك خطأ في أحد الحقول.');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -130,7 +147,11 @@ const page = () => {
       } else {
         setError('');
       }
-  }, [usernameError, emailError, passwordError, confirmPasswordError])
+  }, [usernameError, emailError, passwordError, confirmPasswordError]);
+
+  if(userId?.length > 10){
+    return <NotFound type={'user id exist'}/>
+  }
 
   return (
 
@@ -151,11 +172,11 @@ const page = () => {
           <CustomInputDiv isError={confirmPassword === '-1' && true} errorText={confirmPasswordError} type={'password'} title={'أكد كلمة المرور'} listener={(e) => handleChange(e, 'confirm password')}/>
           
           <div className='policies'>
-            <input type='checkbox' />
+            <input type='checkbox' ref={agreeToTermsRef}/>
             <p>أوافق على</p>
-            <span>شروط الاستخدام</span>
+            <Link href={'/about#conditions'}>شروط الاستخدام</Link>
             و
-            <span>الأحكام</span>
+            <Link href={'/about#conditions'}>الأحكام</Link>
           </div>
 
           <label id='error' style={{ padding: error.length <= 0 && 0, margin: error.length <= 0 && 0 }}>{error}</label>
@@ -168,7 +189,7 @@ const page = () => {
 
         <strong>أو</strong>
 
-        <Link href={'/sign-in'}>تسجيل الدخول</Link>
+        <Link id='navigate-to-sign' href={'/sign-in'}>تسجيل الدخول</Link>
         
       </div>
 

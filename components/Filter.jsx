@@ -8,9 +8,10 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import MapImage from '@assets/icons/google-map.png';
 import Link from 'next/link';
 import { Context } from '@utils/Context';
+import { getNameByLang } from '@utils/Logic';
 
 const Filter = ({ 
-    type, isFilter, setIsFilter, triggerFetch, setTriggerFetch 
+    isEnglish, type, isFilter, setIsFilter, triggerFetch, setTriggerFetch 
 }) => {
 
     const minPriceRef = useRef();
@@ -73,19 +74,19 @@ const Filter = ({
 
             <div className='filterSearchDiv'>
                 <Svgs name={'cross'} on_click={() => setIsFilter(false)}/>
-                <div>
-                    <input placeholder={searchText.length <= 0 ? `ابحث عن ${type === 'prop' ? 'عقارات' : 'سيارات'}` : searchText} onChange={(e) => setSearchText(e.target.value)}/>
-                    <Link href={'/search/map'}><Image src={MapImage}/></Link>
+                <div style={{ width: '100%' }}>
+                    <input style={{ width: '100%' }} placeholder={searchText.length <= 0 ? `${getNameByLang('ابحث عن', isEnglish)} ${type === 'prop' ? getNameByLang('عقارات', isEnglish) : getNameByLang('سيارات', isEnglish)}` : searchText} onChange={(e) => setSearchText(e.target.value)}/>
+                    <Link href={isEnglish ? '/en/search' : '/search'}><Image src={MapImage}/></Link>
                 </div>
                 <button onClick={() => { 
                     setTriggerFetch(!triggerFetch); setIsFilter(false);
-                }}>ابحث</button>
+                }}>{getNameByLang('ابحث', isEnglish)}</button>
             </div>
 
             <hr />
 
             <div className="price">
-                <h2>السعر</h2>
+                <h2>{getNameByLang('السعر', isEnglish)}</h2>
                 <div class="range-slider">
                     <div class="range-fill" style={{ left: trackLeft, width: sliderWidth }}></div>
                     <input onChange={(e) => {
@@ -102,6 +103,7 @@ const Filter = ({
                     step={priceStep}
                     value={currentMinPrice}
                     ref={minPriceRef}
+                    style={{ width: '100%' }}
                     onChange={validateRange}
                     />
                     <input
@@ -112,6 +114,7 @@ const Filter = ({
                     step={priceStep}
                     ref={maxPriceRef}
                     value={currentMaxPrice}
+                    style={{ width: '100%' }}
                     onChange={validateRange}
                     />
                 </div>
@@ -119,14 +122,15 @@ const Filter = ({
 
             <div className="city">
 
-                <select onChange={(e) => {
-                    const myCity = JordanCities.find(i => i.city_id === e.target.value);
-                    setCity(myCity ? myCity : {});
-                }} value={city?.city_id ? city.city_id : {}}>
-                    <option value="" disabled selected hidden>اختر المدينة</option>
-                    <option value={{}}>كل المدن</option>
+                <select style={{ width: '100%' }} onChange={(e) => {
+                    console.log('city value: ', e.target.value);
+                    const myCity = JordanCities.find(i => i.city_id === Number(e.target.value));
+                    setCity(myCity ? myCity : '');
+                }}>
+                    <option value="" disabled selected hidden>{getNameByLang('اختر المدينة', isEnglish)}</option>
+                    <option value={-3}>{getNameByLang('كل المدن', isEnglish)}</option>
                     {JordanCities.map((city) => (
-                        <option value={city.city_id}>{city.arabicName}</option>
+                        <option key={city.city_id} value={city.city_id}>{isEnglish ? city.value : city.arabicName}</option>
                     ))}
                 </select>
             </div>
@@ -136,20 +140,20 @@ const Filter = ({
                     <li onClick={() => setCatagory('')}
                         className={catagory === '' && 'selectedCatagory'}
                     >
-                        كل التصنيفات
+                        {getNameByLang('كل التصنيفات', isEnglish)}
                     </li>
                     {getCatagories().map((ctg) => (
                         <li onClick={() => setCatagory(ctg.value)}
                             className={catagory === ctg.value && 'selectedCatagory'}
                         >
-                            {ctg.arabicName}
+                            {isEnglish ? ctg.value : ctg.arabicName}
                         </li>
                     ))}
                 </ul>
             </div>
 
             <div className="rating">
-                <h2>التقييم <span>( تقييم {ratingScore} أو أكثر )</span></h2>
+                <h2>{getNameByLang('التقييم', isEnglish)} <span>( {getNameByLang('تقييم', isEnglish)} {ratingScore} {getNameByLang('أو أكثر', isEnglish)} )</span></h2>
                 <Svgs name={'star'} styling={ratingScore > 0 ? true : false} on_click={() => {if(ratingScore === 0){ setRatingScore(1) } else { setRatingScore(0) }}}/>
                 <Svgs name={'star'} styling={ratingScore > 1 ? true : false} on_click={() => setRatingScore(2)}/>
                 <Svgs name={'star'} styling={ratingScore > 2 ? true : false} on_click={() => setRatingScore(3)}/>
@@ -159,7 +163,7 @@ const Filter = ({
 
             <button style={{ width: '100%', marginTop: 32, borderRadius: 8 }} onClick={() => {
                 setTriggerFetch(!triggerFetch); setIsFilter(false);
-            }}>ابحث</button>
+            }}>{getNameByLang('ابحث', isEnglish)}</button>
 
         </div>
         

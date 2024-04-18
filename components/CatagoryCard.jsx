@@ -25,6 +25,6 @@ const CatagoryCard = ({ catagoryId, title, selectedCatagories, setSelectedCatago
         <h3>{title}</h3>
     </li>   
   )
-}
+};
 
-export default CatagoryCard
+export default CatagoryCard;

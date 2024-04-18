@@ -18,6 +18,21 @@
             width: 100%;
             margin-top: 24px;
 
+            &:dir(ltr){
+                span{
+                    h4{
+                        margin-right: 0;
+                        margin-left: 4px;
+                    }
+                }
+                p{
+                    svg{
+                        margin-right: 8px;
+                        margin-left: 0;
+                    }
+                }
+            }
+
             span{
                 display: flex;
                 margin-bottom: 16px;
@@ -55,8 +70,20 @@
 
         .selectCatagory{
             display: flex;
+            justify-content: center;
+            overflow: hidden;
             gap: 24px;
             margin-bottom: 48px;
+
+            .catagoryCard{
+                width: 100%;
+
+                min-width: 110px;
+                img{
+                    width: 100%;
+                    min-height: 100px;
+                }
+            }
         }
 
         .address{
@@ -152,6 +179,36 @@
                 font-size: 1.2rem;
                 font-weight: 400;
                 color: rgb(65, 65, 65);
+            }
+        }
+
+        .set-discount{
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            white-space: nowrap;
+
+            h3{
+                color: var(--secondColor);
+                font-weight: 400;
+                margin-bottom: 4px;
+            }
+
+            div{
+                display: flex;
+                align-items: center;
+                margin-bottom: 24px;
+                gap: 16px;
+                font-size: 1.8rem;
+                color: rgb(116, 116, 116);
+
+                .inputDiv{
+                    width: 100%;
+                    max-width: 120px;
+                    margin: 0;
+                    height: 44px;
+                }
             }
         }
 
@@ -315,6 +372,116 @@
                     margin-left: 24px;
                     font-size: 1.1rem;
                 }
+
+                &:dir(ltr){
+                    input{
+                        margin-left: 0;
+                        margin-right: 8px;
+                    }
+                    label{
+                        margin-left: 0;
+                        margin-right: 24px;
+                    }
+                }
+            }
+
+            .area-div{
+                width: 100%;
+                padding: 16px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                border-radius: 4px;
+                background: var(--darkWhite);
+                margin-bottom: 24px;
+
+                #title-input-div-span{
+                    background: var(--darkWhite);
+                }
+            }
+
+            .contacts-div{
+
+                #error{
+                    width: 100%;
+                    margin-bottom: 16px;
+                }
+
+                .btnbackscndclr{
+                    margin-top: 16px;
+                }
+
+                .detailItem-ul{
+                    li{
+                        display: flex;
+                        gap: 16px;
+
+                        .choose-platform{
+                            width: 180px;
+                            height: 100%;
+                            max-width: 30%;
+                            position: relative;
+
+                            .editDiv{
+                                white-space: nowrap;
+                                border-radius: 4px;
+                                margin: 0;
+                                width: 100%;
+                                direction: ltr;
+                                color: rgba(84, 84, 84, 0.879);
+                                border-color: rgba(0, 0, 0, 0.123);
+
+                                svg{
+                                    margin-left: auto;
+                                }
+                            }
+
+                            .editDiv:hover{
+                                background: transparent;
+                                color: rgba(84, 84, 84, 0.879);
+                            }
+    
+                            ul{
+                                background: white;
+                                box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.141);
+                                position: absolute;
+                                top: 120%;
+                                left: 0;
+                                width: 100%;
+                                direction: ltr;
+                                border-radius: 6px;
+                                max-height: 300px;
+                                overflow-y: scroll;
+                                z-index: 1;
+    
+                                li{
+                                    padding: 10px 8px;
+                                    width: 100%;
+
+                                    #righticonspan{
+                                        margin-left: auto;
+                                        margin-right: 6px;
+                                    }
+                                }
+    
+                                li:hover{
+                                    background: rgb(205, 205, 205);
+                                }
+                            }
+                        }
+
+                        #choose-platform-error{
+                            button{
+                                border-color: var(--softRed);
+                                color: var(--softRed);
+
+                                svg path{
+                                    fill: var(--softRed);
+                                }
+                            }   
+                        }
+                    }
+                }
             }
 
             .detailItem{
@@ -334,7 +501,7 @@
                     width: 100%;
                 }
 
-                ul{
+                .detailItem-ul{
                     width: 100%;
                     display: flex;
                     flex-direction: column;
@@ -366,7 +533,6 @@
                     cursor: pointer;
                     transition: all 0.2s ease-out;
                 }
-    
                 
                 button:hover{
                     background: var(--secondColorHover);
@@ -461,6 +627,7 @@
                 h4{
                     font-size: 1rem;
                     font-weight: 400;
+                    margin-top: 16px;
                 }
             }
         }
@@ -468,6 +635,73 @@
         #error{
             color: var(--softRed);
             font-size: 0.9rem;
+        }
+
+        .status{
+            font-size: 1rem;
+            font-weight: 500;
+            color: rgb(97, 97, 97);
+            margin-bottom: 24px;
+    
+            span{
+                font-size: 1.1rem;
+                color: black;
+                text-decoration: underline;
+                margin: 0 4px;
+            }
+        }
+
+        .rejection-div{
+            width: 100%;
+            background: rgb(255, 204, 190);
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 32px;
+            color: rgb(110, 110, 110);
+    
+            div, div span, h2{
+                margin-bottom: 16px;
+                color: rgb(110, 110, 110);
+            }
+    
+            ul{
+                display: flex;
+                flex-direction: column;
+                list-style: inside;
+                padding: 16px;
+            }
+            
+            p{
+                display: flex;
+                align-items: center;
+                font-size: 0.9rem;
+                margin-top: 12px;
+    
+                svg{
+                    width: 16px;
+                    height: 16px;
+                    margin-left: 8px;
+    
+                    &:dir(ltr){
+                        margin-left: 0;
+                        margin-right: 8px;
+                    }
+                    
+                    path{
+                        fill: rgb(110, 110, 110);
+                    }
+                }
+    
+                a{
+                    color: black;
+                    margin-right: 4px;
+    
+                    &:dir(ltr){
+                        margin-right: 0;
+                        margin-left: 4px;
+                    }
+                }
+            }
         }
 
         #error2, #success{
@@ -509,6 +743,12 @@
 
         .editDiv:hover{
             background: rgba(0, 0, 0, 0.126);
+        }
+
+        .rotate-edit-div{
+            svg{
+                transform: rotate(180deg) translateY(-2px);
+            }
         }
 
         .btnbackscndclr{
@@ -582,6 +822,14 @@
         color: rgb(172, 172, 172);
         cursor: default;
     }
+
+    #righticonspan{
+        width: 8px;
+        height: 20px;
+        border-right: 2px solid var(--secondColorDark);
+        border-bottom: 2px solid var(--secondColorDark);
+        transform: rotate(45deg);
+    }
 }
 
 
@@ -593,12 +841,19 @@
 
 @media screen and (max-width: 680px){
     .add{
+        padding: 12px;
         .wrapper{
             .attachFiles{
                 ul{
                     #chooseFileLastLi{
                         font-size: 1rem;
                     }
+                }
+            }
+            .selectCatagory{
+                .catagoryCard{
+                    /* width: 100%;
+                    max-width: 140px; */
                 }
             }
         }

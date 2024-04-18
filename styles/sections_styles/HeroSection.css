@@ -10,6 +10,7 @@
 
         h1{
             color: var(--secondColor);
+            text-align: center;
             margin-bottom: 24px;
         }
 
@@ -169,7 +170,7 @@
         align-items: center;
         gap: 32px;
         justify-content: center;
-        position: relative;
+        position: relative; 
 
         ul{
             width: 100%;
@@ -180,15 +181,29 @@
             flex-direction: column;
             gap: 24px;
             overflow-y: scroll;
-            cursor: default;
+            cursor: default;    
+            -ms-overflow-style: none; /* IE 11 */
+            scrollbar-width: none; /* Firefox 64 */    
 
             li{
                 width: 100%;
+                position: relative;
 
                 img{
                     width: 100%;
                     height: 250px;
                     object-fit: cover;
+                    border-radius: 24px;
+                }
+
+                &:after{
+                    position: absolute;
+                    content: '';
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: radial-gradient(transparent 30%, rgba(65, 65, 65, 0.337) 100%);
                     border-radius: 24px;
                 }
             }

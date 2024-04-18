@@ -17,6 +17,14 @@
         margin-bottom: 64px;
         cursor: default;
 
+        &:dir(ltr){
+
+            h2{
+                margin-left: 0;
+                margin-right: 16px;
+            }
+        }
+
         h2{
             font-size: 2.1rem;
             font-weight: 300;
@@ -36,6 +44,13 @@
         display: flex;
         padding: 12px;
         margin-bottom: 44px;
+
+        &:dir(ltr){
+            .card{
+                margin-left: 0;
+                margin-right: 24px;
+            }
+        }
 
         .card{
             margin-left: 24px;
@@ -67,6 +82,23 @@
         align-items: center;
         justify-content: end;
         margin-top: 64px;
+
+        &:dir(ltr){
+            .pageNum, .dotsBetweenPages, div{
+                margin-left: 0;
+                margin-right: 16px;
+            }
+            div{
+                svg{
+                    transform: rotate(90deg);
+                }
+            }
+            #rotate-it-next{
+                svg{
+                    transform: rotate(-90deg);
+                }
+            }
+        }
 
         .pageNum{
             padding: 8px;
@@ -154,6 +186,71 @@
 
         &:hover{
             text-decoration: underline;
+        }
+    }
+
+    .book-date{
+        position: relative;
+        display: none;
+        gap: 24px;
+        width: 100%;
+        max-width: 480px;
+        margin: 8px 8px 32px 8px;
+        padding: 24px;
+        border-radius: 8px;
+        box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.173);
+
+        .calendar-div{
+            border: 2px solid rgb(242, 242, 242);
+            box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.137);
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+            position: absolute;
+            top: 110%;
+            right: 0;
+            left: unset;
+            width: 100%;
+            max-width: fit-content;
+            z-index: 11;
+            height: fit-content;
+
+            &:dir(ltr){
+                right: unset;
+                left: 0;
+            }
+        }
+
+        .bookingDate{
+            color: grey;
+            cursor: pointer;
+            width: 100%;
+            font-size: 0.9rem;
+
+            h3{
+                color: var(--secondColorDark);
+                margin-top: 4px;
+                font-weight: 500;
+                font-size: 0.96rem;
+            }
+        }
+    }
+
+    #close-popups{
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: rgba(0, 0, 0, 0.411);
+        z-index: 10;
+    }
+}
+
+@media screen and (max-width: 1160px){
+    .search{        
+        .book-date{
+            display: flex;
         }
     }
 }
