@@ -81,17 +81,18 @@ const ImagesShow = ({
         <div className='swiper-images-show'>
             <div className='swiper-wrapper'>
             {!type_is_video ? <> {images?.length ? <>{images.map((img) => (
-                    <div className='swiper-slide' id={type === 'landing' ? 'landing-item' : ''}>
-                        <Image src={type === 'landing' ? img.image : `${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${img}`} 
+                    <div className='swiper-slide'>
+                        <Image style={{ zIndex: type === 'view' ? 1 : null }} src={type === 'landing' ? img.image : `${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${img}`} 
                         fill={type === 'landing' ? false : true} blurDataURL={LoadingImageHolder} 
                         alt='صورة عن العرض' loading={type === 'landing' ? 'eager' : 'lazy'}/>
                         <div className='images-show-text' style={{ display: type !== 'landing' && 'none', width: '100%' }}>
-                            <div>
+                            <div style={{ width: '100%' }}>
                                 <h2>{img.title}</h2>
                                 <p>{img.desc}</p>
                                 <Link href={img.btnLink ? img.btnLink : ''}>{img.btnTitle}</Link>
                             </div>
                         </div>
+                        {type === 'landing' && <span id='landing-item-span'/>}
                     </div>
                 ))}</> : <>
                     <div className='not-exist'>
@@ -118,7 +119,7 @@ const ImagesShow = ({
                 <div className='arrow rightArrow' ref={prevButtonVideoRef}><Svgs name={'dropdown arrow'}/></div>
             </>}</>}
 
-            {(type === 'view' && !type_is_video) && <div style={{ zIndex: 0 }} className='full-screen-svg-div'>
+            {(type === 'view' && !type_is_video) && <div style={{ zIndex: 1 }} className='full-screen-svg-div'>
                 <Svgs name={'full screen up'} on_click={() => setImageFullScreen(images[selectedImageIndex])}/>
             </div>}
 

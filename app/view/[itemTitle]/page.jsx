@@ -211,7 +211,20 @@ const page = () => {
 
     try {
 
-      if(!userId || userId.length <= 10 || userId === item.owner_id || !canBook) return;
+      if(userId === item.owner_id || !canBook) return;
+
+      if(!userId || userId.length <= 10){
+        let whatsapp = item?.contacts?.find(i => i.platform === 'whatsapp');
+        if(whatsapp && !isNaN(Number(whatsapp.val))) {
+          if(whatsapp.val?.at(0) === '0' && whatsapp.val?.at(1) === '0') 
+            whatsapp = whatsapp.val?.replace('00', '+');
+          return window.open(`${whatsappBaseUrl}/${whatsapp.val}`, '_blank');
+        }
+        if(whatsapp && isValidContactURL(whatsapp))
+          return window.open(whatsapp.val, '_blank');
+        setBookSuccess('تواصل مع مقدم الخدمة من قسم الشروط و التواصل');
+        return;
+      }
 
       setAddingToBooks(true);
 

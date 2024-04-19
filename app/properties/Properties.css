@@ -106,6 +106,9 @@
         }
 
         .selectedPage{
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background: var(--secondColor);
             color: white;
             font-weight: 500;
