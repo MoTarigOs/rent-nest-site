@@ -58,14 +58,15 @@
                     h2{
                         font-size: 2rem;
                         color: white;
-                        margin-bottom: 32px;
+                        margin-top: 24px;
+                        margin-bottom: 24px;
                         text-align: start;
                         max-width: 480px;
                     }
 
                     p{
                         color: white;
-                        margin-bottom: 32px;
+                        margin-bottom: 24px;
                         font-size: 1rem;
                         max-width: 480px;
                     }

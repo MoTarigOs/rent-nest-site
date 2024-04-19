@@ -246,7 +246,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname }) => {
 
             <Link href={getHref('add')} style={{ display: !userId?.length > 0 ? 'none' : null }} className='addItemHeaderDiv'>{getNameByLang('أضف عقارك', pathname.includes('/en'))}</Link>
 
-            <div className='user'>
+            <div className='user' style={{ maxWidth: !userId?.length > 0 ? 'unset' : null }}>
               <Link href={userId?.length > 0 ? getHref('profile', userId) : getHref('sign-up')}>
                 <div className='profileSvg'><Svgs name={'profile'}/></div>
                 <p>{userId?.length > 0 ? userUsername : getNameByLang('الدخول أو انشاء حساب', pathname.includes('/en'))}</p>

@@ -22,6 +22,9 @@
 
     .filter-content{
         width: 100%;
+        display: flex;
+        gap: 0;
+        flex-direction: column;
         height: fit-content;
         background: white;
         border-top-left-radius: 24px;
@@ -64,6 +67,7 @@
         .city-div-filter{
             width: 100%;
             position: relative;
+            margin-bottom: -32px;
 
             .inputDiv{
 
@@ -184,6 +188,7 @@
             width: 100%;
             display: flex;
             gap: 16px;
+            margin-top: auto;
 
             a{
                 width: 100%;
@@ -222,7 +227,7 @@
         height: 100vh;
         position: absolute;
         display: flex;
-        align-items: center;
+        align-items: end;
         justify-content: center;
         overflow-y: unset;
         padding: 24px;
@@ -233,6 +238,7 @@
             border-radius: 24px;
             padding: 24px;
             height: fit-content;
+            min-height: 100%;
             max-height: 100%;
             overflow-y: scroll;
             overflow-x: visible;
@@ -257,6 +263,14 @@
             &::-webkit-scrollbar{
                 display: none;
             }
+        }
+    }
+}
+
+@media screen and (max-width: 960px){
+    .mobileFilter{
+        .filter-content{
+            min-height: 100%;
         }
     }
 }

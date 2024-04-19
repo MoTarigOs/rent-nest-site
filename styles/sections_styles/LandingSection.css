@@ -20,7 +20,7 @@
 @media screen and (max-width: 960px){
     .landing{
         .imagesDiv{
-            height: 480px;
+            height: 500px;
 
             .landingDots{
                 bottom: 24px;
