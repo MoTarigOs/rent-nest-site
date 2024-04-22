@@ -12,25 +12,27 @@ const MyCalendar = ({ setCalender, type, days }) => {
   const { isMobile } = useContext(Context);
 
   return (
-    <Calendar 
-    onChange={setCalender}
-    calendarType='US'
-    minDate={new Date()} 
-    maxDate={new Date((new Date).getFullYear() + maxBookDateYears, (new Date).getMonth(), (new Date).getDay())}
-    selectRange={type === 'edit-prop' ? false : true}
-    showDoubleView={(type === 'edit-prop' || type === 'mobile-filter' || isMobile) ? false : true}
-    goToRangeStartOnSelect={type === 'edit-prop' ? false : true} 
-    tileClassName={({ date }) => {
-      if(type === 'edit-prop' && days && days.find(i => i === getBookDateFormat(date))) {
-        return 'react-calendar__tile--active ';
-      };
-    }}
-    tileDisabled={({ date }) => {
-      if(days && type === 'view' && days.find(i => i === getBookDateFormat(date))) {
-        return true;
-      };
-    }}
-    />
+    <div suppressHydrationWarning>
+      <Calendar 
+          onChange={setCalender}
+          calendarType='gregory'
+          minDate={new Date()} 
+          maxDate={new Date((new Date).getFullYear() + maxBookDateYears, (new Date).getMonth(), (new Date).getDay())}
+          selectRange={type === 'edit-prop' ? false : true}
+          showDoubleView={(type === 'edit-prop' || type === 'mobile-filter' || isMobile) ? false : true}
+          goToRangeStartOnSelect={type === 'edit-prop' ? false : true} 
+          tileClassName={({ date }) => {
+            if(type === 'edit-prop' && days && days.find(i => i === getBookDateFormat(date))) {
+              return 'react-calendar__tile--active ';
+            };
+          }}
+          tileDisabled={({ date }) => {
+            if(days && type === 'view' && days.find(i => i === getBookDateFormat(date))) {
+              return true;
+            };
+          }}
+        />
+    </div>
   )
 }
 

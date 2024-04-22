@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { register } from '@utils/api';
 import NotFound from '@components/NotFound';
 import { Context } from '@utils/Context';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 const page = () => {
 
@@ -25,6 +26,15 @@ const page = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const agreeToTermsRef = useRef(null);
+
+  const { executeRecaptcha } = useGoogleReCaptcha();
+
+  const getRecaptchaToken = async() => {
+    if (!executeRecaptcha) return;
+    const gReCaptchaToken = await executeRecaptcha('submit');
+    console.log('recaptcha token: ', gReCaptchaToken);
+    return gReCaptchaToken;
+  };
 
   const handleSubmit = async(e) => {
 
@@ -79,16 +89,22 @@ const page = () => {
     setLoading(true);
 
     try {
-      const res = await register(username, email, password, true);
+
+      const token = await getRecaptchaToken();
+
+      const res = await register(username, email, password, true, token);
+
       if(!res || res.success !== true){
         setError(res.dt);
         setLoading(false);
         setSuccessRegister(false);
         return;
       }
+
       setError('');
       setSuccessRegister(true);
       setLoading(false);
+
     } catch (err) {
       setError('unknown error');
       setLoading(false);

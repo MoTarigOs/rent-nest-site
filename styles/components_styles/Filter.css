@@ -92,7 +92,7 @@
             h2{
                 margin-bottom: 8px;
                 width: fit-content;
-                text-align: end;
+                text-align: flex-end;
             }
             
             .range-slider {

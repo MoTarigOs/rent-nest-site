@@ -87,8 +87,8 @@ const Filter = ({
 
             <div className="price">
                 <h2>{getNameByLang('السعر', isEnglish)}</h2>
-                <div class="range-slider">
-                    <div class="range-fill" style={{ left: trackLeft, width: sliderWidth }}></div>
+                <div className="range-slider">
+                    <div className="range-fill" style={{ left: trackLeft, width: sliderWidth }}></div>
                     <input onChange={(e) => {
                         setCurrentMinPrice(e.target.value); setTimeout(() => validateRange(), [100]);
                     }} type='number' className='priceSpanInput' ref={minSpanRef} style={{ left: trackLeft}} value={currentMinPrice}/>
@@ -97,7 +97,7 @@ const Filter = ({
                     }} type='number' className='priceSpanInput' ref={maxSpanRef} style={{ left: getTrackLeftPlusWidth() }} value={currentMaxPrice}/>
                     <input
                     type="range"
-                    class="min-price"
+                    className="min-price"
                     min={minimumPrice}
                     max={maximumPrice}
                     step={priceStep}
@@ -108,7 +108,7 @@ const Filter = ({
                     />
                     <input
                     type="range"
-                    class="max-price"
+                    className="max-price"
                     min={minimumPrice}
                     max={maximumPrice}
                     step={priceStep}
@@ -122,12 +122,12 @@ const Filter = ({
 
             <div className="city">
 
-                <select style={{ width: '100%' }} onChange={(e) => {
+                <select defaultValue="" style={{ width: '100%' }} onChange={(e) => {
                     console.log('city value: ', e.target.value);
                     const myCity = JordanCities.find(i => i.city_id === Number(e.target.value));
                     setCity(myCity ? myCity : '');
                 }}>
-                    <option value="" disabled selected hidden>{getNameByLang('اختر المدينة', isEnglish)}</option>
+                    <option value="" disabled hidden>{getNameByLang('اختر المدينة', isEnglish)}</option>
                     <option value={-3}>{getNameByLang('كل المدن', isEnglish)}</option>
                     {JordanCities.map((city) => (
                         <option key={city.city_id} value={city.city_id}>{isEnglish ? city.value : city.arabicName}</option>
@@ -138,13 +138,13 @@ const Filter = ({
             <div className="catagory">
                 <ul>
                     <li onClick={() => setCatagory('')}
-                        className={catagory === '' && 'selectedCatagory'}
+                        className={catagory === '' ? 'selectedCatagory' : undefined}
                     >
                         {getNameByLang('كل التصنيفات', isEnglish)}
                     </li>
-                    {getCatagories().map((ctg) => (
-                        <li onClick={() => setCatagory(ctg.value)}
-                            className={catagory === ctg.value && 'selectedCatagory'}
+                    {getCatagories().map((ctg, index) => (
+                        <li key={index} onClick={() => setCatagory(ctg.value)}
+                            className={catagory === ctg.value ? 'selectedCatagory' : undefined}
                         >
                             {isEnglish ? ctg.value : ctg.arabicName}
                         </li>
@@ -169,6 +169,6 @@ const Filter = ({
         
     </div>
   )
-}
+};
 
-export default Filter
+export default Filter;

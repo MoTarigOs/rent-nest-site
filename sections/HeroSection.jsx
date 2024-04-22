@@ -3,7 +3,7 @@
 import '@styles/sections_styles/HeroSection.css';
 import Image from 'next/image';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { JordanCities, homePageCatagories, testImage } from '@utils/Data';
+import { JordanCities, homePageCatagories } from '@utils/Data';
 import Swiper from 'swiper/bundle';
 import 'swiper/swiper-bundle.css';
 import Svgs from '@utils/Svgs';
@@ -32,14 +32,10 @@ const HeroSection = ({ isEnglish }) => {
     const { setIsMobileHomeFilter, setCity } = useContext(Context);
         
     const handleChange = () => {
-
-        console.log('state changes');
         
         for (let i = 0; i < cities.length; i++) {
 
             const x = cities[i]?.cityRef?.current?.getBoundingClientRect()?.x;
-
-            console.log(i, ' x bound: ', x, ' innerWidth: ', window.innerWidth);
 
             if(x <= window.innerWidth / 2 && x >= (window.innerWidth / 2) - 240){
                 setSelectedCity(cities[i]);
@@ -90,14 +86,14 @@ const HeroSection = ({ isEnglish }) => {
     const VerticalList = ({ list }) => {
         return(
             <ul>
-                {list.map((item) => (
-                    <li>
-                        <Image src={item.image} loading='eager' alt='hero images'/>
+                {list.map((item, index) => (
+                    <li key={index}>
+                        <Image loading='eager' placeholder='blur' src={item.image} alt='hero images'/>
                     </li>
                 ))}
             </ul>
         )
-    }
+    };
 
     return (
 
@@ -111,25 +107,25 @@ const HeroSection = ({ isEnglish }) => {
 
                 <div className='citiesDiv'>
 
-                    <div class="swiper swiperDiv" ref={swiperRef}>
+                    <div className="swiper swiperDiv" ref={swiperRef}>
 
-                        <div class="swiper-wrapper wrapperDiv" onChange={() => console.log('changed')}>
+                        <div className="swiper-wrapper wrapperDiv" onChange={() => console.log('changed')}>
                             {cities.map((c) => (
-                                <div dir={isEnglish ? 'ltr' : null} onClick={() => {
+                                <div key={c._id} dir={isEnglish ? 'ltr' : null} onClick={() => {
                                     console.log('c: ', c, ' city: ', JordanCities.find(i => i.city_id === c._id));
                                     setIsMobileHomeFilter(true); 
                                     setCity(JordanCities.find(i => i.city_id === c._id));
                                 }} className={`swiper-slide cityItem ${c._id === selectedCity._id && 'selectedCity'}`} ref={c.cityRef}>
                                     <div>
-                                        <Image src={getCityImage(c?.value)} loading='eager' alt={`${c.name} صورة`}/>
+                                        <Image placeholder='blur' loading='eager' src={getCityImage(c?.value)} alt={`${c.name} صورة`}/>
                                         <h3>{isEnglish ? c.value : c.arabicName}</h3>
                                     </div>
                                 </div>
                             ))}
                         </div>
 
-                        <div class="swiper-button-next"><span /><Svgs name={'dropdown arrow'}/></div>
-                        <div class="swiper-button-prev"><span /><Svgs name={'dropdown arrow'}/></div>
+                        <div className="swiper-button-next"><span /><Svgs name={'dropdown arrow'}/></div>
+                        <div className="swiper-button-prev"><span /><Svgs name={'dropdown arrow'}/></div>
 
                     </div>
 
@@ -139,8 +135,8 @@ const HeroSection = ({ isEnglish }) => {
 
             <div className='allOffersCatagories'>
                 <ul>
-                    {homePageCatagories(isEnglish).map((ctg) => (
-                        <li><h3>{ctg}</h3></li>
+                    {homePageCatagories(isEnglish).map((ctg, index) => (
+                        <li key={index}><h3>{ctg}</h3></li>
                     ))}
                 </ul>
             </div>

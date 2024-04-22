@@ -1,12 +1,12 @@
 'use client';
 
 import '@styles/components_styles/ImagesShow.css';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
-import Svgs from '@utils/Svgs';
+const Svgs = dynamic(() => import('@utils/Svgs'));
 import { useEffect, useRef, useState } from 'react';
 import Swiper from 'swiper/bundle';
 import 'swiper/swiper-bundle.css';
-import LoadingImageHolder from '@assets/images/about-section-background.png';
 import Link from 'next/link';
 
 const ImagesShow = ({ 
@@ -23,11 +23,15 @@ const ImagesShow = ({
     const prevButtonVideoRef = useRef(null);
     const nextButtonVideoRef = useRef(null);
 
+    if(type === 'landing'){
+        for (let i = 0; i < images.length; i++) {
+            [images[i].state, images[i].setState] = useState(false); 
+        }
+    }
+
     const handleChange = (p) => {
         
         const index = p?.activeIndex;
-
-        console.log(index);
 
         setSelectedImageIndex(index);
 
@@ -80,11 +84,13 @@ const ImagesShow = ({
 
         <div className='swiper-images-show'>
             <div className='swiper-wrapper'>
-            {!type_is_video ? <> {images?.length ? <>{images.map((img) => (
-                    <div className='swiper-slide'>
-                        <Image style={{ zIndex: type === 'view' ? 1 : null }} src={type === 'landing' ? img.image : `${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${img}`} 
-                        fill={type === 'landing' ? false : true} blurDataURL={LoadingImageHolder} 
-                        alt='صورة عن العرض' loading={type === 'landing' ? 'eager' : 'lazy'}/>
+            {!type_is_video ? <> {images?.length ? <>{images.map((img, index) => (
+                    <div key={index} className='swiper-slide'>
+                        <Image placeholder='blur' style={{ zIndex: type === 'view' ? 1 : null }} 
+                        src={type === 'landing' ? img.image : `${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${img}`} 
+                        fill={type === 'landing' ? false : true} 
+                        loading='eager' alt='صورة عن العرض'
+                        onLoad={() => { if(type === 'landing') img.setState(true) }}/>
                         <div className='images-show-text' style={{ display: type !== 'landing' && 'none', width: '100%' }}>
                             <div style={{ width: '100%' }}>
                                 <h2>{img.title}</h2>
@@ -92,15 +98,15 @@ const ImagesShow = ({
                                 <Link href={img.btnLink ? img.btnLink : ''}>{img.btnTitle}</Link>
                             </div>
                         </div>
-                        {type === 'landing' && <span id='landing-item-span'/>}
+                        {(type === 'landing' && img.state) && <span id='landing-item-span'/>}
                     </div>
                 ))}</> : <>
                     <div className='not-exist'>
                         {isEnglish ? 'No images found' : 'لا توجد صور'}
                     </div>
                 </>}</> : <>
-                    {videos?.length > 0 ? <>{videos.map((vd) => (
-                        <div className='swiper-slide'>
+                    {videos?.length > 0 ? <>{videos.map((vd, index) => (
+                        <div key={index} className='swiper-slide'>
                             <video controls src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${vd}`}/>
                         </div>
                     ))}</> : <>
@@ -152,9 +158,9 @@ const ImagesShow = ({
                     }
                 }} id={selectedImageIndex === index ? 'selectedDot' : ''}></li>
             ))}
-        </ul> : <ul style={{ display: (type !== 'landing' && type !== 'view') && 'none' }} className={type === 'landing' ? 'dots landingDots' : 'dots'}>
+        </ul> : <ul style={{ display: (type !== 'landing' && type !== 'view') ? 'none' : undefined }} className={type === 'landing' ? 'dots landingDots' : 'dots'}>
             {videos?.map((obj, index) => (
-                <li onClick={() => {
+                <li key={index} onClick={() => {
                     if(selectedImageIndex - index > 0){
                         for (let i = selectedImageIndex; i > index; i--) {
                             prevButtonVideoRef?.current?.click();
@@ -164,7 +170,7 @@ const ImagesShow = ({
                             nextButtonVideoRef?.current?.click();
                         }
                     }
-                }} id={selectedImageIndex === index && 'selectedDot'}></li>
+                }} id={selectedImageIndex === index ? 'selectedDot' : undefined}></li>
             ))}
         </ul>}
 

@@ -1,17 +1,18 @@
-'use client'
-
 import '@styles/Footer.css';
 import Image from 'next/image';
 import LogoImage from '@assets/icons/rentnext-logo.png';
 import Link from 'next/link';
 import { contactInfo } from '@utils/Data';
 import Svgs from '@utils/Svgs';
-import { usePathname } from 'next/navigation';
 import { getNameByLang } from '@utils/Logic';
+import dynamic from 'next/dynamic';
+const DynamicNotFound = dynamic(() => import('@components/NotFound'));
 
-const Footer = () => {
+const Footer = ({ pathname }) => {
 
-  const pathname = usePathname();
+  if(!pathname){
+    return (<DynamicNotFound />)
+  }
   
   return (
     <div className="footer" dir={pathname.includes('/en') ? 'ltr' : null}>
@@ -40,8 +41,8 @@ const Footer = () => {
         <h4>Rent Nest 2024</h4>
         
         <ul>
-          {contactInfo.map((contact) => (
-            <li><Link href={contact.val}><Svgs name={contact.name}/></Link></li>
+          {contactInfo.map((contact, index) => (
+            <li key={index}><Link href={contact.val}><Svgs name={contact.name}/></Link></li>
           ))}
         </ul>
 
@@ -49,6 +50,6 @@ const Footer = () => {
         
     </div>
   )
-}
+};
 
-export default Footer
+export default Footer;

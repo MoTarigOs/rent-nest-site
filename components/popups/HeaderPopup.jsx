@@ -10,23 +10,19 @@ import { Context } from '@utils/Context';
 import { getNameByLang } from '@utils/Logic';
 
 const HeaderPopup = ({ 
-    type, pathname, isEnglish, catagory, setCatagory, handleChoose,
-    setCalendarDoubleValue, itemCity, setItemCity, isViewPage, days,
+    type, pathname, isEnglish,
+    itemCity, setItemCity, isViewPage, days,
     isCustom, setIsCustom, customArray, selectedCustom, setSelectedCustom 
 }) => {
 
     type = type.toLowerCase();
 
-    const { city, setCity, triggerFetch, setTriggerFetch } = useContext(Context);
+    const { city, setCity, triggerFetch, setTriggerFetch, catagory, setCatagory, setCalendarDoubleValue } = useContext(Context);
 
     const getCatagories = () => {
-        if(pathname === '/vehicles'){
+        if(pathname === '/vehicles')
             return VehicleCatagories;
-        } else if(pathname === '/search') {
-            return [...VehicleCatagories, ...ProperitiesCatagories];
-        } else {
-            return ProperitiesCatagories;
-        }
+        return ProperitiesCatagories;
     }
 
     const RightIconSpan = () => {
@@ -102,7 +98,9 @@ const HeaderPopup = ({
                         }
                     }}>
                         <Svgs name={ctg.value}/>
-                        <h3>{getNameByLang(ctg.arabicName, pathname.includes('/en'))}</h3> 
+                        <h3>{pathname !== '/vehicles' 
+                        ? getNameByLang(ctg.arabicName, pathname.includes('/en'))
+                        : isEnglish ? ctg.value : ctg.arabicName}</h3> 
                         {catagory === ctg.value && <RightIconSpan />}
                     </li>
                 ))}

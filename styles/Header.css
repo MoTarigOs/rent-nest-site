@@ -415,7 +415,7 @@
             ul{
                 display: flex;
                 flex-direction: column;
-                justify-content: start;
+                justify-content: flex-start;
                 gap: 12px;
                 padding: 8px;
                 list-style: none;

@@ -1,81 +1,10 @@
 import axios from 'axios';
-import { getDurationReadable, getReadableDate, propsSections, usersSections } from './Logic';
+import { getDurationReadable, getErrorText, getReadableDate, usersSections } from './Logic';
 import { errorsSection } from './Data';
 axios.defaults.withCredentials = true;
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 const uploadServerBaseUrl = process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL;
 
-const getErrorText = (errorName, isEnglish) => {
-
-    if(isEnglish){
-
-        switch(errorName){
-            case 'pass error': 
-                return 'Invalid password';
-            case 'name error': 
-                return 'Invalid name.';
-            case 'email error': 
-                return 'Invalid email.';
-            case 'email error 2': 
-                return 'Invalid email, try logging in';
-            case 'captcha error': 
-                return 'Please prove that you are not a robot';
-            case 'input error': 
-                return '.Error in the data entered, please correct it';
-            case 'request error': 
-                return 'Connection error, please try again';
-            case 'empty field': 
-                return 'All fields are required, please fill in the empty fields';
-            case 'user not exist': 
-                return 'Error in the data entered. Please enter a valid email address';
-            case 'login': 
-                return 'Log in to your account';
-            case 'access error': 
-                return 'The request is not allowed to be executed';
-            case 'send code error': 
-                return 'The code is invalid, please send a new code';
-            case 'not exist error':
-                return 'Not exist';
-            default:
-                return 'Unknown error, please try again.';
-        }
-
-    } else {
-    
-        switch(errorName){
-            case 'pass error': 
-                return 'كلمة مرور غير صالحة';
-            case 'name error': 
-                return 'اسم غير صالح.';
-            case 'email error': 
-                return 'بريد الكتروني غير صالح.';
-            case 'email error 2': 
-                return '.بريد الكتروني غير صالح, جرب تسجيل الدخول';
-            case 'captcha error': 
-                return '.الرجاء اثبات انك لست روبوت';
-            case 'input error': 
-                return '.خطأ في البيانات المدخلة, الرجاء تصحيحها';
-            case 'request error': 
-                return '.خطأ في الاتصال, الرجاء المحاولة مجددا';
-            case 'empty field': 
-                return '.كل الحقول مطلوبة, الرجاء ملء الحقول الخالية';
-            case 'user not exist': 
-                return '.خطأ في البيانات المدخلة, الرجاء ادخال بريد الكتروني صحيح';
-            case 'login': 
-                return '.سجل الدخول الى حسابك';
-            case 'access error': 
-                return '.غير مسموح بتنفيذ الطلب';
-            case 'send code error': 
-                return '.الرمز غير صالح, الرجاء ارسال رمز جديد';
-            case 'not exist error':
-                return 'غير موجود.';
-            default:
-                return 'خطأ غير معروف, الرجاء المحاولة مجددا.';
-        }
-           
-    }
-
-}
 
 // App api methods
 export const getLocation = async() => {
@@ -112,7 +41,7 @@ export const getUserInfo = async(
     try {
         const url = `${baseUrl}/user/info`;
         const res = await axios.get(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
-        if(!res?.status || res.status !== 200) {
+        if(!res?.status || res.status !== 200 || !res.data) {
             setLoading(false);
             return { success: false, dt: res.data.message };
         }
@@ -126,9 +55,7 @@ export const getUserInfo = async(
         if(res.data.my_books) setBooksIds(res.data.my_books);
         if(res.data.my_fav) setFavouritesIds(res.data.my_fav);
         if(res.data.storage_key) setStorageKey(res.data.storage_key);
-        //res.data.tokenExp
         setLoading(false);
-        console.log('storage key: ', res.data.storage_key);
         return { success: true, dt: res.data };
     } catch (err) {
         setLoading(false);
@@ -137,46 +64,81 @@ export const getUserInfo = async(
 
 };
 
-export const register = async(username, email, password, isEnglish) => {
+export const register = async(username, email, password, isEnglish, token) => {
 
     try {
+
         const url = `${baseUrl}/user/register`;
+
         const body = {
-            username, email, password
+            username, email, password, gRecaptchaToken: token
         };
+
         const res = await axios.post(url, body, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+        
         if(!res?.status || res.status !== 201){
             return { success: false, dt: getErrorText(res.data ? res.data : '', isEnglish) };
         }
+
         return { success: true, dt: res.data };
+        
     } catch (err) {
         return { success: false, dt: getErrorText(err.response?.data, isEnglish) };
     }
 
 };
 
-export const login = async(email, password, isEnglish) => {
+export const login = async(email, password, isEnglish, token) => {
 
     try {
+
         const url = `${baseUrl}/user/login`;
+
         const body = {
-            email, password
+            email, password, gRecaptchaToken: token
         };
+
         const res = await axios.post(url, body, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+        
         console.log(res);
+        
         if(!res?.status || res.status !== 201){
             if(res.data.blockTime){
-                return { ok: false, dt: 'Your account is currently blocked, please log back in after ' + getReadableDate(res.data.blockTime) }
+                return { success: false, dt: isEnglish ? 'Your account is currently blocked, please log back in after ' : 'حسابك محظور حاليا، يرجى تسجيل الدخول مرة أخرى بعد ' + getReadableDate(res.data.blockTime, null, isEnglish) }
             } else {
                 return { success: false, dt: getErrorText(res.data.message, isEnglish) };
             }
         }
+
         return { success: true, dt: res.data };
+
     } catch (err) {
         console.log(err.message);
         return { success: false, dt: err?.response?.data?.blockTime 
             ? 'Your account is currently blocked, please log back in after' + ' ' + getDurationReadable(err.response.data.blockTime) + (err?.response?.data?.blockReason ? err.response.data.blockReason : '')
             : getErrorText(err?.response?.data?.message, isEnglish) };
+    }
+
+};
+
+export const refresh = async(isEnglish) => {
+
+    try {
+
+        const url = `${baseUrl}/user/refresh-token`;
+
+        const res = await axios.post(url, null, { 
+            withCredentials: true, 'Access-Control-Allow-Credentials': true 
+        });
+
+        if(!res?.status || res.status !== 201) 
+            return { success: false, dt: getErrorText(res.data, isEnglish) };
+        
+        return { success: true, dt: 'success' };
+
+    } catch (err) {
+        console.log(err);
+        return { success: false, dt: getErrorText(err?.response?.data, isEnglish) }
     }
 
 };
@@ -190,13 +152,13 @@ export const sendCode = async(email, isEnglish) => {
         const res = await axios.post(url, null, { withCredentials: true, 'Access-Control-Allow-Credentials': true });        
 
         if(!res?.status || res.status !== 201){
-            return { success: false, dt: getErrorText(res.data.message, isEnglish) };
+            return { success: false, dt: getErrorText(res.data?.message, isEnglish) };
         }
 
         return { success: true, dt: res.data };
 
     } catch (err) {
-        return { success: false, dt: getErrorText(err.response.data.message, isEnglish) };
+        return { success: false, dt: getErrorText(err?.response?.data?.message, isEnglish) };
     }
 
 };
@@ -249,14 +211,14 @@ export const changeMyPass = async(code, email, newPassword, isEnglish) => {
 
 };
 
-export const changePasswordSignPage = async(code, email, newPassword, isEnglish) => {
+export const changePasswordSignPage = async(code, email, newPassword, isEnglish, token) => {
 
     try {
         
         const url = `${baseUrl}/user/change-password-sign-page`;
 
         const body = {
-            eCode: code, newPassword, email
+            eCode: code, newPassword, email, gRecaptchaToken: token
         }
 
         const res = await axios.post(url, body, { withCredentials: true, 'Access-Control-Allow-Credentials': true });        
@@ -419,7 +381,7 @@ export const signOut = async(isEnglish) => {
 export const createProperty = async(
     type_is_vehicle, specific_catagory, title, description, city, neighbourhood,
     map_coordinates, price, details, terms_and_conditions, area,
-    contacts, isEnglish
+    contacts, isEnglish, gRecaptchaToken
 ) => {
 
     try {
@@ -429,7 +391,7 @@ export const createProperty = async(
         const body = { 
             type_is_vehicle, specific_catagory, title, description, 
             city, neighbourhood, map_coordinates, price, details, 
-            terms_and_conditions, area, contacts
+            terms_and_conditions, area, contacts, gRecaptchaToken
         };
 
         const res = await axios.post(url, body, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
@@ -449,7 +411,7 @@ export const createProperty = async(
 export const editProperty = async(
     propertyId, title, description, price, 
     details, terms_and_conditions, contacts,
-    discount, isEnglish
+    discount, isEnglish, gRecaptchaToken
 ) => {
 
     try {
@@ -459,7 +421,7 @@ export const editProperty = async(
         const body = { 
             title, description, price, 
             details, terms_and_conditions,
-            contacts, discount
+            contacts, discount, gRecaptchaToken
         };
 
         const res = await axios.put(url, body, { withCredentials: true, 'Access-Control-Allow-Credentials': true });

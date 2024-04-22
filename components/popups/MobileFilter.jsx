@@ -38,9 +38,9 @@ const MobileFilter = ({ isEnglish }) => {
     const getNavLink = () => {
 
       if(selectedCatagories === '0'){
-        return '/vehicles';
+        return isEnglish ? '/en/vehicles' : '/vehicles';
       } else {
-        return `/properties?catagory=${catagory}`;
+        return `${isEnglish ? '/en' : ''}/properties?catagory=${catagory}`;
       };
 
     };
@@ -56,7 +56,8 @@ const MobileFilter = ({ isEnglish }) => {
     }, [isMobileHomeFilter, catagory]);
 
   return (
-    <div className='mobileFilter' style={{ display: !isMobileHomeFilter ? 'none' : null }}>
+    <div className='mobileFilter' style={{ display: !isMobileHomeFilter ? 'none' : null }}
+      dir={isEnglish ? 'ltr' : ''}>
       
         <div id='close-span' onClick={() => {
           if(isCityDiv || isCalendar){
@@ -92,7 +93,7 @@ const MobileFilter = ({ isEnglish }) => {
           <div className='book-date'>
 
             <div className='calendar-div' style={{ display: !isCalendar ? 'none' : null }}>
-              <MyCalendar type={'mobile-filter'}  setCalender={setCalendarDoubleValue}/>
+              <MyCalendar type={'mobile-filter'} setCalender={setCalendarDoubleValue}/>
             </div>
 
             <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
@@ -114,13 +115,13 @@ const MobileFilter = ({ isEnglish }) => {
           <div className="catagory">
               <ul>
                   <li onClick={() => setCatagory('')}
-                      className={catagory === '' && 'selectedCatagory'}
+                      className={catagory === '' ? 'selectedCatagory' : undefined}
                   >
                       {getNameByLang('كل التصنيفات', isEnglish)}
                   </li>
-                  {getCatagoryArray().map((ctg) => (
-                      <li onClick={() => setCatagory(ctg.value)}
-                          className={catagory === ctg.value && 'selectedCatagory'}
+                  {getCatagoryArray().map((ctg, index) => (
+                      <li key={index} onClick={() => setCatagory(ctg.value)}
+                          className={catagory === ctg.value ? 'selectedCatagory' : undefined}
                       >
                           {getNameByLang(ctg.arabicName, isEnglish)}
                       </li>
@@ -137,7 +138,7 @@ const MobileFilter = ({ isEnglish }) => {
                 setCity('');
                 setCalendarDoubleValue(null);
                 setIsMobileHomeFilter(false);
-              }} href={'/search'} id='skip-filter'>{getNameByLang('تخطي', isEnglish)}</Link>
+              }} href={`${isEnglish ? '/en' : ''}/search`} id='skip-filter'>{getNameByLang('تخطي', isEnglish)}</Link>
           </div>
 
         </div>

@@ -8,6 +8,7 @@ import { isValidEmail, isValidPassword } from '@utils/Logic';
 import { getUserInfo, login } from '@utils/api';
 import { Context } from '@utils/Context';
 import NotFound from '@components/NotFound';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 const page = () => {
 
@@ -25,6 +26,15 @@ const page = () => {
     setUserPhone, setUserAddress, setBooksIds,
     setFavouritesIds, setLoadingUserInfo, setStorageKey
   } = useContext(Context);
+
+  const { executeRecaptcha } = useGoogleReCaptcha();
+
+  const getRecaptchaToken = async() => {
+    if (!executeRecaptcha) return;
+    const gReCaptchaToken = await executeRecaptcha('submit');
+    console.log('recaptcha token: ', gReCaptchaToken);
+    return gReCaptchaToken;
+  };
 
   const handleChange = (e, type) => {
     switch(type){
@@ -71,13 +81,18 @@ const page = () => {
     setLoading(true);
 
     try {
-      const res = await login(email, password, true);
+
+      const token = await getRecaptchaToken();
+
+      const res = await login(email, password, true, token);
+
       if(!res || res.success !== true){
         setError(res.dt);
         setLoading(false);
         setSuccessLogin(false);
         return;
       }
+
       setError('');
       setSuccessLogin(true);
       setLoading(false);        
@@ -87,6 +102,7 @@ const page = () => {
         setUserPhone, setBooksIds, setFavouritesIds, 
         setLoadingUserInfo, setStorageKey
       );
+
     } catch (err) {
       setError('unknown error');
       setLoading(false);

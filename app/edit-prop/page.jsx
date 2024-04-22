@@ -14,6 +14,7 @@ import MyCalendar from '@components/MyCalendar';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
 import { contactsPlatforms } from '@utils/Data';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 const Page = () => {
 
@@ -84,6 +85,15 @@ const Page = () => {
     const [vehicleFeatures, setVehicleFeatures] = useState([]);
     
     const [filesToDelete, setFilesToDelete] = useState([]);
+
+    const { executeRecaptcha } = useGoogleReCaptcha();
+
+    const getRecaptchaToken = async() => {
+      if (!executeRecaptcha) return;
+      const gReCaptchaToken = await executeRecaptcha('submit');
+      console.log('recaptcha token: ', gReCaptchaToken);
+      return gReCaptchaToken;
+    };
 
     const details = [
         {name: 'غرف الضيوف', array: guestRoomsDetailArray, setArray: setGuestRoomsDetailArray},
@@ -257,9 +267,6 @@ const Page = () => {
                 return;
             };
 
-            /*  create property or vehicle instance then 
-                upload images with the id of the created instance  */
-
             const xDetails = item.type_is_vehicle ? {
                 insurance:  requireInsurance,
                 vehicle_specifications: vehicleSpecifications,
@@ -272,6 +279,8 @@ const Page = () => {
                 kitchen: kitchenDetailArray, 
                 rooms: roomsDetailArray 
             };
+
+            const token = await getRecaptchaToken();
 
             let res = null;
 
@@ -307,7 +316,8 @@ const Page = () => {
             } else {
                 res = await editProperty(
                     id, itemTitle, itemDesc, itemPrice, xDetails, conditionsAndTerms, 
-                    tempContacts?.length > 0 ? tempContacts : null, xDiscount()
+                    tempContacts?.length > 0 ? tempContacts : null, xDiscount(), null,
+                    token
                 );
             }
 
@@ -477,9 +487,13 @@ const Page = () => {
 
         try {
 
+            if(isDeletingProp) return;
+
             setIsDeletingProp(true);
 
             const deleteFilesRes = await deletePropFiles(id, userEmail);
+
+            console.log(deleteFilesRes);
 
             if(deleteFilesRes.success !== true){
                 setDeleteError(deleteFilesRes.dt);
@@ -587,7 +601,7 @@ const Page = () => {
 
         return false;
 
-    }
+    };
 
     useEffect(() => {
         setRunOnce(true);
@@ -608,7 +622,6 @@ const Page = () => {
             setItemTitle(item.title);
             setItemDesc(item.description);
             setItemPrice(item.price);
-            console.log('iterating this: ', item.images);
             setUploadedFiles([...item.images, ...item.videos]);
             setRequireInsurance(item.details.insurance);
             setSelectBookedDays(item.booked_days || []);
@@ -631,10 +644,6 @@ const Page = () => {
 
         }
     }, [item]);
-
-    useEffect(() => {
-        console.log(guestRoomsDetailArray);
-    }, [guestRoomsDetailArray]);
 
     useEffect(() => {
         let timeout;

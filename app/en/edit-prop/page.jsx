@@ -14,6 +14,7 @@ import MyCalendar from '@components/MyCalendar';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
 import { contactsPlatforms } from '@utils/Data';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 const Page = () => {
 
@@ -84,6 +85,15 @@ const Page = () => {
     const [vehicleFeatures, setVehicleFeatures] = useState([]);
     
     const [filesToDelete, setFilesToDelete] = useState([]);
+
+    const { executeRecaptcha } = useGoogleReCaptcha();
+
+    const getRecaptchaToken = async() => {
+      if (!executeRecaptcha) return;
+      const gReCaptchaToken = await executeRecaptcha('submit');
+      console.log('recaptcha token: ', gReCaptchaToken);
+      return gReCaptchaToken;
+    };
 
     const details = [
         {name: 'Guest rooms', array: guestRoomsDetailArray, setArray: setGuestRoomsDetailArray},
@@ -273,6 +283,8 @@ const Page = () => {
                 rooms: roomsDetailArray 
             };
 
+            const token = await getRecaptchaToken();
+
             let res = null;
 
             if(
@@ -308,7 +320,7 @@ const Page = () => {
                 res = await editProperty(
                     id, itemTitle, itemDesc, itemPrice, xDetails, conditionsAndTerms, 
                     tempContacts?.length > 0 ? tempContacts : null, xDiscount(),
-                    true
+                    true, token
                 );
             }
 
@@ -577,7 +589,7 @@ const Page = () => {
 
         return false;
 
-    }
+    };
 
     useEffect(() => {
         setRunOnce(true);
@@ -586,7 +598,6 @@ const Page = () => {
     useEffect(() => {
         if(runOnce === true) {
             fetchItemDetails();
-            console.log('reached');
         }
     }, [runOnce]);
 
@@ -621,10 +632,6 @@ const Page = () => {
 
         }
     }, [item]);
-
-    useEffect(() => {
-        console.log(guestRoomsDetailArray);
-    }, [guestRoomsDetailArray]);
 
     useEffect(() => {
         let timeout;

@@ -8,6 +8,7 @@ import { isValidEmail, isValidPassword } from '@utils/Logic';
 import Link from 'next/link';
 import { Context } from '@utils/Context';
 import NotFound from '@components/NotFound';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 const page = () => {
 
@@ -27,6 +28,15 @@ const page = () => {
 
     const [isChangingPass, setIsChangingPass] = useState(false);
     const [changePassError, setChangePassError] = useState(false);
+
+    const { executeRecaptcha } = useGoogleReCaptcha();
+
+    const getRecaptchaToken = async() => {
+      if (!executeRecaptcha) return;
+      const gReCaptchaToken = await executeRecaptcha('submit');
+      console.log('recaptcha token: ', gReCaptchaToken);
+      return gReCaptchaToken;
+    };
 
     const sendCodeToEmail = async() => {
 
@@ -116,7 +126,9 @@ const page = () => {
 
         try {
 
-            const res = await changePasswordSignPage(code, email, password);
+            const token = await getRecaptchaToken();
+
+            const res = await changePasswordSignPage(code, email, password, null, token);
 
             if(!res || res.success !== true){
                 setChangePassError(res.dt);

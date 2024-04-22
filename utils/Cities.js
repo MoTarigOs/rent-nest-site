@@ -1,53 +1,55 @@
  /* 
-      يجب أن تضيف صورة المدينة الى فولدر 
-      assets/cities
+    يجب أن تضيف صورة المدينة الى فولدر 
+    assets/cities
 
-      ثم في هذا الملف Cities.js
+    ثم في هذا الملف Cities.js
 
-      قم باستيراد الصورة مثل
-      import AmmanCity from @assets/cities/amman-city.jpg
+    قم باستيراد الصورة مثل
+    import AmmanCity from @assets/cities/amman-city.jpg
 
-      وضيفها الى 
-      function getCityImage(cityValue) {
-        switch(cityValue){
-          ...
-          case 'amman':
-            return AmmanCity;
-        }
-      }
+    وضيفها الى 
+    function getCityImage(cityValue) {
+    switch(cityValue){
+        ...
+        case 'amman':
+        return AmmanCity;
+    }
+    }
 
-      و بعدها اذعب الى ملف
-      utils/Data.js
+    و بعدها اذعب الى ملف
+    utils/Data.js
 
-      في
-      export const JordanCities
+    في
+    export const JordanCities
 
-      : قم اضافة المدينة بهذا الشكل
-      
-      {
-        city_id: <اكتب اخر ايدي, مثلا اذا كانت المدينة السابقة 3 اكتب هنا 4 وهكذا>,
-        value: <اسم المدينة بالانجليزي مثل Amman>,       
-        arabicName: <اسم المدينة بالعربي مثل عمان>,   
-        long: <خط طول جغرافي للمدينة>,        
-        lat: <خط عرض جغرافي للمدينة>
-      }
+    : قم اضافة المدينة بهذا الشكل
+    
+    {
+    city_id: <اكتب اخر ايدي, مثلا اذا كانت المدينة السابقة 3 اكتب هنا 4 وهكذا>,
+    value: <اسم المدينة بالانجليزي مثل Amman>,       
+    arabicName: <اسم المدينة بالعربي مثل عمان>,   
+    long: <خط طول جغرافي للمدينة>,        
+    lat: <خط عرض جغرافي للمدينة>
+    }
 
-    */
+*/
 
-import AmmanCity from '@assets/cities/amman-city.jpg';
-import DeadSea from '@assets/cities/deadsea-city.jpg';
-import AjlounCity from '@assets/cities/ajloun-city.jpg';
-import IrbidCity from '@assets/cities/irbid-city.jpg';
-import AlaqabaCity from '@assets/cities/alaqaba-city.jpg';
-import PetraCity from '@assets/cities/petra-city.jpg';
-import SaltCity from '@assets/cities/salt-city.jpg';
-import MadabaCity from '@assets/cities/madaba-city.jpg';
-import KarakCity  from '@assets/cities/karak-city.jpg';
-import ZarqaCity from '@assets/cities/zarqa-city.jpg';
-import MainCity from '@assets/cities/main-city.jpg';
-import MafraqCity from '@assets/cities/mafrag-city.jpg';
-import TafilaCity from '@assets/cities/tafila-city.jpg';
-import JerashCity from '@assets/cities/jerach-city.jpg';
+import imageee from '@assets/images/about-section-background.webp';
+
+import AmmanCity from '@assets/cities/amman-city.webp';
+import DeadSea from '@assets/cities/deadsea-city.webp';
+import AjlounCity from '@assets/cities/ajloun-city.webp';
+import IrbidCity from '@assets/cities/irbid-city.webp';
+import AlaqabaCity from '@assets/cities/alaqaba-city.webp';
+import PetraCity from '@assets/cities/betraa-city.webp';
+import SaltCity from '@assets/cities/salt-city.webp';
+import MadabaCity from '@assets/cities/madaba-city.webp';
+import KarakCity  from '@assets/cities/karak-city.webp';
+import ZarqaCity from '@assets/cities/zarqa-city.webp';
+import MainCity from '@assets/cities/main-city.webp';
+import MafraqCity from '@assets/cities/mofrag-city.webp';
+import TafilaCity from '@assets/cities/tafila-city.webp';
+import JerashCity from '@assets/cities/jerach-city.webp';
 
 export function getCityImage(cityValue) {
     switch(cityValue){
@@ -80,6 +82,6 @@ export function getCityImage(cityValue) {
         case 'Jerash':
             return JerashCity;
         default:
-            return '';
+            return imageee;
     }
 };

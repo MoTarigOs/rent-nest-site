@@ -7,19 +7,20 @@ import Svgs from '@utils/Svgs';
 import Link from 'next/link';
 import { Suspense, useContext, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import InvertedIcon from '@assets/icons/inverted-corner.png';
-import HeaderPopup from '@components/popups/HeaderPopup';
-import Filter from '@components/Filter';
-import Arrange from '@components/popups/Arrange';
+const HeaderPopup = dynamic(() => import('@components/popups/HeaderPopup'));
+const Filter = dynamic(() => import('@components/Filter'));
+const Arrange = dynamic(() => import('@components/popups/Arrange'));
+const GoogleMapPopup = dynamic(() => import('@components/popups/GoogleMapPopup'));
+const MobileFilter = dynamic(() => import('@components/popups/MobileFilter'));
 import { Context } from '@utils/Context';
-import { getUserInfo } from '@utils/api';
+import { getUserInfo, refresh } from '@utils/api';
 import { getArabicNameCatagory, getNameByLang, getReadableDate } from '@utils/Logic';
-import GoogleMapPopup from '@components/popups/GoogleMapPopup';
-import MobileFilter from '@components/popups/MobileFilter';
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import { isLoginedCookie, isPreviouslyLogined } from '@utils/ServerComponents';
 
-const HeaderComponent = ({ englishFontClassname, arabicFontClassname }) => {
+const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }) => {
 
     const [isScrolled, setIsScrolled] = useState(false);
     const [runOnce, setRunOnce] = useState(false);
@@ -27,26 +28,24 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname }) => {
     const [isCityFilter, setIsCityFilter] = useState(false);
     const [isCatagoryFilter, setIsCatagoryFilter] = useState(false);
     const [isCalendarFilter, setIsCalendarFilter] = useState(false);
+    const [isLogined, setIsLogined] = useState(false);
     
     const [isFilter, setIsFilter] = useState(false);
     const [isArrange, setIsArrange] = useState(false);
-    const [notif, setNotification] = useState('');
+    const [isPrevLogined, setIsPrevLogined] = useState(false);
 
-    const pathname = usePathname();
     const id = useSearchParams().get('id');
-
-    const { executeRecaptcha } = useGoogleReCaptcha();
 
     const { 
       userId, userUsername, userRole, setUserId, 
       setUserUsername, setUserRole, city, setCity,
       catagory, setCatagory, triggerFetch, setTriggerFetch,
       arrangeValue, setArrangeValue, setUserEmail, setIsVerified,
-      setUserPhone, setUserAddress, setBooksIds, booksIds, 
+      setUserPhone, setUserAddress, setBooksIds, 
       setFavouritesIds, mapType, mapArray, isMap, setIsMap, 
       latitude, setLatitude, longitude, setLongitude,
-      calendarDoubleValue, setCalendarDoubleValue, setIsMobileHomeFilter,
-      isCalendarValue, setIsCalendarValue, setLoadingUserInfo,
+      calendarDoubleValue, setCalendarDoubleValue, setIsMobileHomeFilter, 
+      setIsCalendarValue, setLoadingUserInfo,
       isMobileHomeFilter, setStorageKey, isMobile, setIsMobile,
       setIsEnglish
     } = useContext(Context);
@@ -67,20 +66,9 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname }) => {
       }
     };
 
-    const getRecaptchaToken = async() => {
-      if (!executeRecaptcha) {
-        console.log("Execute recaptcha not available yet");
-        setNotification("not set");
-        return;
-      }
-      const gReCaptchaToken = await executeRecaptcha('enquiryFormSubmit');
-
-      console.log('recaptcha token: ', gReCaptchaToken);
-    
-    };
-
     const getHref = (type, helperString) => {
       type = type.toLowerCase();
+      if(type === 'sign-up' && isPrevLogined) type = 'sign-in';
       switch(type){
         case 'home':
           if(!pathname.includes('/en')){
@@ -152,9 +140,43 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname }) => {
       }
     };
 
+    const settingLogined = async() => {
+      setIsLogined(await isLoginedCookie());
+      setIsPrevLogined(await isPreviouslyLogined());
+    };
+
+    const handleGetUserInfo = async() => {
+
+      setLoadingUserInfo(true);
+
+      const infoRes = await getUserInfo(
+        setUserId, setUserUsername, setUserRole, 
+        setUserEmail, setIsVerified, setUserAddress,
+        setUserPhone, setBooksIds, setFavouritesIds, 
+        setLoadingUserInfo, setStorageKey
+      );
+
+      if(!infoRes?.success || infoRes.success !== true) return;
+
+      if(infoRes.dt.tokenExp > 15 * 24 * 60 * 60 * 1000) return;
+
+      const res = await refresh(pathname.includes('/en'));
+
+      if(res?.success === true) {
+        setLoadingUserInfo(true);
+        getUserInfo(
+          setUserId, setUserUsername, setUserRole, 
+          setUserEmail, setIsVerified, setUserAddress,
+          setUserPhone, setBooksIds, setFavouritesIds, 
+          setLoadingUserInfo, setStorageKey
+        );
+      };
+
+    };
+
     useEffect(() => {
 
-      setRunOnce(true);
+      settingLogined();
 
       settingMobile();
 
@@ -182,14 +204,12 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname }) => {
     }, []);
 
     useEffect(() => {
+      if(isLogined) setRunOnce(true);
+    }, [isLogined]);
+
+    useEffect(() => {
       if(runOnce === true){
-        setLoadingUserInfo(true);
-        getUserInfo(
-          setUserId, setUserUsername, setUserRole, 
-          setUserEmail, setIsVerified, setUserAddress,
-          setUserPhone, setBooksIds, setFavouritesIds, 
-          setLoadingUserInfo, setStorageKey
-        );
+        handleGetUserInfo();
       }
     }, [runOnce]);
 
@@ -201,6 +221,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname }) => {
       } else {
         setIsEnglish(false);
       }
+      if(pathname.includes('/vehicles')) setCatagory('');
       setIsMobileHomeFilter(false);
     }, [pathname]);
 
@@ -210,13 +231,16 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname }) => {
     }, [calendarDoubleValue]);
 
     useEffect(() => {
-      if(isCalendarFilter)
-        setIsCalendarValue(false);
+      if(isCalendarFilter) setIsCalendarValue(false);
     }, [isCalendarFilter]);
+
+    if(!pathname){
+      return (<></>)
+    };
 
   return (
 
-    <div className={pathname.includes('/en') ? 'header englishHeader' : 'header'} style={{ 
+    <div suppressContentEditableWarning className={pathname.includes('/en') ? 'header englishHeader' : 'header'} style={{ 
       position: 'fixed', zIndex: (isArrange || isFilter || isMenu || isMap 
           || isCatagoryFilter || isCityFilter || isCalendarFilter
           || isMobileHomeFilter) && 11
@@ -277,9 +301,9 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname }) => {
         >
           <div className='searchDiv'>
             <ul>
-                <li className='desktopSearchDivLI' onClick={() => {setIsCityFilter(true); setIsCatagoryFilter(false); setIsCalendarFilter(false);}}>{isCityFilter && <HeaderPopup pathname={pathname} type={'city'} city={city} setCity={setCity}/>}<h4>{getNameByLang('اختر المدينة', pathname.includes('/en'))}</h4><h3>{!city?.value ? getNameByLang('كل المدن', pathname.includes('/en')) : city.arabicName}</h3></li>
-                <li className='desktopSearchDivLI' onClick={() => {setIsCityFilter(false); setIsCatagoryFilter(true); setIsCalendarFilter(false);}}>{isCatagoryFilter && <HeaderPopup type={'catagory'} pathname={pathname} handleChoose={() => setIsCatagoryFilter(false)} catagory={catagory} setCatagory={setCatagory}/>}<h4>{getNameByLang('التصنيف', pathname.includes('/en'))}</h4><h3>{catagory === '' ? getNameByLang('كل التصنيفات', pathname.includes('/en')) : getNameByLang(getArabicNameCatagory(catagory), pathname.includes('/en'))}</h3></li>
-                <li className='desktopSearchDivLI' onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4>{getNameByLang('تاريخ الحجز', pathname.includes('/en'))}</h4><h3 suppressHydrationWarning={true}>{getReadableDate(calendarDoubleValue?.at(0), true, pathname.includes('/en'))}</h3>{isCalendarFilter && <HeaderPopup type={'calendar'} calendar={calendarDoubleValue?.toString()} setCalendarDoubleValue={setCalendarDoubleValue}/>}</li>
+                <li className='desktopSearchDivLI' onClick={() => {setIsCityFilter(true); setIsCatagoryFilter(false); setIsCalendarFilter(false);}}>{isCityFilter && <HeaderPopup pathname={pathname} type={'city'}/>}<h4>{getNameByLang('اختر المدينة', pathname.includes('/en'))}</h4><h3>{!city?.value ? getNameByLang('كل المدن', pathname.includes('/en')) : pathname.includes('/en') ? city.value : city.arabicName}</h3></li>
+                <li className='desktopSearchDivLI' onClick={() => {setIsCityFilter(false); setIsCatagoryFilter(true); setIsCalendarFilter(false);}}>{isCatagoryFilter && <HeaderPopup type={'catagory'} pathname={pathname} handleChoose={() => setIsCatagoryFilter(false)} />}<h4>{getNameByLang('التصنيف', pathname.includes('/en'))}</h4><h3>{catagory === '' ? getNameByLang('كل التصنيفات', pathname.includes('/en')) : getNameByLang(getArabicNameCatagory(catagory), pathname.includes('/en'))}</h3></li>
+                <li className='desktopSearchDivLI' onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4>{getNameByLang('تاريخ الحجز', pathname.includes('/en'))}</h4><h3 suppressHydrationWarning={true}>{getReadableDate(calendarDoubleValue?.at(0), true, pathname.includes('/en'))}</h3>{isCalendarFilter && <HeaderPopup type={'calendar'}/>}</li>
                 <li className='desktopSearchDivLI' onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4>{getNameByLang('تاريخ انتهاء الحجز', pathname.includes('/en'))}</h4><h3 suppressHydrationWarning={true}>{getReadableDate(calendarDoubleValue?.at(1), true, pathname.includes('/en'))}</h3></li>
                 <li className='header-search-btn'>
                   <Link href={getHref('search')}><Svgs name={'search'}/></Link>
@@ -299,9 +323,9 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname }) => {
         </motion.div> : (pathname === '/vehicles' || pathname === '/properties' || pathname === '/en/vehicles' || pathname === '/en/properties') && <div className='headerSearchOtherDiv'>
           <ul className='headerNavUL'>
             <li className='headerNavLi' id='searchLiHeaderOther'><Svgs name={'search'}/></li>
-            <li className='headerNavLi' onClick={() => {setIsCityFilter(true); setIsCatagoryFilter(false); setIsCalendarFilter(false);}}><h4>{!city.value ? getNameByLang('كل المدن', pathname.includes('/en')) : pathname.includes('/en') ? city.value : city.arabicName}</h4>{isCityFilter && <HeaderPopup pathname={pathname} type={'city'} city={city} setCity={setCity}/>}</li>
-            <li className='headerNavLi' onClick={() => {setIsCatagoryFilter(true); setIsCityFilter(false); setIsCalendarFilter(false)}}><h4>{catagory === '' ? getNameByLang('كل التصنيفات', pathname.includes('/en')) : pathname.includes('/en') ? catagory : getArabicNameCatagory(catagory)}</h4>{isCatagoryFilter && <HeaderPopup pathname={pathname} type={'catagory'} handleChoose={() => setIsCatagoryFilter(false)} catagory={catagory} setCatagory={setCatagory}/>}</li>
-            <li className='headerNavLi' onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4 suppressHydrationWarning={true}>{getReadableDate(calendarDoubleValue?.at(0), true, pathname.includes('/en'))}</h4>{isCalendarFilter && <HeaderPopup type={'calendar'} setCalendarDoubleValue={setCalendarDoubleValue}/>}</li>
+            <li className='headerNavLi' onClick={() => {setIsCityFilter(true); setIsCatagoryFilter(false); setIsCalendarFilter(false);}}><h4>{!city.value ? getNameByLang('كل المدن', pathname.includes('/en')) : pathname.includes('/en') ? city.value : city.arabicName}</h4>{isCityFilter && <HeaderPopup pathname={pathname} type={'city'}/>}</li>
+            <li className='headerNavLi' onClick={() => {setIsCatagoryFilter(true); setIsCityFilter(false); setIsCalendarFilter(false)}}><h4>{catagory === '' ? getNameByLang('كل التصنيفات', pathname.includes('/en')) : pathname.includes('/en') ? catagory : getArabicNameCatagory(catagory)}</h4>{isCatagoryFilter && <HeaderPopup isEnglish={pathname.includes('/en')}  pathname={pathname} type={'catagory'} handleChoose={() => setIsCatagoryFilter(false)}/>}</li>
+            <li className='headerNavLi' onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4 suppressHydrationWarning={true}>{getReadableDate(calendarDoubleValue?.at(0), true, pathname.includes('/en'))}</h4>{isCalendarFilter && <HeaderPopup type={'calendar'}/>}</li>
             <li className='headerNavLi' style={{ border: 'none' }} onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4 suppressHydrationWarning={true}>{getReadableDate(calendarDoubleValue?.at(1), true, pathname.includes('/en'))}</h4></li>
           </ul>
           <Link className='showMap' href={getHref('search')}>
@@ -310,10 +334,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname }) => {
           </Link>
         </div>}
 
-        <div className="mobileHeader" style={{ zIndex: isMenu ? 20 : null }}>
-
-          <span id='close-nav-span' style={{ display: isMenu ? null : 'none' }}
-           onClick={() => setIsMenu(false)}/>
+        {isMobile && <div className="mobileHeader" style={{ zIndex: isMenu ? 20 : null }}>
 
           <div className='user'>
             <Link href={userId?.length > 0 ? getHref('profile', userId) : getHref('sign-up')}>
@@ -406,11 +427,11 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname }) => {
 
           </motion.div>
 
-        </div>
+        </div>}
 
-        {(isCityFilter || isCatagoryFilter || isCalendarFilter) && <span id='closeFilterPopupSpan' onClick={() => {
-          setIsCityFilter(false); setIsCatagoryFilter(false); setIsCalendarFilter(false);
-        }}/>}
+        {(isCityFilter || isCatagoryFilter || isCalendarFilter || isMenu) && <span id='closeFilterPopupSpan' onClick={() => {
+          setIsCityFilter(false); setIsCatagoryFilter(false); setIsCalendarFilter(false); setIsMenu(false);
+        }} />}
 
         {(pathname === '/properties' || pathname === '/vehicles' || pathname === '/en/properties' || pathname === '/en/vehicles') && <div className='filterHeaderDiv'>
           <button onClick={() => setIsFilter(true)}><Svgs name={'filter'}/>{getNameByLang('تصفية', pathname.includes('/en'))}</button>
@@ -418,13 +439,13 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname }) => {
           <button id='secondFilterHeaderDivBtn' onClick={() => setIsArrange(true)}><Svgs name={'filter'}/>{getNameByLang('ترتيب', pathname.includes('/en'))}</button>
         </div>}
 
-        <Filter isEnglish={pathname.includes('/en')} type={'prop'} isFilter={isFilter} setIsFilter={setIsFilter} triggerFetch={triggerFetch} setTriggerFetch={setTriggerFetch}/>
+        {isFilter && <Filter isEnglish={pathname.includes('/en')} type={'prop'} isFilter={isFilter} setIsFilter={setIsFilter} triggerFetch={triggerFetch} setTriggerFetch={setTriggerFetch}/>}
 
-        <Arrange isEnglish={pathname.includes('/en')} isArrange={isArrange} setIsArrange={setIsArrange} setTriggerFetch={setTriggerFetch} triggerFetch={triggerFetch} arrangeValue={arrangeValue} setArrangeValue={setArrangeValue}/>
+        {isArrange && <Arrange isEnglish={pathname.includes('/en')} isArrange={isArrange} setIsArrange={setIsArrange} setTriggerFetch={setTriggerFetch} triggerFetch={triggerFetch} arrangeValue={arrangeValue} setArrangeValue={setArrangeValue}/>}
 
-        <GoogleMapPopup isShow={isMap} setIsShow={setIsMap} mapType={mapType} 
+        {isMap && <GoogleMapPopup isShow={isMap} setIsShow={setIsMap} mapType={mapType} 
         mapArray={mapArray} longitude={longitude} setLongitude={setLongitude} 
-        latitude={latitude} setLatitude={setLatitude}/>
+        latitude={latitude} setLatitude={setLatitude}/>}
 
         {(pathname === '/' || pathname === '/search' || pathname === '/en') 
           && <MobileFilter isEnglish={pathname.includes('/en')}/>}
@@ -433,9 +454,10 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname }) => {
   )
 };
 
-const Header = ({ englishFontClassname, arabicFontClassname }) => (
+const Header = ({ englishFontClassname, arabicFontClassname, pathname }) => (
 	<Suspense>
-		<HeaderComponent arabicFontClassname={arabicFontClassname} englishFontClassname={englishFontClassname}/>
+		<HeaderComponent arabicFontClassname={arabicFontClassname} pathname={pathname}
+      englishFontClassname={englishFontClassname}/>
 	</Suspense>
 );
 

@@ -448,6 +448,82 @@ export const isOkayBookDays = (dateArr, notAllowedDays) => {
 
 };
 
+export const getErrorText = (errorName, isEnglish) => {
+
+    if(isEnglish){
+
+        switch(errorName){
+            case 'pass error': 
+                return 'Invalid password';
+            case 'name error': 
+                return 'Invalid name.';
+            case 'email error': 
+                return 'Invalid email.';
+            case 'email error 2': 
+                return 'Invalid email, try logging in';
+            case 'captcha error': 
+                return 'Please prove that you are not a robot';
+            case 'input error': 
+                return '.Error in the data entered, please correct it';
+            case 'request error': 
+                return 'Connection error, please try again';
+            case 'empty field': 
+                return 'All fields are required, please fill in the empty fields';
+            case 'user not exist': 
+                return 'Error in the data entered. Please enter a valid email address';
+            case 'login': 
+                return 'Log in to your account';
+            case 'access error': 
+                return 'The request is not allowed to be executed';
+            case 'send code error': 
+                return 'The code is invalid, please send a new code';
+            case 'not exist error':
+                return 'Not exist';
+            case 'attempts exceeded':
+                return 'The intended login attempts number has been exceeded. Please change your password from the Forgot Password page.';
+            default:
+                return 'Unknown error, please try again.';
+        }
+
+    } else {
+    
+        switch(errorName){
+            case 'pass error': 
+                return 'كلمة مرور غير صالحة';
+            case 'name error': 
+                return 'اسم غير صالح.';
+            case 'email error': 
+                return 'بريد الكتروني غير صالح.';
+            case 'email error 2': 
+                return '.بريد الكتروني غير صالح, جرب تسجيل الدخول';
+            case 'captcha error': 
+                return '.الرجاء اثبات انك لست روبوت';
+            case 'input error': 
+                return '.خطأ في البيانات المدخلة, الرجاء تصحيحها';
+            case 'request error': 
+                return '.خطأ في الاتصال, الرجاء المحاولة مجددا';
+            case 'empty field': 
+                return '.كل الحقول مطلوبة, الرجاء ملء الحقول الخالية';
+            case 'user not exist': 
+                return '.خطأ في البيانات المدخلة, الرجاء ادخال بريد الكتروني صحيح';
+            case 'login': 
+                return '.سجل الدخول الى حسابك';
+            case 'access error': 
+                return '.غير مسموح بتنفيذ الطلب';
+            case 'send code error': 
+                return '.الرمز غير صالح, الرجاء ارسال رمز جديد';
+            case 'not exist error':
+                return 'غير موجود.';
+            case 'attempts exceeded':
+                return 'تم تجاوز عدد محاولات تسجيل الدخول المسموح, الرجاء تغيير كلمة من صفحة نسيت كلمة السر.';
+            default:
+                return 'خطأ غير معروف, الرجاء المحاولة مجددا.';
+        }
+           
+    }
+
+};
+
 const names = [
     ['عروضنا المميزة', 'Special Offers'],
     ['هل تبحث عن سيارة للإيجار أو شقة للإقامة؟ نحن هنا لمساعدتك في العثور على أفضل الخيارات, اختر من بين مجموعة متنوعة من السيارات، بدءًا من الاقتصادية إلى الفاخرة, بحث عن شقق مفروشة أو غير مفروشة، وفلل، وشقق مشتركة.', 'Are you looking for a car to rent or an apartment to stay in? We are here to help you find the best options. Choose from a variety of cars, from economical to luxury. Search for furnished or unfurnished apartments, villas, and shared apartments.'],

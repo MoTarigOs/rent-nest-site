@@ -2,9 +2,9 @@
 
 import '@styles/sections_styles/AboutSection.css';
 import Image from 'next/image';
-import AboutBackgroundImage from '@assets/images/about-section-background.png';
+import AboutBackgroundImage from '@assets/images/landing2.webp';
 import Svgs from '@utils/Svgs';
-import { ProperitiesCatagories, VehicleCatagories, testImage } from '@utils/Data';
+import { ProperitiesCatagories } from '@utils/Data';
 import Swiper from 'swiper/bundle';
 import 'swiper/swiper-bundle.css';
 import { useContext, useEffect } from 'react';
@@ -70,8 +70,8 @@ const AboutSection = ({ isEnglish }) => {
 
               <div className='about-swiper swiperAboutDiv' style={isEnglish ? { left: 0, right: 'unset', paddingRight: 664, paddingLeft: 0 } : null}>
                 <div className='swiper-wrapper wrapperDiv'>
-                  {ProperitiesCatagories.map((item) => (
-                    <div className='swiper-slide aboutListItem' onClick={() => {
+                  {ProperitiesCatagories.map((item, index) => (
+                    <div key={index} className='swiper-slide aboutListItem' onClick={() => {
                       setCatagory(item.value); setIsMobileHomeFilter(true);
                     }}>
                       <Svgs name={item.value}/>
@@ -108,7 +108,7 @@ const AboutSection = ({ isEnglish }) => {
             </div>
             
             <div className='whatWeOfferImageDiv'>
-              <Image src={AboutBackgroundImage} loading='eager' alt={isEnglish ? 'rent nest renting services' : 'عن منصة rent nest للايجارات'}/>
+              <Image loading='eager' src={AboutBackgroundImage} alt={isEnglish ? 'rent nest renting services' : 'عن منصة rent nest للايجارات'}/>
             </div>
 
         </div>

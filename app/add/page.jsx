@@ -17,6 +17,7 @@ import { Context } from '@utils/Context';
 import NotFound from '@components/NotFound';
 import MySkeleton from '@components/MySkeleton';
 import Svgs from '@utils/Svgs';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 const page = () => {
 
@@ -63,6 +64,14 @@ const page = () => {
     const [conditionsAndTerms, setConditionsAndTerms] = useState([]);
     const [vehicleSpecifications, setVehicleSpecifications] = useState([]);
     const [vehicleFeatures, setVehicleFeatures] = useState([]);
+
+    const { executeRecaptcha } = useGoogleReCaptcha();
+
+    const getRecaptchaToken = async() => {
+      if (!executeRecaptcha) return;
+      const gReCaptchaToken = await executeRecaptcha('submit');
+      return gReCaptchaToken;
+    };
 
     const details = [
         {name: 'غرف الضيوف', array: guestRoomsDetailArray, setArray: setGuestRoomsDetailArray},
@@ -234,13 +243,15 @@ const page = () => {
                     platform: item.platform, val: item.val
                 });
             });
+
+            const token = await getRecaptchaToken();
             
             const res = await createProperty(
                 selectedCatagories === '0' ? true : false, 
                 specificCatagory, itemTitle, itemDesc, 
                 itemCity.value, itemNeighbour, [itemLong, itemLat], itemPrice, 
                 xDetails, conditionsAndTerms, area > 0 ? area : null,
-                tempContacts?.length > 0 ? tempContacts : null);
+                tempContacts?.length > 0 ? tempContacts : null, null, token);
 
             if(res.success !== true){
                 setError(res.dt.toString());

@@ -28,6 +28,15 @@ const page = () => {
     const [isChangingPass, setIsChangingPass] = useState(false);
     const [changePassError, setChangePassError] = useState(false);
 
+    const { executeRecaptcha } = useGoogleReCaptcha();
+
+    const getRecaptchaToken = async() => {
+      if (!executeRecaptcha) return;
+      const gReCaptchaToken = await executeRecaptcha('submit');
+      console.log('recaptcha token: ', gReCaptchaToken);
+      return gReCaptchaToken;
+    };
+
     const sendCodeToEmail = async() => {
 
         try {
@@ -116,7 +125,9 @@ const page = () => {
 
         try {
 
-            const res = await changePasswordSignPage(code, email, password, true);
+            const token = await getRecaptchaToken();
+
+            const res = await changePasswordSignPage(code, email, password, true, token);
 
             if(!res || res.success !== true){
                 setChangePassError(res.dt);

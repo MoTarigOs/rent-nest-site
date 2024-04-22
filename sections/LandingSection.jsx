@@ -1,22 +1,22 @@
 import '@styles/sections_styles/LandingSection.css';
 import ImagesShow from '@components/ImagesShow';
-import LandImage1 from '@assets/cities/alaqaba-city.jpg';
-import LandImage2 from '@assets/cities/alaqaba-city.jpg';
-import LandImage3 from '@assets/cities/alaqaba-city.jpg';
-import AmmanCity from '@assets/cities/amman-city.jpg';
-import DeadSea from '@assets/cities/deadsea-city.jpg';
-import AjlounCity from '@assets/cities/ajloun-city.jpg';
-import IrbidCity from '@assets/cities/irbid-city.jpg';
-import AlaqabaCity from '@assets/cities/alaqaba-city.jpg';
-import PetraCity from '@assets/cities/petra-city.jpg';
-import SaltCity from '@assets/cities/salt-city.jpg';
-import MadabaCity from '@assets/cities/madaba-city.jpg';
-import KarakCity  from '@assets/cities/karak-city.jpg';
-import ZarqaCity from '@assets/cities/zarqa-city.jpg';
-import MainCity from '@assets/cities/main-city.jpg';
-import MafraqCity from '@assets/cities/mafrag-city.jpg';
-import TafilaCity from '@assets/cities/tafila-city.jpg';
-import JerashCity from '@assets/cities/jerach-city.jpg';
+import { getCityImage } from '@utils/Cities';
+
+const LandImage1 = getCityImage('Aqaba');
+const AmmanCity = getCityImage('Amman');
+const DeadSea = getCityImage('Dead Sea & Jordan Valley');
+const AjlounCity = getCityImage('Ajloun');
+const IrbidCity = getCityImage('Irbid');
+const AlaqabaCity = getCityImage('Aqaba');
+const PetraCity = getCityImage('Wadi Rum and Petra');
+const SaltCity = getCityImage('As-Salt');
+const MadabaCity = getCityImage('Madaba');
+const KarakCity  = getCityImage('Karak');
+const ZarqaCity = getCityImage('Zarqa');
+const MainCity = getCityImage('Main');
+const MafraqCity = getCityImage('Mafraq');
+const TafilaCity = getCityImage('Tafilah');
+const JerashCity = getCityImage('Jerach');
 
 const LandingSection = ({ isEnglish }) => {
 
@@ -58,7 +58,7 @@ const LandingSection = ({ isEnglish }) => {
 
     <div className='landing'>
 
-        <ImagesShow isEnglish={isEnglish} type={'landing'} images={LandingImagesArray} handleWishList={console.log('s')}/>
+        <ImagesShow isEnglish={isEnglish} type={'landing'} images={LandingImagesArray}/>
       
     </div>
 

@@ -2,7 +2,6 @@ import AboutSection from "@sections/AboutSection";
 import HeroSection from "@sections/HeroSection";
 import LandingSection from "@sections/LandingSection";
 
-// إِ
 const page = () => {
 
     return (

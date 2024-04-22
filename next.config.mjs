@@ -11,6 +11,7 @@ const nextConfig = {
                 hostname: 'rent-nest-storage-server.onrender.com',
             },
         ],
+        minimumCacheTTL: 31536000
     }
 };
 

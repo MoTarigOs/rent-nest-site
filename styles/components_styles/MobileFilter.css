@@ -87,7 +87,7 @@
 
             .cityPopup{
                 position: absolute;
-                top: 110%;
+                top: 65%;
                 right: 0;
                 max-width: 480px;
                 left: unset;
@@ -227,7 +227,7 @@
         height: 100vh;
         position: absolute;
         display: flex;
-        align-items: end;
+        align-items: flex-end;
         justify-content: center;
         overflow-y: unset;
         padding: 24px;
@@ -254,9 +254,8 @@
 
             .book-date{
                 .calendar-div{
-                    top: -120px;
-                    right: unset;
-                    left: -160px;
+                    top: 120%;
+                    right: 0;
                 }
             }
 

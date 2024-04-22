@@ -31,8 +31,8 @@ const Arrange = ({ isEnglish, isArrange, setIsArrange, setTriggerFetch, triggerF
             <div className='arrangeHeader'></div>
 
             <ul>
-                {arranges.map((arng) => (
-                    <li onClick={() => {
+                {arranges.map((arng, index) => (
+                    <li key={index} onClick={() => {
                         setArrangeValue(arng.name === 'default' ? '' : arng.name);
                         setIsArrange(false);
                     }}>{isEnglish ? arng.name.replace('-', ' ') : arng.arabicName} {arrangeValue === arng.name && <RightIconSpan />}</li>

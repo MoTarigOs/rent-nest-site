@@ -4,15 +4,14 @@ import Footer from "@sections/Footer";
 import Header from "@sections/Header";
 import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 import { Roboto, Cairo } from 'next/font/google'
-import { useContext } from "react";
-import { Context } from "@utils/Context";
+import { usePathname } from "next/navigation";
  
 const roboto = Roboto({ weight: '400', subsets: ['latin'] });
 const cairo = Cairo({ weight: '400', subsets: ['latin'] });
 
 const MainWrapper = ({ children }) => {
 
-  const { isEnglish } = useContext(Context);
+  const pathname = usePathname();
 
   return (
 
@@ -25,15 +24,16 @@ const MainWrapper = ({ children }) => {
             nonce: undefined,
         }}>
 
-        <div className={`main ${isEnglish ? roboto.className : cairo.className}`}>
+        <div className={`main ${pathname.includes('/en') ? roboto.className : cairo.className}`}>
                         
-            <Header arabicFontClassname={cairo.className} englishFontClassname={roboto.className}/>
+            <Header arabicFontClassname={cairo.className} pathname={pathname}
+              englishFontClassname={roboto.className}/>
 
             <main className='app'>
                 {children}
             </main>
 
-            <Footer />
+            <Footer pathname={pathname}/>
         
         </div>
 

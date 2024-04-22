@@ -1,7 +1,6 @@
 import '@styles/Main.css';
 import MainWrapper from './MainWrapper';
 import DataContext from '@utils/Context';
-import LogoImage from '@assets/icons/rentnext-logo.jpg';
 
 const Layout = ({ children }) => {
 
