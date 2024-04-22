@@ -34,6 +34,8 @@ const Layout = ({ children }) => {
                 <meta property="twitter:description" content={"منصة Rent Nest , تقدم خدمات و ايجار عقارات داخل دولة الاردن , حيث توجد عروض ايجار شاليهات و شقق و بيوت و سكن طلاب و سيارات."} />
                 <meta property="twitter:image" content="https://f003.backblazeb2.com/file/personal-use-mot-tarig/his-logo.jpg" />
 
+                <link rel="stylesheet" href="../styles/Header.css"/>
+
             </head>
 
             <body>

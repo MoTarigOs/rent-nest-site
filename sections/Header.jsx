@@ -245,7 +245,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
           || isCatagoryFilter || isCityFilter || isCalendarFilter
           || isMobileHomeFilter) && 11
     }} suppressHydrationWarning={true} dir={pathname.includes('/en') ? 'ltr' : null}>
-      
+
         <div className='desktopWrapper'>
             
             <Link href={getHref('home')} className='logo'>
@@ -315,8 +315,8 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
                   </div>
                 </li>
             </ul>
-            <div id='invertedIconDivLeft'><Image src={InvertedIcon}/></div>
-            <div id='invertedIconDivRight'><Image src={InvertedIcon}/></div>
+            <div id='invertedIconDivLeft'><Image src={InvertedIcon} alt='background first image'/></div>
+            <div id='invertedIconDivRight'><Image src={InvertedIcon} alt='background second image'/></div>
           </div>
           <span id='rightSpanHeaderSearch'/>
           <span id='leftSpanHeaderSearch'/>

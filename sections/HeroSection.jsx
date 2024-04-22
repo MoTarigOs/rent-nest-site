@@ -27,7 +27,6 @@ const HeroSection = ({ isEnglish }) => {
     const swiperRef = useRef();
     const [selectedCity, setSelectedCity] = useState(cities[3]);
     const [swiper, setSwiper] = useState(null);
-    const [swiperVertical, setSwiperVertical] = useState(null);
 
     const { setIsMobileHomeFilter, setCity } = useContext(Context);
         
@@ -67,13 +66,6 @@ const HeroSection = ({ isEnglish }) => {
             }
         }));
 
-        setSwiperVertical(new Swiper(".vertical-swiper", {
-            // Optional parameters
-            direction: "vertical",
-            loop: false,
-            slidesPerView: 'auto',
-        }));
-
     }, []);
 
     useEffect(() => {
@@ -88,7 +80,7 @@ const HeroSection = ({ isEnglish }) => {
             <ul>
                 {list.map((item, index) => (
                     <li key={index}>
-                        <Image loading='eager' placeholder='blur' src={item.image} alt='hero images'/>
+                        <Image loading='lazy' placeholder='blur' src={item.image} alt='hero images'/>
                     </li>
                 ))}
             </ul>
@@ -117,7 +109,7 @@ const HeroSection = ({ isEnglish }) => {
                                     setCity(JordanCities.find(i => i.city_id === c._id));
                                 }} className={`swiper-slide cityItem ${c._id === selectedCity._id && 'selectedCity'}`} ref={c.cityRef}>
                                     <div>
-                                        <Image placeholder='blur' loading='eager' src={getCityImage(c?.value)} alt={`${c.name} صورة`}/>
+                                        <Image placeholder='blur' loading='lazy' src={getCityImage(c?.value)} alt={`${c.name} صورة`}/>
                                         <h3>{isEnglish ? c.value : c.arabicName}</h3>
                                     </div>
                                 </div>
