@@ -38,13 +38,13 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
     const { 
       userId, userUsername, userRole, setUserId, 
-      setUserUsername, setUserRole, city, setCity,
+      setUserUsername, setUserRole, city,
       catagory, setCatagory, triggerFetch, setTriggerFetch,
       arrangeValue, setArrangeValue, setUserEmail, setIsVerified,
       setUserPhone, setUserAddress, setBooksIds, 
       setFavouritesIds, mapType, mapArray, isMap, setIsMap, 
       latitude, setLatitude, longitude, setLongitude,
-      calendarDoubleValue, setCalendarDoubleValue, setIsMobileHomeFilter, 
+      calendarDoubleValue, setIsMobileHomeFilter, 
       setIsCalendarValue, setLoadingUserInfo,
       isMobileHomeFilter, setStorageKey, isMobile, setIsMobile,
       setIsEnglish
@@ -176,11 +176,11 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
     useEffect(() => {
 
-      settingLogined();
-
       settingMobile();
 
       settingScroll();
+
+      settingLogined();
 
       window.addEventListener('scroll', () => {
         settingScroll();
@@ -295,9 +295,9 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
         
         </div>
 
-        {(pathname === '/' || pathname === '/search' || pathname === '/en') ? <motion.div className={`headerSearchDiv ${(isScrolled && isMobile) && 'scrolledSearhDiv'}`}
+        {(pathname === '/' || pathname === '/search' || pathname === '/en') ? <motion.div className={`headerSearchDiv ${(isScrolled && isMobile) ? 'scrolledSearhDiv' : undefined}`}
           initial={{ y: 0 }}
-          animate={{ y: (isScrolled && isMobile) ? -81 : -1, transition: { damping: 50 } }}
+          animate={{ y: (isScrolled && isMobile) ? -76 : 0, transition: { damping: 50 } }}
         >
           <div className='searchDiv'>
             <ul>
@@ -334,7 +334,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
           </Link>
         </div>}
 
-        {isMobile && <div className="mobileHeader" style={{ zIndex: isMenu ? 20 : null }}>
+        <div className="mobileHeader" style={{ zIndex: isMenu ? 20 : null }}>
 
           <div className='user'>
             <Link href={userId?.length > 0 ? getHref('profile', userId) : getHref('sign-up')}>
@@ -351,30 +351,18 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
           <div className="menuIconDiv" onClick={() => setIsMenu(!isMenu)}>
 
-            <motion.span 
-            initial={{ rotateZ: 0, y: 0 }} animate={{ 
-              rotateZ: isMenu ? '-45deg' : 0,
-              y: isMenu ? 8 : 0
-            }}/>
+            <span id={isMenu ? 'span1Active' : 'span1NotActive'}/>
 
-            <motion.span 
-            initial={{ opacity: 1 }} 
-            animate={{ opacity: isMenu ? 0 : 1 }}/>
+            <span id={!isMenu ? 'span2Active' : 'span2NotActive'}/>
 
-            <motion.span 
-            initial={{ rotateZ: 0, y: 0 }} animate={{ 
-              rotateZ: isMenu ? '45deg' : 0,
-              y: isMenu ? -8 : 0
-            }}/>
+            <span id={isMenu ? 'span3Active' : 'span3NotActive'}/>
 
           </div>
 
-          <motion.div
+          {isMobile && <div
             className="mobileSideNav"
-            style={{ left: pathname.includes('/en') ? 0 : 'unset', right: pathname.includes('/en') ? 'unset' : 0 }}
-            initial={{ x:  pathname.includes('/en') ? '-110%' : '110%' }}
-            animate={{ x: isMenu ? 0 : pathname.includes('/en') ? '-110%' : '110%', transition: { type: "tween", duration: 0.15 } }}
-          >
+            id={isMenu ? `${pathname.includes('/en') ? 'en' : ''}sideNavActive` : `${pathname.includes('/en') ? 'en' : ''}sideNavNotActive`}
+            >
 
             <ul>
 
@@ -425,9 +413,9 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
             </ul>
 
-          </motion.div>
+          </div>}
 
-        </div>}
+        </div>
 
         {(isCityFilter || isCatagoryFilter || isCalendarFilter || isMenu) && <span id='closeFilterPopupSpan' onClick={() => {
           setIsCityFilter(false); setIsCatagoryFilter(false); setIsCalendarFilter(false); setIsMenu(false);
@@ -447,7 +435,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
         mapArray={mapArray} longitude={longitude} setLongitude={setLongitude} 
         latitude={latitude} setLatitude={setLatitude}/>}
 
-        {(pathname === '/' || pathname === '/search' || pathname === '/en') 
+        {((pathname === '/' || pathname === '/search' || pathname === '/en') && isMobileHomeFilter) 
           && <MobileFilter isEnglish={pathname.includes('/en')}/>}
 
     </div>

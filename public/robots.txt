@@ -1,0 +1,13 @@
+User-agent: *
+Disallow: /add/
+Disallow: /en/add/
+Disallow: /admin/
+Disallow: /en/admin/
+Disallow: /edit-prop/
+Disallow: /en/edit-prop/
+Disallow: /forget-password/
+Disallow: /en/forget-password/
+Disallow: /profile/
+Disallow: /en/profile/
+Disallow: /user-profile/
+Disallow: /en/user-profile/

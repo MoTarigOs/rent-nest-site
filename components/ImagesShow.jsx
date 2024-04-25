@@ -86,10 +86,10 @@ const ImagesShow = ({
             <div className='swiper-wrapper'>
             {!type_is_video ? <> {images?.length ? <>{images.map((img, index) => (
                     <div key={index} className='swiper-slide'>
-                        <Image placeholder='blur' style={{ zIndex: type === 'view' ? 1 : null }} 
+                        <Image placeholder={type === 'landing' ? 'blur' : 'empty'} style={{ zIndex: type === 'view' ? 1 : null }} 
                         src={type === 'landing' ? img.image : `${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${img}`} 
                         fill={type === 'landing' ? false : true} 
-                        loading='eager' alt='صورة عن العرض'
+                        loading='eager' alt={isEnglish ? 'Image about the offer' : 'صورة عن العرض'}
                         onLoad={() => { if(type === 'landing') img.setState(true) }}/>
                         <div className='images-show-text' style={{ display: type !== 'landing' && 'none', width: '100%' }}>
                             <div style={{ width: '100%' }}>

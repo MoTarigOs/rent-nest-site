@@ -319,7 +319,6 @@ export const isValidContactURL = (contact) => {
     try {
         origin = (new URL(contact.val)).origin;
     } catch(err) {
-        console.log(err);
         if(contact.platform !== 'whatsapp' && contact.platform !== 'telegram')
             return false;
         if(!isValidNumber(Number(contact.val))) return false;
@@ -593,3 +592,13 @@ export const getNameByLang = (desired, isEn) => {
     return desiredName;
 
 };
+
+export function decodeArabicUrl(url) {
+    try {
+      // Decode the URL-encoded string
+      const decodedString = decodeURIComponent(url);
+      return decodedString?.replaceAll('-', ' ');
+    } catch (error) {
+      return null; // Handle the error as needed
+    }
+}

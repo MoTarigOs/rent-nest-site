@@ -239,6 +239,7 @@
 
     .scrolledSearhDiv{
         z-index: 11;
+        margin-top: 100px;
 
         .searchDiv{
             padding: 0;
@@ -845,6 +846,17 @@
     }
 }
 
+#span1Active{ transform: rotateZ(45deg) translateY(4px) translateX(3px); transition: all 0.1s ease-in-out; }
+#span1NotActive{ transform: rotateZ(0) translateY(0); transition: all 0.1s ease-out; }
+#span2Active{ opacity: 1; transition: all 0.1s ease-in-out; }
+#span2NotActive{ opacity: 0; transition: all 0.1s ease-out; }
+#span3Active{ transform: rotateZ(-45deg) translateY(-8px) translateX(7px); transition: all 0.1s ease-in-out; }
+#span3NotActive{ transform: rotateZ(0) translateY(0); transition: all 0.1s ease-out; }
+#sideNavActive{ right: 0; transition: all 0.1s ease-in; }
+#sideNavNotActive{ right: -110%; transition: all 0.1s ease-in; }
+#ensideNavActive{ left: 0; transition: all 0.1s ease-in; }
+#ensideNavNotActive{ left: -110%; transition: all 0.1s ease-in; }
+
 @media screen and (max-width: 1200px){
     .header, .englishHeader{
         .desktopWrapper{
@@ -868,7 +880,7 @@
         }
 
         .headerSearchDiv{
-            margin-top: 0;
+            margin-top: -1px;
             width: 80%;
         }
 
@@ -935,6 +947,14 @@
             a{
                 background: unset;
             }
+        }
+    }
+}
+
+@media screen and (max-width: 960px){
+    .header{
+        .mobileHeader{
+            display: flex;
         }
     }
 }

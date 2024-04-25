@@ -1,6 +1,4 @@
-import { getItemDetails } from "@utils/Logic";
-
-export async function generateMetadata({params}){
+export async function generateMetadata({ params }){
   
   return { 
       title: params.itemTitle

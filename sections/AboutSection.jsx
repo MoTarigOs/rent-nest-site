@@ -108,7 +108,7 @@ const AboutSection = ({ isEnglish }) => {
             </div>
             
             <div className='whatWeOfferImageDiv'>
-              <Image loading='eager' src={AboutBackgroundImage} alt={isEnglish ? 'rent nest renting services' : 'عن منصة rent nest للايجارات'}/>
+              <Image placeholder='blur' loading='eager' src={AboutBackgroundImage} alt={isEnglish ? 'rent nest renting services' : 'عن منصة rent nest للايجارات'}/>
             </div>
 
         </div>

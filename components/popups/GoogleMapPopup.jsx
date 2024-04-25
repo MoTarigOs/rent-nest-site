@@ -7,6 +7,7 @@ import { isInsideJordan } from '@utils/Data';
 import Image from 'next/image';
 import MarkerVehicleImage from '@assets/icons/car-inbound.svg';
 import MarkerPropImage from '@assets/icons/house.svg';
+import Svgs from '@utils/Svgs';
 
 const GoogleMapPopup = ({ 
   isShow, setIsShow, mapType, latitude, 
@@ -63,6 +64,8 @@ const GoogleMapPopup = ({
       style={{ left: isShow ? null : '-200vw' }}>
 
         <span onClick={() => setIsShow(false)}/>
+
+        <div id='cross-close-map' onClick={() => setIsShow(false)}><Svgs name={'cross'}/></div>
 
         <div className='google-map-popup'>
 

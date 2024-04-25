@@ -9,7 +9,7 @@
     position: relative;
 
     .reportDiv{
-        width: 100%;
+        width: calc(100% - 24px);
         max-width: 480px;
         padding: 16px;
         position: fixed;
@@ -1245,5 +1245,13 @@
                 }
             }
         }
+    }
+}
+
+@media screen and (max-width: 480px){
+    .view .aboutItem .details .tabButtons{
+        border-radius: 24px;
+        padding: 8px;
+        flex-wrap: wrap;
     }
 }

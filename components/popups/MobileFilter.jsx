@@ -4,15 +4,11 @@ import CustomInputDiv from '@components/CustomInputDiv';
 import '@styles/components_styles/MobileFilter.css';
 import { Context } from '@utils/Context';
 import { useContext, useEffect, useState } from 'react';
-import HeaderPopup from './HeaderPopup';
-import CatagoryCard from '@components/CatagoryCard';
-import VehicleImage from '@assets/images/sedan-car.png';
-import PropertyImage from '@assets/images/property.png';
-import PropertyWhiteImage from '@assets/images/property-white.png';
 import { ProperitiesCatagories, VehicleCatagories } from '@utils/Data';
 import { getNameByLang, getReadableDate } from '@utils/Logic';
-import Calendar from 'react-calendar';
-import MyCalendar from '@components/MyCalendar';
+import dynamic from 'next/dynamic';
+const MyCalendar = dynamic(() => import('@components/MyCalendar'));
+const HeaderPopup = dynamic(() => import('./HeaderPopup'));
 import Link from 'next/link';
 
 const MobileFilter = ({ isEnglish }) => {

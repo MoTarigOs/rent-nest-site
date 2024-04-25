@@ -20,7 +20,7 @@ const Footer = ({ pathname }) => {
       <div className="topOfFooter">
 
         <Link href={pathname.includes('/en') ? '/en' : '/'} className='logo'>
-          <Image src={LogoImage} loading='eager' alt='Rent Next logo'/>
+          <Image src={LogoImage} loading='lazy' alt='Rent Next logo'/>
         </Link>
 
         <ul>
