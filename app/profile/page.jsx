@@ -9,7 +9,6 @@ import InfoDiv from '@components/InfoDiv';
 import CustomInputDiv from '@components/CustomInputDiv';
 import Svgs from '@utils/Svgs';
 import { getRoleArabicName, isValidEmail, isValidPassword, isValidVerificationCode } from '@utils/Logic';
-import ReCAPTCHA from 'react-google-recaptcha';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
 
@@ -261,7 +260,7 @@ const page = () => {
         setChangingPass(true);
 
       } catch (err) {
-        console.log(err.message);
+        console.log(err);
         setChangePasswordError(err.message);
         setChangePasswordSuccess('');
         setChangingPass(false);
@@ -475,7 +474,7 @@ const page = () => {
                   <div className='verifyEmailDiv' style={{ display: !isChangePasswordDiv && 'none' }}>
                     <button className='btnbackscndclr first-btn' onClick={() => sendCodeToEmail(true, true)}>{!sendingCode ? `ارسال رمز الى ${userEmail}` : 'جاري الارسال...'}</button>
                     <p style={{ color: sendCodeErrorPass.length > 0 && 'var(--softRed)' }}>
-                      {sendCodeErrorPass.length > 0 ? sendCodeErrorPass : (changePasswordSuccess ? changePasswordSuccess : sendCodeErrorPass)}</p>
+                      {sendCodeErrorPass.length > 0 ? sendCodeErrorPass : (changePasswordSuccess ? changePasswordSuccess : sendCodeSuccess)}</p>
                     <CustomInputDiv title={'ادخل كلمة السر الجديدة'} 
                     isError={changePasswordError.length > 0 && true}
                     errorText={changePasswordError} 
