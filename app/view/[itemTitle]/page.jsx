@@ -211,8 +211,9 @@ const page = () => {
 
     try {
 
-      if(userId === item.owner_id || !canBook) return;
-
+      if(userId === item.owner_id || !canBook || addingToBooks) 
+        return;
+        
       if(!userId || userId.length <= 10){
         let whatsapp = item?.contacts?.find(i => i.platform === 'whatsapp');
         if(whatsapp && !isNaN(Number(whatsapp.val))) {
@@ -226,11 +227,14 @@ const page = () => {
         return;
       }
 
+      if(!booksIds.find(i => i.property_id === id) 
+      && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1)))
+        return;
+
       setAddingToBooks(true);
 
       const res = await handleBooksAddRemove(
-        id,
-        booksIds.find(i => i.property_id === id) ? true : false, 
+        id, booksIds.find(i => i.property_id === id) ? true : false, 
         calendarDoubleValue?.at(0)?.getTime(), 
         calendarDoubleValue?.at(1)?.getTime()
       );
@@ -257,7 +261,7 @@ const page = () => {
       if(telegram && isValidContactURL(telegram))
         return window.open(telegram.val, '_blank');
 
-      if(!booksIds.find(i => i.property_id === id)){
+      if(res.success === true && !booksIds.find(i => i.property_id === id)){
         setIsSpecifics(false); 
         setIsReviews(false); 
         setIsMapDiv(false); 
@@ -513,6 +517,8 @@ const page = () => {
     if(!isOkayBookDays(calendarDoubleValue, item.booked_days)) return 'أيام غير متاحة للحجز';
     if(!userId?.length > 10) return 'سجل الدخول';
     if(userId?.length > 10 && !isVerified) return 'اثبت ملكية الحساب';
+    if(!booksIds.find(i => i.property_id === id) 
+    && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1))) return 'حدد أيام الحجز';
   };
 
   useEffect(() => {
@@ -882,11 +888,12 @@ const page = () => {
             <h3>اجمالي تكلفة {getNumOfBookDays(calendarDoubleValue)} ليلة <span>{((getNumOfBookDays(calendarDoubleValue) * item.price) - (item.discount?.percentage ? (getNumOfBookDays(calendarDoubleValue) * item.price * item.discount.percentage / 100) : 0)).toFixed(2)} دولار</span></h3>
           </div>
 
-          <button className='btnbackscndclr' id={(item.owner_id === userId || !canBook) ? 'disable-button' : ''} 
+          <button className='btnbackscndclr' id={(item.owner_id === userId || !canBook || (!booksIds.find(i => i.property_id === id) && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1)))) ? 'disable-button' : ''} 
             onClick={handleBook}>
               {(item.owner_id !== userId) 
-                ? (canBook ? (addingToBooks 
-                    ? 'جاري الاضافة...' 
+                ? (canBook 
+                  ? (addingToBooks 
+                    ? 'جاري تعديل الحجز...' 
                     : (booksIds.find(i => i.property_id === id) ? 'أزل من الحجز' : 'احجز')) 
                   : getReasonForNotBook())
               : 'هذا عرضك الخاص'}

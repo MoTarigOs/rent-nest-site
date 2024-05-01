@@ -205,7 +205,26 @@ const page = () => {
 
     try {
 
-      if(!userId || userId.length <= 10 || userId === item.owner_id || !canBook) return;
+      if(userId === item.owner_id || !canBook || addingToBooks) 
+        return;
+
+        if(!userId || userId.length <= 10){
+          let whatsapp = item?.contacts?.find(i => i.platform === 'whatsapp');
+          if(whatsapp && !isNaN(Number(whatsapp.val))) {
+            if(whatsapp.val?.at(0) === '0' && whatsapp.val?.at(1) === '0') 
+              whatsapp = whatsapp.val?.replace('00', '+');
+            return window.open(`${whatsappBaseUrl}/${whatsapp.val}`, '_blank');
+          }
+          if(whatsapp && isValidContactURL(whatsapp))
+            return window.open(whatsapp.val, '_blank');
+          setBookSuccess('تواصل مع مقدم الخدمة من قسم الشروط و التواصل');
+          return;
+        }
+
+      if(!booksIds.find(i => i.property_id === id) 
+        && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1))) 
+        return;
+      
 
       setAddingToBooks(true);
 
@@ -494,6 +513,8 @@ const page = () => {
     if(!isOkayBookDays(calendarDoubleValue, item.booked_days)) return 'Days not available for booking';
     if(!userId?.length > 10) return 'Login or Join';
     if(userId?.length > 10 && !isVerified) return 'Verify account ownership';
+    if(!booksIds.find(i => i.property_id === id) 
+    && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1))) return 'Specify book days';
   };
 
   useEffect(() => {
@@ -863,11 +884,11 @@ const page = () => {
             <h3>Total cost {getNumOfBookDays(calendarDoubleValue)} Night <span>{((getNumOfBookDays(calendarDoubleValue) * item.price) - (item.discount?.percentage ? (getNumOfBookDays(calendarDoubleValue) * item.price * item.discount.percentage / 100) : 0)).toFixed(2)} $</span></h3>
           </div>
 
-          <button className='btnbackscndclr' id={(item.owner_id === userId || !canBook) ? 'disable-button' : ''} 
+          <button className='btnbackscndclr' id={(item.owner_id === userId || !canBook || (!booksIds.find(i => i.property_id === id) && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1)))) ? 'disable-button' : ''} 
             onClick={handleBook}>
               {(item.owner_id !== userId) 
                 ? (canBook ? (addingToBooks 
-                    ? 'Adding...' 
+                    ? 'Editing book status...' 
                     : (booksIds.find(i => i.property_id === id) ? 'Remove from my Books' : 'Book')) : ((!isOkayBookDays(calendarDoubleValue, item.booked_days) && item.is_able_to_book) ? 'Reservations are not possible on these days' 
                   : getReasonForNotBook()))
               : 'This is your own offer'}
