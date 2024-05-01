@@ -26,7 +26,7 @@ const page = () => {
     setBooksIds, userId, userRole, setIsMap, 
     setMapType, setLatitude, setLongitude,
     calendarDoubleValue, setCalendarDoubleValue,
-    storageKey, userEmail, isMobile
+    storageKey, userEmail, isMobile, isVerified
   } = useContext(Context);
   
   const id = useSearchParams().get('id');
@@ -444,6 +444,8 @@ const page = () => {
   const isAbleToBook = () => {
     if(!item?.is_able_to_book) return false;
     if(!isOkayBookDays(calendarDoubleValue, item.booked_days)) return false;
+    if(!userId?.length > 10) return false;
+    if(userId?.length > 10 && !isVerified) return false;
     return true;
   };
 
@@ -504,6 +506,13 @@ const page = () => {
       }
     }
     if(isValidContactURL(myContact)) return window.open(myContact.val, '_blank');
+  };
+
+  const getReasonForNotBook = () => {
+    if(!item?.is_able_to_book) return 'لا يقبل حجوزات حاليا';
+    if(!isOkayBookDays(calendarDoubleValue, item.booked_days)) return 'أيام غير متاحة للحجز';
+    if(!userId?.length > 10) return 'سجل الدخول';
+    if(userId?.length > 10 && !isVerified) return 'اثبت ملكية الحساب';
   };
 
   useEffect(() => {
@@ -778,7 +787,7 @@ const page = () => {
 
           <div className='reviews' style={{ display: !isReviews ? 'none' : null }}>
 
-            {(booksIds.find(i => i.property_id === id) && item.owner_id !== userId) 
+            {(booksIds.find(i => i.property_id === id) && item.owner_id !== userId && isVerified) 
             && <div className='write-review'>
               <h3>قيم و صف تجربتك مع هذا العرض</h3>
               <h4>تقييمك للعرض (<input max="5" min="0" step="0.1" type='number' value={scoreRate} onChange={(e) => setScoreRate(Number(e.target.value))}/>)</h4>
@@ -877,8 +886,9 @@ const page = () => {
             onClick={handleBook}>
               {(item.owner_id !== userId) 
                 ? (canBook ? (addingToBooks 
-                  ? 'جاري الاضافة...' 
-                  : (booksIds.find(i => i.property_id === id) ? 'أزل من الحجز' : 'احجز')) : ((!isOkayBookDays(calendarDoubleValue, item.booked_days) && item.is_able_to_book) ? 'لا يمكن الحجز في هذه الأيام' : 'لا يمكن الحجز حاليا'))
+                    ? 'جاري الاضافة...' 
+                    : (booksIds.find(i => i.property_id === id) ? 'أزل من الحجز' : 'احجز')) 
+                  : getReasonForNotBook())
               : 'هذا عرضك الخاص'}
           </button>
 

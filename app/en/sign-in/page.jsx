@@ -23,7 +23,7 @@ const page = () => {
   const { 
     userId, setUserId, 
     setUserUsername, setUserRole, setUserEmail, setIsVerified,
-    setUserPhone, setUserAddress, setBooksIds,
+    setUserPhone, setUserAddress, setBooksIds, isVerified,
     setFavouritesIds, setLoadingUserInfo, setStorageKey
   } = useContext(Context);
 
@@ -141,7 +141,7 @@ const page = () => {
 
           <label id='error' style={{ padding: error.length <= 0 && 0, margin: error.length <= 0 && 0 }}>{error}</label>
 
-          <label id='success' style={{ padding: !successLogin && 0, margin: !successLogin && 0 }}>{successLogin && 'You have been logged in successfully'} <Link href={`/en/profile?id=${userId}`} style={{ display: !successLogin && 'none' }}>Go to profile</Link></label>
+          <label id='success' style={{ padding: !successLogin && 0, margin: !successLogin && 0 }}>{successLogin && 'You have been logged in successfully'} <Link href={isVerified ? `/en/profile?id=${userId}` : '/en/verify-account'} style={{ display: !successLogin && 'none' }}>Go to profile</Link></label>
 
           <button>{loading ? 'Logging in...' : 'Login'}</button>
 

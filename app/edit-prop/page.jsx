@@ -21,7 +21,7 @@ const Page = () => {
     const id = useSearchParams().get('id');
 
     const {
-        userId, storageKey, userEmail, loadingUserInfo
+        userId, storageKey, userEmail, loadingUserInfo, isVerified
     } = useContext(Context);
 
     const [fetchingOnce, setFetchingOnce] = useState(true);
@@ -91,7 +91,6 @@ const Page = () => {
     const getRecaptchaToken = async() => {
       if (!executeRecaptcha) return;
       const gReCaptchaToken = await executeRecaptcha('submit');
-      console.log('recaptcha token: ', gReCaptchaToken);
       return gReCaptchaToken;
     };
 
@@ -668,9 +667,9 @@ const Page = () => {
         return <span id='righticonspan'/>
     }
 
-    if(!item || !userId?.length > 0){
+    if(!item || !userId?.length > 0 || !isVerified){
         return (
-            (fetchingOnce || fetchingUserInfo) ? <MySkeleton isMobileHeader/> : <NotFound />
+            (fetchingOnce || fetchingUserInfo) ? <MySkeleton isMobileHeader/> : <NotFound type={!isVerified ? 'not allowed' : undefined}/>
         )
     }
 

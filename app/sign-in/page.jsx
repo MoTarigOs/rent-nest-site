@@ -23,7 +23,7 @@ const page = () => {
   const { 
     userId, setUserId, 
     setUserUsername, setUserRole, setUserEmail, setIsVerified,
-    setUserPhone, setUserAddress, setBooksIds,
+    setUserPhone, setUserAddress, setBooksIds, isVerified,
     setFavouritesIds, setLoadingUserInfo, setStorageKey
   } = useContext(Context);
   const { executeRecaptcha } = useGoogleReCaptcha();
@@ -139,7 +139,7 @@ const page = () => {
 
           <label id='error' style={{ padding: error.length <= 0 && 0, margin: error.length <= 0 && 0 }}>{error}</label>
 
-          <label id='success' style={{ padding: !successLogin && 0, margin: !successLogin && 0 }}>{successLogin && 'تم تسجيل الدخول بنجاح'} <Link href={`/profile?id=${userId}`} style={{ display: !successLogin && 'none' }}>الذهاب الى الملف الشخصي</Link></label>
+          <label id='success' style={{ padding: !successLogin && 0, margin: !successLogin && 0 }}>{successLogin && 'تم تسجيل الدخول بنجاح'} <Link href={isVerified ? `/profile?id=${userId}` : '/verify-account'} style={{ display: !successLogin && 'none' }}>الذهاب الى الملف الشخصي</Link></label>
 
           <button>{loading ? 'جاري تسجيل الدخول ...' : 'تسجيل الدخول'}</button>
 

@@ -281,7 +281,7 @@ export const deleteMyAccount = async(eCode, key, email, isEnglish) => {
             return { success: false, dt: getErrorText(res.data.message, isEnglish) };
         }
 
-        const url = `${baseUrl}/user/delete`;
+        const url = `${baseUrl}/user/delete?eCode=${eCode}`;
 
         const res = await axios.delete(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });        
 

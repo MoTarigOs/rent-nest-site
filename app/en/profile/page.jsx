@@ -206,7 +206,7 @@ const page = () => {
 
         setIsVerifyFetching(true);
 
-        const res = await verifyMyEmail(code, true);
+        const res = await verifyMyEmail(code, null, true);
 
         if(res.success !== true) {
           setVerifyError(res.dt);
@@ -408,9 +408,9 @@ const page = () => {
       }
     }, [selectedTab]);
 
-    if(!userId || userId.length <= 10){
+    if(!userId || userId.length <= 10 || !isVerified){
       return (
-        fetchingUserInfo ? <MySkeleton isMobileHeader/> : <NotFound />
+        fetchingUserInfo ? <MySkeleton isMobileHeader/> : <NotFound type={!isVerified ? 'not allowed' : undefined}/>
       )
     };
 
@@ -465,7 +465,7 @@ const page = () => {
                   <div className='verifyEmailDiv' style={{ display: !isChangePasswordDiv && 'none' }}>
                     <button className='btnbackscndclr first-btn' onClick={() => sendCodeToEmail(true, true)}>{!sendingCode ? `Send code to ${userEmail}` : 'Sending...'}</button>
                     <p style={{ color: sendCodeErrorPass.length > 0 && 'var(--softRed)' }}>
-                      {sendCodeErrorPass.length > 0 ? sendCodeErrorPass : (changePasswordSuccess ? changePasswordSuccess : sendCodeErrorPass)}</p>
+                      {sendCodeErrorPass.length > 0 ? sendCodeErrorPass : (changePasswordSuccess ? changePasswordSuccess : sendCodeSuccess)}</p>
                     <CustomInputDiv title={'Enter new password'} 
                     isError={changePasswordError.length > 0 && true}
                     errorText={changePasswordError} 
@@ -526,7 +526,7 @@ const page = () => {
                     <p style={{ marginBottom: 16 }} id={sendCodeError?.length > 0 ? 'p-info-error' : 'p-info'}>{sendCodeError.length > 0 ? sendCodeError : (deleteAccountSuccess.length > 0 ? deleteAccountSuccess : sendCodeSuccess)}</p>
                     <CustomInputDiv title={'Enter code'} isError={sendCodeError.length > 0} listener={(e) => setCode(e.target.value)}/>
                     <p style={{ margin: '-16px 0 12px 0'}}><Svgs name={'info'}/>Warning: The account and everything related to it will be permanently deleted!</p>
-                    <button style={{ marginTop: 16 }} className='btnbackscndclr' onClick={deleteAccount}>{deletingAccount ? 'Account is being deleted' :'Permanently delete the account'}</button>
+                    <button style={{ marginTop: 16 }} className='btnbackscndclr' onClick={deleteAccount}>{deletingAccount ? 'Deleting Account...' :'Permanently delete the account'}</button>
                     <p id={deleteAccountError?.length > 0 ? 'p-info-error' : 'p-info'}>
                       {deleteAccountError.length > 0 ? deleteAccountError : deleteAccountSuccess}
                     </p>

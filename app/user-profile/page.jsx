@@ -21,7 +21,7 @@ const Page = () => {
     const username = useSearchParams().get('username');
     const email = useSearchParams().get('email');
 
-    const { userEmail, userRole, storageKey } = useContext(Context);
+    const { userEmail, userRole, storageKey, isVerified } = useContext(Context);
 
     const [user, setUser] = useState(null);
 
@@ -342,9 +342,9 @@ const Page = () => {
       if(isHisProps) fetchProps();
     }, [isHisProps]);
 
-    if(!user){
+    if(!user || !isVerified){
       return (
-        fetchingUserInfo ? <MySkeleton isMobileHeader/> : <NotFound />
+        fetchingUserInfo ? <MySkeleton isMobileHeader/> : <NotFound type={!isVerified ? 'not allowed' : undefined}/>
       )
     };
 

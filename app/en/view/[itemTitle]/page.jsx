@@ -26,7 +26,7 @@ const page = () => {
     setBooksIds, userId, userRole, setIsMap, 
     setMapType, setLatitude, setLongitude,
     calendarDoubleValue, setCalendarDoubleValue,
-    storageKey, userEmail, isMobile
+    storageKey, userEmail, isMobile, isVerified
   } = useContext(Context);
   
   const id = useSearchParams().get('id');
@@ -425,6 +425,8 @@ const page = () => {
   const isAbleToBook = () => {
     if(!item?.is_able_to_book) return false;
     if(!isOkayBookDays(calendarDoubleValue, item.booked_days)) return false;
+    if(!userId?.length > 10) return false;
+    if(userId?.length > 10 && !isVerified) return false;
     return true;
   };
 
@@ -485,6 +487,13 @@ const page = () => {
       }
     }
     if(isValidContactURL(myContact)) return window.open(myContact.val, '_blank');
+  };
+
+  const getReasonForNotBook = () => {
+    if(!item?.is_able_to_book) return 'Reservations are currently closed';
+    if(!isOkayBookDays(calendarDoubleValue, item.booked_days)) return 'Days not available for booking';
+    if(!userId?.length > 10) return 'Login or Join';
+    if(userId?.length > 10 && !isVerified) return 'Verify account ownership';
   };
 
   useEffect(() => {
@@ -759,7 +768,7 @@ const page = () => {
 
           <div className='reviews' style={{ display: !isReviews ? 'none' : null }}>
 
-            {(booksIds.find(i => i.property_id === id) && item.owner_id !== userId) 
+            {(booksIds.find(i => i.property_id === id) && item.owner_id !== userId && isVerified) 
             && <div className='write-review'>
               <h3>Rate and describe your experience with this offer</h3>
               <h4>Your evaluation of the offer (<input max="5" min="0" step="0.1" type='number' value={scoreRate} onChange={(e) => setScoreRate(Number(e.target.value))}/>)</h4>
@@ -858,8 +867,9 @@ const page = () => {
             onClick={handleBook}>
               {(item.owner_id !== userId) 
                 ? (canBook ? (addingToBooks 
-                  ? 'Adding...' 
-                  : (booksIds.find(i => i.property_id === id) ? 'Remove from my Books' : 'Book')) : ((!isOkayBookDays(calendarDoubleValue, item.booked_days) && item.is_able_to_book) ? 'Reservations are not possible on these days' : 'Reservations are currently closed'))
+                    ? 'Adding...' 
+                    : (booksIds.find(i => i.property_id === id) ? 'Remove from my Books' : 'Book')) : ((!isOkayBookDays(calendarDoubleValue, item.booked_days) && item.is_able_to_book) ? 'Reservations are not possible on these days' 
+                  : getReasonForNotBook()))
               : 'This is your own offer'}
           </button>
 

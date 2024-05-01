@@ -47,7 +47,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       calendarDoubleValue, setIsMobileHomeFilter, 
       setIsCalendarValue, setLoadingUserInfo,
       isMobileHomeFilter, setStorageKey, isMobile, setIsMobile,
-      setIsEnglish
+      setIsEnglish, isVerified
     } = useContext(Context);
 
     const settingMobile = () => {
@@ -83,6 +83,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
             return '/en/search';
           }
         case 'profile':
+          if(!isVerified) return pathname.includes('/en') ? '/en/verify-account' : '/verify-account';
           if(!pathname.includes('/en')){
             return `/profile?id=${helperString}`;
           } else {
@@ -114,6 +115,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
             return '/en' + pathname;
           }
         case 'add':
+          if(!isVerified) return pathname.includes('/en') ? '/en/verify-account' : '/verify-account';
           if(!pathname.includes('/en')){
             return '/add';
           } else {
@@ -204,7 +206,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
     }, []);
 
     useEffect(() => {
-      if(isLogined) setRunOnce(true);
+      setRunOnce(true);
     }, [isLogined]);
 
     useEffect(() => {
@@ -334,7 +336,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
           </Link>
         </div>}
 
-        <div className="mobileHeader" style={{ zIndex: isMenu ? 20 : null }}>
+        <div className="mobileHeader" style={{ zIndex: isMenu ? 20 : null, display: isMobile ? undefined : 'none' }}>
 
           <div className='user'>
             <Link href={userId?.length > 0 ? getHref('profile', userId) : getHref('sign-up')}>
@@ -359,7 +361,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
           </div>
 
-          {isMobile && <div
+          <div
             className="mobileSideNav"
             id={isMenu ? `${pathname.includes('/en') ? 'en' : ''}sideNavActive` : `${pathname.includes('/en') ? 'en' : ''}sideNavNotActive`}
             >
@@ -413,7 +415,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
             </ul>
 
-          </div>}
+          </div>
 
         </div>
 

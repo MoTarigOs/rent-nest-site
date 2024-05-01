@@ -61,7 +61,6 @@ const page = () => {
     const [deletingAccount, setDeletingAccount] = useState(false);
     const [deleteAccountSuccess, setDeleteAccountSuccess] = useState('');
     const [deleteAccountError, setDeleteAccountError] = useState('');
-    const reCaptchaRef = useRef();
 
     const [itemsArray, setItemsArray] = useState([]);
     const [favArray, setFavArray] = useState([]);
@@ -158,11 +157,11 @@ const page = () => {
           } else {
             setSendCodeError(res.dt); setSendCodeErrorPass('');
           }
-          setSendingCode(false);
           setSendCodeSuccess('');
           setChangePasswordSuccess('');
           setIsSentCodeEmail(false);
           setIsSentCodePass(false);
+          setSendingCode(false);
           return;
         };
 
@@ -316,15 +315,6 @@ const page = () => {
           return;
         }
 
-        const reCaptchaToken = reCaptchaRef?.current?.getValue() ? reCaptchaRef.current.getValue() : null;
-        reCaptchaRef.current.reset();
-  
-        // if(!reCaptchaToken) {
-        //   setDeleteAccountError('من فضلك أثبت انك لست روبوت');
-        //   setDeleteAccountSuccess('');
-        //   return;
-        // }
-
         setDeletingAccount(true);
 
         const res = await deleteMyAccount(code, storageKey, userEmail);
@@ -417,9 +407,9 @@ const page = () => {
       }
     }, [selectedTab]);
 
-    if(!userId || userId.length <= 10){
+    if(!userId || userId.length <= 10 || !isVerified){
       return (
-        fetchingUserInfo ? <MySkeleton isMobileHeader/> : <NotFound />
+        fetchingUserInfo ? <MySkeleton isMobileHeader/> : <NotFound type={!isVerified ? 'not allowed' : undefined}/>
       )
     };
 
@@ -535,7 +525,7 @@ const page = () => {
                     <p style={{ marginBottom: 16 }} id={sendCodeError?.length > 0 ? 'p-info-error' : 'p-info'}>{sendCodeError.length > 0 ? sendCodeError : (deleteAccountSuccess.length > 0 ? deleteAccountSuccess : sendCodeSuccess)}</p>
                     <CustomInputDiv title={'ادخل الرمز'} isError={sendCodeError.length > 0} listener={(e) => setCode(e.target.value)}/>
                     <p style={{ margin: '-16px 0 12px 0'}}><Svgs name={'info'}/>تحذير: سيتم حذف الحساب و كل ما يتعلق به نهائيا!</p>
-                    <button style={{ marginTop: 16 }} className='btnbackscndclr' onClick={deleteAccount}>{deletingAccount ? 'جاري حذف الجساب' :'حذف الحساب نهائيا'}</button>
+                    <button style={{ marginTop: 16 }} className='btnbackscndclr' onClick={deleteAccount}>{deletingAccount ? 'جاري حذف الحساب...' :'حذف الحساب نهائيا'}</button>
                     <p id={deleteAccountError?.length > 0 ? 'p-info-error' : 'p-info'}>
                       {deleteAccountError.length > 0 ? deleteAccountError : deleteAccountSuccess}
                     </p>

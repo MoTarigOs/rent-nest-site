@@ -25,7 +25,7 @@ const page = () => {
         userId, setIsMap, setMapType,
         latitude, setLatitude, storageKey,
         longitude, setLongitude, userEmail,
-        loadingUserInfo
+        loadingUserInfo, isVerified
     } = useContext(Context);
 
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/mp4', 'video/avi'];
@@ -322,7 +322,7 @@ const page = () => {
         return <span id='righticonspan'/>
     }
 
-    if(!userId?.length > 0){
+    if(!userId?.length > 0 || !isVerified){
         return (
             fetching ? <MySkeleton isMobileHeader={true}/> : <NotFound type={'not allowed'}/>
         )
