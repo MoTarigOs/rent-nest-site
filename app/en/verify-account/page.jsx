@@ -1,7 +1,7 @@
 'use client';
 
 import CustomInputDiv from '@components/CustomInputDiv';
-import '../sign-up/SignUp.css';
+import '../../sign-up/SignUp.css';
 import { useContext, useEffect, useState } from 'react';
 import { sendCode, verifyMyEmail } from '@utils/api';
 import { isValidEmail } from '@utils/Logic';
