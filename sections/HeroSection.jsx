@@ -28,7 +28,7 @@ const HeroSection = ({ isEnglish }) => {
     const [selectedCity, setSelectedCity] = useState(cities[3]);
     const [swiper, setSwiper] = useState(null);
 
-    const { setIsMobileHomeFilter, setCity } = useContext(Context);
+    const { setIsMobileHomeFilter, setCity, setSection } = useContext(Context);
         
     const handleChange = () => {
         
@@ -106,6 +106,7 @@ const HeroSection = ({ isEnglish }) => {
                                 <div key={c._id} dir={isEnglish ? 'ltr' : null} onClick={() => {
                                     console.log('c: ', c, ' city: ', JordanCities.find(i => i.city_id === c._id));
                                     setIsMobileHomeFilter(true); 
+                                    setSection('category');
                                     setCity(JordanCities.find(i => i.city_id === c._id));
                                 }} className={`swiper-slide cityItem ${c._id === selectedCity._id && 'selectedCity'}`} ref={c.cityRef}>
                                     <div>
@@ -142,7 +143,9 @@ const HeroSection = ({ isEnglish }) => {
                 <div className='text'>
                     <h2>{getNameByLang('عروضنا المميزة', isEnglish)}</h2>
                     <p>{getNameByLang('هل تبحث عن سيارة للإيجار أو شقة للإقامة؟ نحن هنا لمساعدتك في العثور على أفضل الخيارات, اختر من بين مجموعة متنوعة من السيارات، بدءًا من الاقتصادية إلى الفاخرة, بحث عن شقق مفروشة أو غير مفروشة، وفلل، وشقق مشتركة.', isEnglish)}</p>
-                    <button onClick={() => setIsMobileHomeFilter(true)}>{getNameByLang('استكشف', isEnglish)}</button>
+                    <button onClick={() => {
+                        setIsMobileHomeFilter(true); setSection('city');
+                    }}>{getNameByLang('استكشف', isEnglish)}</button>
                 </div>
 
                 <VerticalList list={[{image: getCityImage('Irbid')}, {image: getCityImage('Karak')}, {image: getCityImage('Aqaba')}]}/>

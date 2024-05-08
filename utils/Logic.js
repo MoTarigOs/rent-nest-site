@@ -121,7 +121,7 @@ export const getArabicNameCatagory = (thisCatagory) => {
     if(ct) return ct.arabicName;
     const vct = VehicleCatagories.find(i => i.value === thisCatagory);
     if(vct) return vct.arabicName;
-    return 'كل التصنيفات';
+    return thisCatagory === 'multiple' ? 'عدة اختيارات' : 'كل التصنيفات';
 };
 
 export const arrangeArray = (type, arr) => {
@@ -273,24 +273,21 @@ export const getBookDateFormat = (date) => {
     } catch(err) {}
 };
 
+const isOkayText = s => (!/[^\u0600-\u06FF\u0020-\u0040\u005B-\u0060\u007B-\u007E-\u0000-\u007F]/.test(s));
+
 export const isValidText = (text, minLength) => {
 
     if(!minLength && (!text || typeof text !== "string" || text.length <= 0)) return false;
 
     if(minLength && (!text || typeof text !== "string" || text.length < minLength)) return false;
 
-    // for (let i = 0; i < text.length; i++) {
+    if(!isOkayText(text)) return false;
 
-    //     let passed = false;
+    const notAllowedTextChars = ['<', '>', '&','/','"',"'", '`'];
 
-    //     for (let j = 0; j < testChars.length; j++) {
-    //         if(text[i] === testChars[j]) 
-    //             passed = true;
-    //     }
-
-    //     if(!passed) return false;
-
-    // };
+    for (let i = 0; i < notAllowedTextChars.length; i++) {
+      if(text.includes(notAllowedTextChars[i])) return false;
+    };
     
     return true;
 };
@@ -481,7 +478,7 @@ export const getErrorText = (errorName, isEnglish) => {
             case 'attempts exceeded':
                 return 'The intended login attempts number has been exceeded. Please change your password from the Forgot Password page.';
             default:
-                return 'Unknown error, please try again.';
+                return errorName;
         }
 
     } else {
@@ -516,7 +513,7 @@ export const getErrorText = (errorName, isEnglish) => {
             case 'attempts exceeded':
                 return 'تم تجاوز عدد محاولات تسجيل الدخول المسموح, الرجاء تغيير كلمة من صفحة نسيت كلمة السر.';
             default:
-                return 'خطأ غير معروف, الرجاء المحاولة مجددا.';
+                    return errorName;
         }
            
     }
@@ -567,7 +564,7 @@ const names = [
     ['الذهاب', 'Go'],
     ['تخطي', 'Skip'],
     ['تواصل معنا', 'Contact Us'],
-    ['', ''],
+    ['عدة اختيارات', 'Multiple Choices'],
     ['', ''],
     ['', ''],
     ['', ''],

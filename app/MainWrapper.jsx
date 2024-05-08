@@ -5,6 +5,8 @@ import Header from "@sections/Header";
 import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 import { Roboto, Cairo } from 'next/font/google'
 import { usePathname } from "next/navigation";
+import { useContext, useEffect, useState } from "react";
+import { Context } from "@utils/Context";
  
 const roboto = Roboto({ weight: '400', subsets: ['latin'] });
 const cairo = Cairo({ weight: '400', subsets: ['latin'] });
@@ -12,6 +14,16 @@ const cairo = Cairo({ weight: '400', subsets: ['latin'] });
 const MainWrapper = ({ children }) => {
 
   const pathname = usePathname();
+
+  const { isModalOpened } = useContext(Context);
+
+  useEffect(() => {
+      if(isModalOpened){
+        document.querySelector("body").classList.add("disable-scrolling");
+      } else {
+        document.querySelector("body").classList.remove("disable-scrolling");
+      }
+  }, [isModalOpened]);
 
   return (
 

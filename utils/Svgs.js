@@ -477,6 +477,10 @@ const Svgs = ({ name, on_click, styling }) => {
                     c15.641,0,28.361,12.725,28.361,28.361C374.59,317.677,361.867,330.401,346.229,330.401z"/>
             </g>
             </svg>}
+
+            {name === 'list' && <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 8H21M7 12H21M7 16H21M3 8H3.01M3 12H3.01M3 16H3.01" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>}
         </>
     )
 }

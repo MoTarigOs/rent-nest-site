@@ -2,23 +2,26 @@
 
 import '@styles/components_styles/GoogleMapPopup.css';
 import { Autocomplete, Circle, GoogleMap, Marker, OverlayView, OverlayViewF, StandaloneSearchBox, useJsApiLoader } from "@react-google-maps/api";
-import { memo } from 'react';
-import { isInsideJordan } from '@utils/Data';
+import { memo, useEffect, useState } from 'react';
+import { JordanCities, getCategoryImage, isInsideJordan } from '@utils/Data';
 import Image from 'next/image';
 import MarkerVehicleImage from '@assets/icons/car-inbound.svg';
 import MarkerPropImage from '@assets/icons/house.svg';
 import Svgs from '@utils/Svgs';
+import { getArabicNameCatagory } from '@utils/Logic';
 
 const GoogleMapPopup = ({ 
   isShow, setIsShow, mapType, latitude, 
   longitude, setLatitude, setLongitude,
-  props, setSelectedProp
+  props, setSelectedProp, style, searchHere,
+  selectedProp
 }) => {
 
-    const AMMAN_LAT = 31.94816692309648;
-    const AMMAN_LONG = 35.91396596063626;
+    const [triggerSearch, setTriggerSearch] = useState(null);
+    const [searching, setSearching] = useState(null);
 
-    console.log('key: ', process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
+    const AMMAN_LAT = JordanCities[0].lat;
+    const AMMAN_LONG = JordanCities[0].long;
 
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
@@ -37,16 +40,14 @@ const GoogleMapPopup = ({
         lng: longitude ? longitude : AMMAN_LAT
     };
 
-    // const [map, setMap] = useState(null)
+    const [map, setMap] = useState(null)
 
-    // const onLoad = (map) => {
-    //   const bounds = new window.google.maps.LatLngBounds(center);
-    //   //map.fitBounds(bounds);
-    //   setMap(map)
-    // };
+    const onLoad = (map) => {
+      setMap(map);
+    };
   
     const onUnmount = (map) => {
-      //setMap(null);
+      setMap(null);
     };
 
     const handleMapClick = (e) => {
@@ -59,23 +60,42 @@ const GoogleMapPopup = ({
       setLatitude(eLat);
     };
 
+    const search = async() => {
+      try {
+        if(searching) return;
+          setSearching(true);
+          await searchHere();
+          setSearching(false);
+      } catch (err) {
+          setSearching(false);
+      } 
+    };
+
+    useEffect(() => {
+      search();
+    }, [triggerSearch]);
+
   return (
     <div className={mapType === 'search' ? "google-map-popup-wrapper search-map" : "google-map-popup-wrapper" }
-      style={{ left: isShow ? null : '-200vw' }}>
+      style={mapType !== 'search' ? { left: isShow ? null : '-200vw' } : style}>
 
         <span onClick={() => setIsShow(false)}/>
 
         <div id='cross-close-map' onClick={() => setIsShow(false)}><Svgs name={'cross'}/></div>
 
-        <div className='google-map-popup'>
+        {mapType === 'search' && <button id='more-btn' onClick={() => {
+          setLatitude(map?.center?.lat());
+          setLongitude(map?.center?.lng());
+          setTriggerSearch(!triggerSearch);
+        }}>{searching ? 'جاري البحث...' : 'البحث في هذه المنطقة'}</button>}
+
+        <div className='google-map-popup' style={mapType === 'search' ? style : undefined}>
 
             {isLoaded && <GoogleMap
                 mapContainerStyle={containerStyle}
-                center={{ 
-                  lat: latitude ? latitude : AMMAN_LAT, 
-                  lng: longitude ? longitude : AMMAN_LONG 
-                }}
-                zoom={16}
+                center={center}
+                onLoad={onLoad}
+                zoom={12}
                 onUnmount={onUnmount}
                 onClick={handleMapClick}
                 clickableIcons={(mapType === 'search' || mapType === 'select-point') ? false : true}
@@ -127,8 +147,15 @@ const GoogleMapPopup = ({
                   }}
                   mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                 >
-                  <div onClick={() => setSelectedProp(item)} className='custom-marker' style={{ display: !item ? 'none' : null }}>
-                    <Image src={item.type_is_vehicle === true ? MarkerVehicleImage : MarkerPropImage} alt='google map image' width={120} height={120}/>
+                  <div onClick={() => {
+                    setSelectedProp(item);
+                  }} className={'custom-marker'} style={{ 
+                    display: !item ? 'none' : null, 
+                    background: selectedProp === item ? 'var(--secondColor)' : undefined,
+                    color: selectedProp === item ? 'white' : undefined,
+                    zIndex: selectedProp === item ? 10 : undefined
+                  }}>
+                    {item.price} دولار / الليلة
                   </div>
                 </OverlayViewF>))}
 

@@ -16,7 +16,7 @@ const ZarqaCity = getCityImage('Zarqa');
 const MainCity = getCityImage('Main');
 const MafraqCity = getCityImage('Mafraq');
 const TafilaCity = getCityImage('Tafilah');
-const JerashCity = getCityImage('Jerach');
+const JerashCity = getCityImage('Jerash');
 
 const LandingSection = ({ isEnglish }) => {
 

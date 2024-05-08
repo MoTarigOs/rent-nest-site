@@ -128,6 +128,33 @@
 }
 
 
+#searchBar{
+    width: 100%;
+    padding: 12px;
+    color: rgb(73, 73, 73);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.077);
+
+    svg{
+        width: 16px;
+        height: 16px;
+    }
+
+    input{
+        width: 100%;
+        padding: 12px;
+        background: transparent;
+        outline: none;
+        border: none;
+    }
+
+    &:hover{
+        background: white;
+    }
+}
+
 #righticonspan{
     width: 8px;
     height: 20px;

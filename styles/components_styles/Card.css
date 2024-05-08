@@ -10,6 +10,9 @@
     position: relative;
     box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.15);
     transition: all 0.12s ease-out;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
 
     &:dir(ltr){
         .rateanddiscount{
@@ -20,6 +23,10 @@
                 }
             }
         }
+    }
+
+    .imagesDiv{
+        border-radius: 24px;
     }
 
     h3, h2, a{
@@ -145,6 +152,23 @@
         .arrow{
             opacity: 1;
             transition: all 0.2s ease-in;
+        }
+    }
+}
+
+.vertical-view{
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+
+    .imagesDiv{
+        width: 100%;
+        max-width: 160px;
+        overflow: hidden;
+        border-radius: 0;
+
+        .arrow{
+            display: none;
         }
     }
 }

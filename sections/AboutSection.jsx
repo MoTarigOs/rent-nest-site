@@ -2,9 +2,9 @@
 
 import '@styles/sections_styles/AboutSection.css';
 import Image from 'next/image';
-import AboutBackgroundImage from '@assets/images/landing2.webp';
+import AboutBackgroundImage from '@assets/images/image_as_logo.webp';
 import Svgs from '@utils/Svgs';
-import { ProperitiesCatagories } from '@utils/Data';
+import { ProperitiesCatagories, VehicleCatagories, getCategoryImage } from '@utils/Data';
 import Swiper from 'swiper/bundle';
 import 'swiper/swiper-bundle.css';
 import { useContext, useEffect } from 'react';
@@ -25,7 +25,7 @@ const AboutSection = ({ isEnglish }) => {
     { _id: '3', iconName: 'seller', title: 'Flexibility for advertiser and buyer', slogan: 'You will find great flexibility in amending the offer and flexibility in choosing the booking date' }
   ];
 
-  const { setIsMobileHomeFilter, setCatagory } = useContext(Context);
+  const { setIsMobileHomeFilter, setCatagory, setSection } = useContext(Context);
 
   let swiper = null;
 
@@ -70,11 +70,11 @@ const AboutSection = ({ isEnglish }) => {
 
               <div className='about-swiper swiperAboutDiv' style={isEnglish ? { left: 0, right: 'unset', paddingRight: 664, paddingLeft: 0 } : null}>
                 <div className='swiper-wrapper wrapperDiv'>
-                  {ProperitiesCatagories.map((item, index) => (
+                  {[...ProperitiesCatagories, VehicleCatagories[0]].map((item, index) => (
                     <div key={index} className='swiper-slide aboutListItem' onClick={() => {
-                      setCatagory(item.value); setIsMobileHomeFilter(true);
+                      setCatagory(item.value); setIsMobileHomeFilter(true); setSection('city skip-category');
                     }}>
-                      <Svgs name={item.value}/>
+                      <Image src={getCategoryImage(item.value)} alt={item.value}/>
                       <h3>{isEnglish ? getNameByLang(item.arabicName, isEnglish) : item.arabicName}</h3>
                     </div>
                   ))}

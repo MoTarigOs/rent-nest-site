@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useState } from "react";
-import { maximumPrice, minimumPrice } from "./Data";
+import { JordanCities, maximumPrice, minimumPrice } from "./Data";
 export const Context = createContext(null);
 
 function DataContext({ children }) {
@@ -21,8 +21,11 @@ function DataContext({ children }) {
     const [selectedTab, setSelectedTab] = useState('');
     const [booksIds, setBooksIds] = useState([]);
     const [favouritesIds, setFavouritesIds] = useState([]);
+    const [isModalOpened, setIsModalOpened] = useState(false);
     const [city, setCity] = useState({});
     const [catagory, setCatagory] = useState('');    
+    const [categoryArray, setCategoryArray] = useState([]);    
+    const [section, setSection] = useState('city');
     const [calendarDoubleValue, setCalendarDoubleValue] = useState(null);
     const [isCalendarValue, setIsCalendarValue] = useState(false);
     const [currentMinPrice, setCurrentMinPrice] = useState(minimumPrice);
@@ -30,13 +33,29 @@ function DataContext({ children }) {
     const [ratingScore, setRatingScore] = useState(0);
     const [triggerFetch, setTriggerFetch] = useState(false);
     const [isMobileHomeFilter, setIsMobileHomeFilter] = useState(false);
+    const [isSearchMap, setIsSearchMap] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [arrangeValue, setArrangeValue] = useState('default');
     const [isMap, setIsMap] = useState(false);
     const [mapType, setMapType] = useState('');
     const [mapArray, setMapArray] = useState([]);
-    const [longitude, setLongitude] = useState(null);
-    const [latitude, setLatitude] = useState(null);
+    const [longitude, setLongitude] = useState(JordanCities[0].long);
+    const [latitude, setLatitude] = useState(JordanCities[1].lat);
+
+
+    // Advance filter
+    const [quickFilter, setQuickFilter] = useState([]);
+    const [neighbourSearchText, setnNeighbourSearchText] = useState('');
+    const [unitCode, setUnitCode] = useState('');
+    const [rangeValue, setRangeValue] = useState([0, maximumPrice]);
+    const [bedroomFilter, setBedroomFilter] = useState({ num: 0, single_beds: 0, double_beds: 0 });
+    const [capacityFilter, setCapcityFilter] = useState(null);
+    const [poolFilter, setPoolFilter] = useState([]);
+    const [customersTypesFilter, setCustomersTypesFilter] = useState([]);
+    const [companiansFilter, setCompaniansFilter] = useState([]);
+    const [bathroomsFilterNum, setBathroomsNumFilter] = useState(null);
+    const [bathroomsCompaniansFilter, setBathroomsCompaniansFilter] = useState([]);
+    const [kitchenFilter, setKitchenFilter] = useState([]);
 
     return (
         <Context.Provider value={{ 
@@ -55,8 +74,11 @@ function DataContext({ children }) {
             selectedTab, setSelectedTab,
             booksIds, setBooksIds,
             favouritesIds, setFavouritesIds,
+            isModalOpened, setIsModalOpened,
             city, setCity,
             catagory, setCatagory,
+            categoryArray, setCategoryArray,
+            section, setSection,
             calendarDoubleValue, setCalendarDoubleValue,
             isCalendarValue, setIsCalendarValue,
             currentMinPrice, setCurrentMinPrice,
@@ -64,13 +86,29 @@ function DataContext({ children }) {
             ratingScore, setRatingScore,
             triggerFetch, setTriggerFetch,
             isMobileHomeFilter, setIsMobileHomeFilter,
+            isSearchMap, setIsSearchMap,
             searchText, setSearchText,
             arrangeValue, setArrangeValue,
             mapType, setMapType,
             mapArray, setMapArray,
             isMap, setIsMap,
             longitude, setLongitude,
-            latitude, setLatitude
+            latitude, setLatitude,
+            
+            
+            // Advacne filter
+            rangeValue, setRangeValue,
+            quickFilter, setQuickFilter,
+            neighbourSearchText, setnNeighbourSearchText,
+            unitCode, setUnitCode,
+            bedroomFilter, setBedroomFilter,
+            capacityFilter, setCapcityFilter,
+            poolFilter, setPoolFilter,
+            customersTypesFilter, setCustomersTypesFilter,
+            companiansFilter, setCompaniansFilter,
+            bathroomsFilterNum, setBathroomsNumFilter,
+            bathroomsCompaniansFilter, setBathroomsCompaniansFilter,
+            kitchenFilter, setKitchenFilter
         }}>
             {children}
         </Context.Provider>

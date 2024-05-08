@@ -3,11 +3,11 @@ import Svgs from '@utils/Svgs';
 
 const InfoDiv = ({ 
     title, value, isInfo, info, handleClick, 
-    btnState, btnTitle, btnAfterClck, type 
+    btnState, btnTitle, btnAfterClck, type, divClick
 }) => {
 
     return (
-      <div className='infodiv'>
+      <div className='infodiv' onClick={divClick}>
         <label>{title}</label>
         <h3 suppressHydrationWarning>{value}</h3>
         <div style={{ display: !isInfo && 'none' }}>

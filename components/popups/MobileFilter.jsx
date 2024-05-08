@@ -1,146 +1,172 @@
 'use client';
 
-import CustomInputDiv from '@components/CustomInputDiv';
 import '@styles/components_styles/MobileFilter.css';
 import { Context } from '@utils/Context';
-import { useContext, useEffect, useState } from 'react';
+import { Suspense, useContext, useState } from 'react';
 import { ProperitiesCatagories, VehicleCatagories } from '@utils/Data';
 import { getNameByLang, getReadableDate } from '@utils/Logic';
 import dynamic from 'next/dynamic';
 const MyCalendar = dynamic(() => import('@components/MyCalendar'));
 const HeaderPopup = dynamic(() => import('./HeaderPopup'));
 import Link from 'next/link';
+import Svgs from '@utils/Svgs';
+import Image from 'next/image';
+import ImageAsLogo from '@assets/images/image_as_logo.webp';
 
-const MobileFilter = ({ isEnglish }) => {
+const Component = ({ isEnglish }) => {
 
     const { 
       isMobileHomeFilter, setIsMobileHomeFilter, city,
       catagory, setCatagory, calendarDoubleValue,
-      setCalendarDoubleValue, setCity
+      setCalendarDoubleValue, setCity,
+      setCategoryArray, categoryArray,
+      section, setSection
     } = useContext(Context);
 
-    const [isCityDiv, setIsCityDiv] = useState(false);
-    const [selectedCatagories, setSelectedCatagories] = useState('1');
-    const [isCalendar, setIsCalendar] = useState(false);
-    
-    const getCatagoryArray = () => {
-        if(selectedCatagories === '0'){
-            return VehicleCatagories;
-        } else {
-            return ProperitiesCatagories;
-        }
-    };
+    const [selectedCatagories, setSelectedCatagories] = useState(categoryArray);
 
     const getNavLink = () => {
 
-      if(selectedCatagories === '0'){
-        return isEnglish ? '/en/vehicles' : '/vehicles';
+      if(isEnglish){
+        return '/en/search';
       } else {
-        return `${isEnglish ? '/en' : ''}/properties?catagory=${catagory}`;
+        return '/search';
       };
 
     };
 
-    useEffect(() => {
-      if(isMobileHomeFilter){
-        if(ProperitiesCatagories.find(i => i.value === catagory)){
-          setSelectedCatagories('1');
-        } else if(VehicleCatagories.find(i => i.value === catagory)) {
-          setSelectedCatagories('0');
+    const getSelectedCategories = (isEnglish) => {
+      let str = '';
+      selectedCatagories.forEach((element, index) => {
+        if(isEnglish) {
+          str += element.value + (index >= selectedCatagories.length - 1 ? '' : ', ');
+        } else {
+          str += element.arabicName + (index >= selectedCatagories.length - 1 ? '' : ', ');
         }
-      }
-    }, [isMobileHomeFilter, catagory]);
+      });
+      return str?.length > 0 ? str : (isEnglish ? 'All' : 'الكل');
+    };
+
+    const deleteAndClose = () => {
+      setCity('');
+      setCatagory('');
+      setCategoryArray([]);
+      setCalendarDoubleValue(null);
+      setIsMobileHomeFilter(false);
+    };
+
+    const RightIconSpan = () => {
+      return <span id='righticonspan'/>
+    }
 
   return (
     <div className='mobileFilter' style={{ display: !isMobileHomeFilter ? 'none' : null }}
       dir={isEnglish ? 'ltr' : ''}>
       
         <div id='close-span' onClick={() => {
-          if(isCityDiv || isCalendar){
-            setIsCityDiv(false);
-            setIsCalendar(false);
-          } else {
-            setIsMobileHomeFilter(false);
-          }
+            setSection('city'); setIsMobileHomeFilter(false);
         }} />
 
         <div className='filter-content'>
 
           <div id='mobile-filter-header'/>
 
-          <div id='close-popups' style={{
-            display: (isCalendar || isCityDiv) ? null : 'none',
-            width: '100%',
-            height: '100%'
-          }} onClick={() => {
-            setIsCalendar(false);
-            setIsCityDiv(false);
-          }}/>
-
-          <div className='city-div-filter' onClick={() => {
-            setIsCityDiv(!isCityDiv);
-          }}>
-            <CustomInputDiv title={getNameByLang('المدينة', isEnglish)} isCity value={city.arabicName === '' ? getNameByLang('كل المدن', isEnglish) : isEnglish ? city.value : city.arabicName} listener={() => setIsCityDiv(true)}/>
-            {isCityDiv && <HeaderPopup type={'city'} isEnglish={isEnglish}/>}
-          </div>
-
-          <hr />
-
-          <div className='book-date'>
-
-            <div className='calendar-div' style={{ display: !isCalendar ? 'none' : null }}>
-              <MyCalendar type={'mobile-filter'} setCalender={setCalendarDoubleValue}/>
+          {section.includes('city') && <div className='city-div-filter'>
+            <div className='city-div-header'>
+              <div id='city-back' onClick={deleteAndClose}><Svgs name={'dropdown arrow'}/></div>
+              <h3>{isEnglish ? 'Choose City' : 'أختر مدينة'}</h3> 
+              <h4>{isEnglish ? city.value : city.arabicName}</h4> 
             </div>
+            <HeaderPopup type={'city'} isEnglish={isEnglish} triggerHomeFilterSection={() => {
+              setSection(section.includes('skip-category') ? 'calender' : 'category');
+            }}/>
+          </div>}
 
-            <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
-              {getNameByLang('تاريخ الحجز', isEnglish)}
-              <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(0), true, isEnglish)}</h3>
-            </div>
+          {section === 'category' && <div className="catagory">
 
-            <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
-              {getNameByLang('تاريخ انتهاء الحجز', isEnglish)}
-              <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, isEnglish)}</h3>
-            </div>
+              <div className='city-div-header'>
+                <div id='city-back' onClick={() => setSection('city')}><Svgs name={'dropdown arrow'}/></div>
+                <h3>{isEnglish ? 'What do you want to rent?' : 'ما الذي تريد ايجاره؟'}</h3> 
+                <h4 style={{ fontSize: '0.75rem' }}>{getSelectedCategories(isEnglish)}</h4> 
+              </div>
 
-          </div>
-
-          <hr />
-
-          <h2>{getNameByLang('التصنيف', isEnglish)}</h2>
-
-          <div className="catagory">
               <ul>
-                  <li onClick={() => setCatagory('')}
-                      className={catagory === '' ? 'selectedCatagory' : undefined}
-                  >
+                  <li onClick={() => { setSelectedCatagories([]); setCatagory(''); }}>
+                      <Image src={ImageAsLogo}/>
                       {getNameByLang('كل التصنيفات', isEnglish)}
+                      {selectedCatagories?.length === 0 && <RightIconSpan />}
                   </li>
-                  {getCatagoryArray().map((ctg, index) => (
-                      <li key={index} onClick={() => setCatagory(ctg.value)}
-                          className={catagory === ctg.value ? 'selectedCatagory' : undefined}
-                      >
+                  {[...ProperitiesCatagories, VehicleCatagories[0]].map((ctg, index) => (
+                      <li key={index} onClick={() => {
+                        if(selectedCatagories.includes(ctg)) {
+                          setSelectedCatagories(selectedCatagories.filter(
+                            i => i !== ctg
+                          ));
+                        } else {
+                          setSelectedCatagories([...selectedCatagories, ctg]);
+                        }
+                      }}>
+                          <Image src={ImageAsLogo}/>
                           {getNameByLang(ctg.arabicName, isEnglish)}
+                          {selectedCatagories.includes(ctg) && <RightIconSpan />}
                       </li>
                   ))}
               </ul>
-          </div>
 
-          <hr />
+              <button onClick={() => {
+                console.log(selectedCatagories);
+                if(selectedCatagories?.length > 1){
+                  setCategoryArray(selectedCatagories);
+                  setCatagory('multiple');
+                } else if(selectedCatagories?.length === 1) {
+                  setCatagory(selectedCatagories[0]?.value);
+                  setCategoryArray([]);
+                } else {
+                  setCategoryArray([]);
+                }
+                setSection('calender');
+              }}>{isEnglish ? 'Continue' : 'متابعة'}</button>
 
-          <div className='mobile-filter-buttons'>
-              <Link style={{ width: '100%' }} onClick={() => setIsMobileHomeFilter(false)} href={getNavLink()}>{getNameByLang('الذهاب', isEnglish)}</Link>
-              <Link style={{ width: '100%' }} onClick={() => {
-                setCatagory('');
-                setCity('');
+          </div>}
+
+          {section === 'calender' && <div className='book-date'>
+
+            <div className='city-div-header' style={{ borderBottom: '2px solid var(--darkWhite);', paddingBottom: 24 }}>
+              <div id='city-back' onClick={() => setSection('category')}><Svgs name={'dropdown arrow'}/></div>
+              <h3>{isEnglish ? 'Choose reservation date' : 'اختر تاريخ للحجز'}</h3> 
+              <h4 style={{ fontSize: '0.75rem' }}>{isEnglish ? city.value || 'City undefined' : city.arabicName || 'المدينة غير محددة'} / {getSelectedCategories(isEnglish) || 'كل التصنيفات'}</h4> 
+              <h4 suppressHydrationWarning style={{ marginTop: -8, fontSize: '0.75rem' }}>{isEnglish ? 'Book from' : 'حجز من'} {getReadableDate(calendarDoubleValue?.at(0), true, isEnglish)} {isEnglish ? 'To' : 'الى'} {getReadableDate(calendarDoubleValue?.at(1), true, isEnglish)}</h4> 
+            </div>
+
+            <div className='calendar-div'>
+              <MyCalendar type={'mobile-filter'} setCalender={setCalendarDoubleValue}/>
+            </div>
+
+            <div className='mobile-filter-buttons'>
+              <Link style={{ 
+                width: '100%', background: !calendarDoubleValue ? 'rgb(180, 180, 180)' : undefined,
+                color: !calendarDoubleValue ? 'white' : undefined,
+                boxShadow: !calendarDoubleValue ? 'none' : undefined,
+                pointerEvents: !calendarDoubleValue ? 'none' : undefined 
+              }} area-aria-disabled={!calendarDoubleValue} 
+              href={getNavLink()} ><Svgs name={'search'}/>{isEnglish ? 'Search' : 'بحث'}</Link>
+              <button id='skip-filter' style={{ width: '100%' }} onClick={() => {
                 setCalendarDoubleValue(null);
-                setIsMobileHomeFilter(false);
-              }} href={`${isEnglish ? '/en' : ''}/search`} id='skip-filter'>{getNameByLang('تخطي', isEnglish)}</Link>
-          </div>
+              }} href={`${isEnglish ? '/en' : ''}/search`}>{isEnglish ? 'Delete' : 'مسح'}</button>
+            </div>
+
+          </div>}
 
         </div>
 
     </div>
   )
 };
+
+const MobileFilter = ({ isEnglish }) => (
+	<Suspense>
+		<Component isEnglish={isEnglish}/>
+	</Suspense>
+);
 
 export default MobileFilter;

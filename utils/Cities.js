@@ -55,7 +55,7 @@ export function getCityImage(cityValue) {
     switch(cityValue){
         case 'Amman':
             return AmmanCity;
-        case 'Dead Sea & Jordan Valley':
+        case 'Dead Sea and Jordan Valley':
             return DeadSea;
         case 'Ajloun':
             return AjlounCity;

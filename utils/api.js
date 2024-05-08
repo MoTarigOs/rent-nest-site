@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { getDurationReadable, getErrorText, getReadableDate, usersSections } from './Logic';
-import { errorsSection } from './Data';
+import { errorsSection, maximumPrice } from './Data';
+import { poolType } from './Facilities';
 axios.defaults.withCredentials = true;
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 const uploadServerBaseUrl = process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL;
@@ -13,7 +14,7 @@ export const getLocation = async() => {
 
         const url = 'https://api.bigdatacloud.net/data/reverse-geocode-client';
 
-        const res = await axios.get(url);
+        const res = await axios.get(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
 
         if(res && res.latitude && res.longitude){
             return { long: res.longitude, lat: res.latitude };
@@ -379,7 +380,8 @@ export const signOut = async(isEnglish) => {
 export const createProperty = async(
     type_is_vehicle, specific_catagory, title, description, city, neighbourhood,
     map_coordinates, price, details, terms_and_conditions, area,
-    contacts, isEnglish, gRecaptchaToken
+    contacts, isEnglish, gRecaptchaToken, capacity, customer_type, 
+    en_data, cancellation
 ) => {
 
     try {
@@ -389,7 +391,8 @@ export const createProperty = async(
         const body = { 
             type_is_vehicle, specific_catagory, title, description, 
             city, neighbourhood, map_coordinates, price, details, 
-            terms_and_conditions, area, contacts, gRecaptchaToken
+            terms_and_conditions, area, contacts, gRecaptchaToken,
+            capacity, customer_type, en_data, cancellation
         };
 
         const res = await axios.post(url, body, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
@@ -560,19 +563,38 @@ export const fetchPropertyDetails = async(propertyId) => {
 export const getProperties = async(
     city, isType, specific, priceRange, 
     minRate, searchText, sort, long, lat,
-    skip
+    skip,
+    quickFilter,
+    neighbourSearchText,
+    unitCode,
+    bedroomFilter,
+    capacityFilter,
+    poolFilter,
+    customersTypesFilter,
+    companiansFilter,
+    bathroomsFilterNum,
+    bathroomsCompaniansFilter,
+    kitchenFilter
 ) => {
 
     try {
 
-        const url = `${baseUrl}/property?${city?.length > 0 ? 'city=' + city.replaceAll(' ', '-') : ''}${(isType === false || isType === true) ? '&type_is_vehicle=' + isType.toString() : ''}${specific?.length > 0 ? '&specific=' + specific : ''}${priceRange?.length > 1 ? '&price_range=' + priceRange : ''}${minRate > 0 ? '&min_rate=' + minRate : ''}${searchText?.length > 0 ? '&text=' + searchText : ''}${sort?.length > 0 ? '&sort=' + sort : ''}${long?.length > 0 ? '&longitude=' + long : ''}${lat?.length > 0 ? '&latitude=' + lat : ''}${(typeof skip === 'number' && skip > 0) ? '&skip=' + skip : ''}`;
+        const url = `${baseUrl}/property?${city?.length > 0 ? 'city=' + city.replaceAll(' ', '-') : ''}${(isType === false || isType === true) ? '&type_is_vehicle=' + isType.toString() : ''}${specific?.length > 0 ? '&specific=' + specific : ''}${(priceRange?.length > 1 && (priceRange[0] > 0 || priceRange[1] < maximumPrice)) ? '&price_range=' + priceRange.toString() : ''}${minRate > 0 ? '&min_rate=' + minRate : ''}${(searchText?.length > 0 || neighbourSearchText?.length > 0) ? '&text=' + searchText + neighbourSearchText : ''}${sort?.length > 0 ? '&sort=' + sort : ''}${long > 0 ? '&long=' + long : ''}${lat > 0 ? '&lat=' + lat : ''}${(typeof skip === 'number' && skip > 0) ? '&skip=' + skip : ''}
+        ${quickFilter?.length > 0 ? '&quickFilter=' + quickFilter.map(o => o.idName).join(",") : ''}
+        ${unitCode > 0 ? '&unit=' + unitCode : ''}
+        ${(bedroomFilter.num || bedroomFilter.single_beds || bedroomFilter.double_beds) ? '&bedroomFilter=' + bedroomFilter.num + ',' + bedroomFilter.single_beds + ',' + bedroomFilter.double_beds : ''}
+        ${(capacityFilter?.min >= 0 || capacityFilter?.max > 0) ? '&capacityFilter=' + capacityFilter.min + ',' + capacityFilter.max : ''}
+        ${poolFilter?.length > 0 ? '&poolFilter=' + poolFilter.toString() : ''}
+        ${customersTypesFilter?.length > 0 ? '&customers=' + customersTypesFilter.toString() : ''}
+        ${companiansFilter?.length > 0 ? '&companiansFilter=' + companiansFilter.toString() : ''}
+        ${bathroomsFilterNum > 0 ? '&bathroomsNum=' + bathroomsFilterNum : ''}
+        ${bathroomsCompaniansFilter?.length > 0 ? '&bathroomFacilities=' + bathroomsCompaniansFilter.toString() : ''}
+        ${kitchenFilter?.length > 0 ? '&kitchenFilter=' + kitchenFilter.toString() : ''}`;
 
-        console.log('fetching data url: ', url);
+        console.log('price: ', priceRange.toString());
 
         const res = await axios.get(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
         
-        console.log('res: ', res);
-
         if(!res?.status || res.status !== 200) return { success: false, dt: getErrorText(res?.data?.message ? res.data.messsage : '') }
     
         return { success: true, dt: res.data };

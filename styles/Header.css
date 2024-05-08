@@ -953,6 +953,7 @@
 
 @media screen and (max-width: 960px){
     .header{
+        width: 100%;
         .mobileHeader{
             display: flex;
         }

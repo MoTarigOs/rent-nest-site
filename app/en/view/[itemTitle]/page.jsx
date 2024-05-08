@@ -2,7 +2,7 @@
 
 import '../../../view/view-style/View.css';
 import ImagesShow from "@components/ImagesShow";
-import { JordanCities, myConditions } from "@utils/Data";
+import { JordanCities, cancellationsArray, myConditions } from "@utils/Data";
 import GoogleMapImage from '@assets/images/google-map-image.jpg';
 import Image from "next/image";
 import LocationGif from '@assets/icons/location.gif';
@@ -18,6 +18,7 @@ import { getNameByLang, getNumOfBookDays, getReadableDate, isOkayBookDays, isVal
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
 import Link from 'next/link';
+import { bathroomFacilities, facilities, kitchenFacilities, poolType } from '@utils/Facilities';
 
 const page = () => {
 
@@ -559,6 +560,18 @@ const page = () => {
     return <span id='righticonspan'/>
   }
 
+  const SpecificationListItemNum = ({ content, idName }) => {
+    return content > 0 ? <li>
+      {content.toString()} {idName}
+    </li> : <></>
+  };
+
+  const SpecificationListItemDimensions = ({ content, idName }) => {
+    return (content?.x > 0 || content?.y > 0) ? <li>
+      {idName} dimension {content.x} in length & {content.y} in width
+    </li> : <></>
+  };
+
   if(!item){
     return (
         fetching ? <MySkeleton isMobileHeader={true}/> : <NotFound />
@@ -728,11 +741,11 @@ const page = () => {
 
         <div className='itemIntro'>
 
-          <h1>{item.title} <h4 onClick={() => { setReportDiv(true); setWriterId(''); }}>Report <Svgs name={'report'}/></h4></h1>
+          <h1>{item.en_data?.titleEN || item.title} <h4 onClick={() => { setReportDiv(true); setWriterId(''); }}>Report <Svgs name={'report'}/></h4></h1>
 
           <ul>
             <li><Svgs name={'star'}/> {Number(item.ratings?.val).toFixed(2)} ({item.ratings?.no} evaluation)</li>
-            <li><Svgs name={item.type_is_vehicle ? 'loc vehicle' : 'location'}/> {JordanCities.find(i => i.value === item.city)?.value}, {item.neighbourhood}</li>
+            <li><Svgs name={item.type_is_vehicle ? 'loc vehicle' : 'location'}/> {JordanCities.find(i => i.value === item.city)?.value}, {item.en_data?.neighbourEN || item.neighbourhood}</li>
             {!(item.type_is_vehicle && item.area > 0) && <li><Svgs name={'area'}/> Area {item.area} square meters</li>}
             {getDesiredContact(true, true) && <li><Svgs name={getDesiredContact(true, true)?.platform}/> <Link href={getDesiredContact(null, true)}>{getDesiredContact(true, true)?.val}</Link></li>}
             <li id='giveThisMarginRight' onClick={handleFav}><Svgs name={`wishlist${favouritesIds.includes(id) ? ' filled' : ''}`}/> {addingToFavs ? 'Adding...' : (favouritesIds.includes(id) ? 'Remove from favorites' : 'Add to favourites')}</li>
@@ -760,7 +773,7 @@ const page = () => {
           
           <label>Description</label>
 
-          <p>{item.description}</p>
+          <p>{item.en_data?.descEN || item.description}</p>
 
           <ul className='tabButtons'>
             <li className={isSpecifics && 'selectedTab'} onClick={() => {setIsSpecifics(true); setIsReviews(false); setIsMapDiv(false); setIsTerms(false)}}>Specifications</li>
@@ -773,17 +786,37 @@ const page = () => {
 
           <ul className='specificationsUL' style={{ display: !isSpecifics && 'none' }}>
             {!item.type_is_vehicle ? <>
-              <li><Svgs name={'insurance'}/><h3>{item.details.insurance === true ? 'A deposit is required before booking' : 'No insurance required'}</h3></li>
-              <li><Svgs name={'guest room'}/><h3>Guest rooms</h3><ul>{item.details?.guest_rooms?.map((i) => (<li>{i}</li>))}</ul></li>
-              <li><Svgs name={'facilities'}/><h3>Accompanying</h3><ul>{item.details?.facilities?.map((i) => (<li>{i}</li>))}</ul></li>
-              <li><Svgs name={'bathrooms'}/><h3>Bathrooms</h3><ul>{item.details?.bathrooms?.map((i) => (<li>{i}</li>))}</ul></li>
-              <li><Svgs name={'kitchen'}/><h3>Kitchen</h3><ul>{item.details?.bathrooms?.map((i) => (<li>{i}</li>))}</ul></li>
-              <li><Svgs name={''}/><h3>Near Places</h3><ul>{item.details?.near_places?.map((i) => (<li>{i}</li>))}</ul></li>
-              <li id='lastLiTabButtonUL' ><Svgs name={'rooms'}/><h3>Rooms</h3><ul>{item.details?.bathrooms?.map((i) => (<li>{i}</li>))}</ul></li>
+              <li><Svgs name={'insurance'}/>
+                <h4>{item.details.insurance === true ? 'A deposit is required before booking' : 'No insurance required'}</h4>
+                <h4>{item.cancellation?.length > 0 ? cancellationsArray(true)[cancellationsArray().indexOf(item.cancellation)] : ''}</h4>
+                <h4>{item.customer_type !== 'غير محدد' ? 'Only for ' : ''} {item.en_data?.customerTypeEN}</h4>
+                <h4>{item.capacity > 0 ? `Max number of Guest ${item.capacity} Guests` : ''}</h4>
+              </li>
+              <li><Svgs name={'guest room'}/><h3>Guest Rooms</h3><ul>{item.details?.guest_rooms?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>
+              <li><Svgs name={'kitchen'}/><h3>Kitchen</h3><ul>
+                <SpecificationListItemDimensions content={item.details?.kitchen?.dim} idName='kitchen'/>
+                {item.details?.kitchen?.companians?.map((i) => (<li>{kitchenFacilities(true)[kitchenFacilities().indexOf(i)] || i}</li>))}
+              </ul></li>
+              <li><Svgs name={'rooms'}/><h3>Bedrooms</h3><ul>
+                <SpecificationListItemNum content={item?.details?.rooms?.num} idName={'bedrooms'}/>
+                <SpecificationListItemNum content={item?.details?.rooms?.single_beds} idName={'single beds'}/>
+                <SpecificationListItemNum content={item?.details?.rooms?.double_beds} idName={'double beds'}/>
+              </ul></li>
+              <li><Svgs name={'bathrooms'}/><h3>Bathrooms</h3><ul>
+                <SpecificationListItemNum content={item.details?.bathrooms?.num} idName='bathrooms'/>
+                {item.details?.bathrooms?.companians?.map((i) => (<li>{bathroomFacilities(true)[bathroomFacilities().indexOf(i)] || i}</li>))}
+              </ul></li>
+              <li><Svgs name={''}/><h3>Near places</h3><ul>{item.details?.near_places?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>
+              <li><Svgs name={'facilities'}/><h3>Facilities</h3><ul>{item.details?.facilities?.map((i) => (<li>{facilities(true)[facilities().indexOf(i)] || i}</li>))}</ul></li>
+              <li id='lastLiTabButtonUL'><h3>Pool</h3><ul>
+                {item.details?.pool?.companians?.map((i) => (<li>{poolType(true)[poolType().indexOf(i)] || i}</li>))}
+                <SpecificationListItemNum content={item?.details?.pool?.num} idName='pool'/>  
+                <SpecificationListItemDimensions content={item?.details?.pool?.dim} idName='pool'/>
+              </ul></li>
             </> : <>
-              <li><Svgs name={'vehicle specifications'}/><h3>Car Specifications</h3><ul>{item?.details?.vehicle_specifications?.map((i) => (<li>{i}</li>))}</ul></li>
-              <li><Svgs name={'vehicle addons'}/><h3>Car Features</h3><ul>{item?.details?.vehicle_addons?.map((i) => (<li>{i}</li>))}</ul></li>
-              <li><Svgs name={''}/><h3>Near Places</h3><ul>{item.details?.near_places?.map((i) => (<li>{i}</li>))}</ul></li>
+              <li><Svgs name={'vehicle specifications'}/><h3>Car Specifications</h3><ul>{item?.details?.vehicle_specifications?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>
+              <li><Svgs name={'vehicle addons'}/><h3>Car Features</h3><ul>{item?.details?.vehicle_addons?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>
+              <li id='lastLiTabButtonUL'><Svgs name={''}/><h3>Near Places</h3><ul>{item.details?.near_places?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>
             </>}
           </ul>
 

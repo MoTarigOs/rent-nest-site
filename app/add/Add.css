@@ -385,6 +385,10 @@
                 }
             }
 
+            .priceDiv{
+                margin-bottom: 16px;
+            }
+
             .area-div{
                 width: 100%;
                 padding: 16px;
@@ -394,9 +398,29 @@
                 border-radius: 4px;
                 background: var(--darkWhite);
                 margin-bottom: 24px;
+                position: relative;
 
                 #title-input-div-span{
                     background: var(--darkWhite);
+                }
+
+                .infodiv{
+                    max-width: unset;
+                    cursor: pointer;
+                }
+
+                .cityPopup{
+                    top: 85%;
+                    height: fit-content;
+                    right: 16px;
+                    left: unset;
+                    max-height: 360px;
+                    z-index: 1;
+
+                    &:dir(ltr){
+                        left: 16px;
+                        right: unset;
+                    }
                 }
             }
 
@@ -538,6 +562,13 @@
                     background: var(--secondColorHover);
                     color: white;
                     transition: all 0.2s ease-in;
+                }
+            }
+
+            .inputDivWithEN{
+                margin-bottom: 12px;
+                input, area{
+                    background: var(--darkWhite);
                 }
             }
             

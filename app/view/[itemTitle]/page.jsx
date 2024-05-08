@@ -563,6 +563,37 @@ const page = () => {
     return <span id='righticonspan'/>
   }
 
+  const getSpecificationItemName = (idName) => {
+    switch(idName){
+      case 'bedrooms':
+        return 'غرف نوم';
+      case 'double beds':
+        return 'سرير مزدوج';
+      case 'single beds':
+        return 'سرير منفرد';
+      case 'kitchen':
+        return 'المطبخ';
+      case 'pool':
+        return 'المسبح';
+      case 'bathrooms':
+        return 'دورات المياه';
+      default:
+        return '';  
+    }
+  }
+
+  const SpecificationListItemNum = ({ content, idName }) => {
+    return content > 0 ? <li>
+      {content.toString()} {idName === 'pool' ? 'مسبح' : getSpecificationItemName(idName)}
+    </li> : <></>
+  };
+
+  const SpecificationListItemDimensions = ({ content, idName }) => {
+    return (content?.x > 0 || content?.y > 0) ? <li>
+      أبعاد {getSpecificationItemName(idName)} {content.x} متر طوليا في {content.y} متر عرضيا
+    </li> : <></>
+  };
+
   if(!item){
     return (
         fetching ? <MySkeleton isMobileHeader={true}/> : <NotFound />
@@ -777,17 +808,37 @@ const page = () => {
 
           <ul className='specificationsUL' style={{ display: !isSpecifics && 'none' }}>
             {!item.type_is_vehicle ? <>
-              <li><Svgs name={'insurance'}/><h3>{item.details.insurance === true ? 'يتطلب تأمين قبل الحجز' : 'لا يتطلب تأمين'}</h3></li>
+              <li><Svgs name={'insurance'}/>
+                <h4>{item.details.insurance === true ? 'يتطلب تأمين قبل الحجز' : 'لا يتطلب تأمين'}</h4>
+                <h4>{item.cancellation?.length > 0 ? item.cancellation : ''}</h4>
+                <h4>{item?.customer_type}</h4>
+                <h4>{item.capacity > 0 ? `أقصى عدد للنزلاء ${item.capacity} نزيل` : ''}</h4>
+              </li>
               <li><Svgs name={'guest room'}/><h3>غرف الضيوف</h3><ul>{item.details?.guest_rooms?.map((i) => (<li>{i}</li>))}</ul></li>
-              <li><Svgs name={'facilities'}/><h3>المرافق</h3><ul>{item.details?.facilities?.map((i) => (<li>{i}</li>))}</ul></li>
-              <li><Svgs name={'bathrooms'}/><h3>دورات المياه</h3><ul>{item.details?.bathrooms?.map((i) => (<li>{i}</li>))}</ul></li>
-              <li><Svgs name={'kitchen'}/><h3>المطبخ</h3><ul>{item.details?.bathrooms?.map((i) => (<li>{i}</li>))}</ul></li>
+              <li><Svgs name={'kitchen'}/><h3>المطبخ</h3><ul>
+                <SpecificationListItemDimensions content={item.details?.kitchen?.dim} idName='kitchen'/>
+                {item.details?.kitchen?.companians?.map((i) => (<li>{i}</li>))}
+              </ul></li>
+              <li><Svgs name={'rooms'}/><h3>غرف النوم</h3><ul>
+                <SpecificationListItemNum content={item?.details?.rooms?.num} idName={'bedrooms'}/>
+                <SpecificationListItemNum content={item?.details?.rooms?.single_beds} idName={'single beds'}/>
+                <SpecificationListItemNum content={item?.details?.rooms?.double_beds} idName={'double beds'}/>
+              </ul></li>
+              <li><Svgs name={'bathrooms'}/><h3>دورات المياه</h3><ul>
+                <SpecificationListItemNum content={item.details?.bathrooms?.num} idName='bathrooms'/>
+                {item.details?.bathrooms?.companians?.map((i) => (<li>{i}</li>))}
+              </ul></li>
               <li><Svgs name={''}/><h3>الأماكن القريبة</h3><ul>{item.details?.near_places?.map((i) => (<li>{i}</li>))}</ul></li>
-              <li id='lastLiTabButtonUL' ><Svgs name={'rooms'}/><h3>الغرف</h3><ul>{item.details?.bathrooms?.map((i) => (<li>{i}</li>))}</ul></li>
+              <li><Svgs name={'facilities'}/><h3>المرافق</h3><ul>{item.details?.facilities?.map((i) => (<li>{i}</li>))}</ul></li>
+              <li id='lastLiTabButtonUL'><h3>المسبح</h3><ul>
+                {item.details?.pool?.companians?.map((i) => (<li>{i}</li>))}
+                <SpecificationListItemNum content={item?.details?.pool?.num} idName='pool'/>  
+                <SpecificationListItemDimensions content={item?.details?.pool?.dim} idName='pool'/>
+              </ul></li>
             </> : <>
               <li><Svgs name={'vehicle specifications'}/><h3>مواصفات السيارة</h3><ul>{item?.details?.vehicle_specifications?.map((i) => (<li>{i}</li>))}</ul></li>
               <li><Svgs name={'vehicle addons'}/><h3>ملحقات السيارة</h3><ul>{item?.details?.vehicle_addons?.map((i) => (<li>{i}</li>))}</ul></li>
-              <li><Svgs name={''}/><h3>الأماكن القريبة</h3><ul>{item.details?.near_places?.map((i) => (<li>{i}</li>))}</ul></li>
+              <li id='lastLiTabButtonUL'><Svgs name={''}/><h3>الأماكن القريبة</h3><ul>{item.details?.near_places?.map((i) => (<li>{i}</li>))}</ul></li>
             </>}
           </ul>
 

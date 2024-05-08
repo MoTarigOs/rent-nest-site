@@ -15,7 +15,9 @@ const Footer = ({ pathname }) => {
   }
   
   return (
-    <div className="footer" dir={pathname.includes('/en') ? 'ltr' : null}>
+    <div className="footer" style={{
+      zIndex: pathname.includes('search') ? 0 : undefined
+    }} dir={pathname.includes('/en') ? 'ltr' : null}>
 
       <div className="topOfFooter">
 

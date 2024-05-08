@@ -80,7 +80,7 @@ const ImagesShow = ({
     }, [type_is_video]);
 
   return (
-    <div className='imagesDiv' dir={isEnglish ? 'ltr' : null} style={{ height: type === 'view' && 420 }}>
+    <div className='imagesDiv' dir={isEnglish ? 'ltr' : null} style={{ height: type === 'view' ? 420 : undefined, borderRadius: type === 'landing' ? 0 : undefined }}>
 
         <div className='swiper-images-show'>
             <div className='swiper-wrapper'>
@@ -89,7 +89,7 @@ const ImagesShow = ({
                         <Image placeholder={type === 'landing' ? 'blur' : 'empty'} style={{ zIndex: type === 'view' ? 1 : null }} 
                         src={type === 'landing' ? img.image : `${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${img}`} 
                         fill={type === 'landing' ? false : true} 
-                        loading='eager' alt={isEnglish ? 'Image about the offer' : 'صورة عن العرض'}
+                        loading={type === 'landing' ? 'eager' : 'lazy'} alt={isEnglish ? 'Image about the offer' : 'صورة عن العرض'}
                         onLoad={() => { if(type === 'landing') img.setState(true) }}/>
                         <div className='images-show-text' style={{ display: type !== 'landing' && 'none', width: '100%' }}>
                             <div style={{ width: '100%' }}>

@@ -1,13 +1,10 @@
 .mobileFilter{
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     position: absolute;
     top: 0;
     left: 0;
-    display: flex;
-    align-items: flex-end;
-    overflow-y: scroll;
-    padding-top: 30vh;
+    padding-top: 15vh;
     z-index: 120;
 
     #close-span{
@@ -22,23 +19,22 @@
 
     .filter-content{
         width: 100%;
+        height: 100%;
         display: flex;
         gap: 0;
         flex-direction: column;
+        justify-content: space-between;
         height: 100%;
         background: white;
-        overflow-y: scroll;
         border-top-left-radius: 24px;
         border-top-right-radius: 24px;
-        padding: 16px 16px 32px 16px;
-        -ms-overflow-style: none; /* IE 11 */
-        scrollbar-width: none; /* Firefox 64 */  
+        padding: 16px 12px 0 12px;
         position: relative;
 
         #mobile-filter-header{
             width: 100%;
             height: 4px;
-            margin-bottom: 44px;
+            margin-bottom: 24px;
             position: relative;
 
             &::after{
@@ -62,17 +58,18 @@
             z-index: 1;
         }
 
-        hr{
-            margin: 24px 0;
-            opacity: 0.3;
-        }
-
         .city-div-filter{
             width: 100%;
             position: relative;
-            margin-bottom: -32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            padding: 0;
+            margin: 0;
 
             .inputDiv{
+                margin: 0;
 
                 input{
                     border-radius: 8px;
@@ -88,88 +85,258 @@
                 }
             }
 
+            .city-div-header{
+                display: flex;
+                align-items: center;
+                gap: 12px;
+
+                #city-back{
+                    width: 32px;
+                    height: 32px;
+                    padding: 4px;
+                    border-radius: 50%;
+                    cursor: pointer;
+
+                    svg{
+                        transform: rotate(-90deg);
+                        path { fill: rgb(111, 111, 111); }
+                    }
+
+                    &:hover{
+                        background: var(--darkWhite);
+                    }
+                }
+    
+                h3{
+                    font-size: 1rem;
+                }
+    
+                h4{
+                    color: rgb(142, 142, 142);
+                    font-weight: 100;
+                    font-size: 1rem;
+                }
+            }
+
             .cityPopup{
-                position: absolute;
-                top: 65%;
-                right: 0;
-                max-width: 480px;
+                flex: 1;
+                position: static;
                 left: unset;
+                top: unset;
+                left: unset;
+                right: unset;
+                background: transparent;
                 margin: 0;
                 padding: 0;
                 width: 100%;
-                z-index: 3;
+                max-height: 100%;
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
 
-                &:dir(ltr){
-                    left: 0;
-                    right: unset;
-                }
-            }
-        }
+                ul{
+                    margin: 0;
+                    background: transparent;
+                    max-height: 100%;
+                    padding-bottom: 32px;
 
-        h2{
-            color: var(--secondColor);
-            margin-bottom: 32px;
-        }
-
-        .catagory{
-            width: 100%;
-            margin-top: 32px;
-
-            ul{
-                width: 100%;
-                display: flex;
-                flex-wrap: wrap;
-                list-style: none;
-                gap: 8px;
-
-                li{
-                    padding: 4px 8px;
-                    cursor: pointer;
-                    border: 2px solid black;
-                    opacity: 0.3;
-                    transition: all 0.3s ease-out;
-                }
-
-                li:hover{
-                    opacity: 0.7;
-                    transition: all 0.3s ease-in;
-                }
-
-                .selectedCatagory{
-                    opacity: 1;
-                    background: var(--secondColor);
-                    color: white;
-                    border-color: transparent;
-
-                    .catagoryCard{
-                        width: 100%;
+                    li{
+                        background: transparent;
                     }
                 }
             }
         }
 
+        .catagory{
+            width: 100%;
+            height: 100%;
+            padding-bottom: 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+
+            ul{
+                flex: 1;
+                width: 100%;
+                display: flex;
+                margin: 24px 0;
+                padding: 12px 0;
+                flex-wrap: wrap;
+                list-style: none;
+                overflow-y: scroll;
+                gap: 8px;
+                border-top: 2px solid rgba(91, 91, 91, 0.081);
+                border-bottom: 2px solid rgba(91, 91, 91, 0.081);
+
+                li{
+                    width: 100%;
+                    padding: 4px 8px;
+                    cursor: pointer;
+                    transition: all 0.3s ease-out;
+                    display: flex;
+                    align-items: center;
+                    font-size: 0.9rem;
+                    transition: all 0.2s ease-out;
+
+                    img{
+                        width: 48px;
+                        height: 48px;
+                        margin-left: 12px;
+                    }
+
+                    span{
+                        margin-right: auto;
+                        margin-left: 12px;
+                    }
+
+                    &:dir(ltr){
+
+                        img{
+                            margin-left: 0;
+                            margin-right: 8px;
+                        }
+
+                        span{
+                            margin-left: auto;
+                            margin-right: 8px;
+                        }
+                    }
+                }
+
+                li:hover{
+                    background: var(--darkWhite);
+                    transition: all 0.2s ease-in;
+                }
+            }
+
+            button{
+                width: fit-content;
+                margin: 0 auto;
+                padding: 12px 52px;
+                background: var(--secondColor);
+                border-radius: 8px;
+                color: white;
+                border: none;
+                font-size: 1.1rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease-out;
+            }
+
+            button:hover{
+                background: var(--secondColorHover);
+                transition: all 0.2s ease-in;
+            }
+        }
+
         .book-date{
+            height: 100%;
+            flex: 1;
             position: relative;
             display: flex;
-            gap: 24px;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 12px;
+            padding-bottom: 24px;
+
+            .city-div-header{
+                height: fit-content;
+                margin-bottom: 12px;
+            }
 
             .calendar-div{
-                border: 2px solid rgb(242, 242, 242);
-                box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.137);
-                background: white;
+                width: 100%;
+                max-width: unset;
+                display: flex;
+                justify-content: center;
                 padding: 8px;
-                border-radius: 12px;
-                position: absolute;
                 bottom: 110%;
-                right: 0;
-                left: unset;
                 width: fit-content;
                 z-index: 3;
                 height: fit-content;
+                overflow-y: scroll;
+                margin-bottom: 12px;
+
+                div{
+                    max-width: 680px;
+                    width: 100%;
+                    height: fit-content;
+                }
 
                 &:dir(ltr){
                     right: unset;
                     left: 0;
+                }
+            }
+
+            .mobile-filter-buttons{
+                width: 100%;
+                display: flex;
+                gap: 16px;
+                margin-top: auto;
+                padding: 0 12px;
+                justify-content: center;
+                align-items: flex-end;
+                border-top: 2px solid var(--darkWhite);
+                padding-top: 24px;
+
+                a, button{
+                    width: 100%;
+                    height: 44px;
+                    background: var(--secondColor);
+                    color: white;
+                    padding: 8px 24px;
+                    text-align: center;
+                    text-decoration: none;
+                    border-radius: 8px;
+                    font-size: 1rem;
+                    font-weight: 500;
+                    transition: all 0.2s ease-out;
+                    z-index: 3;
+                    max-width: 160px;
+                    outline: none;
+                    cursor: pointer;
+                    opacity: 1;
+                }
+
+                a{
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 1px 1px 12px rgba(0, 0, 0, 0.221);
+                    gap: 12px;
+
+                    svg{
+                        width: 16px;
+                        height: 16px;
+                        transform: translateY(1px);
+
+                        path {
+                            fill: white;
+                            stroke-width: 8px;
+                            width: 4px;
+
+                        }
+                    }
+                }
+    
+                #skip-filter{
+                    background: var(--darkWhite);
+                    color: grey;
+                    border-color: rgba(107, 107, 107, 0.152);
+                    max-width: 110px;
+                }
+    
+                button:hover{
+                    opacity: 0.88;
+                    border-color: rgba(79, 79, 79, 0.152);
+                    transition: all 0.2s ease-in;
+                }
+                
+                a:hover{
+                    opacity: 0.88;
+                    box-shadow: 1px 1px 12px rgba(0, 0, 0, 0.275);
+                    transition: all 0.2s ease-in;
                 }
             }
 
@@ -187,40 +354,58 @@
             }
         }
 
-        .mobile-filter-buttons{
-            width: 100%;
-            display: flex;
-            gap: 16px;
-            margin-top: auto;
-
-            a{
-                width: 100%;
-                background: var(--secondColor);
-                color: white;
-                padding: 16px 24px;
-                text-align: center;
-                text-decoration: none;
-                border-radius: 8px;
-                font-size: 1.2rem;
-                font-weight: 500;
-                transition: all 0.2s ease-out;
-                z-index: 3;
-            }
-
-            #skip-filter{
-                background: var(--darkWhite);
-                color: grey;
-            }
-
-            a:hover{
-                opacity: 0.7;
-                transition: all 0.2s ease-in;
-            }
-        }
-
         &::-webkit-scrollbar{
             display: none;
         }
+    }
+
+    .city-div-header{
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+
+        #city-back{
+            width: 32px;
+            height: 32px;
+            padding: 4px;
+            border-radius: 50%;
+            cursor: pointer;
+
+            svg{
+                transform: rotate(-90deg);
+                path { fill: rgb(111, 111, 111); }
+            }
+
+            &:hover{
+                background: var(--darkWhite);
+            }
+        }
+
+        h3{
+            font-size: 1rem;
+        }
+
+        h4{
+            color: rgb(142, 142, 142);
+            font-weight: 100;
+            font-size: 1rem;
+            width: 100%;
+            margin-right: 44px;
+
+            &:dir(ltr){
+                margin-right: 0;
+                margin-left: 44px;
+            }
+        }
+    }
+
+    #righticonspan{
+        width: 8px;
+        height: 20px;
+        border-right: 2px solid var(--secondColorDark);
+        border-bottom: 2px solid var(--secondColorDark);
+        transform: rotate(45deg);
     }
 
     &::-webkit-scrollbar{
@@ -231,12 +416,9 @@
 @media screen and (min-width: 960px){
     .mobileFilter{
         width: 100%;
-        height: 100vh;
         position: absolute;
         display: flex;
-        align-items: flex-end;
         justify-content: center;
-        overflow-y: unset;
         padding: 24px;
         z-index: 120;
 
@@ -247,8 +429,7 @@
             height: fit-content;
             min-height: 100%;
             max-height: 100%;
-            overflow-y: scroll;
-            overflow-x: visible;
+            padding-bottom: 0;
             
             .mobile-filter-buttons{
                 a{
@@ -259,7 +440,31 @@
                 }
             }
 
+            #mobile-filter-header{
+                display: none;
+            }
+
+            .city-div-filter{
+                overflow-y: hidden;
+                
+                ul{
+                    overflow-y: scroll;
+                }
+            }
+
+            .catagory{
+                overflow-y: hidden;
+                flex: 1;
+                
+                ul{
+                    flex: 1;
+                    flex-direction: column;
+                    flex-wrap: nowrap;
+                }
+            }
+
             .book-date{
+                overflow-y: hidden;
                 .calendar-div{
                     top: 120%;
                     right: 0;
@@ -285,6 +490,7 @@
     .mobileFilter{
         .filter-content{
             .book-date{
+                padding-bottom: 24px;
                 .calendar-div{
                     width: 100%;
                 }

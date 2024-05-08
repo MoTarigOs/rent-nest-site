@@ -47,7 +47,8 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       calendarDoubleValue, setIsMobileHomeFilter, 
       setIsCalendarValue, setLoadingUserInfo,
       isMobileHomeFilter, setStorageKey, isMobile, setIsMobile,
-      setIsEnglish, isVerified
+      setIsEnglish, isVerified, setIsModalOpened,
+      setIsSearchMap, isMapSearch
     } = useContext(Context);
 
     const settingMobile = () => {
@@ -216,6 +217,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
     }, [runOnce]);
 
     useEffect(() => {
+      setIsModalOpened(false);
       if(longitude) setLongitude(null);
       if(latitude) setLatitude(null);
       if(pathname.includes('/en')) {
@@ -236,13 +238,19 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       if(isCalendarFilter) setIsCalendarValue(false);
     }, [isCalendarFilter]);
 
+    useEffect(() => {
+      if(isMobileHomeFilter || isFilter || isMapSearch || isArrange || isMenu || isCityFilter || isCatagoryFilter || isCalendarFilter) 
+        return setIsModalOpened(true);
+      setIsModalOpened(false);
+    }, [isMobileHomeFilter, isFilter, isArrange, isMenu, isCityFilter, isCatagoryFilter, isCalendarFilter, isMapSearch]);
+
     if(!pathname){
       return (<></>)
     };
 
   return (
 
-    <div suppressContentEditableWarning className={pathname.includes('/en') ? 'header englishHeader' : 'header'} style={{ 
+    <div suppressContentEditableWarning className={(pathname.includes('/en') ? 'header englishHeader' : 'header')} style={{ 
       position: 'fixed', zIndex: (isArrange || isFilter || isMenu || isMap 
           || isCatagoryFilter || isCityFilter || isCalendarFilter
           || isMobileHomeFilter) && 11
@@ -297,10 +305,10 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
         
         </div>
 
-        {(pathname === '/' || pathname === '/search' || pathname === '/en') ? <motion.div className={`headerSearchDiv ${(isScrolled && isMobile) ? 'scrolledSearhDiv' : undefined}`}
+        {(pathname === '/' || pathname === '/en') ? <motion.div className={`headerSearchDiv ${(isScrolled && isMobile) ? 'scrolledSearhDiv' : undefined}`}
           initial={{ y: 0 }}
           animate={{ y: (isScrolled && isMobile) ? -76 : 0, transition: { damping: 50 } }}
-        >
+          style={{ display: (isMobile && pathname.includes('search')) ? 'none' : undefined }}>
           <div className='searchDiv'>
             <ul>
                 <li className='desktopSearchDivLI' onClick={() => {setIsCityFilter(true); setIsCatagoryFilter(false); setIsCalendarFilter(false);}}>{isCityFilter && <HeaderPopup pathname={pathname} type={'city'}/>}<h4>{getNameByLang('اختر المدينة', pathname.includes('/en'))}</h4><h3>{!city?.value ? getNameByLang('كل المدن', pathname.includes('/en')) : pathname.includes('/en') ? city.value : city.arabicName}</h3></li>
@@ -322,7 +330,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
           </div>
           <span id='rightSpanHeaderSearch'/>
           <span id='leftSpanHeaderSearch'/>
-        </motion.div> : (pathname === '/vehicles' || pathname === '/properties' || pathname === '/en/vehicles' || pathname === '/en/properties') && <div className='headerSearchOtherDiv'>
+        </motion.div> : (pathname === '/vehicles' || pathname.includes('search') || pathname === '/properties' || pathname === '/en/vehicles' || pathname === '/en/properties') && <div className='headerSearchOtherDiv'>
           <ul className='headerNavUL'>
             <li className='headerNavLi' id='searchLiHeaderOther'><Svgs name={'search'}/></li>
             <li className='headerNavLi' onClick={() => {setIsCityFilter(true); setIsCatagoryFilter(false); setIsCalendarFilter(false);}}><h4>{!city.value ? getNameByLang('كل المدن', pathname.includes('/en')) : pathname.includes('/en') ? city.value : city.arabicName}</h4>{isCityFilter && <HeaderPopup pathname={pathname} type={'city'}/>}</li>
@@ -330,7 +338,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
             <li className='headerNavLi' onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4 suppressHydrationWarning={true}>{getReadableDate(calendarDoubleValue?.at(0), true, pathname.includes('/en'))}</h4>{isCalendarFilter && <HeaderPopup type={'calendar'}/>}</li>
             <li className='headerNavLi' style={{ border: 'none' }} onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4 suppressHydrationWarning={true}>{getReadableDate(calendarDoubleValue?.at(1), true, pathname.includes('/en'))}</h4></li>
           </ul>
-          <Link className='showMap' href={getHref('search')}>
+          <Link href={getHref('search')} className='showMap' onClick={() => setIsSearchMap(true)}>
             <Svgs name={'search'}/>
             {getNameByLang('عرض الخريطة', pathname.includes('/en'))}
           </Link>
@@ -423,19 +431,19 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
           setIsCityFilter(false); setIsCatagoryFilter(false); setIsCalendarFilter(false); setIsMenu(false);
         }} />}
 
-        {(pathname === '/properties' || pathname === '/vehicles' || pathname === '/en/properties' || pathname === '/en/vehicles') && <div className='filterHeaderDiv'>
+        {(pathname === '/properties' || pathname === '/vehicles' || pathname === '/en/properties' || pathname === '/en/vehicles' || pathname.includes('search')) && <div className='filterHeaderDiv'>
           <button onClick={() => setIsFilter(true)}><Svgs name={'filter'}/>{getNameByLang('تصفية', pathname.includes('/en'))}</button>
           <span />
           <button id='secondFilterHeaderDivBtn' onClick={() => setIsArrange(true)}><Svgs name={'filter'}/>{getNameByLang('ترتيب', pathname.includes('/en'))}</button>
         </div>}
 
-        {isFilter && <Filter isEnglish={pathname.includes('/en')} type={'prop'} isFilter={isFilter} setIsFilter={setIsFilter} triggerFetch={triggerFetch} setTriggerFetch={setTriggerFetch}/>}
+        {(pathname !== '/' || pathname !== '/en') && <Filter isEnglish={pathname.includes('/en')} type={'prop'} isFilter={isFilter} setIsFilter={setIsFilter} triggerFetch={triggerFetch} setTriggerFetch={setTriggerFetch}/>}
 
         {isArrange && <Arrange isEnglish={pathname.includes('/en')} isArrange={isArrange} setIsArrange={setIsArrange} setTriggerFetch={setTriggerFetch} triggerFetch={triggerFetch} arrangeValue={arrangeValue} setArrangeValue={setArrangeValue}/>}
 
         {isMap && <GoogleMapPopup isShow={isMap} setIsShow={setIsMap} mapType={mapType} 
         mapArray={mapArray} longitude={longitude} setLongitude={setLongitude} 
-        latitude={latitude} setLatitude={setLatitude}/>}
+        latitude={latitude} setLatitude={setLatitude} arFont={arabicFontClassname} enFont={englishFontClassname}/>}
 
         {((pathname === '/' || pathname === '/search' || pathname === '/en') && isMobileHomeFilter) 
           && <MobileFilter isEnglish={pathname.includes('/en')}/>}

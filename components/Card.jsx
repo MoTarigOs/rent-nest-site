@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { JordanCities, testImage } from '@utils/Data';
 import { getNameByLang } from '@utils/Logic';
 
-const Card = ({ item, type, isReport, isEnglish }) => {
+const Card = ({ item, type, isVertical, isEnglish }) => {
 
     const handleWishList = () => {};
 
@@ -38,37 +38,41 @@ const Card = ({ item, type, isReport, isEnglish }) => {
 
   return (
 
-    <div className='card' style={{ width: '100%' }}>
+    <Link href={getUrl()} className={`card ${isVertical ? 'vertical-view' : undefined}`} style={{ width: '100%' }}>
 
         <ImagesShow isEnglish={isEnglish} images={item.images} itemId={item._id} handleWishList={handleWishList}/>
 
-        <div className='rateanddiscount'>
+        <div className='card-content'>
 
-          <strong><Image src={RatingStar} alt='rating star image'/>{Number(item?.ratings?.val).toFixed(2)} ({item?.ratings?.no})</strong> 
+          <div className='rateanddiscount'>
 
-          <h4 style={{ display: item?.discount?.percentage > 0 ? null : 'none' }}>
-            {isEnglish ? 'discount' : 'خصم'} {item?.discount?.percentage}%
-          </h4>
+              <strong><Image src={RatingStar} alt='rating star image'/>{Number(item?.ratings?.val).toFixed(2)} ({item?.ratings?.no})</strong> 
 
-        </div>
+              <h4 style={{ display: item?.discount?.percentage > 0 ? null : 'none' }}>
+                {isEnglish ? 'discount' : 'خصم'} {item?.discount?.percentage}%
+              </h4>
 
-        <h2>{item.title}</h2>
+          </div>
 
-        <h3>{isEnglish 
+          <h2>{item.title}</h2>
+
+          <h3>{isEnglish 
           ? JordanCities.find(i => i.value === item.city)?.value
           : JordanCities.find(i => i.value === item.city)?.arabicName}, 
           {item.neighbourhood}</h3>
 
-        <h4><span>${item.price}</span>/{isEnglish ? 'Night' : 'اليوم'}</h4>
+          <h4><span>${item.price}</span>/{isEnglish ? 'Night' : 'اليوم'}</h4>
+          
+        </div>
 
         {type == 'myProp' && <>
         <span id='visible-span' className={item.visible ? 'visible-span selected-card-span' : 'visible-span'}>{item.visible ? isEnglish ? 'Visible' : 'مرئي' : isEnglish ? 'Hidden' : 'مخفي'}</span>
         <span id='checked-span' className={item.checked ? 'checked-span selected-card-span' : item.isRejected ? 'checked-span selected-reject-card-span' : 'checked-span'}>{item.checked ? isEnglish ? 'Accepted' : 'تم قبوله' : item.isRejected ? isEnglish ? 'Rejected' : 'مرفوض' : isEnglish ? 'Under revision' : 'تحت المراجعة'}</span>
         </>}
 
-        <Link href={getUrl()}>{getBtnName()}</Link>
+        {/* <Link href={getUrl()}>{getBtnName()}</Link> */}
       
-    </div>
+    </Link>
   )
 }
 

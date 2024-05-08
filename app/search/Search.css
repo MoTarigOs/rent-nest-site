@@ -7,43 +7,175 @@
     padding: 0 16px;
     margin-top: calc(var(--headerHeight) + 48px);
 
-    .searchByMap{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border: 2px solid rgba(0, 0, 0, 0.181);
-        border-radius: 8px;
-        padding: 16px;
-        margin-bottom: 64px;
-        cursor: default;
-
-        &:dir(ltr){
-
-            h2{
-                margin-left: 0;
-                margin-right: 16px;
-            }
-        }
-
-        h2{
-            font-size: 2.1rem;
-            font-weight: 300;
-            margin-left: 16px;
-        }
-
-        img{
-            width: 44px;
-            height: 44px;
-        }
-    }
-
     .map-div{
-        width: 100%;
-        height: 420px;
-        overflow: hidden;
+        position: absolute;
+        top: var(--headerHeightMobile);
+        left: calc(-(100vw - 100%) / 2);
+        width: 100vw;
+        height: 100%;
         display: flex;
         padding: 12px;
         margin-bottom: 44px;
+
+        .search-map{
+            position: absolute;
+            top: 10px;
+            left: 0;
+            width: 100vw;
+            z-index: 8;
+        }
+
+        #more-btn, #list-btn{
+            z-index: 9;
+            width: 172px;
+            position: absolute;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: none;
+            background: white;
+            font-weight: 500;
+            color: var(--secondColorHover);
+            box-shadow: 1px 1px 12px rgba(24, 24, 24, 0.245);
+            cursor: pointer;
+            top: 100px;
+            font-size: 0.82rem;
+            left: calc(50% - 86px);
+            transition: all 0.2s ease-out;
+        }
+
+        #list-btn{
+            top: 36px;
+            background: var(--secondColor);
+            color: white;
+            box-shadow: unset;
+            border-radius: 50px;
+            font-size: 1rem;
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+
+            svg{
+                width: 24px;
+                height: 24px;
+                scale: 0.8 1;
+                transform: rotate(180deg);
+
+                path{
+                    stroke: white;
+                }
+            }
+        }
+
+        #more-btn:hover{
+            box-shadow: 1px 1px 12px rgba(24, 24, 24, 0.500);
+            transition: all 0.2s ease-in;
+        }
+
+        #list-btn:hover{
+            background: var(--secondColorHover);
+            transition: all 0.2s ease-in;
+        }
+
+        .unitsContainer{}
+
+        .units-div{
+            z-index: 100;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: white;
+            width: 100%;
+            height: 100vh;
+            min-height: 100%;
+            overflow-y: hidden;
+            padding-top: 16px;
+
+            .not-found{
+                height: calc(100vh - var(--headerHeightMobile) - 68px);
+            }
+
+            .selected-prop{
+                padding: 12px;
+                box-shadow: unset;
+                border: none;
+                margin-bottom: 24px;
+
+                .units-div-header{
+                    margin-top: 12px;
+                    margin-bottom: 0;
+                    justify-content: flex-start;
+                    border: none;
+                }
+
+                .card{
+                    box-shadow: 1px 1px 12px rgba(0, 0, 0, 0.173);
+                }
+            }
+
+            .resultUL{
+                width: 100%;
+                padding: 24px 12px;
+                height: calc(100vh - var(--headerHeightMobile) - 68px);
+                overflow-y: scroll;
+            }
+            
+            .units-div-header{
+                width: 100%;
+                position: relative;
+                display: flex;
+                justify-content: center;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.116);
+                padding-bottom: 16px;
+
+                h3{
+                    color: var(--secondColorHover);
+                }
+
+                svg{
+                    position: absolute;
+                    top: 2px;
+                    left: 16px;
+                    width: 32px;
+                    height: 32px;
+                    padding: 4px;
+                    border-radius: 50%;
+                    transition: all 0.2s ease-out;
+                    cursor: pointer;
+                    z-index: 1;
+
+                    path{
+                        fill: var(--secondColorDark);
+                    }
+                }
+
+                svg:hover{
+                    background: var(--darkWhite);
+                    transition: all 0.2s ease-in;
+                }
+            }
+        }
+
+        .selected-prop{
+            top: unset;
+            bottom: 0;
+            padding: 12px;
+            min-height: unset;
+            height: fit-content;
+            max-height: 100%;
+            margin-bottom: 76px;
+            box-shadow: 1px 1px 12px rgba(0, 0, 0, 0.186);
+            overflow: hidden;
+
+            .units-div-header{
+                margin-bottom: 24px;
+            }
+
+            .card{
+                height: fit-content;
+                width: 100%;
+                max-width: unset;
+            }
+        }
 
         &:dir(ltr){
             .card{
@@ -74,13 +206,20 @@
         flex-wrap: wrap;
         justify-content: start;
         gap: 24px;
+
+        .skeleton{
+            margin: 0;
+            padding: 0;
+            background: red;
+            display: none;
+        }
     }
 
     .pagesHandler{
         width: 100%;
         display: flex;
         align-items: center;
-        justify-content: end;
+        justify-content: flex-end;
         margin-top: 64px;
 
         &:dir(ltr){
@@ -192,16 +331,16 @@
         }
     }
 
-    .book-date{
+    .page-header-filter{
         position: relative;
         display: none;
         gap: 24px;
         width: 100%;
-        max-width: 480px;
         margin: 8px 8px 32px 8px;
         padding: 24px;
         border-radius: 8px;
         box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.173);
+        flex-wrap: wrap;
 
         .calendar-div{
             border: 2px solid rgb(242, 242, 242);
@@ -210,13 +349,16 @@
             padding: 8px;
             border-radius: 12px;
             position: absolute;
-            top: 110%;
-            right: 0;
-            left: unset;
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: fit-content;
+            max-width: 680px;
             z-index: 11;
             height: fit-content;
+
+            div{
+                width: 100%;
+            }
 
             &:dir(ltr){
                 right: unset;
@@ -224,10 +366,37 @@
             }
         }
 
+        .expand-div{
+            width: 100%;
+            max-width: unset;
+            display: flex;
+            align-items: center;
+
+            div{
+                width: 100%;
+                flex: 1;
+                white-space: nowrap;
+                margin-left: auto;
+                font-size: 1rem;
+
+                h3{
+                    font-size: 0.9rem;
+                    font-weight: 400;
+                    color: grey;
+                }
+            }
+
+            img{
+                cursor: pointer;
+                width: 32px;
+                height: 32px;
+            }
+        }
+
         .bookingDate{
             color: grey;
             cursor: pointer;
-            width: 100%;
+            width: 45%;
             font-size: 0.9rem;
 
             h3{
@@ -235,6 +404,23 @@
                 margin-top: 4px;
                 font-weight: 500;
                 font-size: 0.96rem;
+            }
+            
+            div{
+                
+            }
+        }
+
+        .city-header-div{
+            width: 45%;
+
+            .cityPopup, .catagoryPopup{
+                top: 0;
+                left: 0;
+                right: unset;
+                width: 100%;
+                max-width: 680px;
+                z-index: 11;
             }
         }
     }
@@ -250,29 +436,77 @@
     }
 }
 
+@media screen and (min-width: 1160px){
+    .search{
+        margin-top: calc(var(--headerHeight) + 24px);
+
+        .map-div{
+            position: fixed;
+            flex-direction: row-reverse;
+            margin-top: 0;
+            top: calc(var(--headerHeight) + 0px);
+            padding: 0;
+            height: calc(100vh - var(--headerHeight) - 0px);
+            gap: 16px;
+            max-width: 1300px;
+            z-index: 1;
+
+            #list-btn{
+                display: none;
+            }
+
+            .search-map{
+                position: relative;
+                width: 70%;
+                top: unset;
+                left: unset;
+            }
+
+            .units-div{
+                position: relative;
+                width: 45%;
+                max-width: 680px;
+                top: unset;
+                left: unset;
+                padding-right: 16px;
+                padding-left: 8px;
+                padding-bottom: 64px;
+                overflow: hidden;
+
+                .resultUL{
+                    max-height: calc(100vh - var(--headerHeight) - 64px);;
+                }
+
+                .card{
+                    width: 100%;
+                    height: fit-content;
+                    max-width: unset;
+                }
+            }
+        }
+    }
+}
+
 @media screen and (max-width: 1160px){
     .search{        
-        .book-date{
+        margin-top: calc(var(--headerHeightMobile) + 36px);
+        .page-header-filter{
             display: flex;
         }
     }
 }
 
+@media screen and (max-width: 960px){
+    .search{
+        margin-top: calc(var(--headerHeightMobile) + 36px);
+    }
+}
+
 @media screen and (max-width: 680px){
     .search{
-        margin-top: calc(var(--headerHeight) + 24px);
+        margin-top: calc(var(--headerHeightMobile) + 36px);
         .pagesHandler{
             justify-content: center;
-        }
-        .searchByMap{
-            margin-bottom: 16px;
-            h2{
-                font-size: 1rem;
-            }
-            img{
-                width: 24px;
-                height: 24px;
-            }
         }
         .map-div{
             height: fit-content;
@@ -280,6 +514,18 @@
 
             .google-map-popup-wrapper{
                 height: 240px;
+            }
+
+            .units-div{
+                .resultUL{
+                    .card{
+                        max-height: unset;
+                        width: 100%;
+                        max-width: unset;
+                        margin: 0;
+                        height: 380px;
+                    }
+                }
             }
 
             .card{

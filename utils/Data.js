@@ -1,5 +1,12 @@
-export const maxBookDateYears = 4;
+import ApartmentImage from '@assets/categories/apartment.webp';
+import StudentsImage from '@assets/categories/student.webp';
+import FarmsImage from '@assets/categories/farms.webp';
+import ResortsImage from '@assets/categories/resorts.webp';
+import TransportsImage from '@assets/categories/transports.webp';
 
+
+
+export const maxBookDateYears = 4;
 
 // تستطيع نغيير الأحكام و الشروط و المدن من هذا القسم
 
@@ -81,7 +88,7 @@ export const JordanCities = [
     },
     {
       city_id: 3,
-      value: 'Dead Sea & Jordan Valley',
+      value: 'Dead Sea and Jordan Valley',
       arabicName: 'البحر الميت و ألأغوار',
       long: 35.5699,
       lat: 32.3172
@@ -594,10 +601,10 @@ export const isInsideJordan = (myLong, myLat) => {
 };
 
 export const ProperitiesCatagories = [
-    { _id: '0', value: 'farm', arabicName: 'مزارع و شاليهات' },
-    { _id: '1', value: 'apartment', arabicName: 'شقق و استوديوهات' },
-    { _id: '2', value: 'resort', arabicName: 'مخيمات و منتجعات' },
-    { _id: '3', value: 'students', arabicName: 'سكن طلاب' }
+    { id: 0, value: 'farm', arabicName: 'مزارع و شاليهات' },
+    { id: 1, value: 'apartment', arabicName: 'شقق و استوديوهات' },
+    { id: 2, value: 'resort', arabicName: 'مخيمات و منتجعات' },
+    { id: 3, value: 'students', arabicName: 'سكن طلاب' }
 ];
 
 export const homePageCatagories = (isEn) => {
@@ -633,15 +640,10 @@ export const homePageCatagories = (isEn) => {
     'Salt'
   ];
   
-}
+};
 
 export const VehicleCatagories = [
-    { value: 'micro', arabicName: "سيارة مايكرو", _id: '0' }, 
-    { value: 'sedan', arabicName: "صالون", _id: '1' }, 
-    { value: 'high', arabicName: "سيارة عالية", _id: '2' }, 
-    { value: 'luxury', arabicName: "سيارة فاخرة", _id: '3' }, 
-    { value: 'mini-bus', arabicName: "ميني باص", _id: '4' }, 
-    { value: 'sport', arabicName: "سيارة رياضية", _id: '5' }, 
+  { value: 'transports', arabicName: "وسائل نقل", id: 4 }
 ];
 
 export const contactInfo = [
@@ -654,6 +656,39 @@ export const AllCatgories = [
     'farm', 'apartment', 'resort', 'commercial', 
     'micro', 'sedan', 'high', 'luxury', 'mini-bus', 'sport'
 ];
+
+export const getCategoryImage = (ctg) => {
+  switch(ctg){
+    case 'apartment': 
+      return ApartmentImage;
+    case 'students': 
+      return StudentsImage;
+    case 'farm': 
+      return FarmsImage;
+    case 'resort': 
+      return ResortsImage;
+    case 'transports': 
+      return TransportsImage;
+    default:
+      return '';
+  }
+};
+
+export const cancellationsArray = (isEnglish) => {
+  return isEnglish ? [
+    'Cancellation is possible at any time before the appointment',
+    'Cancellation is possible up to 48 hours before the appointment',
+    'Cancellation is possible up to 72 hours before the appointment',
+    'Cancellation is possible up to one week before the appointment',
+    'Cancellation is not allowed'
+  ] : [
+    'امكانية الغاء الحجز في أي وقت قبل الموعد',
+    'امكانية الغاء الحجز حتى قبل 48 ساعة من الموعد',
+    'امكانية الغاء الحجز حتى قبل 72 ساعة من الموعد',
+    'امكانية الغاء الحجز حتى قبل اسبوع من الموعد',
+    'لا يمكن الغاء الحجز'
+  ];
+};
 
 export const existedDetailIcon = ['bathrooms'];
 
@@ -677,4 +712,4 @@ export const contactsPlatforms = [
 ];
 
 export const minimumPrice = 5;
-export const maximumPrice = 100000;
+export const maximumPrice = 8000;

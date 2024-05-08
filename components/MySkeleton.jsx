@@ -2,12 +2,12 @@ import '@styles/components_styles/Skeleton.css';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css'
 
-const MySkeleton = ({ loadingType, isMobileHeader }) => {
+const MySkeleton = ({ loadingType, isMobileHeader, styleObj }) => {
 
   const arr = [1, 2, 3, 4, 5, 6, 7, 8];
 
   return (
-    <div className='skeleton' style={ isMobileHeader ? { marginTop: 'var(--headerHeightMobile)', paddingTop: 32 } : {} }>
+    <div className='skeleton' style={ isMobileHeader ? { marginTop: 'var(--headerHeightMobile)', paddingTop: 32 } : styleObj }>
 
         {loadingType === 'cards' ? <div className='container'>
           {arr.map((item, index) => (

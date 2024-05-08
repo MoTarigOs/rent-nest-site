@@ -28,10 +28,21 @@ const Page = () => {
     const cardsPerPage = 24;
 
     const { 
-        currentMinPrice, currentMaxPrice, city, catagory, 
+        rangeValue, city, catagory, 
         ratingScore, triggerFetch, searchText, 
         arrangeValue, setCatagory, calendarDoubleValue, 
-        isCalendarValue, setCalendarDoubleValue
+        isCalendarValue, setCalendarDoubleValue,
+        quickFilter,
+        neighbourSearchText,
+        unitCode,
+        bedroomFilter,
+        capacityFilter,
+        poolFilter,
+        customersTypesFilter,
+        companiansFilter,
+        bathroomsFilterNum,
+        bathroomsCompaniansFilter,
+        kitchenFilter
     } = useContext(Context);
 
     const handleArrowPagesNav = (isPrev) => {
@@ -59,10 +70,19 @@ const Page = () => {
             };
             
             const res = await getProperties(
-                city.value, false, catagory, 
-                (currentMinPrice !== minimumPrice || currentMaxPrice !== maximumPrice) 
-                    ? `${currentMinPrice},${currentMaxPrice}` : null,
-                ratingScore, searchText, arrangeValue, addressLong, addressLat, skip    
+                city.value, false, catagory, rangeValue,
+                ratingScore, searchText, arrangeValue, addressLong, addressLat, skip,
+                quickFilter,
+                neighbourSearchText,
+                unitCode,
+                bedroomFilter,
+                capacityFilter,
+                poolFilter,
+                customersTypesFilter,
+                companiansFilter,
+                bathroomsFilterNum,
+                bathroomsCompaniansFilter,
+                kitchenFilter
             );
 
             if(res.success !== true || !res.dt?.length > 0) {
