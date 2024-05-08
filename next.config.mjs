@@ -2,16 +2,16 @@
 const nextConfig = {
     images: {
         remotePatterns: [
-            {
-                protocol: 'http',
-                hostname: 'localhost'
-            },
             // {
-            //     protocol: 'https',
-            //     hostname: 'rent-nest-storage-server.onrender.com',
+            //     protocol: 'http',
+            //     hostname: 'localhost'
             // },
+            {
+                protocol: 'https',
+                hostname: 'rent-nest-storage-server.onrender.com',
+            },
         ],
-        minimumCacheTTL: 31536000
+        // minimumCacheTTL: 31536000
     }
 };
 
