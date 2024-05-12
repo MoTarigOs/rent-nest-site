@@ -20,7 +20,7 @@ const Component = ({ isEnglish }) => {
       catagory, setCatagory, calendarDoubleValue,
       setCalendarDoubleValue, setCity,
       setCategoryArray, categoryArray,
-      section, setSection
+      section, setSection, isMobile
     } = useContext(Context);
 
     const [selectedCatagories, setSelectedCatagories] = useState(categoryArray);
@@ -71,18 +71,18 @@ const Component = ({ isEnglish }) => {
 
           <div id='mobile-filter-header'/>
 
-          {section.includes('city') && <div className='city-div-filter'>
+          {section.includes('city') && <div className='city-div-filter' style={{ height: '100%' }}>
             <div className='city-div-header'>
               <div id='city-back' onClick={deleteAndClose}><Svgs name={'dropdown arrow'}/></div>
               <h3>{isEnglish ? 'Choose City' : 'أختر مدينة'}</h3> 
               <h4>{isEnglish ? city.value : city.arabicName}</h4> 
             </div>
-            <HeaderPopup type={'city'} isEnglish={isEnglish} triggerHomeFilterSection={() => {
+            <HeaderPopup type={'city mobile-filter'} isEnglish={isEnglish} triggerHomeFilterSection={() => {
               setSection(section.includes('skip-category') ? 'calender' : 'category');
             }}/>
           </div>}
 
-          {section === 'category' && <div className="catagory">
+          {section === 'category' && <div className="catagory" style={{ flex: isMobile ? 1 : undefined, height: '100%' }}>
 
               <div className='city-div-header'>
                 <div id='city-back' onClick={() => setSection('city')}><Svgs name={'dropdown arrow'}/></div>
@@ -91,13 +91,13 @@ const Component = ({ isEnglish }) => {
               </div>
 
               <ul>
-                  <li onClick={() => { setSelectedCatagories([]); setCatagory(''); }}>
+                  <li style={{ width: '100%' }} onClick={() => { setSelectedCatagories([]); setCatagory(''); }}>
                       <Image src={ImageAsLogo}/>
                       {getNameByLang('كل التصنيفات', isEnglish)}
                       {selectedCatagories?.length === 0 && <RightIconSpan />}
                   </li>
                   {[...ProperitiesCatagories, VehicleCatagories[0]].map((ctg, index) => (
-                      <li key={index} onClick={() => {
+                      <li style={{ width: '100%' }} key={index} onClick={() => {
                         if(selectedCatagories.includes(ctg)) {
                           setSelectedCatagories(selectedCatagories.filter(
                             i => i !== ctg
@@ -129,7 +129,7 @@ const Component = ({ isEnglish }) => {
 
           </div>}
 
-          {section === 'calender' && <div className='book-date'>
+          {section === 'calender' && <div className='book-date' style={{ flex: 1, height: isMobile ? '100%' : undefined }}>
 
             <div className='city-div-header' style={{ borderBottom: '2px solid var(--darkWhite);', paddingBottom: 24 }}>
               <div id='city-back' onClick={() => setSection('category')}><Svgs name={'dropdown arrow'}/></div>
@@ -138,7 +138,7 @@ const Component = ({ isEnglish }) => {
               <h4 suppressHydrationWarning style={{ marginTop: -8, fontSize: '0.75rem' }}>{isEnglish ? 'Book from' : 'حجز من'} {getReadableDate(calendarDoubleValue?.at(0), true, isEnglish)} {isEnglish ? 'To' : 'الى'} {getReadableDate(calendarDoubleValue?.at(1), true, isEnglish)}</h4> 
             </div>
 
-            <div className='calendar-div'>
+            <div className='calendar-div' style={{ width: '100%' }}>
               <MyCalendar type={'mobile-filter'} setCalender={setCalendarDoubleValue}/>
             </div>
 

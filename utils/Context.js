@@ -24,6 +24,7 @@ function DataContext({ children }) {
     const [isModalOpened, setIsModalOpened] = useState(false);
     const [city, setCity] = useState({});
     const [catagory, setCatagory] = useState('');    
+    const [vehicleType, setVehicleType] = useState(-1);    
     const [categoryArray, setCategoryArray] = useState([]);    
     const [section, setSection] = useState('city');
     const [calendarDoubleValue, setCalendarDoubleValue] = useState(null);
@@ -77,6 +78,7 @@ function DataContext({ children }) {
             isModalOpened, setIsModalOpened,
             city, setCity,
             catagory, setCatagory,
+            vehicleType, setVehicleType,
             categoryArray, setCategoryArray,
             section, setSection,
             calendarDoubleValue, setCalendarDoubleValue,

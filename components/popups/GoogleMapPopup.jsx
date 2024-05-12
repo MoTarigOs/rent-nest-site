@@ -14,7 +14,7 @@ const GoogleMapPopup = ({
   isShow, setIsShow, mapType, latitude, 
   longitude, setLatitude, setLongitude,
   props, setSelectedProp, style, searchHere,
-  selectedProp
+  selectedProp, isEnglish
 }) => {
 
     const [triggerSearch, setTriggerSearch] = useState(null);
@@ -87,7 +87,7 @@ const GoogleMapPopup = ({
           setLatitude(map?.center?.lat());
           setLongitude(map?.center?.lng());
           setTriggerSearch(!triggerSearch);
-        }}>{searching ? 'جاري البحث...' : 'البحث في هذه المنطقة'}</button>}
+        }}>{searching ? (isEnglish ? 'Searching...' : 'جاري البحث...') : (isEnglish ? 'Search on this area' : 'البحث في هذه المنطقة')}</button>}
 
         <div className='google-map-popup' style={mapType === 'search' ? style : undefined}>
 
@@ -147,15 +147,18 @@ const GoogleMapPopup = ({
                   }}
                   mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                 >
-                  <div onClick={() => {
+                  <div dir={isEnglish ? 'ltr' : undefined} onClick={() => {
+                    setLatitude(item?.map_coordinates?.at(1));
+                    setLongitude(item?.map_coordinates?.at(0));
                     setSelectedProp(item);
                   }} className={'custom-marker'} style={{ 
+                    borderRadius: 24,
                     display: !item ? 'none' : null, 
                     background: selectedProp === item ? 'var(--secondColor)' : undefined,
                     color: selectedProp === item ? 'white' : undefined,
                     zIndex: selectedProp === item ? 10 : undefined
                   }}>
-                    {item.price} دولار / الليلة
+                    {isEnglish ? `$${item.price} per Night` : `${item.price} دولار / الليلة`}
                   </div>
                 </OverlayViewF>))}
 

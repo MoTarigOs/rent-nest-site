@@ -25,15 +25,26 @@ const Page = () => {
     const [pagesNumber, setPagesNumber] = useState(1);
     const [skipable, setSkipable] = useState(false);
     const [skip, setSkip] = useState(0);
-    const cardsPerPage = 24;
+    const cardsPerPage = 16;
 
     const { 
-        currentMinPrice, currentMaxPrice, city, catagory, 
+        rangeValue, city, catagory, 
         ratingScore, triggerFetch, searchText, 
         arrangeValue, setCatagory, calendarDoubleValue, 
-        isCalendarValue, setCalendarDoubleValue
+        isCalendarValue, setCalendarDoubleValue,
+        quickFilter,
+        neighbourSearchText,
+        unitCode,
+        bedroomFilter,
+        capacityFilter,
+        poolFilter,
+        customersTypesFilter,
+        companiansFilter,
+        bathroomsFilterNum,
+        bathroomsCompaniansFilter,
+        kitchenFilter
     } = useContext(Context);
-
+    
     const handleArrowPagesNav = (isPrev) => {
         if(isPrev){
             if(currentPage > 1) setCurrentPage(currentPage - 1);
@@ -59,10 +70,19 @@ const Page = () => {
             };
             
             const res = await getProperties(
-                city.value, false, catagory, 
-                (currentMinPrice !== minimumPrice || currentMaxPrice !== maximumPrice) 
-                    ? `${currentMinPrice},${currentMaxPrice}` : null,
-                ratingScore, searchText, arrangeValue, addressLong, addressLat, skip    
+                city.value, false, catagory, rangeValue,
+                ratingScore, searchText, arrangeValue, addressLong, addressLat, skip,
+                quickFilter,
+                neighbourSearchText,
+                unitCode,
+                bedroomFilter,
+                capacityFilter,
+                poolFilter,
+                customersTypesFilter,
+                companiansFilter,
+                bathroomsFilterNum,
+                bathroomsCompaniansFilter,
+                kitchenFilter
             );
 
             if(res.success !== true || !res.dt?.length > 0) {
@@ -124,6 +144,12 @@ const Page = () => {
     useEffect(() => {
         if(properitiesArray.length > cardsPerPage){
             setPagesNumber(Math.ceil(properitiesArray.length / cardsPerPage));
+            setCurrentPage(1);
+            setIndexSlide(0);
+        } else {
+            setPagesNumber(1);
+            setCurrentPage(1);
+            setIndexSlide(0);
         };
     }, [properitiesArray]);
 

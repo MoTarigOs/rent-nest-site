@@ -24,6 +24,13 @@
         overflow: hidden;
         background: white;
 
+        .arrangeHeader{
+            width: 100%;
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.099);
+        }
+
         ul{
             list-style: none;
             width: 100%;

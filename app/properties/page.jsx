@@ -25,7 +25,7 @@ const Page = () => {
     const [pagesNumber, setPagesNumber] = useState(1);
     const [skipable, setSkipable] = useState(false);
     const [skip, setSkip] = useState(0);
-    const cardsPerPage = 24;
+    const cardsPerPage = 16;
 
     const { 
         rangeValue, city, catagory, 
@@ -146,6 +146,12 @@ const Page = () => {
     useEffect(() => {
         if(properitiesArray.length > cardsPerPage){
             setPagesNumber(Math.ceil(properitiesArray.length / cardsPerPage));
+            setCurrentPage(1);
+            setIndexSlide(0);
+        } else {
+            setPagesNumber(1);
+            setCurrentPage(1);
+            setIndexSlide(0);
         };
     }, [properitiesArray]);
 

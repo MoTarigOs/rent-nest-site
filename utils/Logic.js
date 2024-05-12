@@ -116,12 +116,12 @@ export const isValidPassword = (ps, isEn) => {
 
 };
 
-export const getArabicNameCatagory = (thisCatagory) => {
+export const getArabicNameCatagory = (thisCatagory, isEnglish) => {
     const ct = ProperitiesCatagories.find(i => i.value === thisCatagory);
-    if(ct) return ct.arabicName;
+    if(ct) return isEnglish ? ct.value : ct.arabicName;
     const vct = VehicleCatagories.find(i => i.value === thisCatagory);
-    if(vct) return vct.arabicName;
-    return thisCatagory === 'multiple' ? 'عدة اختيارات' : 'كل التصنيفات';
+    if(vct) return isEnglish ? vct.value : vct.arabicName;
+    return thisCatagory === 'multiple' ? (isEnglish ? 'Multiple selected' : 'عدة اختيارات') : (isEnglish ? 'All' : 'كل التصنيفات');
 };
 
 export const arrangeArray = (type, arr) => {
@@ -565,7 +565,7 @@ const names = [
     ['تخطي', 'Skip'],
     ['تواصل معنا', 'Contact Us'],
     ['عدة اختيارات', 'Multiple Choices'],
-    ['', ''],
+    ['كل السيارات', 'All Vehicles'],
     ['', ''],
     ['', ''],
     ['', ''],

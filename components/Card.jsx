@@ -1,14 +1,14 @@
 import '@styles/components_styles/Card.css';
 import Image from 'next/image';
 import RatingStar from '@assets/icons/rating.png';
-import ImagesShow from './ImagesShow';
 import Link from 'next/link';
 import { JordanCities, testImage } from '@utils/Data';
 import { getNameByLang } from '@utils/Logic';
+import dynamic from 'next/dynamic';
+import { handleFavourite } from '@utils/api';
+const ImagesShow = dynamic(() => import('./ImagesShow'), { ssr: false });
 
-const Card = ({ item, type, isVertical, isEnglish }) => {
-
-    const handleWishList = () => {};
+const Card = ({ item, type, isVertical, isEnglish, handleWishList }) => {
 
     const getUrl = () => {
       switch(type){
@@ -21,7 +21,7 @@ const Card = ({ item, type, isVertical, isEnglish }) => {
         default:
           return `${isEnglish ? '/en' : ''}/view/${item?.title?.replaceAll(' ', '-')}?id=${item._id}`;
       }
-    }
+    };
 
     const getBtnName = () => {
       switch(type){
@@ -38,11 +38,13 @@ const Card = ({ item, type, isVertical, isEnglish }) => {
 
   return (
 
-    <Link href={getUrl()} className={`card ${isVertical ? 'vertical-view' : undefined}`} style={{ width: '100%' }}>
+    <div dir={isEnglish ? 'ltr' : undefined} className={`card ${isVertical ? 'vertical-view' : undefined}`} style={{ width: '100%' }}>
 
-        <ImagesShow isEnglish={isEnglish} images={item.images} itemId={item._id} handleWishList={handleWishList}/>
+        {!isVertical 
+          ? <ImagesShow type={'card'} isEnglish={isEnglish} images={item.images} itemId={item._id} handleWishList={handleWishList} isVertical={isVertical}/>
+          : <div className='vertical-img' style={{ padding: 0 }}><Image src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${item?.images[0]}`} width={200} height={162}/></div>}
 
-        <div className='card-content'>
+        <div className='card-content' style={{ margin: 0 }}>
 
           <div className='rateanddiscount'>
 
@@ -54,14 +56,14 @@ const Card = ({ item, type, isVertical, isEnglish }) => {
 
           </div>
 
-          <h2>{item.title}</h2>
+          <h2>{isEnglish ? item.en_data?.titleEN || item.title : item.title}</h2>
 
           <h3>{isEnglish 
           ? JordanCities.find(i => i.value === item.city)?.value
-          : JordanCities.find(i => i.value === item.city)?.arabicName}, 
-          {item.neighbourhood}</h3>
+          : JordanCities.find(i => i.value === item.city)?.arabicName}, {' '}
+          {isEnglish ? item.en_data?.neighbourEN || item.neighbourhood : item.neighbourhood}</h3>
 
-          <h4><span>${item.price}</span>/{isEnglish ? 'Night' : 'اليوم'}</h4>
+          <h4><span>${item.price} {' / '}</span>{' '}{isEnglish ? 'Night' : 'اليوم'}</h4>
           
         </div>
 
@@ -70,9 +72,12 @@ const Card = ({ item, type, isVertical, isEnglish }) => {
         <span id='checked-span' className={item.checked ? 'checked-span selected-card-span' : item.isRejected ? 'checked-span selected-reject-card-span' : 'checked-span'}>{item.checked ? isEnglish ? 'Accepted' : 'تم قبوله' : item.isRejected ? isEnglish ? 'Rejected' : 'مرفوض' : isEnglish ? 'Under revision' : 'تحت المراجعة'}</span>
         </>}
 
-        {/* <Link href={getUrl()}>{getBtnName()}</Link> */}
+        <Link href={getUrl()} style={!isVertical ? undefined : {
+          position: 'absolute', width: '100%', height: '100%',
+          background: 'transparent', color: 'transparent',
+        }}>{getBtnName()}</Link>
       
-    </Link>
+    </div>
   )
 }
 

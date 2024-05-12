@@ -44,12 +44,15 @@ const Footer = ({ pathname }) => {
         
         <ul>
           {contactInfo.map((contact, index) => (
-            <li key={index}><Link href={contact.val}><Svgs name={contact.name}/></Link></li>
+            <li key={index}><Link target='_blank' href={contact.val}><Svgs name={contact.name}/></Link></li>
           ))}
         </ul>
 
       </div>
-        
+
+      <div className='attribute'>
+        <h4>{pathname.includes('/en') ? 'Icons from ' : 'الأيقونات من موقع'} <Link href='https://www.svgrepo.com/' target='_blank'>SVGRepo</Link></h4>
+      </div>
     </div>
   )
 };

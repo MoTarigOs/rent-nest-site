@@ -4,7 +4,7 @@ import { getCityImage } from '@utils/Cities';
 
 const LandImage1 = getCityImage('Aqaba');
 const AmmanCity = getCityImage('Amman');
-const DeadSea = getCityImage('Dead Sea & Jordan Valley');
+const DeadSea = getCityImage('Dead Sea and Jordan Valley');
 const AjlounCity = getCityImage('Ajloun');
 const IrbidCity = getCityImage('Irbid');
 const AlaqabaCity = getCityImage('Aqaba');

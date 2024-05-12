@@ -67,7 +67,6 @@
         position: absolute;
         background: white;
         padding: 12px 16px;
-        border-radius: 12px;
         white-space: nowrap;
         font-size: 1rem;
         font-weight: 500;
@@ -79,6 +78,7 @@
         font-family: sans-serif;
         gap: 12px;
         border-radius: 50px;
+        transform: translate(64px, -24px);
 
         img{
             width: 72px;

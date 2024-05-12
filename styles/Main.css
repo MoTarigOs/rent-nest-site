@@ -30,14 +30,16 @@ body{
 }
 
 .grecaptcha-badge {
-    z-index: 1;
+    z-index: 10;
+    top: 65vh;
 }
 
 .disable-scrolling{
     overflow: hidden;
-    padding: 0 4px;
+    padding-right: 17px;
     -ms-overflow-style: none; 
     scrollbar-width: none;
+
     
     &::-webkit-scrollbar{
         display: none;

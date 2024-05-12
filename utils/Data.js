@@ -646,10 +646,20 @@ export const VehicleCatagories = [
   { value: 'transports', arabicName: "وسائل نقل", id: 4 }
 ];
 
+export const VehiclesTypes = [
+  { id: 0, value: 'Sedan', arabicName: 'صالون' },
+  { id: 1, value: 'Pickup Truck', arabicName: 'سيارة بوكس' },
+  { id: 2, value: 'Sport Car', arabicName: 'سيارة رياضية' },
+  { id: 3, value: 'Mini Van', arabicName: 'سيارة فان صغير' },
+  { id: 4, value: 'SUV', arabicName: 'سيارات دفع رباعي' },
+  { id: 5, value: 'Luxury Car', arabicName: 'سيارة فخمة' },
+];
+
 export const contactInfo = [
-  { name: 'facebook', val: 'https://www.facebook.com/elgade.websites' },
-  { name: 'whatsapp', val: 'https://wa.me/+963991012169' },
-  { name: 'x', val: 'https://www.facebook.com/elgade.websites' }
+  { name: 'facebook', val: 'https://www.facebook.com/profile.php?id=61559210482138&mibextid=kFxxJD' },
+  { name: 'instagram', val: 'https://www.instagram.com/rent.nest?igsh=eGd0ejkyZTA3cjdo' },
+  { name: 'snapchat', val: 'https://www.snapchat.com/add/rent.nest?share_id=jP1ba0cYgKU&locale=en-GB' },
+  { name: 'x', val: 'https://x.com/RentNest2024?t=-MVpTVzEjOaTXLzsFUou_g&s=08' }
 ];
 
 export const AllCatgories = [

@@ -464,11 +464,12 @@
                         width: 16px;
                         height: 16px;
                         margin-left: 8px;
-                        fill: var(--secondColorDark);
+                        fill: var(--secondColorHover);
+                        opacity: 0.6;
 
                         path{
-                            fill: var(--secondColorDark);
-                            stroke: var(--secondColorDark);
+                            fill: var(--secondColorHover);
+                            stroke: var(--secondColorHover);
                         }
                     }
                 }
@@ -656,15 +657,36 @@
                 list-style: none;
 
                 li{
+                    width: 100%;
                     font-size: 1.1rem;
                     font-weight: 500;
                     color: var(--secondColorDark);
                     padding: 24px 0;
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: center;
                     border-bottom: 2px solid rgba(0, 0, 0, 0.077);
 
+                    &:dir(ltr){
+                        ul{
+                            margin-right: unset;
+                            margin-left: 40px;
+                        }
+
+                        svg{
+                            margin-left: unset;
+                            margin-right: 8px;
+                        }
+
+                        h3{
+                            margin-left: unset;
+                            margin-right: auto;
+                        }
+                    }
+
                     ul{
-                        list-style: disc;
-                        margin-right: 32px;
+                        width: 100%;
+                        margin-right: 40px;
                         margin-top: 24px;
 
                         li{
@@ -673,6 +695,25 @@
                             font-weight: 400;
                             font-size: 1rem;
                             margin-bottom: 4px;
+                        }
+                    }
+
+                    h3{
+                        font-size: 1.1rem;
+                        margin-left: auto;
+                    }
+
+                    svg{
+                        width: 24px;
+                        height: 24px;
+                        opacity: 0.5;
+                        margin-left: 8px;
+                        fill: var(--secondColorDark);
+                        stroke: var(--secondColorDark);
+
+                        path{
+                            fill: var(--secondColorDark);
+                            stroke: var(--secondColorDark);
                         }
                     }
                 }
@@ -925,90 +966,209 @@
             margin-top: 48px;
             display: none;
         }
+    }
 
-        .checkout{
-            width: 450px;
-            height: fit-content;
-            border-radius: 12px;
-            border: 2px solid rgb(197, 197, 197);
-            padding: 16px;
-            position: relative;
+    .mobileBookBtn{
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: var(--darkWhite);
+        padding: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 1;
+        
+        button{
+            width: fit-content;
+            padding: 12px 52px;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        div{
+            color: grey;
+            font-size: 0.9rem;
+            font-weight: 300;
 
             &:dir(ltr){
-                .calenderPopup{
-                    left: unset;
-                    right: 110%;
+                #original-price, #old-price, #discounted-price{
+                    margin-left: unset;
+                    margin-right: 6px;
                 }
             }
 
-            .calenderPopup{
-                top: 64px;
-                left: 110%;
-                z-index: 2;
+            #original-price{
+                margin-left: 6px;
+                color: var(--secondColorHover);
+                font-weight: 600;
             }
 
-            .nightsDiv{
-                width: 100%;
-                margin-bottom: 24px;
-                border-bottom: 2px solid rgba(0, 0, 0, 0.147);
+            #old-price{
+                text-decoration: line-through;
+                color: rgb(173, 173, 173);
+                font-weight: 400;
+                margin-left: 6px;
+            }
 
-                h3{
+            #discounted-price{
+                color: var(--secondColorHover);
+                font-weight: 600;
+                margin-left: 6px;
+            }
+        }
+
+    }
+
+    .checkout{
+        width: 450px;
+        height: fit-content;
+        border-radius: 12px;
+        border: 2px solid rgb(197, 197, 197);
+        padding: 16px;
+        position: relative;
+
+        &:dir(ltr){
+            .calenderPopup{
+                left: unset;
+                right: 110%;
+            }
+        }
+
+        .calenderPopup{
+            top: 64px;
+            left: 110%;
+            z-index: 2;
+        }
+
+        .nightsDiv{
+            width: 100%;
+            margin-bottom: 24px;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.147);
+
+            h3{
+                font-weight: 500;
+                font-size: 1.2rem;
+                margin-bottom: 16px;
+                display: flex;
+                align-items: center;
+
+                span{
+                    color: grey;
+                    font-weight: 400;
+                    margin: 0 8px;
+                    font-size: 0.9rem;
+                }
+            }
+        }
+
+        .bookingDate{
+            margin-bottom: 24px;
+            color: grey;
+            cursor: pointer;
+
+            h3{
+                color: var(--secondColorDark);
+                margin-top: 4px;
+                font-weight: 500;
+            }
+        }
+
+        .cost{
+            width: 100%;
+
+            h3{
+                font-weight: 400;
+                font-size: 1rem;
+                color: grey;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 24px;
+
+                span{
+                    color: var(--secondColorDark);
                     font-weight: 500;
                     font-size: 1.2rem;
-                    margin-bottom: 16px;
-                    display: flex;
-                    align-items: center;
-
-                    span{
-                        color: grey;
-                        font-weight: 400;
-                        margin: 0 8px;
-                        font-size: 0.9rem;
-                    }
-                }
-            }
-
-            .bookingDate{
-                margin-bottom: 24px;
-                color: grey;
-                cursor: pointer;
-
-                h3{
-                    color: var(--secondColorDark);
                     margin-top: 4px;
-                    font-weight: 500;
                 }
             }
+        }
 
-            .cost{
-                width: 100%;
+        .btnbackscndclr{
+            font-size: 1.1rem;
+            margin-top: 8px;
+        }
 
-                h3{
-                    font-weight: 400;
-                    font-size: 1rem;
-                    color: grey;
-                    width: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    margin-bottom: 24px;
+        #info-p{
+            color: var(--secondColor);
+            font-size: 0.88rem;
+        }
+    }
 
-                    span{
-                        color: var(--secondColorDark);
-                        font-weight: 500;
-                        font-size: 1.2rem;
-                        margin-top: 4px;
-                    }
-                }
+    .mobile-checkout-popup-hidden{
+        scale: 0;
+        height: 0;
+        transition: all 0.2s ease-in;
+    }
+
+    .mobile-checkout-popup{
+        position: fixed;
+        top: var(--headerHeightMobile);
+        left: 0;
+        width: 100%;
+        height: calc(100% - var(--headerHeightMobile));
+        overflow-y: scroll;
+        z-index: 3;
+        border-radius: 0;
+        border: none;
+        background: white;
+        -ms-overflow-style: none; 
+        scrollbar-width: none;
+        scale: 1;
+        transition: all 0.2s ease-out;
+    
+        &::-webkit-scrollbar{
+            display: none;
+        }
+
+        &:dir(ltr){
+            .calenderPopup{
+                right: unset;
+                left: 32px;
             }
+        }
+        
+        .calenderPopup{
+            top: 32px;
+            right: 32px;
+            width: fit-content;
+            max-width: 100%;
+            z-index: 1;
+        }
 
-            .btnbackscndclr{
-                font-size: 1.1rem;
-                margin-top: 8px;
-            }
+        #checkoutDetailsH2{
+            margin-bottom: 24px;
+            width: 100%;
+            text-align: center;
+            padding-bottom: 24px;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.17);
+        }
 
-            #info-p{
-                color: var(--secondColor);
-                font-size: 0.88rem;
+        #close-checkout{
+            position: absolute;
+            top: 24px;
+            left: 16px;
+            background: var(--darkWhite);
+            padding: 4px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+
+            &:hover{
+                box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.155);
             }
         }
     }
@@ -1217,10 +1377,13 @@
 
             #checkoutDetailsH2{
                 display: block;
+                margin: 0;
+                margin-bottom: 16px;
             }
 
             .checkout{
                 width: 100%;
+                margin-top: 16px;
 
                 &:dir(ltr){
                     .calenderPopup{
@@ -1230,7 +1393,7 @@
 
                 .calenderPopup{
                     right: 16px;
-                    top: -136px;
+                    top: -78px;
                     width: fit-content;
                 }
             }
@@ -1241,6 +1404,11 @@
                         display: flex;
                         justify-content: center;
                         align-items: center;
+                    }
+                }
+                .specificationsUL{
+                    li{
+                        cursor: pointer;
                     }
                 }
             }

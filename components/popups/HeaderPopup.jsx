@@ -3,7 +3,7 @@
 import MyCalendar from '@components/MyCalendar';
 import '@styles/components_styles/HeaderPopup.css';
 import { motion } from 'framer-motion';
-import { JordanCities, ProperitiesCatagories, VehicleCatagories } from '@utils/Data';
+import { JordanCities, ProperitiesCatagories, VehicleCatagories, VehiclesTypes } from '@utils/Data';
 import Svgs from '@utils/Svgs';
 import { useContext, useEffect, useState } from 'react';
 import { Context } from '@utils/Context';
@@ -17,11 +17,14 @@ const HeaderPopup = ({
 
     const [searched, setSearched] = useState(customArray ? customArray : JordanCities);
 
-    type = type.toLowerCase();
+    type = type?.toLowerCase();
 
-    const { city, setCity, triggerFetch, setTriggerFetch, 
+    if(pathname?.includes('/vehicles')) type = 'vehcile types';
+
+    const { 
+        city, setCity, triggerFetch, setTriggerFetch, 
         catagory, setCatagory, setCalendarDoubleValue, setLongitude, 
-        setLatitude
+        setLatitude, vehicleType, setVehicleType
     } = useContext(Context);
 
     useEffect(() => {
@@ -29,8 +32,8 @@ const HeaderPopup = ({
     }, []);
 
     const getCatagories = () => {
-        if(pathname === '/vehicles')
-            return VehicleCatagories;
+        if(pathname === '/vehicles' || type.includes('vehicle'))
+            return VehiclesTypes;
         return ProperitiesCatagories;
     }
 
@@ -40,9 +43,10 @@ const HeaderPopup = ({
 
   return (
     <>
-        {type === 'city' && <motion.div className='cityPopup'
+        {type?.includes('city') && <motion.div className='cityPopup'
             initial={{ opacity: 0, scale: 0.7 }}
             animate={{ opacity: 1, scale: 1 }}
+            style={{ width: type?.includes('mobile-filter') ? '100%' : undefined }}
         >
             <div id='searchBar'>
                 <Svgs name={'search'}/>
@@ -55,7 +59,7 @@ const HeaderPopup = ({
                         }
                     });
                     setSearched(arr);
-                }} placeholder={isEnglish ? 'Search a city...' : 'ابحث عن مدينة...'}/>
+                }} placeholder={(pathname?.includes('/en') || isEnglish) ? 'Search a city...' : 'ابحث عن مدينة...'}/>
             </div>
             <ul>
                 <li onClick={() => {
@@ -64,7 +68,7 @@ const HeaderPopup = ({
                         setTriggerFetch(!triggerFetch);
                         if(triggerHomeFilterSection) triggerHomeFilterSection();
                     }
-                }}>{getNameByLang('كل المدن', pathname?.includes('/en'))}{!city.value && <RightIconSpan />}</li>
+                }}>{getNameByLang('كل المدن', pathname?.includes('/en') || isEnglish)}{!city.value && <RightIconSpan />}</li>
                 {searched.map((cty) => (
                     <li onClick={() => {
                         if(city !== cty){
@@ -73,7 +77,7 @@ const HeaderPopup = ({
                             if(triggerHomeFilterSection) triggerHomeFilterSection();
                         }
                     }} key={cty.city_id}>
-                        {pathname?.includes('/en') ? cty.value : cty.arabicName} 
+                        {pathname?.includes('/en') || isEnglish ? cty.value : cty.arabicName} 
                         {city.city_id === cty.city_id && <RightIconSpan />}
                     </li>
                 ))}
@@ -81,7 +85,7 @@ const HeaderPopup = ({
 
         </motion.div>}
 
-        {type === 'add-city' && <motion.div className='cityPopup'
+        {type?.includes('add-city') && <motion.div className='cityPopup'
             initial={{ opacity: 0, scale: 0.7 }}
             animate={{ opacity: 1, scale: 1 }}
         >
@@ -96,7 +100,7 @@ const HeaderPopup = ({
                         }
                     });
                     setSearched(arr);
-                }} placeholder={isEnglish ? 'Search a city...' : 'ابحث عن مدينة...'}/>
+                }} placeholder={(pathname?.includes('/en') || isEnglish) ? 'Search a city...' : 'ابحث عن مدينة...'}/>
             </div>
             <ul>
                 {searched.map((cty) => (
@@ -126,12 +130,12 @@ const HeaderPopup = ({
                     }
                 }} id="allCtgLi">
                     <Svgs name={'layer'}/>
-                    <h3>{getNameByLang('كل التصنيفات', isEnglish ? true : pathname?.includes('/en') || false)}</h3> 
+                    <h3>{getNameByLang('كل التصنيفات', isEnglish ? true : pathname?.includes('/en') || isEnglish || false)}</h3> 
                     {catagory === '' && <RightIconSpan />}
                 </li>
 
                 {getCatagories().map((ctg) => (
-                    <li key={ctg._id} onClick={() => {
+                    <li key={ctg.id} onClick={() => {
                         if(catagory !== ctg.value){
                             setCatagory(ctg.value);
                             setTriggerFetch(!triggerFetch);
@@ -139,9 +143,38 @@ const HeaderPopup = ({
                     }}>
                         <Svgs name={ctg.value}/>
                         <h3>{pathname !== '/vehicles' 
-                        ? getNameByLang(ctg.arabicName, isEnglish ? true : pathname?.includes('/en') || false)
+                        ? getNameByLang(ctg.arabicName, isEnglish ? true : pathname?.includes('/en') || isEnglish || false)
                         : isEnglish ? ctg.value : ctg.arabicName}</h3> 
                         {catagory === ctg.value && <RightIconSpan />}
+                    </li>
+                ))}
+            </ul>
+        </motion.div>}
+
+        {type === 'vehcile types' && <motion.div dir={isEnglish ? 'ltr' : ''} className='catagoryPopup'
+            initial={{ opacity: 0, scale: 0.7 }}
+            animate={{ opacity: 1, scale: 1 }}
+        >
+            <ul>
+                <li style={{ margin: 0, width: isEnglish ? 'fit-content' : undefined }} onClick={() => {
+                    if(vehicleType !== -1){
+                        setVehicleType(-1);
+                        setTriggerFetch(!triggerFetch);
+                    }
+                }} id="allCtgLi">
+                    <Svgs name={'layer'}/>
+                    <h3>{getNameByLang('كل السيارات', isEnglish ? true : pathname?.includes('/en') || isEnglish || false)}</h3> 
+                    {vehicleType === -1 && <RightIconSpan />}
+                </li>
+                {VehiclesTypes.map((ctg) => (
+                    <li style={{ width: isEnglish ? '100%' : undefined }} key={ctg.id} onClick={() => {
+                        if(vehicleType !== ctg.id){
+                            setVehicleType(ctg.id);
+                            setTriggerFetch(!triggerFetch);
+                        }
+                    }}>
+                        <h3>{isEnglish ? ctg.value : ctg.arabicName}</h3> 
+                        {vehicleType === ctg.id && <RightIconSpan />}
                     </li>
                 ))}
             </ul>

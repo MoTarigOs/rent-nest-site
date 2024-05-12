@@ -124,6 +124,27 @@
             background: var(--secondColor);
             transition: all 0.2s ease-in;
         }
+
+        .cards-images-container{
+            overflow-x: scroll;
+            scroll-snap-type: mandatory x;
+            scroll-snap-align: center;
+            -ms-overflow-style: none; 
+            scrollbar-width: none;
+            
+            .swiper-slide{
+                scroll-snap-align: center;
+
+                img{
+                    min-height: 45%;
+                    height: 200px;
+                }
+            }
+
+            &::-webkit-scrollbar{
+                display: none;
+            }
+        }
     }
 
     .not-exist{

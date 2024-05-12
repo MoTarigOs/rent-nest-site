@@ -8,7 +8,7 @@ import GoogleMapImage from '@assets/images/google-map-image.jpg';
 import VehicleImage from '@assets/images/sedan-car.png';
 import PropertyImage from '@assets/images/property.png';
 import PropertyWhiteImage from '@assets/images/property-white.png';
-import { CustomerTypesArray, JordanCities, ProperitiesCatagories, VehicleCatagories, cancellationsArray, contactsPlatforms, isInsideJordan } from '@utils/Data';
+import { CustomerTypesArray, JordanCities, ProperitiesCatagories, VehicleCatagories, VehiclesTypes, cancellationsArray, contactsPlatforms, isInsideJordan } from '@utils/Data';
 import CustomInputDiv from '@components/CustomInputDiv';
 import { createProperty, uploadFiles } from '@utils/api';
 import HeaderPopup from '@components/popups/HeaderPopup';
@@ -28,7 +28,8 @@ const page = () => {
         userId, setIsMap, setMapType,
         latitude, setLatitude, storageKey,
         longitude, setLongitude, userEmail,
-        loadingUserInfo, isVerified
+        loadingUserInfo, isVerified, setVehicleType,
+        vehicleType
     } = useContext(Context);
 
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/mp4', 'video/avi'];
@@ -132,7 +133,7 @@ const page = () => {
 
     const getCatagoryArray = () => {
         if(selectedCatagories === '0'){
-            return VehicleCatagories;
+            return VehiclesTypes;
         } else {
             return ProperitiesCatagories;
         }
@@ -145,7 +146,7 @@ const page = () => {
 
         if(selectedCatagories !== '0' && selectedCatagories !== '1') errorEncountered = true;
 
-        if(!VehicleCatagories.find(i => i.value === specificCatagory) 
+        if(!VehicleCatagories.find(i => i.id === specificCatagory) 
         && !ProperitiesCatagories.find(i => i.value === specificCatagory)){
             setSpecificCatagory('-2');
             errorEncountered = true;
@@ -325,7 +326,7 @@ const page = () => {
                 itemCity.value, itemNeighbour, [itemLong, itemLat], itemPrice, 
                 xDetails, conditionsAndTerms, area > 0 ? area : null,
                 tempContacts?.length > 0 ? tempContacts : null, null, token, 
-                capacity, customerType, enObj, cancellation);
+                capacity, customerType, enObj, cancellation, vehicleType);
 
             if(res.success !== true){
                 setError(res.dt.toString());
@@ -421,10 +422,13 @@ const page = () => {
             </div>
 
             <div className='selectKind'>
-                <select value={specificCatagory} onChange={(e) => setSpecificCatagory(e.target.value)}>
+                <select value={specificCatagory} onChange={(e) => {
+                    setSpecificCatagory(selectedCatagories === '0' ? 'transports' : e.target.value)
+                    if(selectedCatagories === '0') setVehicleType(e.target.value);
+                }}>
                     <option value={'-1'} hidden selected>{selectedCatagories === '0' ? 'اختر تصنيف السيارة' : 'اختر تصنيف العقار'}</option>
                     {getCatagoryArray().map((item) => (
-                        <option key={item._id} value={item.value}>{item.arabicName}</option>
+                        <option key={item.id} value={item.value}>{item.arabicName}</option>
                     ))}
                 </select>
                 <label id='error'>{specificCatagory === '-2' && 'الرجاء تحديد تصنيف'}</label>

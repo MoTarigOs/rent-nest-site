@@ -9,7 +9,7 @@ import GoogleMapPopup from '@components/popups/GoogleMapPopup';
 import { useContext, useEffect, useState } from 'react';
 import { getLocation, getProperties } from '@utils/api';
 import { JordanCities, maximumPrice, minimumPrice } from '@utils/Data';
-import { arrangeArray, getNameByLang, getReadableDate, isOkayBookDays } from '@utils/Logic';
+import { arrangeArray, getArabicNameCatagory, getNameByLang, getReadableDate, isOkayBookDays } from '@utils/Logic';
 import { Context } from '@utils/Context';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
@@ -32,22 +32,32 @@ const page = () => {
   const [isCalendar, setIsCalendar] = useState(false);
   const [isCategoryDiv, setIsCategoryDiv] = useState(false);
   const [isResultDiv, setIsResultDiv] = useState(false);
-  const cardsPerPage = 16;
+  const cardsPerPage = 12;
 
   const { 
-      currentMinPrice, currentMaxPrice, city, setCity, catagory, 
+      rangeValue, city, setCity, catagory, 
       ratingScore, triggerFetch, searchText, 
       arrangeValue, setCatagory, calendarDoubleValue, 
       isCalendarValue, setCalendarDoubleValue, categoryArray,
       setIsModalOpened, setLatitude, setLongitude, longitude, latitude,
-      isSearchMap, setIsSearchMap, isMobile
+      isSearchMap, setIsSearchMap, isMobile,
+      quickFilter,
+      neighbourSearchText,
+      unitCode,
+      bedroomFilter,
+      capacityFilter,
+      poolFilter,
+      customersTypesFilter,
+      companiansFilter,
+      bathroomsFilterNum,
+      bathroomsCompaniansFilter,
+      kitchenFilter
   } = useContext(Context);
 
   const getMyLoc = async() => {
     const loc = await getLocation();
-    console.log('loc fetched: ', loc);
-    setLongitude(loc.long || JordanCities[0].long);
-    setLatitude(loc.lat || JordanCities[0].lat);
+    setLongitude(city?.long || loc.long || JordanCities[0].long);
+    setLatitude(city?.lat || loc.lat || JordanCities[0].lat);
   };
 
   const settingPropertiesArray = async() => {
@@ -59,16 +69,27 @@ const page = () => {
           setFetching(true);
 
           const res = await getProperties(
-              city.value, null, catagory, 
-              (currentMinPrice !== minimumPrice || currentMaxPrice !== maximumPrice) 
-                  ? `${currentMinPrice},${currentMaxPrice}` : null,
-              ratingScore, searchText, isSearchMap ? 'address' : arrangeValue, longitude || JordanCities[0].long, latitude || JordanCities[0].lat, skip    
+              city.value, null, catagory, rangeValue,
+              ratingScore, searchText, isSearchMap ? 'address' : arrangeValue, longitude || JordanCities[0].long, latitude || JordanCities[0].lat, skip,
+              quickFilter,
+              neighbourSearchText,
+              unitCode,
+              bedroomFilter,
+              capacityFilter,
+              poolFilter,
+              customersTypesFilter,
+              companiansFilter,
+              bathroomsFilterNum,
+              bathroomsCompaniansFilter,
+              kitchenFilter,
+              categoryArray
           );
 
           if(res.success !== true) {
               setProperitiesArray([]);
               setSkipable(false);
               setFetching(false);
+              console.log(res.dt);
               return;
           };
 
@@ -129,27 +150,29 @@ const page = () => {
   const getSelectedCategories = (array) => {
     let str = '';
     array.forEach((element, index) => {
-      if(isEnglish) {
-        str += element.value + (index >= array.length - 1 ? '' : ', ');
-      } else {
-        str += element.arabicName + (index >= array.length - 1 ? '' : ', ');
-      }
+      str += element.arabicName + (index >= array.length - 1 ? '' : ', ');
     });
-    return str?.length > 0 ? str : (isEnglish ? 'All' : 'الكل');
+    return str?.length > 0 ? str : ('الكل');
+  };
+
+  const settingPreventScroll = () => {
+    if(isCityDiv || isCategoryDiv || isCalendar || isSearchMap || isResultDiv) 
+      return setIsModalOpened(true);
+    setIsModalOpened(false);
+  };
+
+  const handleWishList = async() => {
   };
 
   useEffect(() => {
-    if(catagory === ''){
       setRunOnce(true);
-    } else {
-      setCatagory('');
-    }
   }, []);
 
   useEffect(() => {
     if(runOnce) {
+      settingPreventScroll();
       getMyLoc();
-      setCatagory('');
+      settingPropertiesArray();
     }
   }, [runOnce]);
 
@@ -157,21 +180,26 @@ const page = () => {
     if(currentPage > pagesNumber) setCurrentPage(pagesNumber);
     if(currentPage < 1) setCurrentPage(1);
     setIndexSlide((currentPage - 1) * cardsPerPage);
+    window.scrollTo({
+      top: 0, behavior: 'smooth'
+    });
   }, [currentPage]);
 
   useEffect(() => {
       if(properitiesArray.length > cardsPerPage){
           setPagesNumber(Math.ceil(properitiesArray.length / cardsPerPage));
+          setCurrentPage(1);
+          setIndexSlide(0);
+      } else {
+          setPagesNumber(1);
+          setCurrentPage(1);
+          setIndexSlide(0);
       };
   }, [properitiesArray]);
 
   useEffect(() => {
       if(runOnce) settingPropertiesArray();
   }, [triggerFetch]);
-
-  useEffect(() => {
-      setProperitiesArray(arrangeArray(arrangeValue.toString(), properitiesArray));
-  }, [arrangeValue]);
 
   useEffect(() => {
     settingPropertiesArray();
@@ -184,9 +212,7 @@ const page = () => {
   }, [catagory]);
 
   useEffect(() => {
-    if(isCityDiv || isCategoryDiv || isCalendar || isSearchMap || isResultDiv) 
-      return setIsModalOpened(true);
-    setIsModalOpened(false);
+    settingPreventScroll();
   }, [isCityDiv, isCategoryDiv, isCalendar, isSearchMap, isResultDiv]);
 
   useEffect(() => {
@@ -210,13 +236,13 @@ const page = () => {
             {isFilterHeader ? <><div className='bookingDate city-header-div'
               onClick={() => setIsCityDiv(true)}>
                 المدينة
-                <h3>{city?.value || 'لم تحدد'}</h3>
+                <h3>{city?.arabicName || 'لم تحدد'}</h3>
                 {isCityDiv && <HeaderPopup type={'add-city'} itemCity={city} setItemCity={setCity}/>}
               </div>
 
               <div className='bookingDate city-header-div' onClick={() => setIsCategoryDiv(!isCategoryDiv)}>
                 نوع العقار
-                <h3>{categoryArray?.length > 0 ? getSelectedCategories(categoryArray) : catagory || 'الكل'}</h3>
+                <h3>{categoryArray?.length > 0 ? getSelectedCategories(categoryArray) : getArabicNameCatagory(catagory) || 'الكل'}</h3>
                 {isCategoryDiv && <HeaderPopup type={'catagory'} isEnglish={false}/>}
               </div>
 
@@ -234,7 +260,7 @@ const page = () => {
 
               <div className='bookingDate' onClick={() => setIsFilterHeader(false)}>الغاء</div>
             
-            </> : <div className='expand-div'>
+            </> : <div className='expand-div disable-text-copy'>
               <div onClick={() => setIsFilterHeader(true)}>
                 {city.arabicName || 'المدينة غير محددة'} 
                 <h3 suppressHydrationWarning>الحجز {getReadableDate(calendarDoubleValue?.at(0), true, false)} - {getReadableDate(calendarDoubleValue?.at(1), true, false)}</h3>
@@ -267,7 +293,7 @@ const page = () => {
             </span>
             {properitiesArray?.length > 0 ? <ul className="resultUL">
             {properitiesArray.slice(indexSlide, indexSlide + cardsPerPage).map((item) => (
-                <Card isVertical={!isMobile} key={item._id} item={item}/>
+                <Card handleWishList={handleWishList} isVertical={!isMobile} key={item._id} item={item}/>
             ))}
           </ul> : fetching ? <MySkeleton loadingType={'cards'} styleObj={{ margin: 0, paddingTop: 0 }}/> : <NotFound />}</div>}
         
@@ -281,7 +307,7 @@ const page = () => {
           
         </div>
 
-        {!isSearchMap && (properitiesArray?.length > 0 ? <ul className="resultUL">
+        {!isSearchMap && ((properitiesArray?.length > 0 && !fetching) ? <ul className="resultUL">
             {properitiesArray.slice(indexSlide, indexSlide + cardsPerPage).map((item) => (
                 <Card key={item._id} item={item}/>
             ))}

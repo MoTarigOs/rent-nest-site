@@ -419,6 +419,7 @@
         position: absolute;
         display: flex;
         justify-content: center;
+        align-items: center;
         padding: 24px;
         z-index: 120;
 
@@ -426,9 +427,8 @@
             max-width: 480px;
             border-radius: 24px;
             padding: 24px;
-            height: fit-content;
-            min-height: 100%;
             max-height: 100%;
+            height: fit-content;
             padding-bottom: 0;
             
             .mobile-filter-buttons{
@@ -455,6 +455,7 @@
             .catagory{
                 overflow-y: hidden;
                 flex: 1;
+                padding-bottom: 24px;
                 
                 ul{
                     flex: 1;

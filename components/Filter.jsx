@@ -52,6 +52,25 @@ const Filter = ({
     const [showBedrooms, setShowBedrooms] = useState(false);
     const [showBath, setShowBath] = useState(false);
 
+    const deleteFilters = () => {
+        setRangeValue([]);
+        setQuickFilter([]);
+        setnNeighbourSearchText();
+        setnNeighbourSearchText('');
+        setUnitCode('');
+        setRangeValue([0, maximumPrice]);
+        setBedroomFilter({ num: null, single_beds: 0, double_beds: 0 });
+        setCapcityFilter(null);
+        setPoolFilter([]);
+        setCustomersTypesFilter([]);
+        setCompaniansFilter([]);
+        setBathroomsNumFilter(null);
+        setBathroomsCompaniansFilter([]);
+        setKitchenFilter([]);
+        setCategoryArray([]);
+        setRatingScore(0);
+    };
+
     useEffect(() => {
         setCurrentMinPrice(rangeValue[0]);
         setCurrentMaxPrice(rangeValue[1]);
@@ -114,7 +133,7 @@ const Filter = ({
                             className={(item.idName !== 'prop-type' ? (item.idName.includes('pool') ? item.array?.includes(ctg) : item.array.find(i => i.idName === ctg.idName)) : item.array.find(i => i.id === ctg.id)) ? 'selectedCatagory' : undefined}
                         >
                             <RightIconSpan />
-                            {item.idName.includes('pool') ? ctg : (isEnglish ? ctg.value : ctg.arabicName)}
+                            {item.idName.includes('pool') ? ctg : (isEnglish ? ctg.value || ctg.enName : ctg.arabicName)}
                         </li>
                     ))}
                 </ul>
@@ -122,7 +141,6 @@ const Filter = ({
         )
     };
 
-    
     const FilterSectionSingleSelection = ({ item }) => {
         if(!item) return<></>
         return (
@@ -158,10 +176,10 @@ const Filter = ({
 
         <div className='wrapper'>
 
-            <div className='filter-header'>
+            <div className='filter-header disable-text-copy'>
                 <Svgs name={'cross'} on_click={() => setIsFilter(false)}/>
-                {isEnglish ? 'filter' : 'فلتر'}
-                <span>{isEnglish ? 'Delete' : 'مسح'}</span>
+                {isEnglish ? 'Filter' : 'فلتر'}
+                <span onClick={deleteFilters}>{isEnglish ? 'Delete' : 'مسح'}</span>
             </div>
 
             <div className='filters-container'>
@@ -174,6 +192,7 @@ const Filter = ({
                         onInput={setRangeValue}
                         min={0} max={maximumPrice}
                         defaultValue={rangeValue}
+                        value={rangeValue}
                     />
                     <span>{isEnglish ? 'Min ' : 'السعر الأقل:'} {rangeValue[0]}$</span>
                     <span>{isEnglish ? 'Max ' : 'السعر الأقصى'} {rangeValue[1]}$</span></>}

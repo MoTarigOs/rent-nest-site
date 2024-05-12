@@ -57,7 +57,7 @@ const AboutSection = ({ isEnglish }) => {
           
               <h4>{getNameByLang('تفقد آخر العروض الحصرية', isEnglish)}</h4>
 
-              <div dir='rtl' style={{ transform: 'rotate(180deg)' }} className='about-arrows'>
+              <div dir='rtl' style={{ transform: isEnglish ? 'rotate(180deg)' : undefined }} className='about-arrows'>
                 <div className='about-arrow-slide-prev'><Svgs name={'dropdown arrow'}/></div>
                 <div className='about-arrow-slide-next'><Svgs name={'dropdown arrow'}/></div>
               </div>
@@ -74,7 +74,7 @@ const AboutSection = ({ isEnglish }) => {
                     <div key={index} className='swiper-slide aboutListItem' onClick={() => {
                       setCatagory(item.value); setIsMobileHomeFilter(true); setSection('city skip-category');
                     }}>
-                      <Image src={getCategoryImage(item.value)} alt={item.value}/>
+                      <Image loading='eager' src={getCategoryImage(item.value)} alt={item.value}/>
                       <h3>{isEnglish ? getNameByLang(item.arabicName, isEnglish) : item.arabicName}</h3>
                     </div>
                   ))}

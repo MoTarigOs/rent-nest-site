@@ -381,17 +381,17 @@ export const createProperty = async(
     type_is_vehicle, specific_catagory, title, description, city, neighbourhood,
     map_coordinates, price, details, terms_and_conditions, area,
     contacts, isEnglish, gRecaptchaToken, capacity, customer_type, 
-    en_data, cancellation
+    en_data, cancellation, vehicleType
 ) => {
 
     try {
 
         const url = `${baseUrl}/property/create`;
 
-        const body = { 
+        let body = { 
             type_is_vehicle, specific_catagory, title, description, 
             city, neighbourhood, map_coordinates, price, details, 
-            terms_and_conditions, area, contacts, gRecaptchaToken,
+            terms_and_conditions, area, contacts, gRecaptchaToken, vehicleType,
             capacity, customer_type, en_data, cancellation
         };
 
@@ -574,24 +574,16 @@ export const getProperties = async(
     companiansFilter,
     bathroomsFilterNum,
     bathroomsCompaniansFilter,
-    kitchenFilter
+    kitchenFilter,
+    categoryArray,
+    vehicleType
 ) => {
 
     try {
 
-        const url = `${baseUrl}/property?${city?.length > 0 ? 'city=' + city.replaceAll(' ', '-') : ''}${(isType === false || isType === true) ? '&type_is_vehicle=' + isType.toString() : ''}${specific?.length > 0 ? '&specific=' + specific : ''}${(priceRange?.length > 1 && (priceRange[0] > 0 || priceRange[1] < maximumPrice)) ? '&price_range=' + priceRange.toString() : ''}${minRate > 0 ? '&min_rate=' + minRate : ''}${(searchText?.length > 0 || neighbourSearchText?.length > 0) ? '&text=' + searchText + neighbourSearchText : ''}${sort?.length > 0 ? '&sort=' + sort : ''}${long > 0 ? '&long=' + long : ''}${lat > 0 ? '&lat=' + lat : ''}${(typeof skip === 'number' && skip > 0) ? '&skip=' + skip : ''}
-        ${quickFilter?.length > 0 ? '&quickFilter=' + quickFilter.map(o => o.idName).join(",") : ''}
-        ${unitCode > 0 ? '&unit=' + unitCode : ''}
-        ${(bedroomFilter.num || bedroomFilter.single_beds || bedroomFilter.double_beds) ? '&bedroomFilter=' + bedroomFilter.num + ',' + bedroomFilter.single_beds + ',' + bedroomFilter.double_beds : ''}
-        ${(capacityFilter?.min >= 0 || capacityFilter?.max > 0) ? '&capacityFilter=' + capacityFilter.min + ',' + capacityFilter.max : ''}
-        ${poolFilter?.length > 0 ? '&poolFilter=' + poolFilter.toString() : ''}
-        ${customersTypesFilter?.length > 0 ? '&customers=' + customersTypesFilter.toString() : ''}
-        ${companiansFilter?.length > 0 ? '&companiansFilter=' + companiansFilter.toString() : ''}
-        ${bathroomsFilterNum > 0 ? '&bathroomsNum=' + bathroomsFilterNum : ''}
-        ${bathroomsCompaniansFilter?.length > 0 ? '&bathroomFacilities=' + bathroomsCompaniansFilter.toString() : ''}
-        ${kitchenFilter?.length > 0 ? '&kitchenFilter=' + kitchenFilter.toString() : ''}`;
+        const url = `${baseUrl}/property?${city?.length > 0 ? 'city=' + city.replaceAll(' ', '-') : ''}${(isType === true) ? '&type_is_vehicle=true' + (vehicleType > 0 ? '&vehicle_type=' + vehicleType : '') : ''}${categoryArray?.length > 0 ? '&categories=' + categoryArray.map(o=>o?.value).join(',') : (specific?.length > 0 ? '&specific=' + specific : '')}${(priceRange?.length > 1 && (priceRange[0] > 0 || priceRange[1] < maximumPrice)) ? '&price_range=' + priceRange.toString() : ''}${minRate > 0 ? '&min_rate=' + minRate : ''}${(searchText?.length > 0 || neighbourSearchText?.length > 0) ? '&text=' + searchText + neighbourSearchText : ''}${sort?.length > 0 ? '&sort=' + sort : ''}${long > 0 ? '&long=' + long : ''}${lat > 0 ? '&lat=' + lat : ''}${(typeof skip === 'number' && skip > 0) ? '&skip=' + skip : ''}${quickFilter?.length > 0 ? '&quickFilter=' + quickFilter.map(o => o.idName).join(",") : ''}${unitCode > 0 ? '&unitCode=' + unitCode : ''}${(bedroomFilter?.num || bedroomFilter?.single_beds || bedroomFilter?.double_beds) ? '&bedroomFilter=' + bedroomFilter?.num + ',' + bedroomFilter?.single_beds + ',' + bedroomFilter?.double_beds : ''}${(capacityFilter?.min >= 0 || capacityFilter?.max > 0) ? '&capacityFilter=' + capacityFilter.min + ',' + capacityFilter.max : ''}${poolFilter?.length > 0 ? '&poolFilter=' + poolFilter.toString() : ''}${customersTypesFilter?.length > 0 ? '&customers=' + customersTypesFilter.toString() : ''}${companiansFilter?.length > 0 ? '&companiansFilter=' + companiansFilter.toString() : ''}${bathroomsFilterNum > 0 ? '&bathroomsNum=' + bathroomsFilterNum : ''}${bathroomsCompaniansFilter?.length > 0 ? '&bathroomFacilities=' + bathroomsCompaniansFilter.toString() : ''}${kitchenFilter?.length > 0 ? '&kitchenFilter=' + kitchenFilter.toString() : ''}`;
 
-        console.log('price: ', priceRange.toString());
+        console.log('url: ', url);
 
         const res = await axios.get(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
         
@@ -600,6 +592,7 @@ export const getProperties = async(
         return { success: true, dt: res.data };
     
     } catch (err) {
+        console.log(err);
         return { success: false, dt: err?.response?.data ? getErrorText(err.response.data.message) : getErrorText('')}
     }
 };

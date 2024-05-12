@@ -1,6 +1,6 @@
 .filterULDiv{
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     position: fixed;
     background: rgba(0, 0, 0, 0.475);
     top: 0;
@@ -276,6 +276,10 @@
         &:dir(ltr){
             margin-left: unset;
             margin-right: 8px;
+
+            span{
+                transform: translate(8px, 4px);        
+            }
         }
 
         span{
@@ -284,7 +288,7 @@
             height: 14px;
             border-right: 2px solid var(--secondColorDark);
             border-bottom: 2px solid var(--secondColorDark);
-            transform: rotate(45deg) translate(-4px, 8px);            
+            transform: translate(-9px, 4px);            
         }
     }
     

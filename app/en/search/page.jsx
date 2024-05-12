@@ -8,17 +8,17 @@ import Card from '@components/Card';
 import GoogleMapPopup from '@components/popups/GoogleMapPopup';
 import { useContext, useEffect, useState } from 'react';
 import { getLocation, getProperties } from '@utils/api';
-import { maximumPrice, minimumPrice } from '@utils/Data';
-import { arrangeArray, getNameByLang, getReadableDate, isOkayBookDays } from '@utils/Logic';
+import { JordanCities, maximumPrice, minimumPrice } from '@utils/Data';
+import { arrangeArray, getArabicNameCatagory, getNameByLang, getReadableDate, isOkayBookDays } from '@utils/Logic';
 import { Context } from '@utils/Context';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
 import MyCalendar from '@components/MyCalendar';
+import HeaderPopup from '@components/popups/HeaderPopup';
 
 const page = () => {
 
   const [properitiesArray, setProperitiesArray] = useState([]);
-  const [isCalendar, setIsCalendar] = useState(false);
   const [selectedProp, setSelectedProp] = useState(null);
   const [runOnce, setRunOnce] = useState(false);
   const [fetching, setFetching] = useState(false);
@@ -27,77 +27,104 @@ const page = () => {
   const [pagesNumber, setPagesNumber] = useState(1);
   const [skipable, setSkipable] = useState(false);
   const [skip, setSkip] = useState(0);
-  const cardsPerPage = 16;
+  const [isFilterHeader, setIsFilterHeader] = useState(false);
+  const [isCityDiv, setIsCityDiv] = useState(false);
+  const [isCalendar, setIsCalendar] = useState(false);
+  const [isCategoryDiv, setIsCategoryDiv] = useState(false);
+  const [isResultDiv, setIsResultDiv] = useState(false);
+  const cardsPerPage = 12;
 
   const { 
-      currentMinPrice, currentMaxPrice, city, catagory, 
+      rangeValue, city, setCity, catagory, 
       ratingScore, triggerFetch, searchText, 
       arrangeValue, setCatagory, calendarDoubleValue, 
-      isCalendarValue, setCalendarDoubleValue
+      isCalendarValue, setCalendarDoubleValue, categoryArray,
+      setIsModalOpened, setLatitude, setLongitude, longitude, latitude,
+      isSearchMap, setIsSearchMap, isMobile,
+      quickFilter,
+      neighbourSearchText,
+      unitCode,
+      bedroomFilter,
+      capacityFilter,
+      poolFilter,
+      customersTypesFilter,
+      companiansFilter,
+      bathroomsFilterNum,
+      bathroomsCompaniansFilter,
+      kitchenFilter
   } = useContext(Context);
+
+  const getMyLoc = async() => {
+    const loc = await getLocation();
+    setLongitude(city?.long || loc.long || JordanCities[0].long);
+    setLatitude(city?.lat || loc.lat || JordanCities[0].lat);
+  };
 
   const settingPropertiesArray = async() => {
 
-      if(fetching) return;
+    if(fetching) return;
 
-      try {
+    try {
 
-          setFetching(true);
+        setFetching(true);
 
-          let addressLong, addressLat;
+        const res = await getProperties(
+            city.value, null, catagory, rangeValue,
+            ratingScore, searchText, isSearchMap ? 'address' : arrangeValue, longitude || JordanCities[0].long, latitude || JordanCities[0].lat, skip,
+            quickFilter,
+            neighbourSearchText,
+            unitCode,
+            bedroomFilter,
+            capacityFilter,
+            poolFilter,
+            customersTypesFilter,
+            companiansFilter,
+            bathroomsFilterNum,
+            bathroomsCompaniansFilter,
+            kitchenFilter,
+            categoryArray
+        );
 
-          if(arrangeValue === 'address'){
-              const loc = await getLocation();
-              addressLong = loc.long;
-              addressLat = loc.lat;
-          };
-          
-          const res = await getProperties(
-              city.value, null, catagory, 
-              (currentMinPrice !== minimumPrice || currentMaxPrice !== maximumPrice) 
-                  ? `${currentMinPrice},${currentMaxPrice}` : null,
-              ratingScore, searchText, arrangeValue, addressLong, addressLat, skip    
-          );
-
-          if(res.success !== true) {
-              setProperitiesArray([]);
-              setSkipable(false);
-              setFetching(false);
-              return;
-          };
-
-          if(res?.dt?.length > 300){
-            setSkipable(true)
-          } else {
+        if(res.success !== true) {
+            setProperitiesArray([]);
             setSkipable(false);
-          }
+            setFetching(false);
+            console.log(res.dt);
+            return;
+        };
 
-          let arr = [];
+        if(res?.dt?.length > 300){
+          setSkipable(true)
+        } else {
+          setSkipable(false);
+        }
 
-          if(isCalendarValue && calendarDoubleValue){
-              for (let i = 0; i < res.dt.length; i++) {
-                  if(isOkayBookDays(calendarDoubleValue, res.dt?.at(i)?.booked_days))
-                      arr.push(res.dt[i]);
-              }
-          };
+        let arr = [];
 
-          if(skip > 0){
-              setProperitiesArray([...properitiesArray, ...((isCalendarValue && calendarDoubleValue) ? arr : res.dt)]);
-          } else { 
-              setProperitiesArray(((isCalendarValue && calendarDoubleValue) ? arr : res.dt));
-          }
+        if(isCalendarValue && calendarDoubleValue){
+            for (let i = 0; i < res.dt.length; i++) {
+                if(isOkayBookDays(calendarDoubleValue, res.dt?.at(i)?.booked_days))
+                    arr.push(res.dt[i]);
+            }
+        };
 
-          setFetching(false);
+        if(skip > 0){
+            setProperitiesArray([...properitiesArray, ...((isCalendarValue && calendarDoubleValue) ? arr : res.dt)]);
+        } else { 
+            setProperitiesArray(((isCalendarValue && calendarDoubleValue) ? arr : res.dt));
+        }
 
-          if(isCalendarValue && skip === 0 && res.dt.length === 300 && arr.length <= 50)
-              setSkip(skip + 1);
+        setFetching(false);
 
-      } catch (err) {
-          console.log(err);
-          setFetching(false);
-      }
+        if(isCalendarValue && skip === 0 && res.dt.length === 300 && arr.length <= 50)
+            setSkip(skip + 1);
 
-  };
+    } catch (err) {
+        console.log(err);
+        setFetching(false);
+    }
+
+};
 
   const handleArrowPagesNav = (isPrev) => {
     if(isPrev){
@@ -120,37 +147,59 @@ const page = () => {
     return { longitude: null, latitude: null };
   };
 
+  const getSelectedCategories = (array) => {
+    let str = '';
+    array.forEach((element, index) => {
+      str += element.value + (index >= array.length - 1 ? '' : ', ');
+    });
+    return str?.length > 0 ? str : ('الكل');
+  };
+
+  const settingPreventScroll = () => {
+    if(isCityDiv || isCategoryDiv || isCalendar || isSearchMap || isResultDiv) 
+      return setIsModalOpened(true);
+    setIsModalOpened(false);
+  };
+
+  const handleWishList = async() => {
+  };
+
   useEffect(() => {
-    if(catagory === ''){
       setRunOnce(true);
-    } else {
-      setCatagory('');
-    }
   }, []);
 
   useEffect(() => {
-    if(runOnce) setCatagory('');
+    if(runOnce) {
+      settingPreventScroll();
+      getMyLoc();
+      settingPropertiesArray();
+    }
   }, [runOnce]);
 
   useEffect(() => {
     if(currentPage > pagesNumber) setCurrentPage(pagesNumber);
     if(currentPage < 1) setCurrentPage(1);
     setIndexSlide((currentPage - 1) * cardsPerPage);
+    window.scrollTo({
+      top: 0, behavior: 'smooth'
+    });
   }, [currentPage]);
 
   useEffect(() => {
       if(properitiesArray.length > cardsPerPage){
           setPagesNumber(Math.ceil(properitiesArray.length / cardsPerPage));
+          setCurrentPage(1);
+          setIndexSlide(0);
+      } else {
+          setPagesNumber(1);
+          setCurrentPage(1);
+          setIndexSlide(0);
       };
   }, [properitiesArray]);
 
   useEffect(() => {
       if(runOnce) settingPropertiesArray();
   }, [triggerFetch]);
-
-  useEffect(() => {
-      setProperitiesArray(arrangeArray(arrangeValue.toString(), properitiesArray));
-  }, [arrangeValue]);
 
   useEffect(() => {
     settingPropertiesArray();
@@ -163,64 +212,112 @@ const page = () => {
   }, [catagory]);
 
   useEffect(() => {
+    settingPreventScroll();
+  }, [isCityDiv, isCategoryDiv, isCalendar, isSearchMap, isResultDiv]);
+
+  useEffect(() => {
       if(runOnce) settingPropertiesArray();
   }, [skip]);
 
   return (
-    <div className='search' dir='ltr'>
+    <div className='search'>
 
-        <div className='searchByMap'>
+        <span id="close-popups" style={{ display: (isCalendar || isCityDiv || isCategoryDiv) ? null : 'none'}}
+          onClick={() => {
+            setIsCalendar(false); setIsCityDiv(false); setIsCategoryDiv(false);
+          }}/>
 
-          <h2>Search By Map</h2>
-
-          <Image src={MapGif} alt='search by map gif'/>
-
-        </div>
-
-        <span id="close-popups" style={{ display: isCalendar ? null : 'none'}}
-            onClick={() => setIsCalendar(false)}/>
-
-        <div className='book-date'>
+        <div className='page-header-filter' dir='ltr' style={{ padding: !isFilterHeader ? '8px 16px' : undefined }}>
 
             <div className='calendar-div' style={{ display: !isCalendar ? 'none' : null }}>
                 <MyCalendar type={'mobile-filter'} setCalender={setCalendarDoubleValue}/>
             </div>
 
-            <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
-            {getNameByLang('تاريخ الحجز', true)}
-            <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(0), true, true)}</h3>
-            </div>
+            {isFilterHeader ? <><div className='bookingDate city-header-div'
+              onClick={() => setIsCityDiv(true)}>
+                City
+                <h3>{city?.arabicName || 'Undefined'}</h3>
+                {isCityDiv && <HeaderPopup type={'add-city'} isEnglish={true} itemCity={city} setItemCity={setCity}/>}
+              </div>
 
-            <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
-            {getNameByLang('تاريخ انتهاء الحجز', true)}
-            <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, true)}</h3>
-            </div>
+              <div className='bookingDate city-header-div' onClick={() => setIsCategoryDiv(!isCategoryDiv)}>
+                Property type
+                <h3>{categoryArray?.length > 0 ? getSelectedCategories(categoryArray) : getArabicNameCatagory(catagory, true) || 'All'}</h3>
+                {isCategoryDiv && <HeaderPopup type={'catagory'} isEnglish={true}/>}
+              </div>
+
+              <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
+              {getNameByLang('تاريخ الحجز', true)}
+              <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(0), true, true)}</h3>
+              </div>
+
+              <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
+              {getNameByLang('تاريخ انتهاء الحجز', true)}
+              <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, true)}</h3>
+              </div>
+              
+              <div className='bookingDate' style={{ maxWidth: 40 }} onClick={() => { setIsFilterHeader(false); settingPropertiesArray(); }}>Search</div>
+
+              <div className='bookingDate' onClick={() => setIsFilterHeader(false)}>Cancel</div>
+            
+            </> : <div className='expand-div disable-text-copy'>
+              <div onClick={() => setIsFilterHeader(true)}>
+                {city.value || 'Undefined city'} 
+                <h3 suppressHydrationWarning>Reservation date {getReadableDate(calendarDoubleValue?.at(0), true, true)} - {getReadableDate(calendarDoubleValue?.at(1), true, true)}</h3>
+              </div>
+              <Image onClick={() => setIsSearchMap(true)} src={MapGif} />
+            </div>}
 
         </div>
 
-        <div className='map-div'>
+        <div className='map-div' style={{ display: !isSearchMap ? 'none' : undefined, height: isMobile ? '100vh' : undefined }}>
 
-          <Card item={selectedProp} isEnglish/>
+          <button id='list-btn' onClick={() => { setIsResultDiv(true); setSelectedProp(null); }}><Svgs name={'list'}/> List</button>
 
-          <GoogleMapPopup isShow={true} longitude={getPropCoordinates().longitude} 
-              latitude={getPropCoordinates().latitude}
-              mapType={'search'} props={properitiesArray} setSelectedProp={setSelectedProp}/>
+          <GoogleMapPopup isEnglish searchHere={settingPropertiesArray} setLatitude={setLatitude} setLongitude={setLongitude} 
+              isShow={isSearchMap} setIsShow={setIsSearchMap} longitude={longitude || getPropCoordinates().longitude} 
+              latitude={latitude || getPropCoordinates().latitude} style={{ height: '100%', maxHeight: '100%' }}
+              mapType={'search'} props={properitiesArray} setSelectedProp={setSelectedProp} selectedProp={selectedProp}/>
 
-        </div>
-
-        <h2 id='all-results'>All Results</h2>
-
-        {properitiesArray?.length > 0 ? <ul className="resultUL">
+          {(!isMobile || isResultDiv) && <div className='units-div' dir='ltr'>
+            {selectedProp && <div className='selected-prop'>
+              <span className='units-div-header'>
+                <h3>Unit Details</h3>
+                <Svgs name={'cross'} on_click={() => setSelectedProp(null)}/>
+              </span>
+              <Card isVertical isEnglish item={selectedProp}/>
+            </div>}
+            <span className='units-div-header'>
+              <h3>List of units on the map</h3>
+              {isMobile && <Svgs name={'cross'} on_click={() => setIsResultDiv(false)}/>}
+            </span>
+            {properitiesArray?.length > 0 ? <ul className="resultUL">
             {properitiesArray.slice(indexSlide, indexSlide + cardsPerPage).map((item) => (
-                <Card key={item._id} item={item} isEnglish/>
+                <Card handleWishList={handleWishList} isEnglish={true} isVertical={!isMobile} key={item._id} item={item}/>
             ))}
-        </ul> : fetching ? <MySkeleton loadingType={'cards'}/> : <NotFound isEnglish/>}
+          </ul> : fetching ? <MySkeleton loadingType={'cards'} styleObj={{ margin: 0, paddingTop: 0 }}/> : <NotFound isEnglish/>}</div>}
+        
+          {selectedProp && isMobile && <div dir='ltr' className='units-div selected-prop'>
+            <span className='units-div-header'>
+              <h3>Unit Details</h3>
+              <Svgs name={'cross'} on_click={() => setSelectedProp(null)}/>
+            </span>
+            <Card isVertical isEnglish item={selectedProp}/>
+          </div>}
+          
+        </div>
 
-        <div className="pagesHandler">
+        {!isSearchMap && ((properitiesArray?.length > 0 && !fetching) ? <ul dir='ltr' className="resultUL">
+            {properitiesArray.slice(indexSlide, indexSlide + cardsPerPage).map((item) => (
+                <Card key={item._id} item={item} isEnglish={true}/>
+            ))}
+        </ul> : fetching ? <MySkeleton loadingType={'cards'} styleObj={{ margin: 0, paddingTop: 0 }}/> : <NotFound isEnglish/>)}
+
+        <div className="pagesHandler" dir='ltr'>
 
             <h4>Results</h4>
 
-            <div onClick={() => handleArrowPagesNav(true)}><Svgs name={'dropdown arrow'}/></div>
+            <div  onClick={() => handleArrowPagesNav(true)}><Svgs name={'dropdown arrow'}/></div>
 
             {currentPage < 5 ? <><span onClick={() => setCurrentPage(1)} className={`pageNum ${currentPage === 1 && 'selectedPage'}`}>1</span>
             
@@ -266,13 +363,13 @@ const page = () => {
                     
             }
 
-            <div id='rotate-it-next' onClick={() => handleArrowPagesNav(false)}><Svgs name={'dropdown arrow'}/></div>
+            <div onClick={() => handleArrowPagesNav(false)}><Svgs name={'dropdown arrow'}/></div>
 
         </div>
 
         <button id="moreResult" style={{
              display: (currentPage === pagesNumber && skipable) ? 'block' : 'none'
-        }} onClick={() => setSkip(skip + 1)}>Load more</button>
+        }} onClick={() => setSkip(skip + 1)}>Load More</button>
 
     </div>
   )

@@ -28,7 +28,9 @@ const Arrange = ({ isEnglish, isArrange, setIsArrange, setTriggerFetch, triggerF
 
         <div className='arrange'>
 
-            <div className='arrangeHeader'></div>
+            <div className='arrangeHeader'>
+                {isEnglish ? 'Sort Results' : 'نرنيب النتائج'}
+            </div>
 
             <ul>
                 {arranges.map((arng, index) => (

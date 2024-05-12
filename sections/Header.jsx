@@ -2,7 +2,7 @@
 
 import '@styles/Header.css';
 import Image from 'next/image';
-import LogoImage from '@assets/icons/rentnext-logo.png';
+import LogoImage from '@assets/icons/rent-nest-logo-header.png';
 import Svgs from '@utils/Svgs';
 import Link from 'next/link';
 import { Suspense, useContext, useEffect, useState } from 'react';
@@ -47,7 +47,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       calendarDoubleValue, setIsMobileHomeFilter, 
       setIsCalendarValue, setLoadingUserInfo,
       isMobileHomeFilter, setStorageKey, isMobile, setIsMobile,
-      setIsEnglish, isVerified, setIsModalOpened,
+      setIsEnglish, isVerified, setIsModalOpened, isModalOpened,
       setIsSearchMap, isMapSearch
     } = useContext(Context);
 
@@ -251,14 +251,14 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
   return (
 
     <div suppressContentEditableWarning className={(pathname.includes('/en') ? 'header englishHeader' : 'header')} style={{ 
-      position: 'fixed', zIndex: (isArrange || isFilter || isMenu || isMap 
+      position: 'fixed', boxShadow: isModalOpened ? 'unset' : undefined, zIndex: (isArrange || isFilter || isMenu || isMap 
           || isCatagoryFilter || isCityFilter || isCalendarFilter
           || isMobileHomeFilter) && 11
     }} suppressHydrationWarning={true} dir={pathname.includes('/en') ? 'ltr' : null}>
 
         <div className='desktopWrapper'>
             
-            <Link href={getHref('home')} className='logo'>
+            <Link href={getHref('home')} className='logo disable-text-copy'>
                 <Image src={LogoImage} alt='rentnext website logo image'/>
             </Link>
 
@@ -278,9 +278,9 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
               {getNameByLang('وسائل نقل', pathname.includes('/en'))}
             </Link>
 
-            <Link href={getHref('add')} style={{ display: !userId?.length > 0 ? 'none' : null }} className='addItemHeaderDiv'>{getNameByLang('أضف عقارك', pathname.includes('/en'))}</Link>
+            <Link href={getHref('add')} style={{ display: !userId?.length > 0 ? 'none' : null }} className='addItemHeaderDiv disable-text-copy'>{getNameByLang('أضف عقارك', pathname.includes('/en'))}</Link>
 
-            <div className='user' style={{ maxWidth: !userId?.length > 0 ? 'unset' : null }}>
+            <div className='user disable-text-copy' style={{ maxWidth: !userId?.length > 0 ? 'unset' : null }}>
               <Link href={userId?.length > 0 ? getHref('profile', userId) : getHref('sign-up')}>
                 <div className='profileSvg'><Svgs name={'profile'}/></div>
                 <p>{userId?.length > 0 ? userUsername : getNameByLang('الدخول أو انشاء حساب', pathname.includes('/en'))}</p>
@@ -288,7 +288,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
               </Link>
             </div>
 
-            <div className='user admin-header-button' style={{ 
+            <div className='user admin-header-button disable-text-copy' style={{ 
               display: (userRole === 'admin' || userRole === 'owner') ? null : 'none' 
             }}>
               <Link href={(userRole === 'admin' || userRole === 'owner') 
@@ -298,7 +298,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
               </Link>
             </div>
             
-            <Link className={`lang ${pathname.includes('/en') ? arabicFontClassname : englishFontClassname}`} href={getHref('lang')}>
+            <Link className={`lang ${pathname.includes('/en') ? arabicFontClassname : englishFontClassname} disable-text-copy`} href={getHref('lang')}>
                 <h5>{!pathname.includes('/en') ? 'Browse in' : 'التصفح في'}</h5>
                 <p>{!pathname.includes('/en') ? 'English' : 'العربية'}</p>
             </Link>
@@ -346,7 +346,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
         <div className="mobileHeader" style={{ zIndex: isMenu ? 20 : null, display: isMobile ? undefined : 'none' }}>
 
-          <div className='user'>
+          <div className='user disable-text-copy'>
             <Link href={userId?.length > 0 ? getHref('profile', userId) : getHref('sign-up')}>
               <div className='profileSvg'><Svgs name={'profile'}/></div>
               <p>{userId?.length > 0 ? userUsername : getNameByLang('الدخول أو انشاء حساب', pathname.includes('/en'))}</p>
@@ -355,7 +355,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
           </div>
 
           <Link style={{ display: (isScrolled && (pathname === '/' || pathname === '/en')) ? 'none' : null }} 
-            href={getHref('home')} className='logo'>
+            href={getHref('home')} className='logo disable-text-copy'>
               <Image src={LogoImage} alt='rentnext website logo image'/>
           </Link>
 
@@ -401,7 +401,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
                 {getNameByLang('وسائل نقل', pathname.includes('/en'))}
               </Link>
 
-              <div className='user admin-header-button' style={{ 
+              <div className='user admin-header-button disable-text-copy' style={{ 
                 display: (userRole === 'admin' || userRole === 'owner') ? null : 'none' 
               }}>
                 <Link onClick={() => setIsMenu(false)} href={(userRole === 'admin' || userRole === 'owner') 
@@ -412,11 +412,11 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
               </div>
 
               <Link href={getHref('add')} onClick={() => setIsMenu(false)}
-                style={{ display: !userId?.length > 0 ? 'none' : null }} className='addItemHeaderDiv'>
+                style={{ display: !userId?.length > 0 ? 'none' : null }} className='addItemHeaderDiv disable-text-copy'>
                 {getNameByLang('أضف عقارك', pathname.includes('/en'))}
               </Link>
 
-              <Link onClick={() => setIsMenu(false)} className='lang' href={getHref('lang')}>
+              <Link onClick={() => setIsMenu(false)} className='lang disable-text-copy' href={getHref('lang')}>
                 <h5>{!pathname.includes('/en') ? 'Browse in' : 'التصفح في'}</h5>
                 <p>{!pathname.includes('/en') ? 'English' : 'العربية'}</p>
               </Link>
@@ -439,7 +439,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
         {(pathname !== '/' || pathname !== '/en') && <Filter isEnglish={pathname.includes('/en')} type={'prop'} isFilter={isFilter} setIsFilter={setIsFilter} triggerFetch={triggerFetch} setTriggerFetch={setTriggerFetch}/>}
 
-        {isArrange && <Arrange isEnglish={pathname.includes('/en')} isArrange={isArrange} setIsArrange={setIsArrange} setTriggerFetch={setTriggerFetch} triggerFetch={triggerFetch} arrangeValue={arrangeValue} setArrangeValue={setArrangeValue}/>}
+        <Arrange isEnglish={pathname.includes('/en')} isArrange={isArrange} setIsArrange={setIsArrange} setTriggerFetch={setTriggerFetch} triggerFetch={triggerFetch} arrangeValue={arrangeValue} setArrangeValue={setArrangeValue}/>
 
         {isMap && <GoogleMapPopup isShow={isMap} setIsShow={setIsMap} mapType={mapType} 
         mapArray={mapArray} longitude={longitude} setLongitude={setLongitude} 

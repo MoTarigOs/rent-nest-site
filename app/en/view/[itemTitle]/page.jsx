@@ -27,7 +27,8 @@ const page = () => {
     setBooksIds, userId, userRole, setIsMap, 
     setMapType, setLatitude, setLongitude,
     calendarDoubleValue, setCalendarDoubleValue,
-    storageKey, userEmail, isMobile, isVerified
+    storageKey, userEmail, isMobile, isVerified,
+    setIsModalOpened
   } = useContext(Context);
   
   const id = useSearchParams().get('id');
@@ -89,6 +90,17 @@ const page = () => {
 
   const [deletingReport, setDeletingReport] = useState(false);
   const [isDeleteReport, setIsDeleteReport] = useState(false);
+
+  const [isGuestRooms, setIsGuestRooms] = useState(false);
+  const [isKitchen, setIsKitchen] = useState(false);
+  const [isRooms, setIsRooms] = useState(false);
+  const [isBathrooms, setIsBathrooms] = useState(false);
+  const [isPlaces, setIsPlaces] = useState(false);
+  const [isFacilities, setIsFacilities] = useState(false);
+  const [isPool, setIsPool] = useState(false);
+  const [isVehicleSpecs, setIsVehicleSpecs] = useState(false);
+  const [isVehicleAddons, setIsVehicleAddons] = useState(false);
+  const [isCheckout, setIsCheckout] = useState(false);
 
   const whatsappBaseUrl = 'https://wa.me/';
 
@@ -556,6 +568,11 @@ const page = () => {
     if(!loading && item) setFetching(false);
   }, [loading, item]);
 
+  useEffect(() => {
+    if(isCheckout) return setIsModalOpened(true);
+    setIsModalOpened(false);
+  }, [isCheckout]);
+
   const RightIconSpan = () => {
     return <span id='righticonspan'/>
   }
@@ -786,37 +803,35 @@ const page = () => {
 
           <ul className='specificationsUL' style={{ display: !isSpecifics && 'none' }}>
             {!item.type_is_vehicle ? <>
-              <li><Svgs name={'insurance'}/>
-                <h4>{item.details.insurance === true ? 'A deposit is required before booking' : 'No insurance required'}</h4>
-                <h4>{item.cancellation?.length > 0 ? cancellationsArray(true)[cancellationsArray().indexOf(item.cancellation)] : ''}</h4>
-                <h4>{item.customer_type !== 'غير محدد' ? 'Only for ' : ''} {item.en_data?.customerTypeEN}</h4>
-                <h4>{item.capacity > 0 ? `Max number of Guest ${item.capacity} Guests` : ''}</h4>
-              </li>
-              <li><Svgs name={'guest room'}/><h3>Guest Rooms</h3><ul>{item.details?.guest_rooms?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>
-              <li><Svgs name={'kitchen'}/><h3>Kitchen</h3><ul>
+              {item.insurance && <li><Svgs name={'insurance'}/><h4>{item.details.insurance === true ? 'A deposit is required before booking' : 'No insurance required'}</h4></li>}
+              {item.cancellation > 0 && <li><h4>{item.cancellation >= 0 ? cancellationsArray(true)?.at(item.cancellation) : ''}</h4></li>}
+              {item.en_data?.customerTypeEN && <li><h4>{item.customer_type !== 'غير محدد' ? 'Only for ' : ''} {item.en_data?.customerTypeEN}</h4></li>}
+              {item.capacity > 0 && <li><h4>{item.capacity > 0 ? `Max number of Guest ${item.capacity} Guests` : ''}</h4></li>}
+              {item.details?.guest_rooms?.length > 0 && <li onClick={() => setIsGuestRooms(!isGuestRooms)}><Svgs name={'guest room'}/><h3>Living Rooms</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isGuestRooms ? '-' : '+'}</span><ul style={{ display: (!isGuestRooms && isMobile) ? 'none' : undefined}}>{item.details?.guest_rooms?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>}
+              {(item.details?.kitchen.dim || item.details?.kitchen?.companians) && <li onClick={() => setIsKitchen(!isKitchen)}><Svgs name={'kitchen'}/><h3>Kitchen</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isKitchen ? '-' : '+'}</span><ul style={{ display: (!isKitchen && isMobile) ? 'none' : undefined}}>
                 <SpecificationListItemDimensions content={item.details?.kitchen?.dim} idName='kitchen'/>
                 {item.details?.kitchen?.companians?.map((i) => (<li>{kitchenFacilities(true)[kitchenFacilities().indexOf(i)] || i}</li>))}
-              </ul></li>
-              <li><Svgs name={'rooms'}/><h3>Bedrooms</h3><ul>
+              </ul></li>}
+              {(item?.details?.rooms?.num > 0 || item?.details?.rooms?.single_beds > 0 || item?.details?.rooms?.double_beds > 0) && <li onClick={() => setIsRooms(!isRooms)}><Svgs name={'rooms'}/><h3>Bedrooms</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isRooms ? '-' : '+'}</span><ul style={{ display: (!isRooms && isMobile) ? 'none' : undefined}}>
                 <SpecificationListItemNum content={item?.details?.rooms?.num} idName={'bedrooms'}/>
                 <SpecificationListItemNum content={item?.details?.rooms?.single_beds} idName={'single beds'}/>
                 <SpecificationListItemNum content={item?.details?.rooms?.double_beds} idName={'double beds'}/>
-              </ul></li>
-              <li><Svgs name={'bathrooms'}/><h3>Bathrooms</h3><ul>
+              </ul></li>}
+              {(item.details?.bathrooms?.num > 0 || item.details?.bathrooms?.companians?.length > 0) && <li onClick={() => setIsBathrooms(!isBathrooms)}><Svgs name={'bathrooms'}/><h3>Bathrooms</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isBathrooms ? '-' : '+'}</span><ul style={{ display: (!isBathrooms && isMobile) ? 'none' : undefined}}>
                 <SpecificationListItemNum content={item.details?.bathrooms?.num} idName='bathrooms'/>
                 {item.details?.bathrooms?.companians?.map((i) => (<li>{bathroomFacilities(true)[bathroomFacilities().indexOf(i)] || i}</li>))}
-              </ul></li>
-              <li><Svgs name={''}/><h3>Near places</h3><ul>{item.details?.near_places?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>
-              <li><Svgs name={'facilities'}/><h3>Facilities</h3><ul>{item.details?.facilities?.map((i) => (<li>{facilities(true)[facilities().indexOf(i)] || i}</li>))}</ul></li>
-              <li id='lastLiTabButtonUL'><h3>Pool</h3><ul>
+              </ul></li>}
+              {item.details?.near_places?.length > 0 && <li onClick={() => setIsPlaces(!isPlaces)}><Svgs name={'places'}/><h3>Near places</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isPlaces ? '-' : '+'}</span><ul style={{ display: (!isPlaces && isMobile) ? 'none' : undefined}}>{item.details?.near_places?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>}
+              {item.details?.facilities?.length > 0 && <li onClick={() => setIsFacilities(!isFacilities)}><Svgs name={'facilities'}/><h3>Facilities</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isFacilities ? '-' : '+'}</span><ul style={{ display: (!isFacilities && isMobile) ? 'none' : undefined}}>{item.details?.facilities?.map((i) => (<li>{facilities(true)[facilities().indexOf(i)] || i}</li>))}</ul></li>}
+              {(item.details?.pool?.companians?.length > 0 || item?.details?.pool?.num || item?.details?.pool?.dim) && <li onClick={() => setIsPool(!isPool)} id='lastLiTabButtonUL'><Svgs name={'pool'}/><h3>Pool</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isPool ? '-' : '+'}</span><ul style={{ display: (!isPool && isMobile) ? 'none' : undefined}}>
                 {item.details?.pool?.companians?.map((i) => (<li>{poolType(true)[poolType().indexOf(i)] || i}</li>))}
                 <SpecificationListItemNum content={item?.details?.pool?.num} idName='pool'/>  
                 <SpecificationListItemDimensions content={item?.details?.pool?.dim} idName='pool'/>
-              </ul></li>
+              </ul></li>}
             </> : <>
-              <li><Svgs name={'vehicle specifications'}/><h3>Car Specifications</h3><ul>{item?.details?.vehicle_specifications?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>
-              <li><Svgs name={'vehicle addons'}/><h3>Car Features</h3><ul>{item?.details?.vehicle_addons?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>
-              <li id='lastLiTabButtonUL'><Svgs name={''}/><h3>Near Places</h3><ul>{item.details?.near_places?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>
+              {item.details?.vehicle_specifications?.length > 0 && <li onClick={() => setIsVehicleSpecs(!isVehicleSpecs)}><Svgs name={'vehicle specifications'}/><h3>Car Specifications</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isVehicleSpecs ? '-' : '+'}</span><ul style={{ display: (!isVehicleSpecs && isMobile) ? 'none' : undefined}}>{item?.details?.vehicle_specifications?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>}
+              {item.details?.vehicle_addons?.length > 0 && <li onClick={() => setIsVehicleAddons(!isVehicleAddons)}><Svgs name={'vehicle addons'}/><h3>Car Features</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isVehicleAddons ? '-' : '+'}</span><ul style={{ display: (!isVehicleAddons && isMobile) ? 'none' : undefined}}>{item?.details?.vehicle_addons?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>}
+              {item.details?.near_places?.length > 0 && <li onClick={() => setIsPlaces(!isPlaces)} id='lastLiTabButtonUL'><Svgs name={'places'}/><h3>Near Places</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isPlaces ? '-' : '+'}</span><ul style={{ display: (!isPool && isMobile) ? 'none' : undefined}}>{item.details?.near_places?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>}
             </>}
           </ul>
 
@@ -894,7 +909,7 @@ const page = () => {
 
         <div className='checkout'>
 
-          {isCalendar && <HeaderPopup type={'calendar'} isViewPage days={item.booked_days} setCalendarDoubleValue={setCalendarDoubleValue}/>}
+          {(isCalendar && !isCheckout) && <HeaderPopup type={'calendar'} isViewPage days={item.booked_days} setCalendarDoubleValue={setCalendarDoubleValue}/>}
 
           <div className='nightsDiv'>
             <h3 style={{ color: 'var(--secondColorDark)' }}>{item.price}<span style={{ marginLeft: 6 }}>$ / Night</span></h3>
@@ -932,6 +947,63 @@ const page = () => {
         </div>
 
       </div>
+
+      {isMobile && <div className='mobileBookBtn'>
+        <button onClick={() => setIsCheckout(true)} className='btnbackscndclr'>Book now</button>
+        <div>
+          <span id={item.discount?.percentage > 0 ? 'old-price' : 'original-price'}>{item.price} $</span>
+          {item.discount?.percentage > 0 && <span id='discounted-price'>{item.price - (item.price * (item.discount?.percentage)) / 100} $</span>}
+          / Night
+        </div>
+      </div>}
+
+      {(isMobile) && <div className={`checkout ${isCheckout ? 'mobile-checkout-popup' : 'mobile-checkout-popup-hidden'}`}>
+
+        {(isCalendar) && <span onClick={() => {
+          setIsCalendar(false);
+        }} id='spanForClosingPopups'/>}
+
+        <h2 id='checkoutDetailsH2'>Book Details </h2>
+
+        <div id='close-checkout' onClick={() => setIsCheckout(false)}><Svgs name={'cross'}/></div>
+
+        {isCalendar && <HeaderPopup type={'calendar'} isViewPage days={item.booked_days} setCalendarDoubleValue={setCalendarDoubleValue}/>}
+
+        <div className='nightsDiv'>
+          <h3 style={{ color: 'var(--secondColorDark)' }}>${item.price}<span> / Night</span></h3>
+          <h3 style={{ color: '#777' }}><span style={{ marginLeft: 0 }}>No of Nights</span> {getNumOfBookDays(calendarDoubleValue)}</h3>
+        </div>
+
+        <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
+          Book Start Date
+          <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(0), true, true)}</h3>
+        </div>
+
+        <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
+          Book End Date
+          <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, true)}</h3>
+        </div>
+
+        <div className='cost'>
+          <h3 style={{ display: (getNumOfBookDays(calendarDoubleValue) >= item.discount?.num_of_days_for_discount && item.discount?.percentage > 0)
+            ? null : 'none' }}>Discount {item.discount?.percentage}% <span>- ${(getNumOfBookDays(calendarDoubleValue) * item.price * item.discount?.percentage / 100).toFixed(2)}</span></h3>
+          <h3>Total {getNumOfBookDays(calendarDoubleValue)} Night <span>${((getNumOfBookDays(calendarDoubleValue) * item.price) - (item.discount?.percentage ? (getNumOfBookDays(calendarDoubleValue) * item.price * item.discount.percentage / 100) : 0)).toFixed(2)}</span></h3>
+        </div>
+
+        <button className='btnbackscndclr' id={(item.owner_id === userId || !canBook || (!booksIds.find(i => i.property_id === id) && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1)))) ? 'disable-button' : ''} 
+          onClick={handleBook}>
+            {(item.owner_id !== userId) 
+              ? (canBook 
+                ? (addingToBooks 
+                  ? 'Updating...' 
+                  : (booksIds.find(i => i.property_id === id) ? 'Remove from book list' : 'Book')) 
+                : getReasonForNotBook())
+            : 'This is your own offer'}
+        </button>
+
+        <p id='info-p' style={{ marginTop: bookSuccess?.length > 0 ? 8 : 0 }}>{bookSuccess}</p>
+
+      </div>}
 
       {(isCalendar || shareDiv || reportDiv) && <span onClick={() => {
         setIsCalendar(false); setShareDiv(false); setReportDiv(false);

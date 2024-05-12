@@ -1,15 +1,13 @@
 'use server';
 
-// import { cookies } from "next/headers";
+import { cookies } from "next/headers";
 
 export const isLoginedCookie = async() => {
-    return false;
-    // const cookie = cookies().get('is_logined');
-    // return cookie?.value === 'true' ? true : false;
+    const cookie = cookies().get('is_logined');
+    return cookie?.value === 'true';
 }
 
 export const isPreviouslyLogined = async() => {
-    return false;
-    // const cookie = cookies().get('is_logined');
-    // return cookie?.value === 'false' ? true : false;
+    const cookie = cookies().get('is_logined');
+    return cookie?.value?.length > 0;
 }

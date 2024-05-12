@@ -16,6 +16,7 @@
         display: flex;
         padding: 12px;
         margin-bottom: 44px;
+        background: white;
 
         .search-map{
             position: absolute;
@@ -23,6 +24,10 @@
             left: 0;
             width: 100vw;
             z-index: 8;
+
+            div{
+                border-radius: 0;
+            }
         }
 
         #more-btn, #list-btn{
@@ -75,8 +80,6 @@
             background: var(--secondColorHover);
             transition: all 0.2s ease-in;
         }
-
-        .unitsContainer{}
 
         .units-div{
             z-index: 100;
@@ -168,6 +171,21 @@
 
             .units-div-header{
                 margin-bottom: 24px;
+                width: 100%;
+                padding: 0;
+                padding-bottom: 12px;
+                justify-content: space-between;
+                align-items: center;
+
+                svg{
+                    position: static;
+                    margin-right: auto;
+                
+                    &:dir(ltr){
+                        margin-right: unset;
+                        margin-left: auto;
+                    }
+                }
             }
 
             .card{
@@ -181,14 +199,6 @@
             .card{
                 margin-left: 0;
                 margin-right: 24px;
-            }
-        }
-
-        .card{
-            margin-left: 24px;
-
-            &:hover{
-                scale: 1;
             }
         }
     }
@@ -450,6 +460,7 @@
             gap: 16px;
             max-width: 1300px;
             z-index: 1;
+            overflow-y: hidden;
 
             #list-btn{
                 display: none;
@@ -470,11 +481,19 @@
                 left: unset;
                 padding-right: 16px;
                 padding-left: 8px;
-                padding-bottom: 64px;
-                overflow: hidden;
+                height: calc(100dvh - var(--headerHeight) - 64px);
+                overflow-y: scroll;
 
                 .resultUL{
-                    max-height: calc(100vh - var(--headerHeight) - 64px);;
+                    height: fit-content;
+                    overflow: hidden;
+                    width: 100%;
+                    padding: 24px 12px 12px 12px;
+                    align-items: center;
+
+                    .card{
+                        margin: 0;
+                    }
                 }
 
                 .card{
@@ -499,6 +518,10 @@
 @media screen and (max-width: 960px){
     .search{
         margin-top: calc(var(--headerHeightMobile) + 36px);
+    
+        .card:hover{
+            scale: unset;
+        }
     }
 }
 

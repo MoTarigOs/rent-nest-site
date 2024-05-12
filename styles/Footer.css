@@ -61,14 +61,20 @@
     .bottomOfFooter{
         width: 100%;
         display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
         align-items: flex-start;
         justify-content: space-between;
 
         &:dir(ltr){
-            ul li{
-                margin-left: unset;
-                margin-right: 24px;
-            }
+            ul{
+                margin-right: unset;
+                margin-left: 16px;
+                li{
+                    margin-left: unset;
+                    margin-right: 24px;
+                }
+            } 
             h4{
                 margin-right: unset;
                 margin-left: 16px;
@@ -80,11 +86,22 @@
             font-size: 0.9rem;
             color: grey;
             margin-right: 16px;
+            position: relative;
+
+            &::after{
+                content: '©';
+                position: absolute;
+                top: 2px;
+                left: -16px;
+                scale: 1.5;
+            }
         }
 
         ul{
             display: flex;
             list-style: none;
+            margin-right: 16px;
+            margin-bottom: 24px;
 
             li{
                 margin-left: 24px;
@@ -98,6 +115,17 @@
                     transform: translateY(4px);
                 }
             }
+        }
+    }
+
+    .attribute{
+        width: 100%;
+
+        h4{
+            font-size: 0.7rem;
+            color: rgba(112, 112, 112, 0.715);
+            font-weight: 400;
+            margin-right: 16px;
         }
     }
 }

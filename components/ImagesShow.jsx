@@ -18,10 +18,26 @@ const ImagesShow = ({
 
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     let swiper = null;
+    const scrollDivRef = useRef(null);
     const prevButtonRef = useRef(null);
     const nextButtonRef = useRef(null);
     const prevButtonVideoRef = useRef(null);
     const nextButtonVideoRef = useRef(null);
+    let cardImages = [];
+
+    if(type === 'card'){
+        images.forEach((_, i) => {
+            cardImages.push({ ref: useRef(null), url: images[i] });
+        });
+    }
+
+    const getImagesArray = () => {
+        if(type === 'card'){
+            return cardImages;
+        } else {
+            return images;
+        }
+    }
 
     if(type === 'landing'){
         for (let i = 0; i < images.length; i++) {
@@ -38,7 +54,7 @@ const ImagesShow = ({
     };
 
     useEffect(() => {
-        swiper = new Swiper('.swiper-images-show', {
+        swiper = type === 'card' ? null : new Swiper('.swiper-images-show', {
             // Optional parameters
             direction: "horizontal",
             loop: false,
@@ -79,19 +95,29 @@ const ImagesShow = ({
 
     }, [type_is_video]);
 
+    useEffect(() => {
+        if(type === 'card'){
+            scrollDivRef.current.scrollTo({
+                top: 0,
+                left: cardImages[selectedImageIndex]?.ref?.current?.offsetLeft,
+                behavior: 'smooth'
+            })
+        }
+    }, [selectedImageIndex]);
+
   return (
     <div className='imagesDiv' dir={isEnglish ? 'ltr' : null} style={{ height: type === 'view' ? 420 : undefined, borderRadius: type === 'landing' ? 0 : undefined }}>
 
         <div className='swiper-images-show'>
-            <div className='swiper-wrapper'>
-            {!type_is_video ? <> {images?.length ? <>{images.map((img, index) => (
-                    <div key={index} className='swiper-slide'>
-                        <Image placeholder={type === 'landing' ? 'blur' : 'empty'} style={{ zIndex: type === 'view' ? 1 : null }} 
-                        src={type === 'landing' ? img.image : `${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${img}`} 
-                        fill={type === 'landing' ? false : true} 
-                        loading={type === 'landing' ? 'eager' : 'lazy'} alt={isEnglish ? 'Image about the offer' : 'صورة عن العرض'}
+            
+            <div className={`swiper-wrapper ${type === 'card' ? 'cards-images-container' : undefined}`} ref={scrollDivRef}>
+            {!type_is_video ? <> {getImagesArray()?.length ? <>{getImagesArray().map((img, index) => (
+                    <div key={index} className='swiper-slide' ref={img.ref}>
+                        <Image placeholder={type === 'landing' ? 'blur' : 'empty'} style={{ zIndex: type === 'view' ? 1 : null }} loading={type === 'landing' ? 'eager' : 'lazy'}
+                        src={type === 'landing' ? img.image : `${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${type === 'card' ? img.url : img}`} 
+                        fill={type === 'landing' ? false : true} alt={isEnglish ? 'Image about the offer' : 'صورة عن العرض'}
                         onLoad={() => { if(type === 'landing') img.setState(true) }}/>
-                        <div className='images-show-text' style={{ display: type !== 'landing' && 'none', width: '100%' }}>
+                        <div className='images-show-text' style={{ display: type !== 'landing' ? 'none' : undefined , width: '100%' }}>
                             <div style={{ width: '100%' }}>
                                 <h2>{img.title}</h2>
                                 <p>{img.desc}</p>
@@ -118,8 +144,16 @@ const ImagesShow = ({
             </div>
 
             {!type_is_video ? <>{images?.length > 0 && <>
-                <div className='arrow leftArrow' ref={nextButtonRef}><Svgs name={'dropdown arrow'}/></div>
-                <div className='arrow rightArrow' ref={prevButtonRef}><Svgs name={'dropdown arrow'}/></div>
+                <div className='arrow leftArrow' ref={nextButtonRef} onClick={() => {
+                    if(type === 'card' && selectedImageIndex < images.length - 1){
+                        setSelectedImageIndex(selectedImageIndex + 1);
+                    }
+                }}><Svgs name={'dropdown arrow'}/></div>
+                <div className='arrow rightArrow' ref={prevButtonRef} onClick={() => {
+                    if(type === 'card' && selectedImageIndex > 0){
+                        setSelectedImageIndex(selectedImageIndex - 1);
+                    }
+                }}><Svgs name={'dropdown arrow'}/></div>
             </>}</> : <>{videos?.length > 0 && <>
                 <div className='arrow leftArrow' ref={nextButtonVideoRef}><Svgs name={'dropdown arrow'}/></div>
                 <div className='arrow rightArrow' ref={prevButtonVideoRef}><Svgs name={'dropdown arrow'}/></div>
@@ -142,9 +176,9 @@ const ImagesShow = ({
 
         </div>
 
-        <div id='wishlistDiv' style={{ display: type === 'view' && 'none' }}><Svgs name={'wishlist'} on_click={handleWishList ? handleWishList() : null}/></div>
+        <div id='wishlistDiv' style={{ display: type === 'view' ? 'none' : undefined }}><Svgs name={'wishlist'} on_click={handleWishList ? handleWishList() : null}/></div>
 
-        {!type_is_video ? <ul style={{ display: (type !== 'landing' && type !== 'view') && 'none' }} className={type === 'landing' ? 'dots landingDots' : 'dots'}>
+        {!type_is_video ? <ul style={{ display: (type !== 'landing' && type !== 'view' && type !== 'card') && 'none' }} className={type === 'landing' ? 'dots landingDots' : 'dots'}>
             {images?.map((obj, index) => (
                 <li key={index} onClick={() => {
                     if(selectedImageIndex - index > 0){
