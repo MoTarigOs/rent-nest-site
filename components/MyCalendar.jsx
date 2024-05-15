@@ -12,7 +12,7 @@ const MyCalendar = ({ setCalender, type, days }) => {
   const { isMobile } = useContext(Context);
 
   return (
-    <div suppressHydrationWarning>
+    <div style={{ width: type === 'mobile-filter' ? '100%' : undefined }} suppressHydrationWarning>
       <Calendar 
           onChange={setCalender}
           calendarType='gregory'

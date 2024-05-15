@@ -1,5 +1,5 @@
 .mobileFilter{
-    width: 100vw;
+    width: calc(100% + 16px);
     height: 100dvh;
     position: absolute;
     top: 0;
