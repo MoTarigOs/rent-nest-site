@@ -2,7 +2,7 @@
 
 import '@styles/sections_styles/AboutSection.css';
 import Image from 'next/image';
-import AboutBackgroundImage from '@assets/images/image_as_logo.webp';
+import AboutBackgroundImage from '@assets/images/image_as_logo2.webp';
 import Svgs from '@utils/Svgs';
 import { ProperitiesCatagories, VehicleCatagories, getCategoryImage } from '@utils/Data';
 import Swiper from 'swiper/bundle';

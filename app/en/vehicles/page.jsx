@@ -7,7 +7,7 @@ import { useContext, useEffect, useState } from "react";
 import { Context } from "@utils/Context";
 import { getLocation, getProperties } from "@utils/api";
 import { VehiclesTypes, maximumPrice, minimumPrice } from "@utils/Data";
-import { arrangeArray, getNameByLang, getReadableDate } from "@utils/Logic";
+import { arrangeArray, getNameByLang, getReadableDate, isOkayBookDays } from "@utils/Logic";
 import MySkeleton from "@components/MySkeleton";
 import NotFound from "@components/NotFound";
 import MyCalendar from "@components/MyCalendar";
@@ -149,7 +149,7 @@ const page = () => {
         setIndexSlide((currentPage - 1) * cardsPerPage);
         window.scrollTo({
             top: 0, behavior: 'smooth'
-        })
+        });
     }, [currentPage]);
 
     useEffect(() => {
@@ -167,7 +167,6 @@ const page = () => {
     }, [arrangeValue]);
 
     useEffect(() => {
-        console.log(skip);
         if(runOnce) settingPropertiesArray();
     }, [skip]);
 
@@ -212,7 +211,7 @@ const page = () => {
             <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, true)}</h3>
             </div>
             
-            <div className='bookingDate' style={{ maxWidth: 40 }} onClick={() => { setIsFilterHeader(false); settingPropertiesArray(); }}>Search</div>
+            <div className='bookingDate' style={{  }} onClick={() => { setIsFilterHeader(false); settingPropertiesArray(); }}>Search</div>
 
             <div className='bookingDate' onClick={() => setIsFilterHeader(false)}>Cancel</div>
 

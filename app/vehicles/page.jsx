@@ -6,7 +6,7 @@ import Svgs from "@utils/Svgs";
 import { useContext, useEffect, useState } from "react";
 import { Context } from "@utils/Context";
 import { getLocation, getProperties } from "@utils/api";
-import { arrangeArray, getNameByLang, getReadableDate } from "@utils/Logic";
+import { arrangeArray, getNameByLang, getReadableDate, isOkayBookDays } from "@utils/Logic";
 import MySkeleton from "@components/MySkeleton";
 import NotFound from "@components/NotFound";
 import MyCalendar from "@components/MyCalendar";
@@ -220,7 +220,7 @@ const page = () => {
                 <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, false)}</h3>
                 </div>
                 
-                <div className='bookingDate' style={{ maxWidth: 40 }} onClick={() => { setIsFilterHeader(false); settingPropertiesArray(); }}>بحث</div>
+                <div className='bookingDate' style={{  }} onClick={() => { setIsFilterHeader(false); settingPropertiesArray(); }}>بحث</div>
 
                 <div className='bookingDate' onClick={() => setIsFilterHeader(false)}>الغاء</div>
 

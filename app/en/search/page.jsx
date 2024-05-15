@@ -256,7 +256,7 @@ const page = () => {
               <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, true)}</h3>
               </div>
               
-              <div className='bookingDate' style={{ maxWidth: 40 }} onClick={() => { setIsFilterHeader(false); settingPropertiesArray(); }}>Search</div>
+              <div className='bookingDate' onClick={() => { setIsFilterHeader(false); settingPropertiesArray(); }}>Search</div>
 
               <div className='bookingDate' onClick={() => setIsFilterHeader(false)}>Cancel</div>
             

@@ -718,8 +718,34 @@ export const errorsSection = [
 ];
 
 export const contactsPlatforms = [
-  'whatsapp', 'facebook', 'instagram', 'youtube'
+  'whatsapp', 'facebook', 'instagram', 'youtube', 'telegram',
+  'snapchat', 'linkedin', 'tiktok', 'x-twitter'
 ];
+
+export const getContactPlaceHolder = (platform) => {
+  switch (platform) {
+    case 'whatsapp':
+      return 'Ex: +96279123XXXX';
+    case 'facebook':
+      return 'Ex: https://www.facebook.com/your-account';
+    case 'instagram':
+      return 'Ex: https://www.instagram.com/your-account';
+    case 'youtube':
+      return 'Ex: https://www.youtube.com/your-channel';
+    case 'telegram':
+      return 'Ex: https://t.me/your-username';
+    case 'snapchat':
+      return 'Ex: https://www.snapchat.com/your-username';
+    case 'linkedin':
+      return 'Ex: https://www.linkedin.com/in/your-username';
+    case 'tiktok':
+      return 'Ex: https://www.tiktok.com/your-username';
+    case 'x-twitter':
+      return 'Ex: https://www.twitter.com/your-username';
+    default: 
+      return ''
+  }
+};
 
 export const minimumPrice = 5;
 export const maximumPrice = 8000;

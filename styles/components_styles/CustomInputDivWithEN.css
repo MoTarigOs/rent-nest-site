@@ -5,6 +5,8 @@
     padding-top: 12px;
     border: 2px solid var(--secondColor);
     padding: 16px;
+    display: flex;
+    flex-direction: column;
 
     #hrSpanElement{
         height: 1px;

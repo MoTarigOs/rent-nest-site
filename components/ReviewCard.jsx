@@ -6,17 +6,20 @@ const ReviewCard = ({
   isAdmin, revsToDeleteAdmin, setRevsToDeleteAdmin, 
   isEnglish
 }) => {
+
+  const getRatingText = (score) => {
+    if(score <= 2.5) return isEnglish ? 'Bad' : 'سيئ';
+    if(score > 2.5 && score <= 3.5) return isEnglish ? 'Good' : 'جيد';
+    if(score > 3.5 && score < 4.5) return isEnglish ? 'Excellent' : 'ممتاز';
+    if(score >= 4.5) return isEnglish ? 'Nice' : 'رائع';
+  };
+
   return (
     <li className='reviewCard' onClick={on_click}>
       
       <div>
         <h3>{item.username}</h3>
-        <Svgs name={'star'} styling={Math.round(item.user_rating) > 0 ? true : false}/>
-        <Svgs name={'star'} styling={Math.round(item.user_rating) > 1 ? true : false}/>
-        <Svgs name={'star'} styling={Math.round(item.user_rating) > 2 ? true : false}/>
-        <Svgs name={'star'} styling={Math.round(item.user_rating) > 3 ? true : false}/>
-        <Svgs name={'star'} styling={Math.round(item.user_rating) > 4 ? true : false}/>
-        <span>({item.user_rating})</span>
+        <span><Svgs name={'star'}/>{item.user_rating} • {getRatingText(item.user_rating)}</span>
         <h4 style={{ display: (isAdmin && !revsToDeleteAdmin) ? 'none' : null }} 
           onClick={() => { 
             if(item.writer_id){ 

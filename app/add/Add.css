@@ -111,6 +111,10 @@
             width: 100%;
             margin-bottom: 48px;
 
+            &:dir(ltr){
+                margin-bottom: 32px;
+            }
+
             select{
                 width: 100%;
                 padding: 8px;
@@ -481,6 +485,7 @@
                                 li{
                                     padding: 10px 8px;
                                     width: 100%;
+                                    cursor: pointer;
 
                                     #righticonspan{
                                         margin-left: auto;
@@ -860,6 +865,24 @@
         border-right: 2px solid var(--secondColorDark);
         border-bottom: 2px solid var(--secondColorDark);
         transform: rotate(45deg);
+    }
+
+    #important-p{
+        width: 100%;
+        background: var(--darkWhite);
+        padding: 16px;
+        border-radius: 4px;
+        margin-bottom: 44px;
+        display: flex;
+        align-items: center;
+        font-size: 1.1rem;
+        color: rgb(97, 97, 97);
+
+        svg{
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+        }
     }
 }
 

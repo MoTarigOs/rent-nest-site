@@ -1,0 +1,14 @@
+.loading-circle{
+    
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    img{
+        width: 24px;
+        height: 24px;
+        mix-blend-mode: screen;
+    }    
+}

@@ -272,7 +272,7 @@ const Filter = ({
 
             </div>
 
-            <div className='btn-div'><button onClick={() => {
+            <div className='btn-div'><button style={{ width: '100%' }} onClick={() => {
                 setTriggerFetch(!triggerFetch); setIsFilter(false);
             }}>{getNameByLang('ابحث', isEnglish)}</button></div>
 

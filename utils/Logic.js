@@ -308,16 +308,17 @@ export const isValidNumber = (num, maxLength, minLength, type) => {
 
 export const isValidContactURL = (contact) => {
 
-    if(!isValidText(contact.val) || !contactsPlatforms.includes(contact.platform))
+    console.log(contact);
+
+    if(!contactsPlatforms.includes(contact.platform))
         return false;
 
     let origin;
 
     try {
-        origin = (new URL(contact.val)).origin;
+        origin = (new URL(contact.val))?.origin;
     } catch(err) {
-        if(contact.platform !== 'whatsapp' && contact.platform !== 'telegram')
-            return false;
+        if(contact.platform !== 'whatsapp') return false;
         if(!isValidNumber(Number(contact.val))) return false;
     }
 
@@ -343,25 +344,37 @@ export const isValidContactURL = (contact) => {
                 return true;
             }
         case 'facebook':
-            if(origin !== 'https://www.youtube.com' && origin !== 'https://youtu.be'){
+            if(origin !== 'https://www.facebook.com'){
                 return false;
             } else {
                 return true;
             }
         case 'snapchat':
-            if(origin !== 'https://www.youtube.com' && origin !== 'https://youtu.be'){
+            if(origin !== 'https://www.snapchat.com' && origin !== 'https://youtu.be'){
                 return false;
             } else {
                 return true;
             }
         case 'linkedin':
-            if(origin !== 'https://www.youtube.com' && origin !== 'https://youtu.be'){
+            if(origin !== 'https://www.linkedin.com'){
                 return false;
             } else {
                 return true;
             }
         case 'instagram':
-            if(origin !== 'https://www.youtube.com' && origin !== 'https://youtu.be'){
+            if(origin !== 'https://www.instagram.com'){
+                return false;
+            } else {
+                return true;
+            }
+        case 'x-twitter':
+            if(origin !== 'https://twitter.com' && origin !== 'https://www.twitter.com' && origin !== 'https://www.x.com' && origin !== 'https://x.com'){
+                return false;
+            } else {
+                return true;
+            }
+        case 'tiktok':
+            if(origin !== 'https://www.tiktok.com'){
                 return false;
             } else {
                 return true;

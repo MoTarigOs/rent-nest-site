@@ -256,7 +256,7 @@ const page = () => {
               <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, false)}</h3>
               </div>
               
-              <div className='bookingDate' style={{ maxWidth: 40 }} onClick={() => { setIsFilterHeader(false); settingPropertiesArray(); }}>بحث</div>
+              <div className='bookingDate' onClick={() => { setIsFilterHeader(false); settingPropertiesArray(); }}>بحث</div>
 
               <div className='bookingDate' onClick={() => setIsFilterHeader(false)}>الغاء</div>
             

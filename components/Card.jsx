@@ -72,7 +72,7 @@ const Card = ({ item, type, isVertical, isEnglish, handleWishList }) => {
         <span id='checked-span' className={item.checked ? 'checked-span selected-card-span' : item.isRejected ? 'checked-span selected-reject-card-span' : 'checked-span'}>{item.checked ? isEnglish ? 'Accepted' : 'تم قبوله' : item.isRejected ? isEnglish ? 'Rejected' : 'مرفوض' : isEnglish ? 'Under revision' : 'تحت المراجعة'}</span>
         </>}
 
-        <Link href={getUrl()} style={!isVertical ? undefined : {
+        <Link target='_blank' href={getUrl()} style={!isVertical ? undefined : {
           position: 'absolute', width: '100%', height: '100%',
           background: 'transparent', color: 'transparent',
         }}>{getBtnName()}</Link>

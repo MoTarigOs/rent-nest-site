@@ -19,6 +19,7 @@ import { Context } from '@utils/Context';
 import { getUserInfo, refresh } from '@utils/api';
 import { getArabicNameCatagory, getNameByLang, getReadableDate } from '@utils/Logic';
 import { isLoginedCookie, isPreviouslyLogined } from '@utils/ServerComponents';
+import { VehiclesTypes } from '@utils/Data';
 
 const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }) => {
 
@@ -48,7 +49,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       setIsCalendarValue, setLoadingUserInfo,
       isMobileHomeFilter, setStorageKey, isMobile, setIsMobile,
       setIsEnglish, isVerified, setIsModalOpened, isModalOpened,
-      setIsSearchMap, isMapSearch
+      setIsSearchMap, isMapSearch, vehicleType
     } = useContext(Context);
 
     const settingMobile = () => {
@@ -334,7 +335,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
           <ul className='headerNavUL'>
             <li className='headerNavLi' id='searchLiHeaderOther'><Svgs name={'search'}/></li>
             <li className='headerNavLi' onClick={() => {setIsCityFilter(true); setIsCatagoryFilter(false); setIsCalendarFilter(false);}}><h4>{!city.value ? getNameByLang('كل المدن', pathname.includes('/en')) : pathname.includes('/en') ? city.value : city.arabicName}</h4>{isCityFilter && <HeaderPopup pathname={pathname} type={'city'}/>}</li>
-            <li className='headerNavLi' onClick={() => {setIsCatagoryFilter(true); setIsCityFilter(false); setIsCalendarFilter(false)}}><h4>{catagory === '' ? getNameByLang('كل التصنيفات', pathname.includes('/en')) : pathname.includes('/en') ? catagory : getArabicNameCatagory(catagory)}</h4>{isCatagoryFilter && <HeaderPopup isEnglish={pathname.includes('/en')}  pathname={pathname} type={'catagory'} handleChoose={() => setIsCatagoryFilter(false)}/>}</li>
+            <li className='headerNavLi' onClick={() => {setIsCatagoryFilter(true); setIsCityFilter(false); setIsCalendarFilter(false)}}><h4>{pathname.includes('/vehicles') ? (pathname.includes('/en') ? VehiclesTypes.find(i => i.id === vehicleType)?.value || 'All' : VehiclesTypes.find(i => i.id === vehicleType)?.arabicName || 'الكل') : (catagory === '' ? getNameByLang('كل التصنيفات', pathname.includes('/en')) : pathname.includes('/en') ? catagory : getArabicNameCatagory(catagory))}</h4>{isCatagoryFilter && <HeaderPopup isEnglish={pathname.includes('/en')}  pathname={pathname} type={'catagory'} handleChoose={() => setIsCatagoryFilter(false)}/>}</li>
             <li className='headerNavLi' onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4 suppressHydrationWarning={true}>{getReadableDate(calendarDoubleValue?.at(0), true, pathname.includes('/en'))}</h4>{isCalendarFilter && <HeaderPopup type={'calendar'}/>}</li>
             <li className='headerNavLi' style={{ border: 'none' }} onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4 suppressHydrationWarning={true}>{getReadableDate(calendarDoubleValue?.at(1), true, pathname.includes('/en'))}</h4></li>
           </ul>

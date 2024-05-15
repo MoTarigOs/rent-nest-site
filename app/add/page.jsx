@@ -8,7 +8,7 @@ import GoogleMapImage from '@assets/images/google-map-image.jpg';
 import VehicleImage from '@assets/images/sedan-car.png';
 import PropertyImage from '@assets/images/property.png';
 import PropertyWhiteImage from '@assets/images/property-white.png';
-import { CustomerTypesArray, JordanCities, ProperitiesCatagories, VehicleCatagories, VehiclesTypes, cancellationsArray, contactsPlatforms, isInsideJordan } from '@utils/Data';
+import { CustomerTypesArray, JordanCities, ProperitiesCatagories, VehicleCatagories, VehiclesTypes, cancellationsArray, contactsPlatforms, getContactPlaceHolder, isInsideJordan } from '@utils/Data';
 import CustomInputDiv from '@components/CustomInputDiv';
 import { createProperty, uploadFiles } from '@utils/api';
 import HeaderPopup from '@components/popups/HeaderPopup';
@@ -21,6 +21,7 @@ import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { Facilities, bathroomFacilities, customersTypesArray, facilities, kitchenFacilities, poolType } from '@utils/Facilities';
 import InfoDiv from '@components/InfoDiv';
 import CustomInputDivWithEN from '@components/CustomInputDivWithEN';
+import LoadingCircle from '@components/LoadingCircle';
 
 const page = () => {
 
@@ -28,8 +29,7 @@ const page = () => {
         userId, setIsMap, setMapType,
         latitude, setLatitude, storageKey,
         longitude, setLongitude, userEmail,
-        loadingUserInfo, isVerified, setVehicleType,
-        vehicleType
+        loadingUserInfo, isVerified
     } = useContext(Context);
 
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/mp4', 'video/avi'];
@@ -49,6 +49,7 @@ const page = () => {
     const [capacity, setCapacity] = useState(0);
 
     const [specificCatagory, setSpecificCatagory] = useState('-1');
+    const [vehicleType, setVehicleType] = useState('');
     const [itemTitle, setItemTitle] = useState('');
     const [itemTitleEN, setItemTitleEN] = useState('');
     const [itemDesc, setItemDesc] = useState('');
@@ -129,7 +130,7 @@ const page = () => {
         } else {
             return details;
         }
-    }
+    };
 
     const getCatagoryArray = () => {
         if(selectedCatagories === '0'){
@@ -141,14 +142,17 @@ const page = () => {
 
     const handleSubmit = async() => {
 
+        if(selectedCatagories !== '0' && selectedCatagories !== '1') return;
+
         let attahcedFilesError = false;
         let errorEncountered = false;
 
-        if(selectedCatagories !== '0' && selectedCatagories !== '1') errorEncountered = true;
-
-        if(!VehicleCatagories.find(i => i.id === specificCatagory) 
-        && !ProperitiesCatagories.find(i => i.value === specificCatagory)){
+        if(selectedCatagories === '1' && !ProperitiesCatagories.find(i => i.value === specificCatagory)){
             setSpecificCatagory('-2');
+            errorEncountered = true;
+        } else if(selectedCatagories === '0' && (!VehiclesTypes.find(i => i.value === vehicleType) || specificCatagory !== 'transports')){
+            setSpecificCatagory('-2');
+            setVehicleType('');
             errorEncountered = true;
         }
 
@@ -198,7 +202,7 @@ const page = () => {
 
         if(itemLong || itemLat){
             if(!isInsideJordan(itemLong, itemLat)){
-                setError('خطأ في بيانات الموقع, الرجاء تحديد موقع صالح عللا الخريطة');
+                setError('خطأ في بيانات الموقع, الرجاء تحديد موقع صالح على الخريطة');
                 errorEncountered = true;
             }
         }
@@ -245,17 +249,7 @@ const page = () => {
                 errorEncountered = true;
             }
 
-            //check for valid details
-            if((selectedCatagories === '1' && (guestRoomsDetailArray.length + companionsDetailArray.length 
-                + bathroomsDetailArray.length + kitchenDetailArray.length
-                + roomsDetailArray.length + conditionsAndTerms.length) < 2)
-                || (selectedCatagories === '0' && (vehicleSpecifications.length + vehicleFeatures.length) < 2)
-                ){
-                setError(attahcedFilesError ? 'أضف صور و فيديوهات تعبر عن المعروض و أضف على الأقل تفيصلتان في خانة التفاصيل.' : 'أضف على الأقل تفيصلتان في خانة التفاصيل.');
-                errorEncountered = true;
-            } else {
-                if(attahcedFilesError === true) setError('أضف صور و فيديوهات تعبر عن المعروض.');
-            }
+            if(attahcedFilesError === true) setError('أضف صور و فيديوهات تعبر عن المعروض.');
 
             if(errorEncountered === true) {
                 if(attachImagesDivRef.current){
@@ -277,7 +271,6 @@ const page = () => {
                 near_places: nearPlaces
             } : {
                 insurance:  requireInsurance, 
-                cancellation, 
                 guest_rooms: guestRoomsDetailArray, 
                 facilities: companionsDetailArray, 
                 bathrooms: { num: numOf.find(i => i.name === 'bathrooms')?.value, companians: bathroomsDetailArray}, 
@@ -291,7 +284,15 @@ const page = () => {
                 english_details: []
             };
 
-            [...details, vehiclesDetails[0], vehiclesDetails[1]].forEach(element => {
+            const getEnglishBaseArray = () => {
+                if(selectedCatagories === '0'){
+                    return [vehiclesDetails[0], vehiclesDetails[1]];
+                } else {
+                    return [...details]
+                }
+            }
+
+            getEnglishBaseArray().forEach(element => {
                 if(element.detailsEN?.length > 0){
                     enObj.english_details.push(...element.detailsEN);
                 }
@@ -326,7 +327,8 @@ const page = () => {
                 itemCity.value, itemNeighbour, [itemLong, itemLat], itemPrice, 
                 xDetails, conditionsAndTerms, area > 0 ? area : null,
                 tempContacts?.length > 0 ? tempContacts : null, null, token, 
-                capacity, customerType, enObj, cancellation, vehicleType);
+                capacity, customerType, enObj, cancellationsArray().indexOf(cancellation),
+                VehiclesTypes.find(i => i.value === vehicleType)?.id);
 
             if(res.success !== true){
                 setError(res.dt.toString());
@@ -422,7 +424,7 @@ const page = () => {
             </div>
 
             <div className='selectKind'>
-                <select value={specificCatagory} onChange={(e) => {
+                <select value={selectedCatagories === '0' ? vehicleType : specificCatagory} onChange={(e) => {
                     setSpecificCatagory(selectedCatagories === '0' ? 'transports' : e.target.value)
                     if(selectedCatagories === '0') setVehicleType(e.target.value);
                 }}>
@@ -477,7 +479,7 @@ const page = () => {
                     >{attachedFilesUrls.length > 0 ? 'أضف المزيد' : `اختر صور وفيدوهات لل${selectedCatagories === '0' ? 'سيارة' : 'عقار'}`}<p>(يجب أن يكون نوع الملف PNG أو JPG أو MP4 أو AVI)</p></li>
                 </ul>
 
-                <input ref={inputFilesRef} accept='.png, .jpeg, .mp4, .avi' type='file' onChange={(e) => {
+                <input ref={inputFilesRef} accept='.png, .jpg, .mp4, .avi' type='file' onChange={(e) => {
                     const file = e.target.files[0];
                     console.log(file);
                     if(file && allowedMimeTypes.includes(file.type)){
@@ -540,7 +542,7 @@ const page = () => {
                     {contacts.map((c, index) => (
                         <li key={index}>
                             <CustomInputDiv value={c.val} 
-                            deletable handleDelete={() => {
+                            deletable placholderValue={getContactPlaceHolder(c.platform)} handleDelete={() => {
                                 let arr = [];
                                 for (let i = 0; i < contacts.length; i++) {
                                     if(i !== index){
@@ -553,6 +555,7 @@ const page = () => {
                                 let arr = [...contacts];
                                 arr[index] = { platform: arr[index].platform, val: e.target.value, isPlatforms: arr[index].isPlatforms };
                                 setContacts(arr);
+                                setContactsError('');
                             }}/>
                             <div className='choose-platform'>
                                 <button className={c.isPlatforms ? 'editDiv rotate-edit-div' : 'editDiv'} onClick={() => {
@@ -573,7 +576,7 @@ const page = () => {
                                             let arr = [...contacts];
                                             arr[index] = { platform: p, val: arr[index].val, isPlatforms: false };
                                             setContacts(arr);
-                                            console.log(arr, p);
+                                            setContactsError('');
                                         }}>{p} {p === c.platform && <RightIconSpan />}</li>
                                     ))}
                                 </ul>
@@ -742,7 +745,7 @@ const page = () => {
                 
                 <label id='success' style={{ padding: !success && 0, margin: !success && 0 }}>{success && 'تم الارسال بنجاح'}</label>
                 
-                <button onClick={handleSubmit}>{loading ? 'جاري الارسال ...' : 'ارسال'}</button>
+                <button onClick={handleSubmit}>{loading ? <LoadingCircle /> : 'ارسال'}</button>
                 
             </div>
 

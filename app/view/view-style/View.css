@@ -414,6 +414,24 @@
             h1{
                 width: 100%;
                 display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+
+                span{
+                    color: rgba(80, 80, 80, 0.677);
+                    font-weight: 400;
+                }
+
+                #mobile-unit-span{
+                    margin: 0 8px;
+                    font-size: 1rem;
+                    display: none;
+                }
+
+                #desktop-unit-span{
+                    width: 100%;
+                    font-size: 0.8rem;
+                }
 
                 h4{
                     margin-right: auto;
@@ -596,14 +614,133 @@
             flex-direction: column;
             
             label{
-                font-size: 1.8rem;
-                font-weight: 500;
-                margin-bottom: 24px;
+                font-size: 1.6rem;
+                font-weight: 600;
             }
 
             p{
                 font-size: 1rem;
                 color: rgb(77, 77, 77);
+                margin: 0;
+            }
+
+            .the-host{
+                width: 100%;
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                margin-top: 32px;
+                border-top: 1px solid rgba(0, 0, 0, 0.16);
+                border-bottom: 1px solid rgba(0, 0, 0, 0.16);
+                padding: 32px 12px;
+                text-decoration: none;
+                color: rgb(76, 76, 76);
+
+                &:dir(ltr){
+                    .header-host{
+                        span{
+                            margin-right: unset;
+                            margin-left: auto;
+                            font-weight: 400;
+
+                            svg{
+                                transform: rotate(-90deg);
+                            }
+                        }
+                    }
+                    div{
+                        margin-right: auto;
+                        margin-left: 16px;
+                        
+                        h3{
+                            margin-bottom: 4px;
+                        }
+                    }
+                }
+
+                .header-host{
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 24px;
+
+                    span{
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        margin-right: auto;
+                        color: var(--secondColorHover);
+                        cursor: pointer;
+                        transition: all 0.2s ease-out;
+                        font-size: 1rem;
+
+                        svg{
+                            transform: rotate(90deg) translateX(1px);
+                            width: 20px;
+                            height: 20px;
+
+                            path{
+                                fill: var(--secondColorHover);
+                            }
+                        }
+                    }
+
+                    span:hover{
+                        color: var(--secondColor);
+                        transition: all 0.2s ease-in;
+
+                        svg path{
+                            fill: var(--secondColor);
+                        }
+                    }
+                }
+
+                #image-span{
+                    width: 52px;
+                    height: 52px;
+                    border-radius: 50%;
+                    background: var(--secondColor);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-size: 1.5rem;
+                }
+
+                div{
+                    margin-right: 16px;
+                    margin-left: auto;
+
+                    h3{
+                        font-weight: 400;
+                        font-size: 1rem;
+                    }
+
+                    h4{
+                        font-weight: 400;
+                        display: flex;
+                        gap: 8px;
+                        align-items: center;
+                        font-size: 0.8rem;
+        
+                        svg{
+                            width: 16px;
+                            height: 16px;
+                            fill: var(--secondColorHover);
+                            stroke: var(--secondColorHover);
+                            opacity: 0.7;
+        
+                            path{
+                                fill: var(--secondColorHover);
+                                stroke: var(--secondColorHover);
+                            }
+                        }
+                    }
+                }
+
+                p{
+                    font-size: 0.9rem;
+                }
             }
 
             .tabButtons{
@@ -939,9 +1076,30 @@
                     font-weight: 500;
                     color: var(--secondColorDark);
                     padding: 24px 0;
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: center;
                     border-bottom: 2px solid rgba(0, 0, 0, 0.077);
 
+                    &:dir(ltr){
+                        ul{
+                            margin-right: unset;
+                            margin-left: 40px;
+                        }
+    
+                        svg{
+                            margin-left: unset;
+                            margin-right: 8px;
+                        }
+    
+                        h3{
+                            margin-left: unset;
+                            margin-right: auto;
+                        }
+                    }
+                    
                     ul{
+                        width: 100%;
                         list-style: disc;
                         margin-right: 32px;
                         margin-top: 24px;
@@ -952,6 +1110,25 @@
                             font-weight: 400;
                             font-size: 1rem;
                             margin-bottom: 4px;
+                        }
+                    }
+
+                    h3{
+                        font-size: 1.1rem;
+                        margin-left: auto;
+                    }
+
+                    svg{
+                        width: 24px;
+                        height: 24px;
+                        opacity: 0.5;
+                        margin-left: 8px;
+                        fill: var(--secondColorDark);
+                        stroke: var(--secondColorDark);
+
+                        path{
+                            fill: var(--secondColorDark);
+                            stroke: var(--secondColorDark);
                         }
                     }
                 }
@@ -975,7 +1152,7 @@
         width: 100%;
         background: var(--darkWhite);
         padding: 16px;
-        display: flex;
+        display: none;
         justify-content: space-between;
         align-items: center;
         z-index: 1;
@@ -1114,11 +1291,12 @@
     }
 
     .mobile-checkout-popup{
+        display: none;
         position: fixed;
         top: var(--headerHeightMobile);
         left: 0;
         width: 100%;
-        height: calc(100% - var(--headerHeightMobile));
+        height: calc(100dvh - var(--headerHeightMobile));
         overflow-y: scroll;
         z-index: 3;
         border-radius: 0;
@@ -1330,6 +1508,15 @@
 @media screen and (max-width: 1160px){
     .view{
         margin-top: var(--headerHeightMobile);
+        .aboutItem{
+            .details{
+                .specificationsUL{
+                    li{
+                        cursor: pointer;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -1365,6 +1552,12 @@
 
                 h1{
                     font-size: 1.5rem;
+                    #mobile-unit-span{
+                        display: block;
+                    }
+                    #desktop-unit-span{
+                        display: none;
+                    }
                 }
             }
 
@@ -1413,13 +1606,38 @@
                 }
             }
         }
+        .mobile-checkout-popup{
+            display: block;
+        }
+        .mobileBookBtn{
+            display: flex;
+        }
+    }
+}
+
+@media screen and (max-width: 680px){
+    .view{
+        .view-admin-section{
+            ul{
+                flex-wrap: wrap;
+                row-gap: 16px;
+                li{
+                    padding: 8px 12px;
+                    white-space: nowrap;
+                    flex: 1;
+                    max-width: 50%;
+                }
+            }
+        }
     }
 }
 
 @media screen and (max-width: 480px){
-    .view .aboutItem .details .tabButtons{
-        border-radius: 24px;
-        padding: 8px;
-        flex-wrap: wrap;
+    .view{
+        .aboutItem .details .tabButtons{
+            border-radius: 24px;
+            padding: 8px;
+            flex-wrap: wrap;
+        }
     }
 }

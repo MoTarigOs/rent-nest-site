@@ -415,10 +415,6 @@
                 font-weight: 500;
                 font-size: 0.96rem;
             }
-            
-            div{
-                
-            }
         }
 
         .city-header-div{
@@ -436,7 +432,7 @@
     }
 
     #close-popups{
-        position: absolute;
+        position: fixed;
         width: 100%;
         height: 100%;
         top: 0;

@@ -11,7 +11,7 @@ import { useContext, useEffect, useState } from 'react';
 import ReviewCard from '@components/ReviewCard';
 import HeaderPopup from '@components/popups/HeaderPopup';
 import { useSearchParams } from 'next/navigation';
-import { deletePropFilesAdmin, deleteReportOnProp, deleteReviewsAdmin, deleteSpecificPropFilesAdmin, fetchPropertyDetails, handleBooksAddRemove, handleFavourite, handlePropAdmin, makeReport, sendReview } from '@utils/api';
+import { deletePropFilesAdmin, deleteReportOnProp, deleteReviewsAdmin, deleteSpecificPropFilesAdmin, fetchPropertyDetails, getHost, getPropIdByUnitCode, handleBooksAddRemove, handleFavourite, handlePropAdmin, makeReport, sendReview } from '@utils/api';
 import CustomInputDiv from '@components/CustomInputDiv';
 import { Context } from '@utils/Context';
 import { getNameByLang, getNumOfBookDays, getReadableDate, isOkayBookDays, isValidArrayOfStrings, isValidContactURL, isValidNumber } from '@utils/Logic';
@@ -32,6 +32,7 @@ const page = () => {
   } = useContext(Context);
   
   const id = useSearchParams().get('id');
+  const unitCode = useSearchParams().get('unit');
   const isReportParam = useSearchParams().get('isReport');
 
   const [bookSuccess, setBookSuccess] = useState(false);
@@ -41,6 +42,7 @@ const page = () => {
   const [canBook, setCanBook] = useState(false);
   const [runOnce, setRunOnce] = useState(false);
   const [item, setItem] = useState(null);
+  const [host, setHost] = useState(null);
   const [isVideosFiles, setIsVideosFiles] = useState(false);
   const [imageFullScreen, setImageFullScreen] = useState('-1');
   const [shareDiv, setShareDiv] = useState(false);
@@ -121,11 +123,35 @@ const page = () => {
 
       setItem(res.dt);
       setLoading(false);
+
+      fetchHostDetails(res.dt.owner_id);
       
     } catch (err) {
       setLoading(false);
     }
 
+  };
+
+  async function fetchItemDetailsByUnitCode() {
+    try {
+      setLoading(true);
+      const res = await getPropIdByUnitCode(unitCode);
+      if(!res?.ok === true) return setLoading(false);
+      location.href = `/en/view/item?id=${res.dt.id}`;
+    } catch (err) {
+      console.log(err);
+      setLoading(false);
+    }
+  };
+
+  async function fetchHostDetails (ownerId) {
+    try {
+      const res = await getHost(ownerId);
+      if(res.ok !== true) return;
+      setHost(res.dt);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const writeReview = async() => {
@@ -214,6 +240,11 @@ const page = () => {
 
   };
 
+  const generateWhatsappText = () => {
+    const text = `I want to book a reservation for this offer, Title '${item.title}' or in Arabic '${item.en_data?.titleEN}', Unit ID '${item.unit_code}', Reservation date '${getReadableDate(calendarDoubleValue?.at(0), true, true)}'  To '${getReadableDate(calendarDoubleValue?.at(1), true, true)}'`;
+    return text;
+  };
+
   const handleBook = async() => {
 
     try {
@@ -259,7 +290,7 @@ const page = () => {
       if(whatsapp && !isNaN(Number(whatsapp.val))) {
         if(whatsapp.val?.at(0) === '0' && whatsapp.val?.at(1) === '0') 
           whatsapp = whatsapp.val?.replace('00', '+');
-        return window.open(`${whatsappBaseUrl}/${whatsapp.val}`, '_blank');
+        return window.open(`${whatsappBaseUrl}/${whatsapp.val}?text=${generateWhatsappText()}`, '_blank');
       }
 
       if(whatsapp && isValidContactURL(whatsapp))
@@ -289,7 +320,8 @@ const page = () => {
   };
 
   const getShareUrl = () => {
-    return window.location.origin.toString() + '/en/view/item?id=' + id;
+    return window.location.origin.toString() + 
+    (item.unit_code ? '/en/view/item?unit=' + item.unit_code : '/en/view/item?id=' + id);
   };
 
   const sendAdmin = async() => {
@@ -499,8 +531,10 @@ const page = () => {
     for (let i = 0; i < item.contacts.length; i++) {
       if(item.contacts?.at(i)?.platform === 'whatsapp'){
         if(returnObj) return item.contacts[i];
-        if(isValidContactURL(item.contacts[i])) return `${whatsappBaseUrl}/${item.contacts[i].val}`;
-        if(isValidNumber(item.contacts[i])) return item.contacts[i];
+        if(!isValidContactURL(item.contacts[i])) return null;
+        if(isValidNumber(item.contacts[i]?.val)) 
+          return `${whatsappBaseUrl}/${item.contacts[i].val}`;
+        return item.contacts[i]?.val;
       }
     }
     if(isValidContactURL(item.contacts[0]) && !isPhone)
@@ -512,10 +546,10 @@ const page = () => {
     console.log(myContact, isValidContactURL(myContact));
     if(!myContact?.platform) return '';
     if(myContact.platform === 'whatsapp'){
-      if(!isNaN(Number(myContact.val))) {
+      if(isValidNumber(Number(myContact.val))) {
         if(myContact.val?.at(0) === '0' && myContact.val?.at(1) === '0') 
           myContact = myContact.val?.replace('00', '+');
-        return window.open(`${whatsappBaseUrl}/${myContact.val}`, '_blank');
+        return window.open(`${whatsappBaseUrl}/${myContact.val}?text=${generateWhatsappText()}`, '_blank');
       }
     }
     if(isValidContactURL(myContact)) return window.open(myContact.val, '_blank');
@@ -543,7 +577,13 @@ const page = () => {
 
   useEffect(() => {
     if(runOnce === true) {
-      fetchItemDetails();
+      if(id) {
+        fetchItemDetails();
+      } else if(unitCode) {
+        fetchItemDetailsByUnitCode();
+      } else {
+        setFetching(false);
+      }
       const obj = booksIds.find(i => i.property_id === id);
       if(obj && obj.date_of_book_start > Date.now()){
         setBookDate([
@@ -591,9 +631,9 @@ const page = () => {
 
   if(!item){
     return (
-        fetching ? <MySkeleton isMobileHeader={true}/> : <NotFound />
+        (fetching || loading) ? <MySkeleton isMobileHeader={true}/> : <NotFound />
     )
-  }
+  };
 
   return (
     <div className="view" style={{ overflow: 'hidden' }} dir='ltr'>
@@ -758,13 +798,13 @@ const page = () => {
 
         <div className='itemIntro'>
 
-          <h1>{item.en_data?.titleEN || item.title} <h4 onClick={() => { setReportDiv(true); setWriterId(''); }}>Report <Svgs name={'report'}/></h4></h1>
+          <h1>{item.en_data?.titleEN || item.title}<span id='mobile-unit-span'>{'(' + item.unit_code + ')'}</span><h4 onClick={() => { setReportDiv(true); setWriterId(''); }}>Report <Svgs name={'report'}/></h4><span id='desktop-unit-span'>Unit ID {'(' + item.unit_code + ')'}</span></h1>
 
           <ul>
             <li><Svgs name={'star'}/> {Number(item.ratings?.val).toFixed(2)} ({item.ratings?.no} evaluation)</li>
             <li><Svgs name={item.type_is_vehicle ? 'loc vehicle' : 'location'}/> {JordanCities.find(i => i.value === item.city)?.value}, {item.en_data?.neighbourEN || item.neighbourhood}</li>
             {!(item.type_is_vehicle && item.area > 0) && <li><Svgs name={'area'}/> Area {item.area} square meters</li>}
-            {getDesiredContact(true, true) && <li><Svgs name={getDesiredContact(true, true)?.platform}/> <Link href={getDesiredContact(null, true)}>{getDesiredContact(true, true)?.val}</Link></li>}
+            {getDesiredContact(null, true) && <li><Svgs name={getDesiredContact(true, true)?.platform}/> <Link href={getDesiredContact(null, true)}>{getDesiredContact(true, true)?.val}</Link></li>}
             <li id='giveThisMarginRight' onClick={handleFav}><Svgs name={`wishlist${favouritesIds.includes(id) ? ' filled' : ''}`}/> {addingToFavs ? 'Adding...' : (favouritesIds.includes(id) ? 'Remove from favorites' : 'Add to favourites')}</li>
             <li onClick={() => setShareDiv(!shareDiv)}><Svgs name={'share'}/> Share</li>
           </ul>
@@ -792,6 +832,16 @@ const page = () => {
 
           <p>{item.en_data?.descEN || item.description}</p>
 
+          <Link href={`/host?id=${item.owner_id}`} className='the-host'>
+            <h3 className='header-host'>Advertisor <span className='disable-text-copy'>About him <Svgs name={'dropdown arrow'}/></span></h3>
+            <span id='image-span' className='disable-text-copy'>Y</span>
+            <div>
+              <h3>Yousif</h3>
+              <h4><Svgs name={'star'}/> Evaluation 4.5 {`(20 reviews)`}</h4>
+            </div>
+            <p>20 Units</p>
+          </Link>
+
           <ul className='tabButtons'>
             <li className={isSpecifics && 'selectedTab'} onClick={() => {setIsSpecifics(true); setIsReviews(false); setIsMapDiv(false); setIsTerms(false)}}>Specifications</li>
             <li className={isReviews && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(true); setIsMapDiv(false); setIsTerms(false)}}>Reviews</li>
@@ -803,10 +853,10 @@ const page = () => {
 
           <ul className='specificationsUL' style={{ display: !isSpecifics && 'none' }}>
             {!item.type_is_vehicle ? <>
-              {item.insurance && <li><Svgs name={'insurance'}/><h4>{item.details.insurance === true ? 'A deposit is required before booking' : 'No insurance required'}</h4></li>}
-              {item.cancellation > 0 && <li><h4>{item.cancellation >= 0 ? cancellationsArray(true)?.at(item.cancellation) : ''}</h4></li>}
-              {item.en_data?.customerTypeEN && <li><h4>{item.customer_type !== 'غير محدد' ? 'Only for ' : ''} {item.en_data?.customerTypeEN}</h4></li>}
-              {item.capacity > 0 && <li><h4>{item.capacity > 0 ? `Max number of Guest ${item.capacity} Guests` : ''}</h4></li>}
+              {item.details?.insurance && <li><Svgs name={'insurance'}/><h3>{item.details.insurance === true ? 'A deposit is required before booking' : 'No insurance required'}</h3></li>}
+              {(item.cancellation >= 0 && item.cancellation < cancellationsArray(true).length) && <li><h3>{item.cancellation >= 0 ? cancellationsArray(true)?.at(item.cancellation) : ''}</h3></li>}
+              {item.en_data?.customerTypeEN && <li><Svgs name={'customers'}/><h3>{item.customer_type !== 'غير محدد' ? 'Only for ' : ''} {item.en_data?.customerTypeEN}</h3></li>}
+              {item.capacity > 0 && <li><Svgs name={'guests'}/><h3>{item.capacity > 0 ? `Max number of Guest ${item.capacity} Guests` : ''}</h3></li>}
               {item.details?.guest_rooms?.length > 0 && <li onClick={() => setIsGuestRooms(!isGuestRooms)}><Svgs name={'guest room'}/><h3>Living Rooms</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isGuestRooms ? '-' : '+'}</span><ul style={{ display: (!isGuestRooms && isMobile) ? 'none' : undefined}}>{item.details?.guest_rooms?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>}
               {(item.details?.kitchen.dim || item.details?.kitchen?.companians) && <li onClick={() => setIsKitchen(!isKitchen)}><Svgs name={'kitchen'}/><h3>Kitchen</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isKitchen ? '-' : '+'}</span><ul style={{ display: (!isKitchen && isMobile) ? 'none' : undefined}}>
                 <SpecificationListItemDimensions content={item.details?.kitchen?.dim} idName='kitchen'/>
@@ -862,13 +912,13 @@ const page = () => {
               ))}
             </ul>
 
-            <button onClick={() => setReviewsNumber(reviewsNumber + 10)}>More Reviews</button>
+            <button style={{ display: item.reviews?.length <= 0 ? 'none' : undefined }} onClick={() => setReviewsNumber(reviewsNumber + 10)}>More Reviews</button>
 
           </div>
 
           <div className='mapDiv' style={{ display: !isMap && 'none' }}>
 
-            <div className='addressMapDiv'><Image src={LocationGif}/><h3>{JordanCities.find(i => i.value === item.city)?.value}, {item.neighbourhood}</h3></div>
+            <div className='addressMapDiv'><Image src={LocationGif}/><h3>{JordanCities.find(i => i.value === item.city)?.value}, {item.en_data?.neighbourEN || item.neighbourhood}</h3></div>
           
             <h5 className='moreDetailsAfterPay'><Svgs name={'info'}/>The host will send you exact location details after confirming your reservation</h5>
 
@@ -880,24 +930,24 @@ const page = () => {
           </div>
 
           <ul className='termsUL' style={{ display: !isTerms && 'none' }}>
-            <li id='hostLiTermsUL'><h3>Terms of service provider (The Host)</h3>
+            <li id='hostLiTermsUL'><Svgs name={'host'}/><h3>Terms of service provider (The Host)</h3>
               <ul>
                 {item.terms_and_conditions.map((tc) => (
                   <li key={tc}>{tc}</li>
                 ))}
               </ul>
             </li>
-            <li id='hostLiTermsUL'><h3>Platform Terms of use and Conditions</h3>
+            <li id='hostLiTermsUL'><Svgs name={'terms'}/><h3>Platform Terms of use and Conditions</h3>
                 <ul>
-                  {myConditions().map((term) => (
+                  {myConditions(true).map((term) => (
                     <li>{term}</li>
                   ))}
                 </ul>
             </li>
-            <li id='hostLiTermsUL'><h3>Ways to communicate with the Host</h3>
+            <li id='hostLiTermsUL'><Svgs name={'communicate'}/><h3>Ways to communicate with the Host</h3>
                 <ul>
                   {item.contacts?.map((contact, index) => (
-                    isValidContactURL(contact) && <li key={index} onClick={() => openContactURL(contact)}>{contact.platform}</li>
+                    isValidContactURL(contact) && <li style={{ cursor: 'pointer' }} key={index} onClick={() => openContactURL(contact)}>{contact.platform}</li>
                   ))}
                 </ul>
             </li>

@@ -209,7 +209,7 @@ const HeaderPopup = ({
             animate={{ opacity: isCustom ? 1 : 0, scale: isCustom ? 1 : 0 }}
         >
              <ul>
-                <li onClick={() => { setSelectedCustom(''); setIsCustom(false)}}>غير محدد {selectedCustom === '' && <RightIconSpan />}</li>
+                <li onClick={() => { setSelectedCustom(''); setIsCustom(false)}}>{isEnglish ? 'Undefined' : 'غير محدد'} {selectedCustom === '' && <RightIconSpan />}</li>
                 {customArray.map((cst) => (
                     <li onClick={() => {
                         setSelectedCustom(cst);
