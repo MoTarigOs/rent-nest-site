@@ -103,6 +103,14 @@ const HeaderPopup = ({
                 }} placeholder={(pathname?.includes('/en') || isEnglish) ? 'Search a city...' : 'ابحث عن مدينة...'}/>
             </div>
             <ul>
+                <li onClick={() => {
+                    setItemCity({});
+                    setLongitude(null);
+                    setLatitude(null);
+                }}>
+                    {isEnglish ? 'All Cities' : 'كل المدن'}
+                    {!itemCity?.city_id && <RightIconSpan />}
+                </li>
                 {searched.map((cty) => (
                     <li onClick={() => { 
                         setItemCity(cty);

@@ -2,10 +2,8 @@ import '@styles/components_styles/Card.css';
 import Image from 'next/image';
 import RatingStar from '@assets/icons/rating.png';
 import Link from 'next/link';
-import { JordanCities, testImage } from '@utils/Data';
-import { getNameByLang } from '@utils/Logic';
+import { JordanCities } from '@utils/Data';
 import dynamic from 'next/dynamic';
-import { handleFavourite } from '@utils/api';
 const ImagesShow = dynamic(() => import('./ImagesShow'), { ssr: false });
 
 const Card = ({ item, type, isVertical, isEnglish, handleWishList }) => {
@@ -72,7 +70,12 @@ const Card = ({ item, type, isVertical, isEnglish, handleWishList }) => {
         <span id='checked-span' className={item.checked ? 'checked-span selected-card-span' : item.isRejected ? 'checked-span selected-reject-card-span' : 'checked-span'}>{item.checked ? isEnglish ? 'Accepted' : 'تم قبوله' : item.isRejected ? isEnglish ? 'Rejected' : 'مرفوض' : isEnglish ? 'Under revision' : 'تحت المراجعة'}</span>
         </>}
 
-        <Link target='_blank' href={getUrl()} style={!isVertical ? undefined : {
+        <Link className='card-btn-desktop' target={'_blank'} href={getUrl()} style={!isVertical ? undefined : {
+          position: 'absolute', width: '100%', height: '100%',
+          background: 'transparent', color: 'transparent',
+        }}>{getBtnName()}</Link>
+
+        <Link className='card-btn-mobile' href={getUrl()} style={!isVertical ? undefined : {
           position: 'absolute', width: '100%', height: '100%',
           background: 'transparent', color: 'transparent',
         }}>{getBtnName()}</Link>

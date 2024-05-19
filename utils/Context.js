@@ -11,8 +11,10 @@ function DataContext({ children }) {
     const [isEnglish, setIsEnglish] = useState(false);
     const [userId, setUserId] = useState('');
     const [userUsername, setUserUsername] = useState('');
+    const [userUsernameEN, setUserUsernameEN] = useState('');
     const [userEmail, setUserEmail] = useState('');
     const [userAddress, setUserAddress] = useState('');
+    const [userAddressEN, setUserAddressEN] = useState('');
     const [userPhone, setUserPhone] = useState('');
     const [loadingUserInfo, setLoadingUserInfo] = useState(false);
     const [isVerified, setIsVerified] = useState('');
@@ -65,8 +67,10 @@ function DataContext({ children }) {
             isEnglish, setIsEnglish,
             userId, setUserId,
             userUsername, setUserUsername,
+            userUsernameEN, setUserUsernameEN,
             userEmail, setUserEmail,
             userAddress, setUserAddress,
+            userAddressEN, setUserAddressEN,
             userPhone, setUserPhone,
             loadingUserInfo, setLoadingUserInfo,
             isVerified, setIsVerified,

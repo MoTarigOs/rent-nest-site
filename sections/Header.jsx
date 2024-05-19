@@ -49,7 +49,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       setIsCalendarValue, setLoadingUserInfo,
       isMobileHomeFilter, setStorageKey, isMobile, setIsMobile,
       setIsEnglish, isVerified, setIsModalOpened, isModalOpened,
-      setIsSearchMap, isMapSearch, vehicleType
+      setIsSearchMap, isMapSearch, vehicleType, setUserAddressEN, setUserUsernameEN
     } = useContext(Context);
 
     const settingMobile = () => {
@@ -157,7 +157,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
         setUserId, setUserUsername, setUserRole, 
         setUserEmail, setIsVerified, setUserAddress,
         setUserPhone, setBooksIds, setFavouritesIds, 
-        setLoadingUserInfo, setStorageKey
+        setLoadingUserInfo, setStorageKey, setUserAddressEN, setUserUsernameEN
       );
 
       if(!infoRes?.success || infoRes.success !== true) return;

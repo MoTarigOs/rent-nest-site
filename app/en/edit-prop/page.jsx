@@ -883,7 +883,7 @@ const Page = () => {
                     <div className='detailItem'>
                         <h3>{item.name}</h3>
                         <ul className='detailItem-ul'>
-                            {item.array.map((obj, myIndex) => (
+                            {item.array?.length > 0 && item.array.map((obj, myIndex) => (
                                 <li key={myIndex}>
                                     <CustomInputDiv placholderValue={obj} value={obj} deletable handleDelete={() => {
                                         let arr = [];

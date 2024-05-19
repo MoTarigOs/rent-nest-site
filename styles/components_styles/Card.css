@@ -135,7 +135,7 @@
         color: rgb(18, 18, 18);
     }
 
-    a{
+    .card-btn-desktop, .card-btn-mobile{
         border: none;
         background: var(--secondColor);
         color: white;
@@ -150,7 +150,11 @@
         transition: all 0.3s ease-out;
     }
 
-    a:hover{
+    .card-btn-mobile{
+        display: none;
+    }
+
+    .card-btn-desktop:hover, .card-btn-mobile:hover{
         background: var(--secondColorHover);
         transition: all 0.3s ease-in;
     }
@@ -189,6 +193,22 @@
         img{
             width: 100%;
             height: 100%;
+        }
+    }
+}
+
+@media screen and (max-width: 960px){
+    .card{
+        .card-btn-desktop{
+            display: none;
+        }
+
+        .card-btn-mobile{
+            display: block;
+        }
+
+        &:hover{
+            scale: 1;
         }
     }
 }

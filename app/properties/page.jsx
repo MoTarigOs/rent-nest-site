@@ -7,11 +7,12 @@ import { Suspense, useContext, useEffect, useState } from "react";
 import { getLocation, getProperties } from "@utils/api";
 import { Context } from "@utils/Context";
 import { ProperitiesCatagories, maximumPrice, minimumPrice } from "@utils/Data";
-import { arrangeArray, getNameByLang, getReadableDate, isOkayBookDays } from "@utils/Logic";
+import { arrangeArray, getArabicNameCatagory, getNameByLang, getReadableDate, isOkayBookDays } from "@utils/Logic";
 import { useSearchParams } from "next/navigation";
 import MySkeleton from "@components/MySkeleton";
 import NotFound from "@components/NotFound";
 import MyCalendar from "@components/MyCalendar";
+import HeaderPopup from "@components/popups/HeaderPopup";
 
 const Page = () => {
 
@@ -25,10 +26,13 @@ const Page = () => {
     const [pagesNumber, setPagesNumber] = useState(1);
     const [skipable, setSkipable] = useState(false);
     const [skip, setSkip] = useState(0);
+    const [isFilterHeader, setIsFilterHeader] = useState(false);
+    const [isCityDiv, setIsCityDiv] = useState(false);
+    const [isCategoryDiv, setIsCategoryDiv] = useState(false);
     const cardsPerPage = 16;
 
     const { 
-        rangeValue, city, catagory, 
+        rangeValue, city, setCity, catagory, categoryArray,
         ratingScore, triggerFetch, searchText, 
         arrangeValue, setCatagory, calendarDoubleValue, 
         isCalendarValue, setCalendarDoubleValue,
@@ -126,6 +130,14 @@ const Page = () => {
         }
     };
 
+    const getSelectedCategories = (array) => {
+        let str = '';
+        array.forEach((element, index) => {
+          str += element.arabicName + (index >= array.length - 1 ? '' : ', ');
+        });
+        return str?.length > 0 ? str : ('الكل');
+    };
+
     useEffect(() => {
         setRunOnce(true);
     }, []);
@@ -182,24 +194,50 @@ const Page = () => {
   return (
     <div className="properitiesPage">
 
-        <span id="close-popups" style={{ display: isCalendar ? null : 'none'}}
-            onClick={() => setIsCalendar(false)}/>
+        <span id="close-popups" style={{ display: (isCalendar || isCityDiv || isCategoryDiv) ? null : 'none'}}
+          onClick={() => {
+            setIsCalendar(false); setIsCityDiv(false); setIsCategoryDiv(false);
+          }}/>
 
-        <div className='book-date'>
+        <div className='page-header-filter' style={{ padding: !isFilterHeader ? '8px 16px' : undefined }}>
 
             <div className='calendar-div' style={{ display: !isCalendar ? 'none' : null }}>
                 <MyCalendar type={'mobile-filter'} setCalender={setCalendarDoubleValue}/>
             </div>
 
-            <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
-            {getNameByLang('تاريخ الحجز', false)}
-            <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(0), true, false)}</h3>
-            </div>
+            {isFilterHeader ? <><div className='bookingDate city-header-div'
+                onClick={() => setIsCityDiv(true)}>
+                    المدينة
+                    <h3>{city?.arabicName || 'لم تحدد'}</h3>
+                    {isCityDiv && <HeaderPopup type={'add-city'} itemCity={city} setItemCity={setCity}/>}
+                </div>
 
-            <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
-            {getNameByLang('تاريخ انتهاء الحجز', false)}
-            <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, false)}</h3>
-            </div>
+                <div className='bookingDate city-header-div' onClick={() => setIsCategoryDiv(!isCategoryDiv)}>
+                    نوع العفار
+                    <h3>{categoryArray?.length > 0 ? getSelectedCategories(categoryArray) : getArabicNameCatagory(catagory) || 'الكل'}</h3>
+                    {isCategoryDiv && <HeaderPopup type={'catagory'} isEnglish={false}/>}
+                </div>
+
+                <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
+                {getNameByLang('تاريخ الحجز', false)}
+                <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(0), true, false)}</h3>
+                </div>
+
+                <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
+                {getNameByLang('تاريخ انتهاء الحجز', false)}
+                <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, false)}</h3>
+                </div>
+                
+                <div className='bookingDate' style={{  }} onClick={() => { setIsFilterHeader(false); settingPropertiesArray(); }}>بحث</div>
+
+                <div className='bookingDate' onClick={() => setIsFilterHeader(false)}>الغاء</div>
+
+                </> : <div className='expand-div disable-text-copy'>
+                <div onClick={() => setIsFilterHeader(true)}>
+                    {city?.arabicName || 'المدينة غير محددة'} 
+                    <h3 suppressHydrationWarning>الحجز {getReadableDate(calendarDoubleValue?.at(0), true, false)} - {getReadableDate(calendarDoubleValue?.at(1), true, false)}</h3>
+                </div>
+            </div>}
 
         </div>
 

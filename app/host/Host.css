@@ -2,10 +2,20 @@
     width: 100%;
     max-width: 1300px;
     margin-top: var(--headerHeightMobile);
-    padding: 32px 16px;
+    padding-bottom: 32px;
+    padding-top: 13px;
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    &:dir(ltr){
+        .host-intro{
+            h1{
+                margin-left: unset;
+                margin-right: auto;
+            }
+        }
+    }
 
     #hr{
         display: block;
@@ -22,22 +32,48 @@
         margin-bottom: 32px;
     }
 
+    #background-host-image{
+        width: 100%;
+        height: 300px;
+        border-radius: 24px;
+        overflow: hidden;
+        background: var(--secondColor);
+        margin-bottom: -64px;
+        z-index: -1;
+
+        img{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
     .host-intro{
         width: 100%;
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
+        padding: 0 16px;
         gap: 24px;
 
-        #image-span{
-            width: 96px;
-            height: 96px;
+        .image-span{
+            width: 196px;
+            height: 196px;
             border-radius: 50%;
-            background: var(--secondColor);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
+            background: white;
+            padding: 8px;
+
+            span{
+                background: var(--secondColor);
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 3rem;
+            }
         }
 
         h1{
@@ -45,7 +81,7 @@
             margin-left: auto;
         }
 
-        div{
+        .host-details{
             display: flex;
             flex-wrap: wrap;
             gap: 24px;
@@ -78,13 +114,12 @@
         display: none;
         list-style: none;
         border-radius: 50px;
-        margin-top: 48px;
         border: 1px solid rgb(228, 228, 228);
         padding: 2px;
         margin-bottom: 32px;
 
         li{
-            padding: 12px;
+            padding: 8px;
             width: 100%;
             border-radius: 50px;
             text-align: center;
@@ -116,15 +151,19 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        padding: 0 12px;
 
         ul{
             width: 100%;
             display: flex;
-            flex-direction: column;
-            gap: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
 
             li{
+                width: 360px;
                 max-width: unset;
+                min-width: unset;
+                flex: 1;
             }
         }
 
@@ -148,6 +187,7 @@
 
     .units{
         width: 100%;
+        padding: 0 12px;
         
         .resultUL{
             width: 100%;
@@ -263,17 +303,29 @@
 
 @media screen and (max-width: 960px){
     .host{
+        .host-intro{
+            flex-wrap: wrap;
+            
+            div{
+                padding: 0 16px;
+            }
+        }
         .tabButtons{
             display: flex;
-        }
-        #hr{
-            display: none;
         }
     }
 }
 
 @media screen and (max-width: 680px){
     .host{
+        &:dir(ltr){
+            .host-intro{
+                h1{
+                    margin: 0;
+                }
+            }
+        }
+
         .units{
             .resultUL{
                 align-items: center;

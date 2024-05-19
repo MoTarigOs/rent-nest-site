@@ -4,20 +4,24 @@ import './Profile.css';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Context } from '@utils/Context';
 import Card from '@components/Card';
-import { deleteMyAccount, editUser, getBooks, getFavourites, getOwnerProperties, sendCode, signOut, verifyMyEmail } from '@utils/api';
+import { deleteMyAccount, editUser, getBooks, getFavourites, getGuests, getOwnerProperties, removeGuest, sendCode, signOut, verifyGuest, verifyMyEmail } from '@utils/api';
 import InfoDiv from '@components/InfoDiv';
 import CustomInputDiv from '@components/CustomInputDiv';
 import Svgs from '@utils/Svgs';
 import { getRoleArabicName, isValidEmail, isValidPassword, isValidVerificationCode } from '@utils/Logic';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
+import CustomInputDivWithEN from '@components/CustomInputDivWithEN';
+import LoadingCircle from '@components/LoadingCircle';
+import Image from 'next/image';
 
 const page = () => {
 
     const { 
       userId, setUserId, setUserUsername, userUsername, userEmail, isVerified,
       userAddress, userPhone, userRole, loadingUserInfo, storageKey,
-      selectedTab, setSelectedTab
+      selectedTab, setSelectedTab, userUsernameEN, userAddressEN,
+      setUserAddress, setUserAddressEN, setUserPhone, setUserUsernameEN
     } = useContext(Context);
 
     const [isProfileDetails, setIsProfileDetails] = useState(true);
@@ -29,6 +33,9 @@ const page = () => {
     const [fetchingUserInfo, setFetchingUserInfo] = useState(true);
 
     const [loadingItems, setLoadingItems] = useState(false);
+    const [loadingGuests, setLoadingGuests] = useState(false);
+    const [confirmingGuest, setConfirmingGuest] = useState(-1);
+    const [deletingGuest, setDeletingGuets] = useState(-1);
 
     const [code, setCode] = useState('');
     const [sendingCode, setSendingCode] = useState(false);
@@ -52,7 +59,11 @@ const page = () => {
 
     const [editingInfo, setEditingInfo] = useState(false);
     const [editInfo, setEditInfo] = useState({
-      editUsername: userUsername, editAddress: userAddress, editPhone: userPhone
+      editUsername: userUsername, 
+      editUsernameEN: userUsernameEN, 
+      editAddress: userAddress, 
+      editAddressEN: userAddressEN,
+      editPhone: userPhone
     });
     const [editInfoError, setEditInfoError] = useState('');
     const [editInfoSuccess, setEditInfoSuccess] = useState('');
@@ -65,6 +76,7 @@ const page = () => {
     const [itemsArray, setItemsArray] = useState([]);
     const [favArray, setFavArray] = useState([]);
     const [booksArray, setBooksArray] = useState([]);
+    const [guestsArray, setGuestsArray] = useState([]);
 
     const [signOutInfo, setSignOutInfo] = useState('');
     const [signingOut, setSigningOut] = useState(false);
@@ -113,6 +125,57 @@ const page = () => {
         setLoadingItems(false);
       }
 
+    };
+
+    const settingGuests = async() => {
+
+      setLoadingGuests(true);
+
+      try {
+        
+        const res = await getGuests();
+
+        if(res.success !== true){
+          setLoadingGuests(false);
+          return;
+        };
+
+        setGuestsArray(res.dt);
+        setLoadingGuests(false);
+
+      } catch (err) {
+        console.log(err);
+        setLoadingGuests(false);
+      }
+
+    };
+
+    const confirmGuest = async(guestId, propertyId, index) => {
+      try {
+        if(confirmingGuest !== -1) return;
+        setConfirmingGuest(index);
+        const res = await verifyGuest(guestId, propertyId);
+        if(!res || res.ok !== true) return setConfirmingGuest(-1);
+        setGuestsArray(res.dt);        
+        setConfirmingGuest(-1);
+      } catch (err) {
+        console.log(err);
+        setConfirmingGuest(-1);
+      }
+    };
+
+    const deleteGuest = async(guestId, propertyId, index) => {
+      try {
+        if(deletingGuest !== -1) return;
+        setDeletingGuets(index);
+        const res = await removeGuest(guestId, propertyId);
+        if(!res || res.ok !== true) return setDeletingGuets(-1);
+        setGuestsArray(res.dt);        
+        setDeletingGuets(-1);
+      } catch (err) {
+        console.log(err);
+        setDeletingGuets(-1);
+      }
     };
     
     const settingBooks = async() => {
@@ -273,15 +336,23 @@ const page = () => {
 
         if(!userId) return;
 
-        if(editInfo.editUsername.length <= 0 && editInfo.editAddress.length <= 0 && editInfo.editPhone.length <= 0){
+        const editObj = {};
+
+        if(editInfo.editUsername && editInfo.editUsername !== userUsername) editObj.updateUsername = editInfo.editUsername;
+        if(editInfo.editUsernameEN && editInfo.editUsernameEN !== userUsernameEN) editObj.updateUsernameEN = editInfo.editUsernameEN;
+        if(editInfo.editAddressEN && editInfo.editAddressEN !== userAddressEN) editObj.updateAddressEN = editInfo.editAddressEN;
+        if(editInfo.editAddress && editInfo.editAddress !== userAddress) editObj.updateAddress = editInfo.editAddress;
+        if(editInfo.editPhone && editInfo.editPhone !== userPhone) editObj.updatePhone = editInfo.editPhone;
+
+        if(!Object.keys(editObj)?.length > 0){
           setEditInfoError('لا يوجد تغيير في البيانات');
           setEditInfoSuccess('');
           return;
-        }
+        };
 
         setEditingInfo(true);
 
-        const res = await editUser(editInfo);
+        const res = await editUser(editObj);
 
         if(res.success !== true){
           setEditInfoError(res.dt);
@@ -292,6 +363,11 @@ const page = () => {
 
         setEditInfoError('');
         setEditInfoSuccess('تم تعديل البيانات بنجاح.');
+        setUserUsername(res.dt?.username);
+        setUserUsernameEN(res.dt?.usernameEN);
+        setUserAddress(res.dt?.address);
+        setUserAddressEN(res.dt?.addressEN);
+        setUserPhone(res.dt.phone);
         setEditingInfo(false);
         
       } catch (err) {
@@ -371,16 +447,20 @@ const page = () => {
     };
     
     useEffect(() => {
-      if(isItems === true) settingItems();
+      if(isItems === true) { settingItems(); settingGuests(); };
       if(isFavourites === true) settingFavs();
       if(isBooks === true) settingBooks();
     }, [isItems, isBooks, isFavourites]);
 
     useEffect(() => {
       setEditInfo({
-        editUsername: userUsername, editAddress: userAddress, editPhone: userPhone
+        editUsername: userUsername, 
+        editUsernameEN: userUsernameEN, 
+        editAddress: userAddress, 
+        editAddressEN: userAddressEN,
+        editPhone: userPhone
       });
-    }, [userAddress, userUsername, userPhone, isProfileEdit]);
+    }, [userAddress, userUsername, userPhone, userUsernameEN, userAddressEN, isProfileEdit]);
 
     useEffect(() => {
       let timeout;
@@ -485,7 +565,7 @@ const page = () => {
 
                   <div className='edit-profile-header'>
                     
-                    <h2>تفاصيل الحساب</h2>
+                    <h2>تفاصيل الحساب {userUsernameEN}</h2>
                   
                     <div className='editDiv' onClick={() => setIsProfileEdit(!isProfileEdit)}>
                       تعديل البيانات
@@ -499,10 +579,53 @@ const page = () => {
                     <InfoDiv title={'الموقع'} value={userAddress}/>
                     <InfoDiv title={'رقم الهاتف'} value={userPhone} isInfo={true} info={'لا يظهر للعامة'}/>
                   </> : <>
-                    <CustomInputDiv title={'ادخل اسما جديدا'} value={editInfo.editUsername} listener={(e) => setEditInfo({ editUsername: e.target.value, editAddress: editInfo.editAddress, editPhone: editInfo.editPhone })}/>
-                    <CustomInputDiv title={'ادخل عنوان جديد'} value={editInfo.editAddress} listener={(e) => setEditInfo({ editUsername: editInfo.editUsername, editAddress: e.target.value, editPhone: editInfo.editPhone })}/>
-                    <CustomInputDiv title={'عدل رقم الهاتف'} value={editInfo.editPhone} listener={(e) => setEditInfo({ editUsername: editInfo.editUsername, editAddress: editInfo.editAddress, editPhone: e.target.value })}/>
-                    <button className='btnbackscndclr' onClick={editUserInfo}>{editingInfo ? 'جاري التعديل...' : 'تعديل البيانات'}</button>
+                    <CustomInputDivWithEN title={'عدّل اسم المستخدم'} placholderValue={'ادخل الاسم بالعربية'} enPlacholderValue={'ادخل الاسم بالانجليزية'} value={editInfo.editUsername} enValue={editInfo.editUsernameEN} isProfileDetails listener={(e) => {
+                      setEditInfo({
+                        editUsername: e.target.value, 
+                        editUsernameEN: editInfo.editUsernameEN, 
+                        editAddress: editInfo.editAddress, 
+                        editAddressEN: editInfo.editAddressEN,
+                        editPhone: editInfo.editPhone
+                      });
+                    }} enListener={(e) => {
+                      setEditInfo({
+                        editUsername: editInfo.editUsername, 
+                        editUsernameEN: e.target.value, 
+                        editAddress: editInfo.editAddress, 
+                        editAddressEN: editInfo.editAddressEN,
+                        editPhone: editInfo.editPhone
+                      });
+                    }}/>
+
+                    <CustomInputDivWithEN title={'عدّل العنوان'} placholderValue={'ادخل العنوان بالعربية'} enPlacholderValue={'ادخل العنوان بالانجليزية'} value={editInfo.editAddress} enValue={editInfo.editAddressEN} isProfileDetails 
+                    listener={(e) => {
+                      setEditInfo({
+                        editUsername: editInfo.editUsername, 
+                        editUsernameEN: editInfo.editUsernameEN, 
+                        editAddress: e.target.value, 
+                        editAddressEN: editInfo.editAddressEN,
+                        editPhone: editInfo.editPhone
+                      });
+                    }} enListener={(e) => {
+                      setEditInfo({
+                        editUsername: editInfo.editUsername, 
+                        editUsernameEN: editInfo.editUsernameEN, 
+                        editAddress: editInfo.editAddress, 
+                        editAddressEN: e.target.value,
+                        editPhone: editInfo.editPhone
+                      });
+                    }}/>
+
+                    <CustomInputDiv title={'عدّل رقم الهاتف'} value={editInfo.editPhone} 
+                    listener={(e) => setEditInfo({
+                      editUsername: editInfo.editUsername, 
+                      editUsernameEN: editInfo.editUsernameEN, 
+                      editAddress: editInfo.editAddress, 
+                      editAddressEN: editInfo.editAddressEN,
+                      editPhone: e.target.value
+                    })}/>
+
+                    <button className='btnbackscndclr' onClick={editUserInfo}>{editingInfo ? <LoadingCircle /> : 'تعديل البيانات'}</button>
                     {(editInfoError.length > 0 || editInfoSuccess.length > 0) && <p id={editInfoError.length > 0 ? 'p-info-error' : 'p-info'}>
                       {editInfoError.length > 0 ? editInfoError : editInfoSuccess}
                     </p>}
@@ -534,7 +657,26 @@ const page = () => {
                 
             </div>
 
-            <ul className='items' style={{ display: !isItems && 'none' }}>
+            {(isItems && guestsArray?.length > 0) && <div className='guests'>
+              <h3>قائمة الزبائن</h3>
+              <p><Svgs name={'info'}/> قم بتأكيد الزبون الذي أتمّ عملية الحجز, كما تستطيع حذف أي من الزبائن, للعلم سيكون الزبون قادر على كتابة مراجعة و تقييم عن العرض.</p>
+              <ul>
+                {guestsArray.map((guest, index) => (
+                  <li key={guest.guest_id}>
+                    <h4 style={{ fontWeight: 500 }}>{guest.guest_name}</h4>
+                    <label>معرف المستخدم {guest.guest_id}</label>
+                    <Image src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${guest.booked_property_image}`} width={600} height={600}/>
+                    <h4>{guest.booked_property_title} {`(${guest.booked_property_unit})`}</h4>
+                    <div className='guest-btns'>
+                      <button onClick={() => confirmGuest(guest.guest_id, guest.booked_property_id, index)} id='confirm-btn-guest'>{confirmingGuest === index ? <LoadingCircle /> : 'تأكيد'}</button>
+                      <button onClick={() => deleteGuest(guest.guest_id, guest.booked_property_id, index)} id='delete-btn-guest'>{deletingGuest === index ? <LoadingCircle isLightBg/> : 'حذف'}</button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>}
+
+            <ul className='items' style={{ display: !isItems ? 'none' : undefined, marginTop: 32 }}>
               {itemsArray?.length > 0 ? itemsArray.map((item) => (
                   <li key={item._id}><Card item={item} type={'myProp'}/></li>
               )) : loadingItems ? <MySkeleton loadingType={'cards'} /> : <NotFound />}

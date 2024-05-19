@@ -36,7 +36,8 @@ export const getUserInfo = async(
     setUserId, setUserUsername, setUserRole, 
     setUserEmail, setIsVerified, setUserAddress,
     setUserPhone, setBooksIds, setFavouritesIds,
-    setLoading, setStorageKey
+    setLoading, setStorageKey, setUserAddressEN, 
+    setUserUsernameEN
 ) => {
 
     try {
@@ -48,8 +49,10 @@ export const getUserInfo = async(
         }
         if(res.data.user_id) setUserId(res.data.user_id);
         if(res.data.user_username) setUserUsername(res.data.user_username);
+        if(res.data.user_usernameEN) setUserUsernameEN(res.data.user_usernameEN);
         if(res.data.user_email) setUserEmail(res.data.user_email);
         if(res.data.address) setUserAddress(res.data.address);
+        if(res.data.addressEN) setUserAddressEN(res.data.addressEN);
         if(res.data.phone) setUserPhone(res.data.phone);
         if(res.data.is_verified !== undefined) setIsVerified(res.data.is_verified);
         if(res.data.role) setUserRole(res.data.role);
@@ -242,17 +245,7 @@ export const editUser = async(infoObj, isEnglish) => {
         
         const url = `${baseUrl}/user/edit`;
 
-        const updateUsername = infoObj?.editUsername?.length > 0 ? infoObj.editUsername : null;
-        const updateAddress = infoObj?.editAddress?.length > 0 ? infoObj.editAddress : null;
-        const updatePhone = infoObj?.editPhone?.length > 0 ? infoObj.editPhone : null;
-
-        const body = {
-            updateUsername,
-            updateAddress,
-            updatePhone
-        }
-
-        const res = await axios.patch(url, body, { withCredentials: true, 'Access-Control-Allow-Credentials': true });        
+        const res = await axios.patch(url, infoObj, { withCredentials: true, 'Access-Control-Allow-Credentials': true });        
 
         if(!res?.status || res.status !== 201){
             return { success: false, dt: getErrorText(res.data.message, isEnglish) };
@@ -561,6 +554,61 @@ export const getFavourites = async() => {
     } catch (err) {
         return { success: false, dt: err?.response?.data ? getErrorText(err.response.data.message) : getErrorText('')}
     }
+};
+
+export const getGuests = async() => {
+
+    try {
+
+        const url = `${baseUrl}/user/guests`;
+
+        const res = await axios.get(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+        
+        if(!res?.status || res.status !== 200) return { success: false, dt: getErrorText(res?.data?.message ? res.data.messsage : '') }
+    
+        return { success: true, dt: res.data };
+    
+    } catch (err) {
+        return { success: false, dt: err?.response?.data ? getErrorText(err.response.data.message) : getErrorText('')}
+    }
+};
+
+export const verifyGuest = async(guestId, propertyId) => {
+
+    try {
+        
+        const url = `${baseUrl}/user/verify-guest?guestId=${guestId}&propertyId=${propertyId}`;
+
+        const res = await axios.patch(url, null, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+
+        if(!res || res.status !== 201) return { ok: false, dt: getErrorText(res.data) };
+
+        return { ok: true, dt: res.data };
+
+    } catch (err) {
+        console.log(err);
+        return { ok: false, dt: getErrorText(err?.response?.data) };    
+    }
+
+};
+
+export const removeGuest = async(guestId, propertyId) => {
+
+    try {
+
+        const url = `${baseUrl}/user/guest?guestId=${guestId}&propertyId=${propertyId}`;
+
+        const res = await axios.delete(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+
+        if(!res || res.status !== 201) return { ok: false, dt: getErrorText(res.data) };
+
+        return { ok: true, dt: res.data };
+        
+    } catch (err) {
+        console.log(err);
+        return { ok: false, dt: getErrorText(err?.response?.data) };    
+    }
+
 };
 
 export const getBooks = async() => {

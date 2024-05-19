@@ -252,23 +252,24 @@ const page = () => {
       if(userId === item.owner_id || !canBook || addingToBooks) 
         return;
 
-        if(!userId || userId.length <= 10){
-          let whatsapp = item?.contacts?.find(i => i.platform === 'whatsapp');
-          if(whatsapp && !isNaN(Number(whatsapp.val))) {
-            if(whatsapp.val?.at(0) === '0' && whatsapp.val?.at(1) === '0') 
-              whatsapp = whatsapp.val?.replace('00', '+');
-            return window.open(`${whatsappBaseUrl}/${whatsapp.val}`, '_blank');
-          }
-          if(whatsapp && isValidContactURL(whatsapp))
-            return window.open(whatsapp.val, '_blank');
-          setBookSuccess('تواصل مع مقدم الخدمة من قسم الشروط و التواصل');
-          return;
+      if(!userId || userId.length <= 10){
+        let whatsapp = item?.contacts?.find(i => i.platform === 'whatsapp');
+        if(whatsapp && !isNaN(Number(whatsapp.val))) {
+          if(whatsapp.val?.at(0) === '0' && whatsapp.val?.at(1) === '0') 
+            whatsapp = whatsapp.val?.replace('00', '+');
+          return window.open(`${whatsappBaseUrl}/${whatsapp.val}`, '_blank');
         }
+        if(whatsapp && isValidContactURL(whatsapp))
+          return window.open(whatsapp.val, '_blank');
+        setBookSuccess('تواصل مع مقدم الخدمة من قسم الشروط و التواصل');
+        return;
+      }
 
       if(!booksIds.find(i => i.property_id === id) 
         && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1))) 
         return;
       
+      const isAlreadyBooked = booksIds.find(i => i.property_id === id);
 
       setAddingToBooks(true);
 
@@ -285,21 +286,25 @@ const page = () => {
 
       setAddingToBooks(false);
 
-      let whatsapp = item?.contacts?.find(i => i.platform === 'whatsapp');
+      const navigateToContact = () => {
+        let whatsapp = item?.contacts?.find(i => i.platform === 'whatsapp');
 
-      if(whatsapp && !isNaN(Number(whatsapp.val))) {
-        if(whatsapp.val?.at(0) === '0' && whatsapp.val?.at(1) === '0') 
-          whatsapp = whatsapp.val?.replace('00', '+');
-        return window.open(`${whatsappBaseUrl}/${whatsapp.val}?text=${generateWhatsappText()}`, '_blank');
-      }
+        if(whatsapp && !isNaN(Number(whatsapp.val))) {
+          if(whatsapp.val?.at(0) === '0' && whatsapp.val?.at(1) === '0') 
+            whatsapp = whatsapp.val?.replace('00', '+');
+          return window.open(`${whatsappBaseUrl}/${whatsapp.val}?text=${generateWhatsappText()}`, '_blank');
+        }
+  
+        if(whatsapp && isValidContactURL(whatsapp))
+          return window.open(whatsapp.val, '_blank');
+  
+        let telegram = item?.contacts?.find(i => i.platform === 'telegram');
+  
+        if(telegram && isValidContactURL(telegram))
+          return window.open(telegram.val, '_blank');
+      };
 
-      if(whatsapp && isValidContactURL(whatsapp))
-        return window.open(whatsapp.val, '_blank');
-
-      let telegram = item?.contacts?.find(i => i.platform === 'telegram');
-
-      if(telegram && isValidContactURL(telegram))
-        return window.open(telegram.val, '_blank');
+      if(!isAlreadyBooked) navigateToContact();
 
       if(!booksIds.find(i => i.property_id === id)){
         setIsSpecifics(false); 
@@ -832,15 +837,15 @@ const page = () => {
 
           <p>{item.en_data?.descEN || item.description}</p>
 
-          <Link href={`/host?id=${item.owner_id}`} className='the-host'>
+          {host && <Link href={`/en/host?id=${item.owner_id}`} className='the-host'>
             <h3 className='header-host'>Advertisor <span className='disable-text-copy'>About him <Svgs name={'dropdown arrow'}/></span></h3>
-            <span id='image-span' className='disable-text-copy'>Y</span>
+            <span id='image-span' className='disable-text-copy'>{host?.usernameEN?.at(0) || host?.username?.at(0)}</span>
             <div>
-              <h3>Yousif</h3>
-              <h4><Svgs name={'star'}/> Evaluation 4.5 {`(20 reviews)`}</h4>
+              <h3>{host?.usernameEN || host?.username}</h3>
+              <h4><Svgs name={'star'}/> Evaluation {host?.rating || 0} {`(${host?.reviewsNum || 0} reviews)`}</h4>
             </div>
-            <p>20 Units</p>
-          </Link>
+            <p>{host?.units || 0} Units</p>
+          </Link>}
 
           <ul className='tabButtons'>
             <li className={isSpecifics && 'selectedTab'} onClick={() => {setIsSpecifics(true); setIsReviews(false); setIsMapDiv(false); setIsTerms(false)}}>Specifications</li>
@@ -907,7 +912,7 @@ const page = () => {
 
             <ul>
               {item.reviews.slice(0, reviewsNumber).map((rv) => (
-                <ReviewCard item={rv} setReportDiv={setReportDiv} setWriterId={setWriterId}
+                <ReviewCard isEnglish item={rv} setReportDiv={setReportDiv} setWriterId={setWriterId}
                   isAdmin={isAdmin()} revsToDeleteAdmin={revsToDeleteAdmin} setRevsToDeleteAdmin={setRevsToDeleteAdmin}/>
               ))}
             </ul>

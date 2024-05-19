@@ -13,8 +13,12 @@ import { getBookDateFormat, getOptimizedAttachedFiles, isValidArrayOfStrings, is
 import MyCalendar from '@components/MyCalendar';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
-import { contactsPlatforms } from '@utils/Data';
+import { cancellationsArray, contactsPlatforms } from '@utils/Data';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import CustomInputDivWithEN from '@components/CustomInputDivWithEN';
+import InfoDiv from '@components/InfoDiv';
+import HeaderPopup from '@components/popups/HeaderPopup';
+import { bathroomFacilities, customersTypesArray, facilities, kitchenFacilities, poolType } from '@utils/Facilities';
 
 const Page = () => {
 
@@ -67,7 +71,9 @@ const Page = () => {
     const [deleteSuccess, setDeleteSuccess] = useState('');
 
     const [itemTitle, setItemTitle] = useState('');
+    const [itemTitleEN, setItemTitleEN] = useState('');
     const [itemDesc, setItemDesc] = useState('');
+    const [itemDescEN, setItemDescEN] = useState('');
     const [itemPrice, setItemPrice] = useState(0);
     const [requireInsurance, setRequireInsurance] = useState(false);
     const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -75,14 +81,24 @@ const Page = () => {
     const [discountPer, setDiscountPer] = useState(0);
     const [discountNights, setDiscountNights] = useState(0);
 
+    const [cancellation, setCancellation] = useState('');
+    const [isCancellation, setIsCancellation] = useState('');
+    const [capacity, setCapacity] = useState(0);
+    const [customerType, setCustomerType] = useState('');
+    const [isCustomerType, setIsCustomerType] = useState(false);
+
     const [guestRoomsDetailArray, setGuestRoomsDetailArray] = useState([]);
     const [companionsDetailArray, setCompanionsDetailArray] = useState([]);
     const [bathroomsDetailArray, setBathroomsDetailArray] = useState([]);
+    const [bathroomsNum, setBathroomsNum] = useState(0);
     const [kitchenDetailArray, setKitchenDetailArray] = useState([]);
-    const [roomsDetailArray, setRoomsDetailArray] = useState([]);
+    const [roomObj, setRoomObj] = useState([]);
     const [conditionsAndTerms, setConditionsAndTerms] = useState([]);
     const [vehicleSpecifications, setVehicleSpecifications] = useState([]);
     const [vehicleFeatures, setVehicleFeatures] = useState([]);
+    const [nearPlaces, setNearPlaces] = useState([]);
+    const [poolsDetailArray, setPoolsDetailArray] = useState([]);
+    const [poolNum, setPoolNum] = useState(0);
     
     const [filesToDelete, setFilesToDelete] = useState([]);
 
@@ -93,19 +109,33 @@ const Page = () => {
       const gReCaptchaToken = await executeRecaptcha('submit');
       return gReCaptchaToken;
     };
+    
+    const [conditionsAndTermsEN, setConditionsAndTermsEN] = useState([]);
+    const [guestRoomsDetailArrayEN, setGuestRoomsDetailArrayEN] = useState([]);
+    const [nearPlacesEN, setNearPlacesEN] = useState([]);
+    const [vehicleSpecificationsEN, setVehicleSpecificationsEN] = useState([]);
+    const [vehicleFeaturesEN, setVehicleFeaturesEN] = useState([]);
+    const [companiansShow, setCompaniansShow] = useState(false);
+    const [bathroomsShow, setBathroomsShow] = useState(false);
+    const [kitchenShow, setKitchenShow] = useState(false);
+    const [poolsShow, setPoolsShow] = useState(false);    
 
     const details = [
-        {name: 'غرف الضيوف', array: guestRoomsDetailArray, setArray: setGuestRoomsDetailArray},
-        {name: 'المرافق', array: companionsDetailArray, setArray: setCompanionsDetailArray},
-        {name: 'دورات المياه', array: bathroomsDetailArray, setArray: setBathroomsDetailArray},
-        {name: 'المطبخ', array: kitchenDetailArray, setArray: setKitchenDetailArray},
-        {name: 'الغرف', array: roomsDetailArray, setArray: setRoomsDetailArray},
-        {name: 'شروط و أحكام الحجز', array: conditionsAndTerms, setArray: setConditionsAndTerms},
+        {idName: 'guest_rooms', name: 'غرف الضيوف و المجالس', isWithEN: true, detailsEN: guestRoomsDetailArrayEN, setDetailsEN: setGuestRoomsDetailArrayEN, array: guestRoomsDetailArray, setArray: setGuestRoomsDetailArray},
+        {idName: 'bathrooms', isNum: true, name: 'دورات المياه', isSelections: true, isShow: bathroomsShow, setIsShow: setBathroomsShow, selectArray: bathroomFacilities(), array: bathroomsDetailArray, setArray: setBathroomsDetailArray},
+        {idName: 'kitchen', name: 'المطبخ', isDimension: true, isSelections: true, selectArray: kitchenFacilities(), isShow: kitchenShow, setIsShow: setKitchenShow, array: kitchenDetailArray, setArray: setKitchenDetailArray},
+        {idName: 'rooms', name: 'غرف النوم و الأسرّة', isSelections: true, isNum: true},
+        {idName: '', name: 'الأماكن القريبة', isWithEN: true, detailsEN: nearPlacesEN, setDetailsEN: setNearPlacesEN, array: nearPlaces, setArray: setNearPlaces},
+        {idName: 'pool', isNum: true, name: 'المسبح', isSelections: true, isShow: poolsShow, setIsShow: setPoolsShow, selectArray: poolType(), array: poolsDetailArray, setArray: setPoolsDetailArray},
+        {idName: '', name: 'المرافق', isSelections: true, isShow: companiansShow, setIsShow: setCompaniansShow, selectArray: facilities(), array: companionsDetailArray, setArray: setCompanionsDetailArray},
+        {idName: '', name: 'شروط و أحكام الحجز', isWithEN: true, detailsEN: conditionsAndTermsEN, setDetailsEN: setConditionsAndTermsEN, array: conditionsAndTerms, setArray: setConditionsAndTerms},
     ];
 
     const vehiclesDetails = [
-        {name: 'مواصفات السيارة', array: vehicleSpecifications, setArray: setVehicleSpecifications},
-        {name: 'المزايا الاضافية', array: vehicleFeatures, setArray: setVehicleFeatures}
+        {name: 'مواصفات السيارة', isWithEN: true, detailsEN: vehicleSpecificationsEN, setDetailsEN: setVehicleSpecificationsEN, array: vehicleSpecifications, setArray: setVehicleSpecifications},
+        {name: 'المزايا الاضافية', isWithEN: true, detailsEN: vehicleFeaturesEN, setDetailsEN: setVehicleFeaturesEN, array: vehicleFeatures, setArray: setVehicleFeatures},
+        {name: 'الأماكن القريبة', isWithEN: true, detailsEN: nearPlacesEN, setDetailsEN: setNearPlacesEN, array: nearPlaces, setArray: setNearPlaces},
+        {name: 'شروط و أحكام الحجز', isWithEN: true, detailsEN: conditionsAndTermsEN, setDetailsEN: setConditionsAndTermsEN,  array: conditionsAndTerms, setArray: setConditionsAndTerms},
     ];
 
     const getDetails = () => {
@@ -132,6 +162,27 @@ const Page = () => {
             });
         });
 
+        const compareItem = {
+            title: itemTitle, description: itemDesc,
+            en_data: { 
+                title: itemTitleEN, description: itemDescEN,
+                english_details: [
+                    
+                ]
+            },
+            price: itemPrice, 
+            discount: { num_of_days_for_discount: discountNights, percentage: discountPer },
+            destails: {
+                insurance: requireInsurance,
+                guest_rooms: guestRoomsDetailArray,
+                near_places: nearPlaces,
+            },
+            cancellation,
+            capacity,
+            tempContacts,
+            customer_type: customerType,
+        };
+
         if(
             !item.type_is_vehicle 
             && itemTitle === item.title
@@ -143,7 +194,6 @@ const Page = () => {
             && companionsDetailArray === item.details.facilities
             && bathroomsDetailArray === item.details.bathrooms
             && kitchenDetailArray === item.details.kitchen
-            && roomsDetailArray === item.details.rooms
             && attachedFilesUrls.length <= 0
             && uploadedFiles.toString() === [...item.images, ...item.videos].toString()
             && filesToDelete.length <= 0
@@ -619,7 +669,9 @@ const Page = () => {
             setFilesToDelete([]);
 
             setItemTitle(item.title);
+            setItemTitleEN(item.en_data?.titleEN);
             setItemDesc(item.description);
+            setItemDescEN(item.en_data?.descEN);
             setItemPrice(item.price);
             setUploadedFiles([...item.images, ...item.videos]);
             setRequireInsurance(item.details.insurance);
@@ -627,16 +679,24 @@ const Page = () => {
             if(item.contacts) setContacts(item.contacts);
             setDiscountNights(item.discount?.num_of_days_for_discount);
             setDiscountPer(item.discount?.percentage);
+            setCancellation(cancellationsArray()[(item.cancellation)]);
+            setCapacity(item.capacity);
+            setCustomerType(item.customer_type);
 
             if(item.type_is_vehicle){
-                setVehicleSpecifications(item.details.vehicle_specifications);
-                setVehicleFeatures(item.details.vehicle_addons);
+                setVehicleSpecifications(item.details?.vehicle_specifications);
+                setVehicleFeatures(item.details?.vehicle_addons);
+                setNearPlaces(item.details?.near_places);
             } else {
-                setGuestRoomsDetailArray(item.details.guest_rooms);
-                setCompanionsDetailArray(item.details.facilities);
-                setBathroomsDetailArray(item.details.bathrooms);
-                setKitchenDetailArray(item.details.kitchen);
-                setRoomsDetailArray(item.details.rooms);
+                setGuestRoomsDetailArray(item.details?.guest_rooms);
+                setBathroomsDetailArray(item.details?.bathrooms?.companians);
+                setBathroomsNum(item.details?.bathrooms?.num);
+                setKitchenDetailArray(item.details?.kitchen?.companians);
+                setRoomObj(item.details?.rooms);
+                setNearPlaces(item.details?.near_places);
+                setPoolNum(item.details?.pool.num);
+                setPoolsDetailArray(item.details?.pool.companians);
+                setCompanionsDetailArray(item.details?.facilities);
             }
             
             setConditionsAndTerms(item.terms_and_conditions);
@@ -677,7 +737,11 @@ const Page = () => {
 
     <div className='add'>
 
-        <span id='closePopups' onClick={() => setCityPopup(false)} style={{ display: !cityPopup && 'none' }}/>
+        <span id='closePopups' onClick={() => {
+            setCityPopup(false); setIsCustomerType(false); setCompaniansShow(false); setBathroomsShow(false); setKitchenShow(false);
+            setPoolsShow(false); setIsCancellation(false);
+        }} style={{ display: (!cityPopup && !isCustomerType && !companiansShow && !bathroomsShow && !isCancellation
+            && !kitchenShow && !poolsShow) ? 'none' : undefined }}/>
 
         <div className='wrapper editProp'>
 
@@ -756,15 +820,17 @@ const Page = () => {
 
             <h2>تعديل العرض</h2>
 
-            <CustomInputDiv isError={itemTitle === '-1' && true} errorText={'الرجاء كتابة عنوان من خمس حروف أو أكثر.'} value={itemTitle} title={'العنوان'} placholderValue={itemTitle} listener={(e) => setItemTitle(e.target.value)}/>
+            <CustomInputDivWithEN isError={itemTitle === '-1' && true} errorText={'الرجاء كتابة عنوان من خمس حروف أو أكثر.'} title={'العنوان بالعربية و الانجليزية'} value={itemTitle} enValue={itemTitleEN} placholderValue={'اكتب العنوان باللغة العربية هنا'} enPlacholderValue={'اكتب العنوان باللغة الانجليزية هنا'} listener={(e) => setItemTitle(e.target.value)} enListener={(e) => setItemTitleEN(e.target.value)}/>
 
-            <CustomInputDiv isError={itemDesc === '-1' && true} errorText={'الرجاء كتابة وصف واضح عن ما تريد عرضه, بما لا يقل عن 10 كلمات.'} value={itemDesc} title={'الوصف'} isTextArea={true} listener={(e) => setItemDesc(e.target.value)} type={'text'}/>
+            <CustomInputDivWithEN isError={itemDesc === '-1' && true} errorText={'الرجاء كتابة وصف واضح عن ما تريد عرضه, بما لا يقل عن 10 كلمات.'} title={'ادخل الوصف بالعربية و الانجليزية'} isTextArea={true} placholderValue={'اكتب الوصف باللغة العربية هنا'} enPlacholderValue={'اكتب الوصف باللغة الانجليزية هنا'} listener={(e) => setItemDesc(e.target.value)} enListener={(e) => setItemDescEN(e.target.value)} type={'text'} value={itemDesc || 'sdsdsd'} enValue={itemDescEN}/>
 
             <div className='priceDiv'>
                 <CustomInputDiv isError={itemPrice === -1 && true} errorText={'حدد سعر لليلة'} value={itemPrice} title={'السعر بالدولار'} listener={(e) => setItemPrice(Number(e.target.value))} type={'number'}/>
                 <strong>/</strong>
                 <h4>الليلة</h4>
             </div>
+
+            <hr />
 
             <div className='set-discount'>
                 <h3>تخفيض</h3>
@@ -831,6 +897,8 @@ const Page = () => {
 
             </div>
 
+            <hr />
+
             <div className='detailsAboutItem'>
 
                 <h2>أضف تفاصيل عن ال{item.type_is_vehicle ? 'سيارة' : 'عقار'}</h2>
@@ -839,6 +907,24 @@ const Page = () => {
                     <h3>هل الايجار يتطلب تأمين؟</h3>
                     <input type='radio' name='insurance_group' checked={item.details?.insurance} onChange={() => setRequireInsurance(true)}/><label>نعم</label>
                     <input checked={item.details?.insurance} type='radio' name='insurance_group' onChange={() => setRequireInsurance(false)}/><label>لا</label>
+                </div>
+
+                <div className='detailItem area-div' style={{ display: item.type_is_vehicle ? 'none' : null }}>
+                    <h3>حدد امكانية الغاء الحجز</h3>
+                    <InfoDiv title={'الغاء الحجز'} divClick={() => setIsCancellation(!isCancellation)} value={cancellation === '' ? 'غير محدد' : cancellation}/>
+                    <HeaderPopup type={'customers'} customArray={cancellationsArray()} selectedCustom={cancellation}
+                    setSelectedCustom={setCancellation} isCustom={isCancellation} setIsCustom={setIsCancellation}/>
+                </div>
+
+                <div className='detailItem area-div' style={{ display: item.type_is_vehicle ? 'none' : null}}>
+                    <h3>اكتب أقصى سعة أو عدد نزلاء متاح بالعقار</h3>
+                    <CustomInputDiv title={capacity > 0 ? `${capacity} نزيل` : ''} max={150000} min={-1} myStyle={{ marginBottom: 0 }} placholderValue={'كم نزيل مسموح بالعقار؟'} type={'number'} isError={capacity === -1} errorText={'الرجاء ادخال عدد من صفر الى 150000'} listener={(e) => {
+                        if(Number(e.target.value)) {
+                            setCapacity(Number(e.target.value))
+                        } else {
+                            setCapacity(0);
+                        };
+                    }}/>
                 </div>
 
                 <div className='detailItem contacts-div'>
@@ -890,14 +976,21 @@ const Page = () => {
                     </ul>
                     <button className='btnbackscndclr' onClick={() => setContacts([...contacts, { platform: '', val: '', isPlatforms: false }])}>أضف المزيد</button>
                 </div>
+
+                <div className='detailItem area-div' style={{ display: item.type_is_vehicle ? 'none' : null}}>
+                    <h3>حدد فئة النزلاء المسموحة (اختياري)</h3>
+                    <InfoDiv title={'الفئة المسموحة'} divClick={() => setIsCustomerType(!isCustomerType)} value={customerType === '' ? 'غير محدد' : customerType}/>
+                    <HeaderPopup type={'customers'} customArray={customersTypesArray()} selectedCustom={customerType}
+                    setSelectedCustom={setCustomerType} isCustom={isCustomerType} setIsCustom={setIsCustomerType}/>
+                </div>
                 
                 {getDetails().map((item) => (
-                    <div className='detailItem'>
+                    !item.isSelections ? <div className='detailItem'>
                         <h3>{item.name}</h3>
                         <ul className='detailItem-ul'>
                             {item.array.map((obj, myIndex) => (
                                 <li key={myIndex}>
-                                    <CustomInputDiv placholderValue={obj} value={obj} deletable handleDelete={() => {
+                                    {!item.isWithEN ? <CustomInputDiv placholderValue={obj} value={obj} deletable handleDelete={() => {
                                         let arr = [];
                                         for (let i = 0; i < item.array.length; i++) {
                                             if(i !== myIndex){
@@ -910,13 +1003,90 @@ const Page = () => {
                                         let arr = [...item.array];
                                         arr[myIndex] = e.target.value;
                                         item.setArray(arr);
-                                    }}/>
+                                    }}/> : <CustomInputDivWithEN placholderValue={'أضف تفصيلة بالعربي'} enPlacholderValue={'أضف ترجمة التفصيلة بالانجليزي'}  deletable 
+                                    handleDelete={() => {
+                                        let arr = [];
+                                        for (let i = 0; i < item.array.length; i++) {
+                                            if(i !== myIndex){
+                                                arr.push(item.array[i]);
+                                            }
+                                        }
+                                        item.setArray(arr);
+
+                                        let enArr = [];
+                                        for (let i = 0; i < item.detailsEN.length; i++) {
+                                            if(i !== myIndex){
+                                                enArr.push(item.detailsEN[i]);
+                                            }
+                                        }
+                                        item.setDetailsEN(enArr);
+                                    }} 
+                                    listener={(e) => {
+
+                                        let arr = [...item.array];
+                                        arr[myIndex] = e.target.value;
+                                        item.setArray(arr);
+                                        
+                                        let enArr = item.detailsEN;
+                                        enArr[myIndex] = { enName: enArr[myIndex]?.enName, arName: e.target.value };
+                                        item.setDetailsEN(enArr);
+
+                                    }} enListener={(e) => {
+                                        let arr = item.detailsEN;
+                                        arr[myIndex] = { enName: e.target.value, arName: arr[myIndex]?.arName};
+                                        item.setDetailsEN(arr);
+                                    }}/>}
                                 </li>
                             ))}
                         </ul>
                         <button style={{ marginTop: item.array.length <= 0 && 'unset' }} onClick={
-                            () => item.setArray([...item.array, ''])
+                            () => {
+                                item.setArray([...item.array, '']);
+                                if(item.isWithEN) item.setDetailsEN([...item.detailsEN, { enName: '', arName: '' }]);
+                            }
                         }>{'أضف تفصيلة'}</button>
+                    </div> : <div className='detailItem area-div'>
+
+                        <h3>{item.name}</h3>
+
+                        {item.isNum && <>
+
+                            {item.idName === 'pool' && <div className='priceDiv'>
+                                <CustomInputDiv title={'عدد المسابح'}  value={poolNum} listener={(e) => {
+                                    setPoolNum(Number(e.target.value));
+                                }} type={'number'} min={0} max={100000}/>
+                            </div>}
+                        
+                            {item.idName === 'bathrooms' && <div className='priceDiv'>
+                                <CustomInputDiv title={'عدد دورات المياه الكلي'}  value={bathroomsNum} listener={(e) => {
+                                    setBathroomsNum(Number(e.target.value));
+                                }} type={'number'} min={0} max={100000}/>
+                            </div>}
+
+                            {item.idName === 'rooms' && <div style={{ marginTop: 16 }} className='priceDiv'>
+                                <CustomInputDiv title={'عدد غرف النوم الكلي'} value={roomObj?.num} listener={(e) => {
+                                    setRoomObj({ num: Number(e.target.value), single_beds: roomObj?.single_beds, double_beds: roomObj?.double_beds });
+                                }} type={'number'} min={0} max={100000}/>
+                            </div>}
+
+                            {item.idName === 'rooms' && <div style={{ marginTop: 16 }} className='priceDiv'>
+                                <CustomInputDiv title={'عدد ' + 'الأسرة المفردة' + ' الكلي'} value={roomObj?.single_beds} listener={(e) => {
+                                    setRoomObj({ single_beds: Number(e.target.value), num: roomObj?.num, double_beds: roomObj?.double_beds });
+                                }} type={'number'} min={0} max={100000}/>
+                            </div>}
+
+                            {item.idName === 'rooms' && <div style={{ marginTop: 16 }} className='priceDiv'>
+                                <CustomInputDiv title={'عدد الأسرة المزدوجة الكلي'} value={roomObj?.double_beds} listener={(e) => {
+                                    setRoomObj({ double_beds: Number(e.target.value), single_beds: roomObj?.single_beds, num: roomObj?.num });
+                                }} type={'number'} min={0} max={100000}/>
+                            </div>}
+
+                        </>}
+
+                        {item.idName !== 'rooms' && <><InfoDiv title={'أضف مرافق'} divClick={() => item.setIsShow(!item.isShow)} value={item.array?.length <= 0 ? 'لم تتم اضافة أي مرفق' : item.array?.toString()?.replaceAll(',', ', ')}/>
+                        <HeaderPopup type={'selections'} customArray={item.selectArray} selectedCustom={item.array}
+                        setSelectedCustom={item.setArray} isCustom={item.isShow} setIsCustom={item.setIsShow}/></>}
+                        
                     </div>
                 ))}
 

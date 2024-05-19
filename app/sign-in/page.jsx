@@ -24,7 +24,8 @@ const page = () => {
     userId, setUserId, 
     setUserUsername, setUserRole, setUserEmail, setIsVerified,
     setUserPhone, setUserAddress, setBooksIds, isVerified,
-    setFavouritesIds, setLoadingUserInfo, setStorageKey
+    setFavouritesIds, setLoadingUserInfo, setStorageKey,
+    setUserAddressEN, setUserUsernameEN
   } = useContext(Context);
   const { executeRecaptcha } = useGoogleReCaptcha();
 
@@ -98,7 +99,8 @@ const page = () => {
         setUserId, setUserUsername, setUserRole, 
         setUserEmail, setIsVerified, setUserAddress,
         setUserPhone, setBooksIds, setFavouritesIds, 
-        setLoadingUserInfo, setStorageKey
+        setLoadingUserInfo, setStorageKey,
+        setUserAddressEN, setUserUsernameEN
       );
       
     } catch (err) {

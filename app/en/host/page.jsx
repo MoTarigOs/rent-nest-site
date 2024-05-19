@@ -1,8 +1,8 @@
 'use client';
 
 import Svgs from '@utils/Svgs';
-import './Host.css';
-import { useContext, useEffect, useRef } from 'react';
+import '../../host/Host.css';
+import { useEffect, useRef } from 'react';
 import { useState } from 'react';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
@@ -10,7 +10,6 @@ import { getHost, getOwnerProperties } from '@utils/api';
 import { useSearchParams } from 'next/navigation';
 import Card from '@components/Card';
 import ReviewCard from '@components/ReviewCard';
-import { Context } from '@utils/Context';
 import { Suspense } from 'react';
 import { getReadableDate } from '@utils/Logic';
 import Image from 'next/image';
@@ -178,32 +177,32 @@ const Page = () => {
     if(!hostObj) return (fetching || loading) ? <MySkeleton isMobileHeader/> : <NotFound />  
 
   return (
-    <div className='host'>
+    <div className='host' dir='ltr'>
         
         <span id='background-host-image'><Image height={360} width={1200} src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${properitiesArray?.at(4)?.images?.at(0)}`}/></span>
 
         <div className='host-intro'>
-            <div className='image-span'><span className='disable-text-copy'>{hostObj?.username?.at(0)}</span></div>
-            <h1>{hostObj?.username}</h1>
+            <div className='image-span'><span className='disable-text-copy'>{hostObj?.usernameEN?.at(0) || hostObj?.username?.at(0)}</span></div>
+            <h1>{hostObj?.usernameEN || hostObj?.username}</h1>
             <div className='host-details'>
-                <h4><Svgs name={'star'}/> تقييم {hostObj?.rating || 0} {`(من ${hostObj?.reviewsNum || 0} مراجعة)`}</h4>
-                <h4><Svgs name={'host'}/> مضيف منذ {getReadableDate(new Date(hostObj?.joinDate), true)}</h4>
-                <h4><Svgs name={'apartment'}/> عدد الوحدات {hostObj?.units || 0} وحدة</h4>
+                <h4><Svgs name={'star'}/> Evaluation {hostObj?.rating || 0} {`(from ${hostObj?.reviewsNum || 0} review)`}</h4>
+                <h4><Svgs name={'host'}/> Joined since {getReadableDate(new Date(hostObj?.joinDate), true, true)}</h4>
+                <h4><Svgs name={'apartment'}/> Units Number {hostObj?.units || 0} units</h4>
             </div>
         </div>
 
         <span id='hr'/>
 
         <ul className='tabButtons'>
-            <li className={isReviews && 'selectedTab'} onClick={() => { setIsOffers(false); setIsReviews(true); }}>التقييمات</li>
-            <li className={isOffers && 'selectedTab'} onClick={() => { setIsOffers(true); setIsReviews(false); }}>المعروضات</li>
+            <li className={isReviews && 'selectedTab'} onClick={() => { setIsOffers(false); setIsReviews(true); }}>Reviews</li>
+            <li className={isOffers && 'selectedTab'} onClick={() => { setIsOffers(true); setIsReviews(false); }}>Units</li>
         </ul>
 
         <div className='reviews' style={{ display: (isMobile && !isReviews) ? 'none' : undefined }}>
-            <h3 id='advertiser'>تقييمات الزبائن</h3>
+            <h3 id='advertiser'>Reviews</h3>
             <ul>
                 {reviews.slice(0, 8).map((rv) => (
-                    <ReviewCard isHost item={rv}/>
+                    <ReviewCard isEnglish isHost item={rv}/>
                 ))}
             </ul>
         </div>
@@ -212,17 +211,17 @@ const Page = () => {
 
         <div ref={offersRef} className='units' style={{ display: (isMobile && !isOffers) ? 'none' : undefined }}>
 
-            <h3 id='advertiser'>المعروضات</h3>
+            <h3 id='advertiser'>Units</h3>
 
             {properitiesArray?.length > 0 ? <ul className="resultUL">
                 {properitiesArray.slice(indexSlide, indexSlide + cardsPerPage).map((item) => (
-                    <Card key={item._id} item={item}/>
+                    <Card isEnglish key={item._id} item={item}/>
                 ))}
-            </ul> : fetching ? <MySkeleton loadingType={'cards'}/> : <NotFound />}
+            </ul> : fetching ? <MySkeleton loadingType={'cards'}/> : <NotFound isEnglish/>}
 
             <div className="pagesHandler">
 
-                <h4>النتائج</h4>
+                <h4>Result</h4>
 
                 <div  onClick={() => handleArrowPagesNav(true)}><Svgs name={'dropdown arrow'}/></div>
 
