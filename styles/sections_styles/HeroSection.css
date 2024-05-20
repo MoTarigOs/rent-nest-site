@@ -36,10 +36,10 @@
             }
 
             .cityItem{
-                width: 360px;
-                min-width: 360px;
-                height: 240px;
-                padding: 0 16px;
+                width: 340px;
+                min-width: 340px;
+                height: 226px;
+                padding: 0 24px;
                 scroll-snap-align: center;
                 cursor: pointer;
                 transition: all 0.2s ease-out;
@@ -51,18 +51,28 @@
                     border-radius: 16px;
                     border: 2px solid var(--darkWhite);
                     transition: all 0.2s ease-out;
-                
+                    
                     img{
                         width: 100%;
                         height: 176px;
                         cursor: pointer;
                     }
+
+                    &:dir(ltr){
+                        h3{
+                            margin-top: 12px;
+                        }
+                    }
     
                     h3{
                         display: flex;
-                        align-items: center;
-                        color: var(--secondColor);
-                        padding: 12px 24px;
+                        flex-direction: column;
+                        align-items: flex-start;
+                        color: var(--secondColorDark);
+                        font-weight: 600;
+                        font-size: 1rem;
+                        padding: 0px 24px;
+                        display: flex;
                     }
                 }
             }
@@ -321,19 +331,21 @@
             .citiesDiv{
 
                 .cityItem{
-                    width: 300px;
-                    min-width: 300px;
-                    height: 200px;
+                    width: 324px;
+                    min-width: 324px;
+                    padding: 0 20px;
+                    height: 222px;
 
                     div{
                     
                         img{
-                            height: 150px;
+                            height: 174px;
                         }
         
                         h3{
-                            padding: 8px 24px;
-                            font-size: 0.96rem;
+                            font-size: 0.8rem;
+                            display: flex;
+                            justify-content: center;
                         }
                     }
                 }
@@ -354,9 +366,26 @@
                     min-width: none;
     
                     h3{
-                        font-size: 1rem;
+                        font-size: 0.9rem;
+                        font-weight: 500;
                     }
                 }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 680px){
+    .hero{
+        .ourDeals{
+            h1{
+                margin-bottom: 16px;
+                line-height: 38px;
+                font-size: 1.8rem;
+            }
+            p{
+                margin-bottom: 52px;
+                font-size: 0.9rem;
             }
         }
     }

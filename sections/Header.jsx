@@ -5,7 +5,7 @@ import Image from 'next/image';
 import LogoImage from '@assets/icons/rent-nest-logo-header.png';
 import Svgs from '@utils/Svgs';
 import Link from 'next/link';
-import { Suspense, useContext, useEffect, useState } from 'react';
+import { Suspense, useContext, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
@@ -20,11 +20,13 @@ import { getUserInfo, refresh } from '@utils/api';
 import { getArabicNameCatagory, getNameByLang, getReadableDate } from '@utils/Logic';
 import { isLoginedCookie, isPreviouslyLogined } from '@utils/ServerComponents';
 import { VehiclesTypes } from '@utils/Data';
+import Ripple from '@components/Ripple';
 
 const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }) => {
 
     const [isScrolled, setIsScrolled] = useState(false);
     const [runOnce, setRunOnce] = useState(false);
+    const [isMobile960, setIsMobile960] = useState(false);
     const [isMenu, setIsMenu] = useState(false);
     const [isCityFilter, setIsCityFilter] = useState(false);
     const [isCatagoryFilter, setIsCatagoryFilter] = useState(false);
@@ -34,6 +36,9 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
     const [isFilter, setIsFilter] = useState(false);
     const [isArrange, setIsArrange] = useState(false);
     const [isPrevLogined, setIsPrevLogined] = useState(false);
+
+    const mobileSearchDivRef = useRef();
+    const mobileSearchDivSpanRef = useRef();
 
     const id = useSearchParams().get('id');
 
@@ -57,6 +62,11 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
         setIsMobile(true);
       } else {
         setIsMobile(false);
+      }
+      if(window.innerWidth <= 960){
+        setIsMobile960(true);
+      } else {
+        setIsMobile960(false);
       }
     };
 
@@ -178,8 +188,29 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
     };
 
-    useEffect(() => {
+    // function createRipple(event) {
 
+    //   const button = mobileSearchDivRef?.current;
+    
+    //   const circle = mobileSearchDivSpanRef?.current;
+    //   const diameter = Math.max(button.clientWidth, button.clientHeight);
+    //   const radius = diameter / 2;
+    
+    //   circle.style.width = circle.style.height = `${diameter}px`;
+    //   circle.style.left = `${event.clientX - button.offsetLeft - radius}px`;
+    //   circle.style.top = `${event.clientY - button.offsetTop - radius}px`;
+    //   circle.classList.add("ripple");
+    
+    //   const ripple = button.getElementsByClassName("ripple")[0];
+    
+    //   if (ripple) {
+    //     ripple.remove();
+    //   }
+
+    // }
+
+    useEffect(() => {
+      
       settingMobile();
 
       settingScroll();
@@ -206,6 +237,12 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
       }
     }, []);
+
+    // useEffect(() => {
+    //   if(mobileSearchDivRef?.current)
+    //     mobileSearchDivRef.current?.addEventListener('click', (e) => createRipple(e));
+    //   return () => mobileSearchDivRef.current?.removeEventListener('click', (e) => createRipple(e));
+    // }, [mobileSearchDivRef]);
 
     useEffect(() => {
       setRunOnce(true);
@@ -248,6 +285,32 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
     if(!pathname){
       return (<></>)
     };
+
+    // const [coords, setCoords] = useState({ x: -1, y: -1 });
+    // const [isRippling, setIsRippling] = useState(false);
+
+    // useEffect(() => {
+    //   if (coords.x !== -1 && coords.y !== -1) {
+    //     setIsRippling(true);
+    //     setTimeout(() => setIsRippling(false), 300);
+    //   } else setIsRippling(false);
+    // }, [coords]);
+  
+    // useEffect(() => {
+    //   if (!isRippling) setCoords({ x: -1, y: -1 });
+    // }, [isRippling]);
+
+    // {isRippling ? (
+    //   <span
+    //     className="ripple"
+    //     style={{
+    //       left: coords.x,
+    //       top: coords.y
+    //     }}
+    //   />
+    // ) : (
+    //   ''
+    // )}
 
   return (
 
@@ -310,7 +373,12 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
           initial={{ y: 0 }}
           animate={{ y: (isScrolled && isMobile) ? -76 : 0, transition: { damping: 50 } }}
           style={{ display: (isMobile && pathname.includes('search')) ? 'none' : undefined }}>
-          <div className='searchDiv'>
+          <div className={`searchDiv ${isScrolled ? 'search-div-scrolled' : undefined}`}
+            onClick={() => {
+              if(!isMobile) return;
+              setIsMobileHomeFilter(true);
+            }}
+          >
             <ul>
                 <li className='desktopSearchDivLI' onClick={() => {setIsCityFilter(true); setIsCatagoryFilter(false); setIsCalendarFilter(false);}}>{isCityFilter && <HeaderPopup pathname={pathname} type={'city'}/>}<h4>{getNameByLang('اختر المدينة', pathname.includes('/en'))}</h4><h3>{!city?.value ? getNameByLang('كل المدن', pathname.includes('/en')) : pathname.includes('/en') ? city.value : city.arabicName}</h3></li>
                 <li className='desktopSearchDivLI' onClick={() => {setIsCityFilter(false); setIsCatagoryFilter(true); setIsCalendarFilter(false);}}>{isCatagoryFilter && <HeaderPopup type={'catagory'} pathname={pathname} handleChoose={() => setIsCatagoryFilter(false)} />}<h4>{getNameByLang('التصنيف', pathname.includes('/en'))}</h4><h3>{catagory === '' ? getNameByLang('كل التصنيفات', pathname.includes('/en')) : getNameByLang(getArabicNameCatagory(catagory), pathname.includes('/en'))}</h3></li>
@@ -319,8 +387,9 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
                 <li className='header-search-btn'>
                   <Link href={getHref('search')}><Svgs name={'search'}/></Link>
                 </li>
-                <li className='mobileSearchDiv mobileSearchDivLI'>
-                  <div onClick={() => setIsMobileHomeFilter(true)}>
+
+                <li ref={mobileSearchDivRef} className={`mobileSearchDiv mobileSearchDivLI ${isScrolled ? 'mobile-searcj-div-scrolled' : undefined}`}>
+                  <div>
                     <Svgs name={'search'}/>
                     <p>{pathname.includes('/en') ? 'Search for a property' : 'ابحث عن عقار'}</p>
                   </div>
@@ -447,7 +516,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
         latitude={latitude} setLatitude={setLatitude} arFont={arabicFontClassname} enFont={englishFontClassname}/>}
 
         {((pathname === '/' || pathname === '/search' || pathname === '/en') && isMobileHomeFilter) 
-          && <MobileFilter isEnglish={pathname.includes('/en')}/>}
+          && <MobileFilter isMobile960={isMobile960} isEnglish={pathname.includes('/en')}/>}
 
     </div>
   )

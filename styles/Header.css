@@ -167,7 +167,7 @@
             }
 
             .mobileSearchDivLI{
-                display: none;
+                display: none;   
 
                 &:dir(ltr){
                     svg{
@@ -235,11 +235,18 @@
                 transform: scale(-1, 1);
             }
         }
+
+        
     }
 
     .scrolledSearhDiv{
         z-index: 11;
         margin-top: 100px;
+        padding: 16px 8px 16px 0;
+
+        &:dir(ltr){
+            padding: 16px 0 16px 8px;
+        }
 
         .searchDiv{
             padding: 0;
@@ -742,6 +749,30 @@
             }
         }
     }
+
+    .ripple-button {
+        border-radius: 4px;
+        border: none;
+        margin: 8px;
+        padding: 14px 24px;
+        background: #1976d2;
+        color: #fff;
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
+      }
+      
+      .ripple-button > .ripple {
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        background: #63a4ff;
+        display: block;
+        content: "";
+        border-radius: 9999px;
+        opacity: 1;
+        animation: 0.9s ease 1 forwards ripple-effect;
+      }
 }
 
 .englishHeader{
@@ -857,6 +888,23 @@
 #ensideNavActive{ left: 0; transition: all 0.1s ease-in; }
 #ensideNavNotActive{ left: -110%; transition: all 0.1s ease-in; }
 
+
+  
+  @keyframes ripple-effect {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(10);
+      opacity: 0.375;
+    }
+    100% {
+      transform: scale(35);
+      opacity: 0;
+    }
+  }
+
 @media screen and (max-width: 1200px){
     .header, .englishHeader{
         .desktopWrapper{
@@ -885,7 +933,7 @@
         }
 
         .searchDiv{
-
+            cursor: pointer;
             ul{
                 padding: 0;
 
@@ -898,9 +946,28 @@
                 }
 
                 .mobileSearchDivLI{
-                    display: block;
+                    display: flex;
+                    position: relative;
+                    justify-content: center;  
+                    overflow: hidden;
+                    outline: none;
+                    
+                    p{
+                        font-size: 0.9rem;
+                        font-weight: 600;
+                    }
                 }
             }
+        }
+
+        .mobile-searcj-div-scrolled{
+            background: var(--darkWhite);
+            overflow: hidden;
+            border-radius: 50px;
+        }
+
+        .search-div-scrolled{
+            border: none;
         }
 
         .headerSearchOtherDiv{
@@ -973,9 +1040,10 @@
 
             .mobileSearchDivLI{
                 padding: 0;
+                
 
                 p{
-                    font-size: 0.8rem;
+                    font-size: 0.9rem;
                 }
 
                 svg{

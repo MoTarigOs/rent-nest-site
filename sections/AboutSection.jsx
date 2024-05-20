@@ -68,7 +68,7 @@ const AboutSection = ({ isEnglish }) => {
 
             <div className='swiperAboutContainer'>
 
-              <div className='about-swiper swiperAboutDiv' style={isEnglish ? { left: 0, right: 'unset', paddingRight: 664, paddingLeft: 0 } : null}>
+              <div className='about-swiper swiperAboutDiv'>
                 <div className='swiper-wrapper wrapperDiv'>
                   {[...ProperitiesCatagories, VehicleCatagories[0]].map((item, index) => (
                     <div key={index} className='swiper-slide aboutListItem' onClick={() => {

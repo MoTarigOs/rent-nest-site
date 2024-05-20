@@ -60,6 +60,10 @@ const HeroSection = ({ isEnglish }) => {
             on: {
                 sliderMove: () => {
                     handleChange();
+                    setTimeout(() => {handleChange()}, [1]);
+                    setTimeout(() => {handleChange()}, [2]);
+                    setTimeout(() => {handleChange()}, [4]);
+                    setTimeout(() => {handleChange()}, [6]);
                     setTimeout(() => {handleChange()}, [10]);
                     setTimeout(() => {handleChange()}, [30]);
                     setTimeout(() => {handleChange()}, [60]);
@@ -71,6 +75,10 @@ const HeroSection = ({ isEnglish }) => {
                 },
                 slideChange: () => {
                     handleChange();
+                    setTimeout(() => {handleChange()}, [1]);
+                    setTimeout(() => {handleChange()}, [2]);
+                    setTimeout(() => {handleChange()}, [4]);
+                    setTimeout(() => {handleChange()}, [6]);
                     setTimeout(() => {handleChange()}, [10]);
                     setTimeout(() => {handleChange()}, [30]);
                     setTimeout(() => {handleChange()}, [60]);
@@ -142,9 +150,10 @@ const HeroSection = ({ isEnglish }) => {
                                     <motion.div
                                     initial={{ scale: 1, boxShadow: 'unset' }}
                                     animate={{ 
-                                        scale: c._id === selectedCity._id ? 1.1 : 1,
-                                        boxShadow: c._id === selectedCity._id ? '4px 4px 24px rgba(0, 134, 103, 0.236)' : 'unset'
-                                    }} transition={{ type: 'tween', duration: 0.01 }}>
+                                        scale: c._id === selectedCity._id ? 1.15 : 1,
+                                        boxShadow: c._id === selectedCity._id ? '1px 1px 36px var(--secondColorLight)' : 'unset'
+                                    }} transition={{ type: 'spring', duration: 0.01 }}
+                                    style={{ border: c._id === selectedCity._id ? 'none' : undefined}}>
                                         <Image placeholder='blur' loading='eager' src={getCityImage(c?.value)} alt={`${c.name} صورة`}/>
                                         <h3>{isEnglish ? c.value : c.arabicName}</h3>
                                     </motion.div>

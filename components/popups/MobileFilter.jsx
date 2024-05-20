@@ -12,8 +12,9 @@ import Link from 'next/link';
 import Svgs from '@utils/Svgs';
 import Image from 'next/image';
 import ImageAsLogo from '@assets/images/image_as_logo.webp';
+import { motion } from 'framer-motion';
 
-const Component = ({ isEnglish }) => {
+const Component = ({ isEnglish, isMobile960 }) => {
 
     const { 
       isMobileHomeFilter, setIsMobileHomeFilter, city,
@@ -67,7 +68,11 @@ const Component = ({ isEnglish }) => {
             setSection('city'); setIsMobileHomeFilter(false);
         }} />
 
-        <div className='filter-content'>
+        <motion.div className='filter-content'
+          initial={isMobile960 ? { y: '100%' } : { scale: 0.8, opacity: 0 }} 
+          animate={isMobile960 ? { y: isMobileHomeFilter ? 0 : '100%' } : { scale: isMobileHomeFilter ? 1 : 0, opacity: isMobileHomeFilter ? 1 : 0 }}
+          transition={{ type: 'tween', ease: 'easeIn', duration: isMobile960 ? 0.4 : 0.2 }}
+        >
 
           <div id='mobile-filter-header'/>
 
@@ -157,15 +162,15 @@ const Component = ({ isEnglish }) => {
 
           </div>}
 
-        </div>
+        </motion.div>
 
     </div>
   )
 };
 
-const MobileFilter = ({ isEnglish }) => (
+const MobileFilter = ({ isEnglish, isMobile960 }) => (
 	<Suspense>
-		<Component isEnglish={isEnglish}/>
+		<Component isEnglish={isEnglish} isMobile960={isMobile960}/>
 	</Suspense>
 );
 

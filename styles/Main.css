@@ -12,10 +12,12 @@ input, textarea, select, button{
     --backgroundMainColor: white;
     --white: white;
     --secondColor: #00cacd;
+    --secondColorLight: #007d7f62;
     --secondColorDark: #005d5f;
     --thirdColor: rgb(0, 181, 221);
     --thirdColorHover: rgb(0, 149, 183);
     --secondColorHover: #00afb2;
+    --darkWhiteLight: #f8f8f8;
     --darkWhite: #f3f3f3;
     --darkWhiteHover: #d7d7d7;
     --softRed: rgb(255, 113, 130);
@@ -23,6 +25,7 @@ input, textarea, select, button{
     --headerHeightMobile: 76px;
     --softGreen: #c3fec8;
     --softYellow: #ffefbc;
+    --linearBlackToSecondColor: linear-gradient(to top, black, red);
 }
 
 body{
@@ -36,7 +39,6 @@ body{
 
 .disable-scrolling{
     overflow: hidden;
-    padding-right: 17px;
     -ms-overflow-style: none; 
     scrollbar-width: none;
 
