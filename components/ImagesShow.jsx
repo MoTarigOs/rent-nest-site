@@ -8,6 +8,8 @@ import { useEffect, useRef, useState } from 'react';
 import Swiper from 'swiper/bundle';
 import 'swiper/swiper-bundle.css';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import useInterval from '@hooks/useInterval';
 
 const ImagesShow = ({ 
     isEnglish, images, videos, isAdmin, setFilesToDeleteAdmin, 
@@ -17,6 +19,7 @@ const ImagesShow = ({
 }) => {
 
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+    let isAutoScroll = true;
     let swiper = null;
     const scrollDivRef = useRef(null);
     const prevButtonRef = useRef(null);
@@ -75,7 +78,40 @@ const ImagesShow = ({
                 },
             }
         });
+        if(type === 'landing'){
+            const tick = () => {
+                if(isAutoScroll && swiper){
+                    console.log('index: ', selectedImageIndex, ' activeIndex: ', swiper?.activeIndex, ' length: ', images.length);
+                    if(swiper?.activeIndex >= images.length - 1){
+                        swiper?.slideTo(0);
+                        setSelectedImageIndex(0);
+                    } else {
+                        nextButtonRef?.current?.click();
+                    }
+                }
+            }
+            const id = setInterval(tick, 3000);
+            return () => clearInterval(id);
+        }
     }, []);
+
+    const settingIsAutoScroll = (isAuto) => {
+        isAutoScroll = isAuto; console.log('down: ', isAuto);
+    }
+
+    useEffect(() => {
+
+    }, [isAutoScroll, swiper]);
+
+    // useEffect(() => {
+    //     if(!scrollDivRef) return;
+    //     scrollDivRef?.current?.addEventListener('mousedown', settingIsAutoScroll(false));
+    //     scrollDivRef?.current?.addEventListener('mouseup', settingIsAutoScroll(true));
+    //     return () => {
+    //         scrollDivRef?.current?.removeEventListener('mousedown', settingIsAutoScroll(false));
+    //         scrollDivRef?.current?.removeEventListener('mouseup', settingIsAutoScroll(true));
+    //     }
+    // }, [scrollDivRef]);
     
     useEffect(() => {
 
@@ -109,23 +145,35 @@ const ImagesShow = ({
     <div className='imagesDiv' dir={isEnglish ? 'ltr' : null} style={{ height: type === 'view' ? 420 : undefined, borderRadius: type === 'landing' ? 0 : undefined }}>
 
         <div className='swiper-images-show'>
-            
-            <div className={`swiper-wrapper ${type === 'card' ? 'cards-images-container' : undefined}`} ref={scrollDivRef}>
+        {/* onMouseDown={() => { if(isAutoScroll) setIsAutoScroll(false) }} onMouseUp={() => { if(!isAutoScroll) setIsAutoScroll(true) }} */}
+            <div onMouseEnter={() => settingIsAutoScroll(false)} onMouseLeave={() => settingIsAutoScroll(true)} className={`swiper-wrapper ${type === 'card' ? 'cards-images-container' : undefined}`} ref={scrollDivRef}>
             {!type_is_video ? <> {getImagesArray()?.length ? <>{getImagesArray().map((img, index) => (
-                    <div key={index} className='swiper-slide' ref={img.ref}>
+                    <motion.div key={index} className={`swiper-slide ${type === 'landing' && index === selectedImageIndex ? 'animate-show-landing-page' : 'animate-hide-landing-page'}`} 
+                        ref={img.ref}
+                        initial={type === 'landing' ? {
+                            scale: 0.96, filter: 'blur(16px)'
+                        } : undefined}
+                        animate={{
+                            scale: type === 'landing' && index === selectedImageIndex ? 1 : 0.96,
+                            filter: type === 'landing' && index === selectedImageIndex ? 'blur(0px)' : 'blur(16px)',
+                        }}
+                        transition={{
+                            type: 'tween', duration: 0.4
+                        }}
+                    >
                         <Image placeholder={type === 'landing' ? 'blur' : 'empty'} style={{ zIndex: type === 'view' ? 1 : null }} loading={type === 'landing' ? 'eager' : 'lazy'}
                         src={type === 'landing' ? img.image : `${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${type === 'card' ? img.url : img}`} 
                         fill={type === 'landing' ? false : true} alt={isEnglish ? 'Image about the offer' : 'صورة عن العرض'}
                         onLoad={() => { if(type === 'landing') img.setState(true) }}/>
                         <div className='images-show-text' style={{ display: type !== 'landing' ? 'none' : undefined , width: '100%' }}>
-                            <div style={{ width: '100%' }}>
-                                <h2>{img.title}</h2>
-                                <p>{img.desc}</p>
-                                <Link href={img.btnLink ? img.btnLink : ''}>{img.btnTitle}</Link>
+                            <div className='content-div' style={{ width: '100%' }}>
+                                <motion.h2 initial={{ x: '100%' }} animate={{ x: index === selectedImageIndex ? 0 : '100%' }} transition={{ delay: 0.1, type: 'spring', damping: 12 }}>{img.title}</motion.h2>
+                                <motion.p initial={{ opacity: 0, x: 0 }} animate={{ opacity: index === selectedImageIndex ? 1 : 0 }} transition={{ delay: 0.3 }}>{img.desc}</motion.p>
+                                <motion.div initial={{ opacity: 0, x: 0 }} animate={{ opacity: index === selectedImageIndex ? 1 : 0 }} transition={{ delay: 0.3 }}><Link href={img.btnLink ? img.btnLink : ''}>{img.btnTitle}</Link></motion.div>
                             </div>
                         </div>
                         {(type === 'landing' && img.state) && <span id='landing-item-span'/>}
-                    </div>
+                    </motion.div>
                 ))}</> : <>
                     <div className='not-exist'>
                         {isEnglish ? 'No images found' : 'لا توجد صور'}

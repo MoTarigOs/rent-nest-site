@@ -10,6 +10,7 @@ import Svgs from '@utils/Svgs';
 import { Context } from '@utils/Context';
 import { getNameByLang } from '@utils/Logic';
 import { getCityImage } from '@utils/Cities';
+import { motion } from 'framer-motion';
 
 const HeroSection = ({ isEnglish }) => {
 
@@ -58,13 +59,41 @@ const HeroSection = ({ isEnglish }) => {
             },
             on: {
                 sliderMove: () => {
-                        setTimeout(() => {handleChange()}, [250])
+                    handleChange();
+                    setTimeout(() => {handleChange()}, [10]);
+                    setTimeout(() => {handleChange()}, [30]);
+                    setTimeout(() => {handleChange()}, [60]);
+                    setTimeout(() => {handleChange()}, [100]);
+                    setTimeout(() => {handleChange()}, [200]);
+                    setTimeout(() => {handleChange()}, [300]);
+                    setTimeout(() => {handleChange()}, [400]);
+                    setTimeout(() => {handleChange()}, [500]);
                 },
                 slideChange: () => {
-                    setTimeout(() => {handleChange()}, [250])
+                    handleChange();
+                    setTimeout(() => {handleChange()}, [10]);
+                    setTimeout(() => {handleChange()}, [30]);
+                    setTimeout(() => {handleChange()}, [60]);
+                    setTimeout(() => {handleChange()}, [100]);
+                    setTimeout(() => {handleChange()}, [200]);
+                    setTimeout(() => {handleChange()}, [300]);
+                    setTimeout(() => {handleChange()}, [400]);
+                    setTimeout(() => {handleChange()}, [500]);
                 }
             }
         }));
+
+        handleChange();
+        setTimeout(() => {handleChange()}, [10]);
+        setTimeout(() => {handleChange()}, [30]);
+        setTimeout(() => {handleChange()}, [60]);
+        setTimeout(() => {handleChange()}, [100]);
+        setTimeout(() => {handleChange()}, [200]);
+        setTimeout(() => {handleChange()}, [300]);
+        setTimeout(() => {handleChange()}, [400]);
+        setTimeout(() => {handleChange()}, [500]);
+
+        return () => clearTimeout();
 
     }, []);
 
@@ -103,16 +132,22 @@ const HeroSection = ({ isEnglish }) => {
 
                         <div className="swiper-wrapper wrapperDiv" onChange={() => console.log('changed')}>
                             {cities.map((c) => (
-                                <div key={c._id} dir={isEnglish ? 'ltr' : null} onClick={() => {
+                                <div
+                                key={c._id} dir={isEnglish ? 'ltr' : null} onClick={() => {
                                     console.log('c: ', c, ' city: ', JordanCities.find(i => i.city_id === c._id));
                                     setIsMobileHomeFilter(true); 
                                     setSection('category');
                                     setCity(JordanCities.find(i => i.city_id === c._id));
-                                }} className={`swiper-slide cityItem ${c._id === selectedCity._id && 'selectedCity'}`} ref={c.cityRef}>
-                                    <div>
+                                }} className={`swiper-slide cityItem`} ref={c.cityRef}>
+                                    <motion.div
+                                    initial={{ scale: 1, boxShadow: 'unset' }}
+                                    animate={{ 
+                                        scale: c._id === selectedCity._id ? 1.1 : 1,
+                                        boxShadow: c._id === selectedCity._id ? '4px 4px 24px rgba(0, 134, 103, 0.236)' : 'unset'
+                                    }} transition={{ type: 'tween', duration: 0.01 }}>
                                         <Image placeholder='blur' loading='eager' src={getCityImage(c?.value)} alt={`${c.name} صورة`}/>
                                         <h3>{isEnglish ? c.value : c.arabicName}</h3>
-                                    </div>
+                                    </motion.div>
                                 </div>
                             ))}
                         </div>

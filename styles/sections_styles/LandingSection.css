@@ -10,6 +10,8 @@
     .imagesDiv{
         width: 100vw;
         height: 628px;
+        cursor: pointer;
+        margin-top: 44px;
 
         .arrow{
             display: none;
