@@ -21,130 +21,14 @@ const page = () => {
         city, setCity, vehicleType,
         setIsModalOpened,
         calendarDoubleValue, setCalendarDoubleValue,
+        triggerFetch, setTriggerFetch
     } = useContext(Context);
-
-    // const settingPropertiesArray = async() => {
-
-    //     if(fetching) return;
-
-    //     try {
-
-    //         setFetching(true);
-
-    //         let addressLong, addressLat;
-
-    //         if(arrangeValue === 'address'){
-    //             const loc = await getLocation();
-    //             addressLong = loc.long;
-    //             addressLat = loc.lat;
-    //         };
-            
-    //         const res = await getProperties(
-    //             city.value, true, catagory, rangeValue,
-    //             ratingScore, searchText, arrangeValue, addressLong, addressLat, skip,
-    //             quickFilter,
-    //             neighbourSearchText,
-    //             unitCode,
-    //             bedroomFilter,
-    //             capacityFilter,
-    //             poolFilter,
-    //             customersTypesFilter,
-    //             companiansFilter,
-    //             bathroomsFilterNum,
-    //             bathroomsCompaniansFilter,
-    //             kitchenFilter,
-    //             null,
-    //             vehicleType
-    //         );
-
-    //         if(res.success !== true) {
-    //             setProperitiesArray([]);
-    //             setSkipable(false);
-    //             setFetching(false);
-    //             return;
-    //         };
-
-    //         if(res?.dt?.length > 300){
-    //             setSkipable(true)
-    //         } else {
-    //             setSkipable(false);
-    //         }
-
-    //         let arr = [];
-
-    //         if(isCalendarValue && calendarDoubleValue){
-    //             for (let i = 0; i < res.dt.length; i++) {
-    //                 if(isOkayBookDays(calendarDoubleValue, res.dt?.at(i)?.booked_days))
-    //                     arr.push(res.dt[i]);
-    //             }
-    //         };
-
-    //         if(skip > 0){
-    //             setProperitiesArray([...properitiesArray, ...((isCalendarValue && calendarDoubleValue) ? arr : res.dt)]);
-    //         } else { 
-    //             setProperitiesArray(((isCalendarValue && calendarDoubleValue) ? arr : res.dt));
-    //         }
-
-    //         console.log('arr: ', (isCalendarValue && calendarDoubleValue), arr);
-
-    //         setFetching(false);
-
-    //         if(isCalendarValue && skip === 0 && res.dt.length === 300 && arr.length <= 50)
-    //             setSkip(skip + 1);
-
-    //     } catch (err) {
-    //         console.log(err);
-    //         setFetching(false);
-    //     }
-    // };
 
     const settingPreventScroll = () => {
         if(isCityDiv || isCategoryDiv || isCalendar) 
           return setIsModalOpened(true);
         setIsModalOpened(false);
     };
-
-    // useEffect(() => {
-    //     setRunOnce(true);
-    //     setCatagory('transports');
-    // }, []);
-
-    // useEffect(() => {
-    //     if(runOnce) settingPropertiesArray();
-    // }, [runOnce]);
-
-    // useEffect(() => {
-    //     if(currentPage > pagesNumber) setCurrentPage(pagesNumber);
-    //     if(currentPage < 1) setCurrentPage(1);
-    //     setIndexSlide((currentPage - 1) * cardsPerPage);
-    //     window.scrollTo({
-    //         top: 0, behavior: 'smooth'
-    //     })
-    // }, [currentPage]);
-
-    // useEffect(() => {
-    //     if(properitiesArray.length > cardsPerPage){
-    //         setPagesNumber(Math.ceil(properitiesArray.length / cardsPerPage));
-    //         setCurrentPage(1);
-    //         setIndexSlide(0);
-    //     } else {
-    //         setPagesNumber(1);
-    //         setCurrentPage(1);
-    //         setIndexSlide(0);
-    //     };
-    // }, [properitiesArray]);
-
-    // useEffect(() => {
-    //     if(runOnce) settingPropertiesArray();
-    // }, [triggerFetch]);
-
-    // useEffect(() => {
-    //     if(runOnce) setProperitiesArray(arrangeArray(arrangeValue.toString(), properitiesArray));
-    // }, [arrangeValue]);
-
-    // useEffect(() => {
-    //     if(runOnce) settingPropertiesArray();
-    // }, [skip]);
 
     useEffect(() => {
         settingPreventScroll();
@@ -188,7 +72,7 @@ const page = () => {
                 <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, false)}</h3>
                 </div>
                 
-                <div className='bookingDate' style={{  }} onClick={() => { setIsFilterHeader(false); settingPropertiesArray(); }}>بحث</div>
+                <div className='bookingDate' style={{  }} onClick={() => { setIsFilterHeader(false); setTriggerFetch(!triggerFetch) }}>بحث</div>
 
                 <div className='bookingDate' onClick={() => setIsFilterHeader(false)}>الغاء</div>
 

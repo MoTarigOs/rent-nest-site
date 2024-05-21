@@ -26,6 +26,7 @@ const Page = () => {
         city, setCity, catagory, categoryArray,
         setCatagory, calendarDoubleValue, 
         setCalendarDoubleValue, setIsSearchMap,
+        triggerFetch, setTriggerFetch
     } = useContext(Context);
 
     const getSelectedCategories = (array) => {
@@ -79,7 +80,7 @@ const Page = () => {
                 <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, true)}</h3>
                 </div>
                 
-                <div className='bookingDate' onClick={() => { setIsFilterHeader(false); settingPropertiesArray(); }}>Search</div>
+                <div className='bookingDate' onClick={() => { setIsFilterHeader(false); setTriggerFetch(!triggerFetch); }}>Search</div>
 
                 <div className='bookingDate' onClick={() => setIsFilterHeader(false)}>Cancel</div>
 

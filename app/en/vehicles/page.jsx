@@ -21,7 +21,7 @@ const page = () => {
         city, setCity, calendarDoubleValue, 
         setIsModalOpened,
         setCalendarDoubleValue,
-        vehicleType
+        vehicleType, triggerFetch, setTriggerFetch
     } = useContext(Context);
 
     const settingPreventScroll = () => {
@@ -71,7 +71,7 @@ const page = () => {
             <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, true)}</h3>
             </div>
             
-            <div className='bookingDate' style={{  }} onClick={() => { setIsFilterHeader(false); settingPropertiesArray(); }}>Search</div>
+            <div className='bookingDate' style={{  }} onClick={() => { setIsFilterHeader(false); setTriggerFetch(!triggerFetch)}}>Search</div>
 
             <div className='bookingDate' onClick={() => setIsFilterHeader(false)}>Cancel</div>
 

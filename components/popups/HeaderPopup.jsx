@@ -104,12 +104,12 @@ const HeaderPopup = ({
             </div>
             <ul>
                 <li onClick={() => {
-                    setItemCity({});
+                    setItemCity({ city_id: -1 });
                     setLongitude(null);
                     setLatitude(null);
                 }}>
                     {isEnglish ? 'All Cities' : 'كل المدن'}
-                    {!itemCity?.city_id && <RightIconSpan />}
+                    {itemCity?.city_id === -1 && <RightIconSpan />}
                 </li>
                 {searched.map((cty) => (
                     <li onClick={() => { 
