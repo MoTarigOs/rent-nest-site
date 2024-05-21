@@ -662,12 +662,13 @@ export const getProperties = async(
     bathroomsCompaniansFilter,
     kitchenFilter,
     categoryArray,
-    vehicleType
+    vehicleType,
+    cardsPerPage
 ) => {
 
     try {
 
-        const url = `${baseUrl}/property?${city?.length > 0 ? 'city=' + city.replaceAll(' ', '-') : ''}${(isType === true) ? '&type_is_vehicle=true' + (vehicleType >= 0 ? '&vehicleType=' + vehicleType : '') : ''}${categoryArray?.length > 0 ? '&categories=' + categoryArray.map(o=>o?.value).join(',') : (specific?.length > 0 ? '&specific=' + specific : '')}${(priceRange?.length > 1 && (priceRange[0] > 0 || priceRange[1] < maximumPrice)) ? '&price_range=' + priceRange.toString() : ''}${minRate > 0 ? '&min_rate=' + minRate : ''}${(searchText?.length > 0 || neighbourSearchText?.length > 0) ? '&text=' + searchText + neighbourSearchText : ''}${sort?.length > 0 ? '&sort=' + sort : ''}${long > 0 ? '&long=' + long : ''}${lat > 0 ? '&lat=' + lat : ''}${(typeof skip === 'number' && skip > 0) ? '&skip=' + skip : ''}${quickFilter?.length > 0 ? '&quickFilter=' + quickFilter.map(o => o.idName).join(",") : ''}${unitCode > 0 ? '&unitCode=' + unitCode : ''}${(bedroomFilter?.num || bedroomFilter?.single_beds || bedroomFilter?.double_beds) ? '&bedroomFilter=' + bedroomFilter?.num + ',' + bedroomFilter?.single_beds + ',' + bedroomFilter?.double_beds : ''}${(capacityFilter?.min >= 0 || capacityFilter?.max > 0) ? '&capacityFilter=' + capacityFilter.min + ',' + capacityFilter.max : ''}${poolFilter?.length > 0 ? '&poolFilter=' + poolFilter.toString() : ''}${customersTypesFilter?.length > 0 ? '&customers=' + customersTypesFilter.toString() : ''}${companiansFilter?.length > 0 ? '&companiansFilter=' + companiansFilter.toString() : ''}${bathroomsFilterNum > 0 ? '&bathroomsNum=' + bathroomsFilterNum : ''}${bathroomsCompaniansFilter?.length > 0 ? '&bathroomFacilities=' + bathroomsCompaniansFilter.toString() : ''}${kitchenFilter?.length > 0 ? '&kitchenFilter=' + kitchenFilter.toString() : ''}`;
+        const url = `${baseUrl}/property?${city?.length > 0 ? 'city=' + city.replaceAll(' ', '-') : ''}${(isType === true) ? '&type_is_vehicle=true' + (vehicleType >= 0 ? '&vehicleType=' + vehicleType : '') : ''}${categoryArray?.length > 0 ? '&categories=' + categoryArray.map(o=>o?.value).join(',') : (specific?.length > 0 ? '&specific=' + specific : '')}${(priceRange?.length > 1 && (priceRange[0] > 0 || priceRange[1] < maximumPrice)) ? '&price_range=' + priceRange.toString() : ''}${minRate > 0 ? '&min_rate=' + minRate : ''}${(searchText?.length > 0 || neighbourSearchText?.length > 0) ? '&text=' + searchText + neighbourSearchText : ''}${sort?.length > 0 ? '&sort=' + sort : ''}${long > 0 ? '&long=' + long : ''}${lat > 0 ? '&lat=' + lat : ''}${(typeof skip === 'number' && skip > 0) ? '&skip=' + skip : ''}${quickFilter?.length > 0 ? '&quickFilter=' + quickFilter.map(o => o.idName).join(",") : ''}${unitCode > 0 ? '&unitCode=' + unitCode : ''}${(bedroomFilter?.num || bedroomFilter?.single_beds || bedroomFilter?.double_beds) ? '&bedroomFilter=' + bedroomFilter?.num + ',' + bedroomFilter?.single_beds + ',' + bedroomFilter?.double_beds : ''}${(capacityFilter?.min >= 0 || capacityFilter?.max > 0) ? '&capacityFilter=' + capacityFilter.min + ',' + capacityFilter.max : ''}${poolFilter?.length > 0 ? '&poolFilter=' + poolFilter.toString() : ''}${customersTypesFilter?.length > 0 ? '&customers=' + customersTypesFilter.toString() : ''}${companiansFilter?.length > 0 ? '&companiansFilter=' + companiansFilter.toString() : ''}${bathroomsFilterNum > 0 ? '&bathroomsNum=' + bathroomsFilterNum : ''}${bathroomsCompaniansFilter?.length > 0 ? '&bathroomFacilities=' + bathroomsCompaniansFilter.toString() : ''}${kitchenFilter?.length > 0 ? '&kitchenFilter=' + kitchenFilter.toString() : ''}${cardsPerPage ? '&cardsPerPage=' + cardsPerPage : ''}`;
 
         console.log('url: ', url);
 
@@ -675,7 +676,7 @@ export const getProperties = async(
         
         if(!res?.status || res.status !== 200) return { success: false, dt: getErrorText(res?.data?.message ? res.data.messsage : '') }
     
-        return { success: true, dt: res.data };
+        return { success: true, dt: res.data?.properties, count: res.data?.count };
     
     } catch (err) {
         console.log(err);

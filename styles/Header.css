@@ -376,16 +376,20 @@
         width: 100%;
         display: none;
         align-items: center;
+        height: 100%;
         justify-content: space-between;
         margin: 0;
 
-        #close-nav-span{
-            position: fixed;
+        #menu-active-background{
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.748);
+            background: white;
+            display: block;
+            box-shadow: 1px 1px 24px rgba(0, 0, 0, 0.267);
+            z-index: 13;
         }
 
         .menuIconDiv{
@@ -396,6 +400,7 @@
             justify-content: space-between;
             cursor: pointer;
             z-index: 10;
+            transition: all 0.2s ease-out;
     
             span{
                 width: 100%;
@@ -408,39 +413,45 @@
     
         .mobileSideNav{
             position: fixed;
-            width: 80%;
-            max-width: 80vw;
-            height: 100vh;
-            top: 0;
+            width: 100%;
+            height: fit-content;
+            max-height: calc(100vh - var(--headerHeightMobile));
+            top: var(--headerHeightMobile);
             left: 0;
             display: flex;
             flex-direction: column;
             overflow-y: scroll;
-            background: var(--darkWhite);
-            box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.181);
-            z-index: 120;
+            background: white;
+            padding: 0 24px;
+            z-index: 12;
+
+            hr{
+                margin: 32px 0;
+                border-width: 1px;
+                border-color: rgba(0, 0, 0, 0.068);
+            }
     
-            ul{
+            .sideNavUL{
+                width: 100%;
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-start;
-                gap: 12px;
-                padding: 8px;
                 list-style: none;
+                padding-top: 32px;
         
                 a{
                     color: rgb(70, 70, 70);
                     text-decoration: none;
-                    font-size: 1.1rem;
+                    font-size: 1rem;
                     padding: 12px 16px;
                     display: flex;
                     align-items: center;
                     transition: all 0.2s ease-out;
 
                     svg{
-                        margin-left: 16px;
-                        width: 24px;
-                        height: 24px;
+                        margin-left: 24px;
+                        width: 32px;
+                        height: 32px;
                         
                         path{
                             fill: var(--secondColorHover);
@@ -458,8 +469,17 @@
                     transition: all 0.2s ease-in;
                 }
 
+                .user{
+                    width: 100%;
+                    max-width: unset;
+
+                    a{
+                        border-radius: 0;
+                    }
+                }
+
                 .addItemHeaderDiv{
-                    margin: 12px auto;
+                    margin: 24px auto 12px auto;
                     width: fit-content;
                 }
 
@@ -467,14 +487,47 @@
                     margin: 0;
                 }
 
-                .lang{
-                    margin: auto auto 0 auto;
-                    font-size: 1rem;
+                .nav-bottom{
+                    width: 100%;
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 24px;
+                    
+                    .lang{
+                        margin: 0;
+                        font-size: 1rem;
+    
+                        a{
+                            padding: 0;
+                            color: black;
+                            text-decoration: underline;
+                        }
+                    }
+    
+                    ul{
+                        display: flex;
+                        align-items: center;
+                        flex-direction: row;
+                        list-style: none;
 
-                    a{
-                        padding: 0;
-                        color: black;
-                        text-decoration: underline;
+                        li{
+                            margin: 0;
+
+                            a{
+                                padding: 12px;
+                                margin: 0;
+
+                                svg{
+                                    margin: 0;
+                                }
+                            }
+
+                            .adjust-svg{
+                                transform: translateY(-2px);
+                            }
+                        }
                     }
                 }
             }
@@ -491,6 +544,7 @@
         position: absolute;
         top: 0;
         left: calc(50% - 50vw);
+        background: rgba(0, 0, 0, 0.24);
         z-index: 19;
     }
 
@@ -760,19 +814,19 @@
         overflow: hidden;
         position: relative;
         cursor: pointer;
-      }
-      
-      .ripple-button > .ripple {
-        width: 20px;
-        height: 20px;
-        position: absolute;
-        background: #63a4ff;
-        display: block;
-        content: "";
-        border-radius: 9999px;
-        opacity: 1;
-        animation: 0.9s ease 1 forwards ripple-effect;
-      }
+    }
+    
+    .ripple-button > .ripple {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    background: #63a4ff;
+    display: block;
+    content: "";
+    border-radius: 9999px;
+    opacity: 1;
+    animation: 0.9s ease 1 forwards ripple-effect;
+    }
 }
 
 .englishHeader{
@@ -877,16 +931,14 @@
     }
 }
 
-#span1Active{ transform: rotateZ(45deg) translateY(4px) translateX(3px); transition: all 0.1s ease-in-out; }
-#span1NotActive{ transform: rotateZ(0) translateY(0); transition: all 0.1s ease-out; }
-#span2Active{ opacity: 1; transition: all 0.1s ease-in-out; }
-#span2NotActive{ opacity: 0; transition: all 0.1s ease-out; }
-#span3Active{ transform: rotateZ(-45deg) translateY(-8px) translateX(7px); transition: all 0.1s ease-in-out; }
-#span3NotActive{ transform: rotateZ(0) translateY(0); transition: all 0.1s ease-out; }
-#sideNavActive{ right: 0; transition: all 0.1s ease-in; }
-#sideNavNotActive{ right: -110%; transition: all 0.1s ease-in; }
-#ensideNavActive{ left: 0; transition: all 0.1s ease-in; }
-#ensideNavNotActive{ left: -110%; transition: all 0.1s ease-in; }
+#span1Active{ transform: rotateZ(45deg) translateY(4px) translateX(3px); transition: all 0.2s ease-in-out; }
+#span1NotActive{ transform: rotateZ(0) translateY(0); transition: all 0.2s ease-out; }
+#span2Active{ opacity: 1; transition: all 0.2s ease-in-out; }
+#span2NotActive{ opacity: 0; transition: all 0.2s ease-out; }
+#span3Active{ transform: rotateZ(-45deg) translateY(-8px) translateX(7px); transition: all 0.2s ease-in-out; }
+#span3NotActive{ transform: rotateZ(0) translateY(0); transition: all 0.2s ease-out; }
+#sideNavActive{ top: var(--headerHeightMobile); scale: 1; transition: all 0.4s cubic-bezier(0, 0.65, 0.4, 1); }
+#sideNavNotActive{ top: -100%; scale: 1.1; transition: all 0s cubic-bezier(0.075, 0.82, 0.165, 1); }
 
 
   
@@ -1024,6 +1076,9 @@
         .mobileHeader{
             display: flex;
         }
+        .headerSearchDiv{
+            width: 80%;
+        }
     }
 }
 
@@ -1034,21 +1089,52 @@
             top: 90dvh;
         }
         .headerSearchDiv{
+            width: 100%;
+        }
+        .scrolledSearhDiv{
             max-width: 65%;
         }
-        .searchDiv ul{
+        .searchDiv{
+            ul{
 
-            .mobileSearchDivLI{
-                padding: 0;
-                
-
-                p{
-                    font-size: 0.9rem;
+                .mobileSearchDivLI{
+                    padding: 0;
+                    
+                    p{
+                        font-size: 0.9rem;
+                    }
+    
+                    svg{
+                        min-width: 16px;
+                        min-height: 16px;
+                    }
                 }
+            }
+        }
+    }
+}
 
-                svg{
-                    min-width: 16px;
-                    min-height: 16px;
+@media screen and (max-width: 480px){
+    .header{
+        .headerSearchDiv{
+            width: 80%;
+        }
+
+        .searchDiv{
+            ul{
+
+                .mobileSearchDivLI{
+                    padding: 0;
+                    
+                    p{
+                        font-size: 0.9rem;
+                        font-weight: 600;
+                    }
+    
+                    svg{
+                        min-width: 16px;
+                        min-height: 16px;
+                    }
                 }
             }
         }

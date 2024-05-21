@@ -79,9 +79,9 @@
 
             .filterSearchDiv{
                 width: 100%;
-                margin-top: 24px;
                 border-bottom: 1px solid rgba(31, 31, 31, 0.122);
-                padding-bottom: 0;
+                padding: 16px 0 0 0;
+                cursor: pointer;
     
                 h2{
                     margin-bottom: 24px;
@@ -98,8 +98,9 @@
                 display: flex;
                 flex-direction: column;
                 border-bottom: 1px solid rgba(31, 31, 31, 0.122);
-                padding-bottom: 8px;
-    
+                padding: 16px 0 8px 0;
+                cursor: pointer;
+
                 h2{
                     margin-bottom: 8px;
                     text-align: flex-end;
@@ -188,7 +189,6 @@
             }
     
             h2{
-                margin-bottom: 16px;
                 display: flex;
                 width: 100%;
                 justify-content: space-between;
@@ -203,10 +203,10 @@
             
             .catagory{
                 width: 100%;
-                margin-top: 16px;
+                padding: 16px 0 16px 0;
                 border-bottom: 1px solid rgba(31, 31, 31, 0.122);
-                padding-bottom: 8px;
-    
+                cursor: pointer;
+
                 ul{
                     width: 100%;
                     display: flex;
@@ -310,6 +310,14 @@
         .wrapper{
             border-radius: 0;
             max-width: unset;
+        }
+    }
+}
+
+@media screen and (max-width: 680px){
+    .filterULDiv{
+        .wrapper{
+            min-height: 100%;
         }
     }
 }

@@ -19,7 +19,7 @@ import { Context } from '@utils/Context';
 import { getUserInfo, refresh } from '@utils/api';
 import { getArabicNameCatagory, getNameByLang, getReadableDate } from '@utils/Logic';
 import { isLoginedCookie, isPreviouslyLogined } from '@utils/ServerComponents';
-import { VehiclesTypes } from '@utils/Data';
+import { VehiclesTypes, contactInfo } from '@utils/Data';
 import Ripple from '@components/Ripple';
 
 const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }) => {
@@ -315,7 +315,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
   return (
 
     <div suppressContentEditableWarning className={(pathname.includes('/en') ? 'header englishHeader' : 'header')} style={{ 
-      position: 'fixed', boxShadow: isModalOpened ? 'unset' : undefined, zIndex: (isArrange || isFilter || isMenu || isMap 
+      position: 'fixed', boxShadow: (pathname.includes('/search') && isModalOpened) ? 'unset' : undefined, zIndex: (isArrange || isFilter || isMenu || isMap 
           || isCatagoryFilter || isCityFilter || isCalendarFilter
           || isMobileHomeFilter) && 11
     }} suppressHydrationWarning={true} dir={pathname.includes('/en') ? 'ltr' : null}>
@@ -372,8 +372,11 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
         {(pathname === '/' || pathname === '/en') ? <motion.div className={`headerSearchDiv ${(isScrolled && isMobile) ? 'scrolledSearhDiv' : undefined}`}
           initial={{ y: 0 }}
           animate={{ y: (isScrolled && isMobile) ? -76 : 0, transition: { damping: 50 } }}
-          style={{ display: (isMobile && pathname.includes('search')) ? 'none' : undefined }}>
-          <div className={`searchDiv ${isScrolled ? 'search-div-scrolled' : undefined}`}
+          style={{ 
+            display: (isMobile && pathname.includes('search')) ? 'none' : undefined,
+            zIndex: (isMenu && isScrolled) ? 21 : undefined
+          }}>
+          <div className={`searchDiv disable-text-copy ${isScrolled ? 'search-div-scrolled' : undefined}`}
             onClick={() => {
               if(!isMobile) return;
               setIsMobileHomeFilter(true);
@@ -388,7 +391,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
                   <Link href={getHref('search')}><Svgs name={'search'}/></Link>
                 </li>
 
-                <li ref={mobileSearchDivRef} className={`mobileSearchDiv mobileSearchDivLI ${isScrolled ? 'mobile-searcj-div-scrolled' : undefined}`}>
+                <li ref={mobileSearchDivRef} className={`mobileSearchDiv mobileSearchDivLI ${isScrolled ? 'mobile-searcj-div-scrolled' : undefined} disable-text-copy`}>
                   <div>
                     <Svgs name={'search'}/>
                     <p>{pathname.includes('/en') ? 'Search for a property' : 'ابحث عن عقار'}</p>
@@ -416,6 +419,8 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
         <div className="mobileHeader" style={{ zIndex: isMenu ? 20 : null, display: isMobile ? undefined : 'none' }}>
 
+          <span id='menu-active-background' style={{ display: !isMenu ? 'none' : undefined }}/>
+          
           <div className='user disable-text-copy'>
             <Link href={userId?.length > 0 ? getHref('profile', userId) : getHref('sign-up')}>
               <div className='profileSvg'><Svgs name={'profile'}/></div>
@@ -424,12 +429,16 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
             </Link>
           </div>
 
-          <Link style={{ display: (isScrolled && (pathname === '/' || pathname === '/en')) ? 'none' : null }} 
+          <Link style={{ 
+            display: (isScrolled && (pathname === '/' || pathname === '/en')) ? 'none' : null,
+            zIndex: isMenu ? 15 : undefined
+          }} 
             href={getHref('home')} className='logo disable-text-copy'>
               <Image src={LogoImage} alt='rentnext website logo image'/>
           </Link>
 
-          <div className="menuIconDiv" onClick={() => setIsMenu(!isMenu)}>
+          <div className="menuIconDiv disable-text-copy" onClick={() => setIsMenu(!isMenu)}
+          style={{ zIndex: isMenu ? 15 : undefined }}>
 
             <span id={isMenu ? 'span1Active' : 'span1NotActive'}/>
 
@@ -441,10 +450,10 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
           <div
             className="mobileSideNav"
-            id={isMenu ? `${pathname.includes('/en') ? 'en' : ''}sideNavActive` : `${pathname.includes('/en') ? 'en' : ''}sideNavNotActive`}
+            id={isMenu ? 'sideNavActive' : 'sideNavNotActive'}
             >
 
-            <ul>
+            <ul className='sideNavUL disable-text-copy'>
 
               <Link onClick={() => setIsMenu(false)} href={getHref('properties', 'farm')} className='navBtn'>
                   <Svgs name={'farm'}/>
@@ -466,7 +475,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
                 {getNameByLang('سكن طلاب', pathname.includes('/en'))}
               </Link>
 
-              <Link onClick={() => setIsMenu(false)} href={getHref('vehicles')} style={!pathname.includes('/en') ? { marginLeft: 'auto' } : { marginRight: 'auto' }} className={'navBtn'}>
+              <Link onClick={() => setIsMenu(false)} href={getHref('vehicles')} className={'navBtn'}>
                 <Svgs name={'vehciles'}/>
                 {getNameByLang('وسائل نقل', pathname.includes('/en'))}
               </Link>
@@ -486,10 +495,19 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
                 {getNameByLang('أضف عقارك', pathname.includes('/en'))}
               </Link>
 
-              <Link onClick={() => setIsMenu(false)} className='lang disable-text-copy' href={getHref('lang')}>
-                <h5>{!pathname.includes('/en') ? 'Browse in' : 'التصفح في'}</h5>
-                <p>{!pathname.includes('/en') ? 'English' : 'العربية'}</p>
-              </Link>
+              <hr />
+
+              <div className='nav-bottom'>
+                <Link onClick={() => setIsMenu(false)} className='lang disable-text-copy' href={getHref('lang')}>
+                  <h5>{!pathname.includes('/en') ? 'Browse in' : 'التصفح في'}</h5>
+                  <p>{!pathname.includes('/en') ? 'English' : 'العربية'}</p>
+                </Link>
+                <ul>
+                  {contactInfo.map((contact, index) => (
+                    <li key={index}><Link className={contact.name === 'instagram' || contact.name === 'facebook' ? 'adjust-svg' : undefined} target='_blank' href={contact.val}><Svgs name={contact.name}/></Link></li>
+                  ))}
+                </ul>
+              </div>
 
             </ul>
 
@@ -507,7 +525,9 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
           <button id='secondFilterHeaderDivBtn' onClick={() => setIsArrange(true)}><Svgs name={'filter'}/>{getNameByLang('ترتيب', pathname.includes('/en'))}</button>
         </div>}
 
-        {(pathname !== '/' || pathname !== '/en') && <Filter isEnglish={pathname.includes('/en')} type={'prop'} isFilter={isFilter} setIsFilter={setIsFilter} triggerFetch={triggerFetch} setTriggerFetch={setTriggerFetch}/>}
+        {(pathname !== '/' || pathname !== '/en') && <Filter isEnglish={pathname.includes('/en')} type={'prop'} 
+        isFilter={isFilter} setIsFilter={setIsFilter} triggerFetch={triggerFetch} 
+        setTriggerFetch={setTriggerFetch} isVehicles={pathname.includes('/vehicles')}/>}
 
         <Arrange isEnglish={pathname.includes('/en')} isArrange={isArrange} setIsArrange={setIsArrange} setTriggerFetch={setTriggerFetch} triggerFetch={triggerFetch} arrangeValue={arrangeValue} setArrangeValue={setArrangeValue}/>
 

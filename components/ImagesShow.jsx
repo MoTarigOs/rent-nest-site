@@ -9,7 +9,6 @@ import Swiper from 'swiper/bundle';
 import 'swiper/swiper-bundle.css';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import useInterval from '@hooks/useInterval';
 
 const ImagesShow = ({ 
     isEnglish, images, videos, isAdmin, setFilesToDeleteAdmin, 
@@ -19,7 +18,7 @@ const ImagesShow = ({
 }) => {
 
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-    let isAutoScroll = true;
+    let [intervalId, setIntervalId] = useState(null);
     let swiper = null;
     const scrollDivRef = useRef(null);
     const prevButtonRef = useRef(null);
@@ -78,40 +77,24 @@ const ImagesShow = ({
                 },
             }
         });
-        if(type === 'landing'){
-            const tick = () => {
-                if(isAutoScroll && swiper){
-                    console.log('index: ', selectedImageIndex, ' activeIndex: ', swiper?.activeIndex, ' length: ', images.length);
-                    if(swiper?.activeIndex >= images.length - 1){
-                        swiper?.slideTo(0);
-                        setSelectedImageIndex(0);
-                    } else {
-                        nextButtonRef?.current?.click();
-                    }
+        const tick = () => {
+            if(swiper){
+                if(swiper?.activeIndex >= images.length - 1){
+                    swiper?.slideTo(0);
+                    setSelectedImageIndex(0);
+                } else {
+                    swiper?.slideTo(swiper.activeIndex + 1);
                 }
             }
+        }
+        if(type === 'landing') {
             const id = setInterval(tick, 3000);
+            setIntervalId(id);
             return () => clearInterval(id);
         }
     }, []);
 
-    const settingIsAutoScroll = (isAuto) => {
-        isAutoScroll = isAuto; console.log('down: ', isAuto);
-    }
-
-    useEffect(() => {
-
-    }, [isAutoScroll, swiper]);
-
-    // useEffect(() => {
-    //     if(!scrollDivRef) return;
-    //     scrollDivRef?.current?.addEventListener('mousedown', settingIsAutoScroll(false));
-    //     scrollDivRef?.current?.addEventListener('mouseup', settingIsAutoScroll(true));
-    //     return () => {
-    //         scrollDivRef?.current?.removeEventListener('mousedown', settingIsAutoScroll(false));
-    //         scrollDivRef?.current?.removeEventListener('mouseup', settingIsAutoScroll(true));
-    //     }
-    // }, [scrollDivRef]);
+    const stopAutoScroll = () => { clearInterval(intervalId); setIntervalId(null); };
     
     useEffect(() => {
 
@@ -145,18 +128,18 @@ const ImagesShow = ({
     <div className='imagesDiv' dir={isEnglish ? 'ltr' : null} style={{ height: type === 'view' ? 420 : undefined, borderRadius: type === 'landing' ? 0 : undefined }}>
 
         <div className='swiper-images-show'>
-        {/* onMouseDown={() => { if(isAutoScroll) setIsAutoScroll(false) }} onMouseUp={() => { if(!isAutoScroll) setIsAutoScroll(true) }} */}
-            <div onMouseEnter={() => settingIsAutoScroll(false)} onMouseLeave={() => settingIsAutoScroll(true)} className={`swiper-wrapper ${type === 'card' ? 'cards-images-container' : undefined}`} ref={scrollDivRef}>
+
+            <div className={`swiper-wrapper ${type === 'card' ? 'cards-images-container' : undefined}`} ref={scrollDivRef}>
             {!type_is_video ? <> {getImagesArray()?.length ? <>{getImagesArray().map((img, index) => (
                     <motion.div key={index} className={`swiper-slide ${type === 'landing' && index === selectedImageIndex ? 'animate-show-landing-page' : 'animate-hide-landing-page'}`} 
                         ref={img.ref}
                         initial={type === 'landing' ? {
                             scale: 0.96, filter: 'blur(16px)'
                         } : undefined}
-                        animate={{
-                            scale: type === 'landing' && index === selectedImageIndex ? 1 : 0.96,
-                            filter: type === 'landing' && index === selectedImageIndex ? 'blur(0px)' : 'blur(16px)',
-                        }}
+                        animate={type === 'landing' ? {
+                            scale: index === selectedImageIndex ? 1 : 0.96,
+                            filter: index === selectedImageIndex ? 'blur(0px)' : 'blur(16px)',
+                        } : undefined}
                         transition={{
                             type: 'tween', duration: 0.4
                         }}
@@ -191,13 +174,15 @@ const ImagesShow = ({
                 </>}
             </div>
 
+            {(type === 'landing' && intervalId) && <span id='auto-scroll' onClick={stopAutoScroll}><Svgs name={'pause'}/></span>}
+
             {!type_is_video ? <>{images?.length > 0 && <>
-                <div className='arrow leftArrow' ref={nextButtonRef} onClick={() => {
+                <div className={`arrow ${isEnglish ? 'rightArrow' : 'leftArrow'}`} ref={nextButtonRef} onClick={() => {
                     if(type === 'card' && selectedImageIndex < images.length - 1){
                         setSelectedImageIndex(selectedImageIndex + 1);
                     }
                 }}><Svgs name={'dropdown arrow'}/></div>
-                <div className='arrow rightArrow' ref={prevButtonRef} onClick={() => {
+                <div className={`arrow ${isEnglish ? 'leftArrow' : 'rightArrow'}`} ref={prevButtonRef} onClick={() => {
                     if(type === 'card' && selectedImageIndex > 0){
                         setSelectedImageIndex(selectedImageIndex - 1);
                     }
@@ -226,7 +211,7 @@ const ImagesShow = ({
 
         <div id='wishlistDiv' style={{ display: type === 'view' ? 'none' : undefined }}><Svgs name={'wishlist'} on_click={handleWishList ? handleWishList() : null}/></div>
 
-        {!type_is_video ? <ul style={{ display: (type !== 'landing' && type !== 'view' && type !== 'card') && 'none' }} className={type === 'landing' ? 'dots landingDots' : 'dots'}>
+        {!type_is_video ? <ul style={{ display: (type !== 'landing' && type !== 'view' && type !== 'card') ? 'none' : undefined }} className={type === 'landing' ? 'dots landingDots' : 'dots'}>
             {images?.map((obj, index) => (
                 <li key={index} onClick={() => {
                     if(selectedImageIndex - index > 0){
@@ -238,6 +223,7 @@ const ImagesShow = ({
                             nextButtonRef?.current?.click();
                         }
                     }
+                    if(type === 'landing') stopAutoScroll();
                 }} id={selectedImageIndex === index ? 'selectedDot' : ''}></li>
             ))}
         </ul> : <ul style={{ display: (type !== 'landing' && type !== 'view') ? 'none' : undefined }} className={type === 'landing' ? 'dots landingDots' : 'dots'}>
@@ -252,6 +238,7 @@ const ImagesShow = ({
                             nextButtonVideoRef?.current?.click();
                         }
                     }
+                    if(type === 'landing') stopAutoScroll();
                 }} id={selectedImageIndex === index ? 'selectedDot' : undefined}></li>
             ))}
         </ul>}

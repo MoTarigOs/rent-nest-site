@@ -1,0 +1,29 @@
+.resultUL{
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: start;
+    gap: 24px;
+}
+
+
+@media screen and (max-width: 1160px){
+    .resultUL{
+        .card{
+            max-width: 48%;
+        }
+    }
+}
+
+@media screen and (max-width: 680px){
+    .resultUL{
+        align-items: center;
+        flex-direction: column;
+
+        .card{
+            width: 100%;
+            max-width: 480px;
+        }
+    }
+}
+

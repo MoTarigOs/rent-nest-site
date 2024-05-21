@@ -592,6 +592,7 @@ const Page = () => {
 
     useEffect(() => {
         setRunOnce(true);
+        location.href = '/edit-prop?id=' + id;
     }, []);
     
     useEffect(() => {

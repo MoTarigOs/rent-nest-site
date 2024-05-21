@@ -29,7 +29,7 @@ const Arrange = ({ isEnglish, isArrange, setIsArrange, setTriggerFetch, triggerF
         <div className='arrange'>
 
             <div className='arrangeHeader'>
-                {isEnglish ? 'Sort Results' : 'نرنيب النتائج'}
+                {isEnglish ? 'Sort Results' : 'ترتيب النتائج'}
             </div>
 
             <ul>

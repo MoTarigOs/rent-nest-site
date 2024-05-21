@@ -663,8 +663,7 @@ export const contactInfo = [
 ];
 
 export const AllCatgories = [
-    'farm', 'apartment', 'resort', 'commercial', 
-    'micro', 'sedan', 'high', 'luxury', 'mini-bus', 'sport'
+    'farm', 'apartment', 'resort', 'commercial', 'transports'
 ];
 
 export const getCategoryImage = (ctg) => {

@@ -17,7 +17,7 @@ const AboutSection = ({ isEnglish }) => {
     { _id: '0', iconName: 'rent', title: 'أفضل عروض الايجار', slogan: 'نقدم أفضل عروض ايجار العقارات' },
     { _id: '1', iconName: 'prices', title: 'أسعار تناسب الجميع', slogan: 'ستجد ما يناسبك من حيث الاسعار و المواصفات' },
     { _id: '2', iconName: 'advertise', title: 'اعلن لدينا', slogan: 'اعرض سيارة أو عقار للإِيجار' },
-    { _id: '3', iconName: 'seller', title: 'مرونة للمعلن و المشتري', slogan: 'ستجد مرونة كبيرة في تعديل العرض و مرنوة في اختيار تاريخ الحجز' }
+    { _id: '3', iconName: 'seller', title: 'مرونة للمعلن و المشتري', slogan: 'ستجد مرونة كبيرة في تعديل العرض و مرونة في اختيار تاريخ الحجز' }
   ] : [
     { _id: '0', iconName: 'rent', title: 'Best Rent offers', slogan: 'We offer the best real estate rental offers' },
     { _id: '1', iconName: 'prices', title: 'Prices to suit everyone', slogan: 'You will find what suits you in terms of prices and specifications' },

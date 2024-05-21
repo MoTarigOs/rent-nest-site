@@ -12,11 +12,11 @@ const MySkeleton = ({ loadingType, isMobileHeader, styleObj }) => {
         {loadingType === 'cards' ? <div className='container'>
           {arr.map((item, index) => (
             <div className='skeleton-item' key={index}>
-              <div style={{ marginBottom: 12 }}><Skeleton count={1} width='100%' height={190}/></div>
-              <div style={{ marginBottom: 8 }}><Skeleton count={1} width='45%' height={16}/></div>
-              <div style={{ marginBottom: 8 }}><Skeleton count={1} width='35%' height={16}/></div>
-              <div style={{ marginBottom: 8 }}><Skeleton count={1} width='50%' height={16}/></div>
-              <div><Skeleton count={1} width='48%' height={16}/></div>
+              <div style={{ marginBottom: 12 }}><Skeleton count={1} width='100%' borderRadius={16} height={190}/></div>
+              <div style={{ marginBottom: 4 }}><Skeleton count={1} width='45%' height={16} borderRadius={4}/></div>
+              <div style={{ marginBottom: 4 }}><Skeleton count={1} width='35%' height={12} borderRadius={4}/></div>
+              <div style={{ marginBottom: 4 }}><Skeleton count={1} width='50%' height={12} borderRadius={4}/></div>
+              <div style={{ marginBottom: 4 }}><Skeleton count={1} width='48%' height={20} borderRadius={4}/></div>
             </div>
           ))}
         </div> : <div className='container'>

@@ -8,8 +8,8 @@ import Card from '@components/Card';
 import GoogleMapPopup from '@components/popups/GoogleMapPopup';
 import { useContext, useEffect, useState } from 'react';
 import { getLocation, getProperties } from '@utils/api';
-import { JordanCities, maximumPrice, minimumPrice } from '@utils/Data';
-import { arrangeArray, getArabicNameCatagory, getNameByLang, getReadableDate, isOkayBookDays } from '@utils/Logic';
+import { JordanCities } from '@utils/Data';
+import { getArabicNameCatagory, getNameByLang, getReadableDate, isOkayBookDays } from '@utils/Logic';
 import { Context } from '@utils/Context';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
@@ -37,7 +37,7 @@ const page = () => {
   const { 
       rangeValue, city, setCity, catagory, 
       ratingScore, triggerFetch, searchText, 
-      arrangeValue, setCatagory, calendarDoubleValue, 
+      arrangeValue, calendarDoubleValue, 
       isCalendarValue, setCalendarDoubleValue, categoryArray,
       setIsModalOpened, setLatitude, setLongitude, longitude, latitude,
       isSearchMap, setIsSearchMap, isMobile,

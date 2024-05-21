@@ -9,7 +9,7 @@ import { useSearchParams } from 'next/navigation';
 import Svgs from '@utils/Svgs';
 import { Context } from '@utils/Context';
 import Link from 'next/link';
-import { getBookDateFormat, getOptimizedAttachedFiles, isValidArrayOfStrings, isValidContactURL } from '@utils/Logic';
+import { getBookDateFormat, getOptimizedAttachedFiles, isValidArrayOfStrings, isValidContactURL, isValidNumber, isValidText } from '@utils/Logic';
 import MyCalendar from '@components/MyCalendar';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
@@ -162,92 +162,71 @@ const Page = () => {
             });
         });
 
-        const compareItem = {
-            title: itemTitle, description: itemDesc,
-            en_data: { 
-                title: itemTitleEN, description: itemDescEN,
-                english_details: [
-                    
-                ]
-            },
-            price: itemPrice, 
-            discount: { num_of_days_for_discount: discountNights, percentage: discountPer },
-            destails: {
-                insurance: requireInsurance,
-                guest_rooms: guestRoomsDetailArray,
-                near_places: nearPlaces,
-            },
-            cancellation,
-            capacity,
-            tempContacts,
-            customer_type: customerType,
-        };
-
-        if(
-            !item.type_is_vehicle 
-            && itemTitle === item.title
-            && itemDesc === item.description
-            && itemPrice === item.price
-            && requireInsurance === item.details.insurance
-            && conditionsAndTerms === item.terms_and_conditions
-            && guestRoomsDetailArray === item.details.guest_rooms
-            && companionsDetailArray === item.details.facilities
-            && bathroomsDetailArray === item.details.bathrooms
-            && kitchenDetailArray === item.details.kitchen
-            && attachedFilesUrls.length <= 0
-            && uploadedFiles.toString() === [...item.images, ...item.videos].toString()
-            && filesToDelete.length <= 0
-            && discountPer === item.discount?.percentage && discountNights === item.discount?.num_of_days_for_discount
-            && JSON.stringify(tempContacts) === JSON.stringify(tempItemContacts) || (tempContacts.length <= 0 && (item.contacts === null || item.contacts === undefined))
-        ){
-            setError('لم يتم تعديل أي بيانات');
-            setSuccess(false);
-            return;
-        } else if(
-            item.type_is_vehicle
-            && itemTitle === item.title
-            && itemDesc === item.description
-            && itemPrice === item.price
-            && requireInsurance === item.details.insurance
-            && conditionsAndTerms === item.terms_and_conditions
-            && vehicleSpecifications === item.details.vehicle_specifications
-            && vehicleFeatures === item.details.vehicle_addons
-            && attachedFilesUrls.length <= 0
-            && uploadedFiles.toString() === [...item.images, ...item.videos].toString()
-            && filesToDelete.length <= 0
-            && discountPer === item.discount?.percentage && discountNights === item.discount?.num_of_days_for_discount
-            && JSON.stringify(tempContacts) === JSON.stringify(tempItemContacts) || (tempContacts.length <= 0 && (item.contacts === null || item.contacts === undefined))
-        ) {
-            setError('لم يتم تعديل أي بيانات');
-            setSuccess(false);
-            return;
-        }
+        // if(
+        //     !item.type_is_vehicle 
+        //     && itemTitle === item.title
+        //     && itemDesc === item.description
+        //     && itemPrice === item.price
+        //     && requireInsurance === item.details.insurance
+        //     && conditionsAndTerms === item.terms_and_conditions
+        //     && guestRoomsDetailArray === item.details.guest_rooms
+        //     && companionsDetailArray === item.details.facilities
+        //     && bathroomsDetailArray === item.details.bathrooms
+        //     && kitchenDetailArray === item.details.kitchen
+        //     && attachedFilesUrls.length <= 0
+        //     && uploadedFiles.toString() === [...item.images, ...item.videos].toString()
+        //     && filesToDelete.length <= 0
+        //     && discountPer === item.discount?.percentage && discountNights === item.discount?.num_of_days_for_discount
+        //     && JSON.stringify(tempContacts) === JSON.stringify(tempItemContacts) || (tempContacts.length <= 0 && (item.contacts === null || item.contacts === undefined))
+        // ){
+        //     setError('لم يتم تعديل أي بيانات');
+        //     setSuccess(false);
+        //     return;
+        // } else if(
+        //     item.type_is_vehicle
+        //     && itemTitle === item.title
+        //     && itemDesc === item.description
+        //     && itemPrice === item.price
+        //     && requireInsurance === item.details.insurance
+        //     && conditionsAndTerms === item.terms_and_conditions
+        //     && vehicleSpecifications === item.details.vehicle_specifications
+        //     && vehicleFeatures === item.details.vehicle_addons
+        //     && attachedFilesUrls.length <= 0
+        //     && uploadedFiles.toString() === [...item.images, ...item.videos].toString()
+        //     && filesToDelete.length <= 0
+        //     && discountPer === item.discount?.percentage && discountNights === item.discount?.num_of_days_for_discount
+        //     && JSON.stringify(tempContacts) === JSON.stringify(tempItemContacts) || (tempContacts.length <= 0 && (item.contacts === null || item.contacts === undefined))
+        // ) {
+        //     setError('لم يتم تعديل أي بيانات');
+        //     setSuccess(false);
+        //     return;
+        // }
 
         let attahcedFilesError = false;
         let errorEncountered = false;
         let newItem = null;
 
-        if(!itemTitle || typeof itemTitle !== 'string' || itemTitle.length < 5){
+        if(!isValidText(itemTitle) || !isValidText(itemTitle)){
             setItemTitle('-1');
             errorEncountered = true;
         }
 
-        if(!itemDesc || typeof itemDesc !== 'string' || itemDesc.length < 25){
+        if(!isValidText(itemDesc) || !isValidText(itemDesc)){
             setItemDesc('-1');
             errorEncountered = true;
         }
         
-        if(!itemPrice || typeof itemPrice !== 'number' || itemPrice <= 0 || itemPrice > 10000000000000){
+        if(!isValidNumber(itemPrice)){
             setItemPrice(-1);
             errorEncountered = true;
         }
 
-        if(!tempContacts?.length > 0){
+        if(!contacts || !contacts?.length > 0){
             setContactsError('الرجاء كتابة طريقة تواصل واحدة على الأقل.');
             errorEncountered = true;
         } else {
-            for (let i = 0; i < tempContacts.length; i++) {
-                if(!isValidContactURL(tempContacts[i])) {
+            for (let i = 0; i < contacts.length; i++) {
+                if(!isValidContactURL(contacts[i])) {
                     setContactsError('هنالك رابط غير صالح, الرجاء اختيار منصة و ادخال رابط صالح.');
                     errorEncountered = true;
                 }
@@ -298,18 +277,6 @@ const Page = () => {
                 errorEncountered = true;
             }
 
-            //check for valid details
-            if((!item.type_is_vehicle && (guestRoomsDetailArray.length + companionsDetailArray.length 
-                + bathroomsDetailArray.length + kitchenDetailArray.length
-                + roomsDetailArray.length + conditionsAndTerms.length) < 2)
-                || (item.type_is_vehicle && (vehicleSpecifications.length + vehicleFeatures.length) < 2)
-                ){
-                setError(attahcedFilesError ? 'أضف صور و فيديوهات تعبر عن المعروض و أضف على الأقل تفيصلتان في خانة التفاصيل.' : 'أضف على الأقل تفيصلتان في خانة التفاصيل.');
-                errorEncountered = true;
-            } else {
-                if(attahcedFilesError === true) setError('يجب أن يحتوي العرض على صورة واحدة على الأقل.');
-            }
-
             if(errorEncountered === true) {
                 setSuccess(false);
                 setLoading(false);
@@ -323,53 +290,59 @@ const Page = () => {
             } : {
                 insurance:  requireInsurance, 
                 guest_rooms: guestRoomsDetailArray, 
-                facilities: companionsDetailArray, 
-                bathrooms: bathroomsDetailArray, 
-                kitchen: kitchenDetailArray, 
-                rooms: roomsDetailArray 
+                // facilities: companionsDetailArray, 
+                // bathrooms: bathroomsDetailArray, 
+                // kitchen: kitchenDetailArray, 
+                // rooms: roomsDetailArray 
             };
 
             const token = await getRecaptchaToken();
 
             let res = null;
 
-            if(
-                !item.type_is_vehicle 
-                && itemTitle === item.title
-                && itemDesc === item.description
-                && itemPrice === item.price
-                && requireInsurance === item.details.insurance
-                && conditionsAndTerms === item.terms_and_conditions
-                && guestRoomsDetailArray === item.details.guest_rooms
-                && companionsDetailArray === item.details.facilities
-                && bathroomsDetailArray === item.details.bathrooms
-                && kitchenDetailArray === item.details.kitchen
-                && roomsDetailArray === item.details.rooms
-                && discountPer === item.discount?.percentage && discountNights === item.discount?.num_of_days_for_discount
-                && JSON.stringify(tempContacts) === JSON.stringify(tempItemContacts) || (tempContacts.length <= 0 && (item.contacts === null || item.contacts === undefined))
-            ){
-                res = { success: true, dt: { message: 'no details to add' } };
-            } else if(
-                item.type_is_vehicle
-                && itemTitle === item.title
-                && itemDesc === item.description
-                && itemPrice === item.price
-                && requireInsurance === item.details.insurance
-                && conditionsAndTerms === item.terms_and_conditions
-                && vehicleSpecifications === item.details.vehicle_specifications
-                && vehicleFeatures === item.details.vehicle_addons
-                && discountPer === item.discount?.percentage && discountNights === item.discount?.num_of_days_for_discount
-                && JSON.stringify(tempContacts) === JSON.stringify(tempItemContacts) || (tempContacts.length <= 0 && (item.contacts === null || item.contacts === undefined))
-            ) {
-                res = { success: true, dt: { message: 'no details to add' } };
-            } else {
-                res = await editProperty(
-                    id, itemTitle, itemDesc, itemPrice, xDetails, conditionsAndTerms, 
-                    tempContacts?.length > 0 ? tempContacts : null, xDiscount(), null,
-                    token
-                );
-            }
+            // if(
+            //     !item.type_is_vehicle 
+            //     && itemTitle === item.title
+            //     && itemDesc === item.description
+            //     && itemPrice === item.price
+            //     && requireInsurance === item.details.insurance
+            //     && conditionsAndTerms === item.terms_and_conditions
+            //     && guestRoomsDetailArray === item.details.guest_rooms
+            //     && companionsDetailArray === item.details.facilities
+            //     && bathroomsDetailArray === item.details.bathrooms
+            //     && kitchenDetailArray === item.details.kitchen
+            //     && roomsDetailArray === item.details.rooms
+            //     && discountPer === item.discount?.percentage && discountNights === item.discount?.num_of_days_for_discount
+            //     && JSON.stringify(tempContacts) === JSON.stringify(tempItemContacts) || (tempContacts.length <= 0 && (item.contacts === null || item.contacts === undefined))
+            // ){
+            //     res = { success: true, dt: { message: 'no details to add' } };
+            // } else if(
+            //     item.type_is_vehicle
+            //     && itemTitle === item.title
+            //     && itemDesc === item.description
+            //     && itemPrice === item.price
+            //     && requireInsurance === item.details.insurance
+            //     && conditionsAndTerms === item.terms_and_conditions
+            //     && vehicleSpecifications === item.details.vehicle_specifications
+            //     && vehicleFeatures === item.details.vehicle_addons
+            //     && discountPer === item.discount?.percentage && discountNights === item.discount?.num_of_days_for_discount
+            //     && JSON.stringify(tempContacts) === JSON.stringify(tempItemContacts) || (tempContacts.length <= 0 && (item.contacts === null || item.contacts === undefined))
+            // ) {
+            //     res = { success: true, dt: { message: 'no details to add' } };
+            // } else {
+            //     res = await editProperty(
+            //         id, itemTitle, itemDesc, itemPrice, xDetails, conditionsAndTerms, 
+            //         tempContacts?.length > 0 ? tempContacts : null, xDiscount(), null,
+            //         token
+            //     );
+            // }
 
+            res = await editProperty(
+                id, itemTitle, itemDesc, itemPrice, xDetails, conditionsAndTerms, 
+                tempContacts?.length > 0 ? tempContacts : null, xDiscount(), null,
+                token
+            );
+            
             console.log('res: ', res);    
 
             if(res.success !== true){

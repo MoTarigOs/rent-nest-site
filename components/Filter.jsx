@@ -15,7 +15,7 @@ import "react-range-slider-input/dist/style.css";
 import { bathroomFacilities, customersTypesArray, facilities, kitchenFacilities, poolType } from '@utils/Facilities';
 
 const Filter = ({ 
-    isEnglish, type, isFilter, setIsFilter, triggerFetch, setTriggerFetch 
+    isEnglish, type, isVehicles, isFilter, setIsFilter, triggerFetch, setTriggerFetch 
 }) => {
 
     //setRatingScore
@@ -96,9 +96,9 @@ const Filter = ({
             { value: 3, enName: 'Good (3+)', arabicName: 'جيد (3 و أكثر)' },
             { value: 2.5, enName: 'Acceptable (2.5+)', arabicName: 'مقبول (2.5 و أكثر)' }
         ], array: ratingScore, setArray: setRatingScore },
-        { idName: 'prop-type', enTitle: 'Property type', arTitle: 'نوع العقار', baseArr: [...ProperitiesCatagories, VehicleCatagories[0]],
+        { idName: 'prop-type', vehiclesNot: true, enTitle: 'Property type', arTitle: 'نوع العقار', baseArr: [...ProperitiesCatagories, VehicleCatagories[0]],
             array: categoryArray, setArray: setCategoryArray, isShow: showPropTypes, setIsShow: setShowPropType },
-        { idName: 'capacity', enTitle: 'Capacity', arTitle: 'السعة', array: capacityFilter, setArray: setCapcityFilter, baseArr: [
+        { idName: 'capacity', vehiclesNot: true, enTitle: 'Capacity', arTitle: 'السعة', array: capacityFilter, setArray: setCapcityFilter, baseArr: [
             { id: 0, enName: 'All', arabicName: 'الكل' },
             { min: 0, max: 5, id: 1, enName: '0 - 5 persons', arabicName: '0 - 5 أشخاص' },
             { min: 5, max: 10, id: 2, enName: '5 - 10 persons', arabicName: '5 - 10 أشخاص' },
@@ -106,31 +106,36 @@ const Filter = ({
             { min: 20, max: 30, id: 4, enName: '20 - 30 persons', arabicName: '20 - 30 أشخاص' },
             { min: 30, max: null, id: 5, enName: '30+ persons', arabicName: '30+ أشخاص' }
         ], isShow: showCapacity, setIsShow: setShowCapcity },
-        { idName: 'pool', enTitle: 'The Pool', arTitle: 'المسبح', array: poolFilter, setArray: setPoolFilter, 
-            baseArr: poolType(isEnglish), isShow: showPool, setIsShow: setShowPool },
-        { idName: 'pool categories', enTitle: 'Categories', arTitle: 'الفئات', baseArr: customersTypesArray(isEnglish), array: customersTypesFilter, 
+        { idName: 'pool', vehiclesNot: true, enTitle: 'The Pool', arTitle: 'المسبح', array: poolFilter, setArray: setPoolFilter, 
+            baseArr: poolType(isEnglish), baseArabicArray: poolType(), isShow: showPool, setIsShow: setShowPool },
+        { idName: 'pool categories', vehiclesNot: true, enTitle: 'Categories', arTitle: 'الفئات', baseArr: customersTypesArray(isEnglish), baseArabicArray: customersTypesArray(), array: customersTypesFilter, 
         setArray: setCustomersTypesFilter, isShow: showCategoriesArray, setIsShow: setShowCategoriesArray },
-        { idName: 'pool facilities', enTitle: 'Facilities', arTitle: 'المرافق', baseArr: facilities(isEnglish), array: companiansFilter, 
-        setArray: setCompaniansFilter, isShow: showCompanians, setIsShow: setShowCompanians },
-        { idName: 'pool kitchen', enTitle: 'The Kitchen', arTitle: 'المطبخ', baseArr: kitchenFacilities(isEnglish), array: kitchenFilter, 
+        { idName: 'pool facilities', vehiclesNot: true, enTitle: 'Facilities', arTitle: 'المرافق', baseArr: facilities(isEnglish), baseArabicArray: facilities(), array: companiansFilter, 
+        setArray: setCompaniansFilter, vehiclesNot: true, isShow: showCompanians, setIsShow: setShowCompanians },
+        { idName: 'pool kitchen', vehiclesNot: true, enTitle: 'The Kitchen', arTitle: 'المطبخ', baseArr: kitchenFacilities(isEnglish), baseArabicArray: kitchenFacilities(), array: kitchenFilter, 
         setArray: setKitchenFilter, isShow: showKitchen, setIsShow: setShowKitchen },
     ];
 
     const FilterSectionMultipleSelections = ({ item }) => {
-        if(!item) return<></>
+        if(!item || (isVehicles && item.vehiclesNot)) return<></>
         return (
-            <div className="catagory">
-                <h2 className='disable-text-copy' onClick={() => item.setIsShow(!item.isShow)}>{isEnglish ? item.enTitle : item.arTitle}  <h3>{item.isShow ? '-' : '+'}</h3></h2>
+            <div className="catagory" onClick={() => item.setIsShow(!item.isShow)}>
+                <h2 className='disable-text-copy'>{isEnglish ? item.enTitle : item.arTitle}  <h3>{item.isShow ? '-' : '+'}</h3></h2>
                 <ul style={{ display: !item.isShow ? 'none' : undefined}}>
                     {item.baseArr?.map((ctg, index) => (
                         <li key={index} onClick={() => {
-                            if(item.idName.includes('pool') ? item.array.includes(ctg) : item.array.find(item.idName !== 'prop-type' ? i => i.idName === ctg.idName : i => i.id === ctg.id)){
-                                item?.setArray(item.array.filter(item.idName !== 'prop-type' ? item.idName.includes('pool') ? i => i !== ctg : i => i.idName !== ctg.idName : i => i.id !== ctg.id));
+                            if(item.idName.includes('pool') ? item.array.includes((isEnglish && item.baseArabicArray) ? item.baseArabicArray?.at(index) : ctg) : item.array.find(item.idName !== 'prop-type' ? i => i.idName === ctg.idName : i => i.id === ctg.id)){
+                                item?.setArray(item.array.filter(
+                                    item.idName !== 'prop-type' 
+                                    ? (item.idName.includes('pool') 
+                                        ? i => i !== ((isEnglish && item.baseArabicArray) ? item.baseArabicArray?.at(index) : ctg) 
+                                        : i => i.idName !== ctg.idName )
+                                    : i => i.id !== ctg.id));
                             } else {
-                                item?.setArray([...item.array, ctg]);
+                                item?.setArray([...item.array, (isEnglish && item.baseArabicArray) ? item.baseArabicArray?.at(index) : ctg]);
                             }
                         }}
-                            className={(item.idName !== 'prop-type' ? (item.idName.includes('pool') ? item.array?.includes(ctg) : item.array.find(i => i.idName === ctg.idName)) : item.array.find(i => i.id === ctg.id)) ? 'selectedCatagory' : undefined}
+                            className={(item.idName !== 'prop-type' ? (item.idName.includes('pool') ? item.array?.includes((isEnglish && item.baseArabicArray) ? item.baseArabicArray?.at(index) : ctg) : item.array.find(i => i.idName === ctg.idName)) : item.array.find(i => i.id === ctg.id)) ? 'selectedCatagory' : undefined}
                         >
                             <RightIconSpan />
                             {item.idName.includes('pool') ? ctg : (isEnglish ? ctg.value || ctg.enName : ctg.arabicName)}
@@ -142,9 +147,9 @@ const Filter = ({
     };
 
     const FilterSectionSingleSelection = ({ item }) => {
-        if(!item) return<></>
+        if(!item || (isVehicles && item.vehiclesNot)) return<></>
         return (
-            <div className="catagory">
+            <div className="catagory" onClick={() => item.setIsShow(!item.isShow)}>
                 <h2 className='disable-text-copy' onClick={() => item.setIsShow(!item.isShow)}>{isEnglish ? item.enTitle : item.arTitle} <h3>{item.isShow ? '-' : '+'}</h3></h2>
                 <ul style={{ display: !item.isShow ? 'none' : undefined}}>
                     {item.baseArr?.map((ctg, index) => (
@@ -184,8 +189,8 @@ const Filter = ({
 
             <div className='filters-container'>
 
-                <div className="price">
-                    <h2 className='disable-text-copy' onClick={() => setShowPrice(!showPrice)}>{getNameByLang('السعر', isEnglish)} <h3>{showPrice ? '-' : '+'}</h3></h2>
+                <div className="price" onClick={() => setShowPrice(!showPrice)}>
+                    <h2 className='disable-text-copy'>{getNameByLang('السعر', isEnglish)} <h3>{showPrice ? '-' : '+'}</h3></h2>
                     {showPrice && <><RangeSlider
                         id="range-slider-gradient"
                         className="margin-lg"
@@ -202,9 +207,9 @@ const Filter = ({
 
                 <FilterSectionSingleSelection item={filters.find(i => i.idName === 'ratings')}/>
 
-                <div className='filterSearchDiv'>
+                <div className='filterSearchDiv' onClick={() => setShowAdvanceSearch(!showAdvanceSearch)}>
 
-                    <h2 className='disable-text-copy' onClick={() => setShowAdvanceSearch(!showAdvanceSearch)}>{isEnglish ? 'Advance Search' : 'البحث المتقدم'} <h3>{showAdvanceSearch ? '-' : '+'}</h3></h2>
+                    <h2 className='disable-text-copy'>{isEnglish ? 'Advance Search' : 'البحث المتقدم'} <h3>{showAdvanceSearch ? '-' : '+'}</h3></h2>
                     
                     {showAdvanceSearch && <><CustomInputDiv title={isEnglish ? 'Write a name or description' : 'اكتب اسم أو وصف للعقار'} placholderValue={isEnglish ? 'Like: Amman resorts' : 'مثال: مخيمات عمان'}
                     listener={(e) => setSearchText(e.target.value)} value={searchText}/>
@@ -219,9 +224,10 @@ const Filter = ({
 
                 <FilterSectionMultipleSelections item={filters.find(i => i.idName === 'prop-type')}/>
 
-                <div className='filterSearchDiv'>
+                <div className='filterSearchDiv' style={{ display: isVehicles ? 'none' : undefined }}
+                onClick={() => setShowBedrooms(!showBedrooms)}>
 
-                    <h2 className='disable-text-copy' onClick={() => setShowBedrooms(!showBedrooms)}>{isEnglish ? 'Bedrooms' : 'غرف النوم'} <h3>{showBedrooms ? '-' : '+'}</h3></h2>
+                    <h2 className='disable-text-copy'>{isEnglish ? 'Bedrooms' : 'غرف النوم'} <h3>{showBedrooms ? '-' : '+'}</h3></h2>
 
                     {showBedrooms && <><CustomInputDiv title={isEnglish ? 'Desired Number of rooms' : 'عدد غرف النوم'} type={'number'} placholderValue={isEnglish ? 'Like: Amman resorts' : 'مثال: مخيمات عمان'}
                     listener={(e) => setBedroomFilter({ num: Number(e.target.value), single_beds: bedroomFilter?.single_beds, double_beds: bedroomFilter?.double_beds })} value={bedroomFilter.num}/>
@@ -242,15 +248,16 @@ const Filter = ({
 
                 <FilterSectionMultipleSelections item={filters.find(i => i.idName === 'pool facilities')}/>
 
-                <div className='catagory filterSearchDiv'>
+                <div className='catagory filterSearchDiv' style={{ display: isVehicles ? 'none' : undefined }}
+                onClick={() => setShowBath(!showBath)}>
 
-                    <h2 className='disable-text-copy' onClick={() => setShowBath(!showBath)}>{isEnglish ? 'Bathrooms' : 'دورات المياه'} <h3>{showBath ? '-' : '+'}</h3></h2>
+                    <h2 className='disable-text-copy'>{isEnglish ? 'Bathrooms' : 'دورات المياه'} <h3>{showBath ? '-' : '+'}</h3></h2>
 
                     {showBath && <><CustomInputDiv title={isEnglish ? 'Number of bathrooms' : 'عدد دورات المياه'} type={'number'} 
                     listener={(e) => setBathroomsNumFilter(Number(e.target.value))} value={bathroomsFilterNum}/>
 
                     <ul>
-                        {bathroomFacilities(isEnglish).map((ctg, index) => (
+                        {bathroomFacilities().map((ctg, index) => (
                             <li key={index} onClick={() => {
                                 if(bathroomsCompaniansFilter.includes(ctg)){
                                     setBathroomsCompaniansFilter(bathroomsCompaniansFilter.filter(i => i !== ctg));
@@ -261,7 +268,7 @@ const Filter = ({
                                 className={bathroomsCompaniansFilter.includes(ctg) ? 'selectedCatagory' : undefined}
                             >
                                 <RightIconSpan />
-                                {ctg}
+                                {isEnglish ? bathroomFacilities(true)?.at(bathroomFacilities()?.indexOf(ctg)) : ctg}
                             </li>
                         ))}
                     </ul></>}
