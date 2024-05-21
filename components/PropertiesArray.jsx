@@ -8,6 +8,7 @@ import NotFound from "./NotFound";
 import { Context } from "@utils/Context";
 import { getLocation, getProperties } from "@utils/api";
 import PagesHandler from "./PagesHandler";
+import { isOkayBookDays } from '@utils/Logic';
 
 const PropertiesArray = ({ type, catagoryParam, isEnglish, cardsPerPage }) => {
 
@@ -66,8 +67,7 @@ const PropertiesArray = ({ type, catagoryParam, isEnglish, cardsPerPage }) => {
                     null,
                     null,
                     null, null, vehicleType, cardsPerPage
-                )
-                : await getProperties(
+                ) : await getProperties(
                     city.value, false, catagory, rangeValue,
                     ratingScore, searchText, arrangeValue, addressLong, addressLat, skipCount,
                     quickFilter,
