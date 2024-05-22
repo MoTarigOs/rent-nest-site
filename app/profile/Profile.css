@@ -76,6 +76,7 @@
             justify-content: start;
             gap: 24px;
             list-style: none;
+            margin-top: 32px;
 
             .card{
                 width: 299px;
@@ -87,9 +88,10 @@
                 margin-top: 0;
             }
         }
-        
+
         .guests{
             width: 100%;
+            margin-bottom: 32px;
 
             p{
                 margin-top: 12px;

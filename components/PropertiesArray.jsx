@@ -1,16 +1,16 @@
 'use client';
 
-import '@styles//components_styles/PropertiesArray.css';
+import '@styles/components_styles/PropertiesArray.css';
 import { useContext, useEffect, useState } from "react";
 import Card from "./Card";
 import MySkeleton from "./MySkeleton";
 import NotFound from "./NotFound";
 import { Context } from "@utils/Context";
-import { getLocation, getOwnerProperties, getProperties } from "@utils/api";
+import { getBooks, getFavourites, getLocation, getOwnerProperties, getProperties } from "@utils/api";
 import PagesHandler from "./PagesHandler";
 import { isOkayBookDays } from '@utils/Logic';
 
-const PropertiesArray = ({ type, userId, catagoryParam, isEnglish, cardsPerPage }) => {
+const PropertiesArray = ({ type, isEdit, isHide, userId, catagoryParam, isEnglish, cardsPerPage }) => {
 
     const [runOnce, setRunOnce] = useState(false);
     const [fetching, setFetching] = useState(false);
@@ -72,6 +72,10 @@ const PropertiesArray = ({ type, userId, catagoryParam, isEnglish, cardsPerPage 
                         );
                     case 'owner':
                         return getOwnerProperties(userId, skipCount, cardsPerPage);  
+                    case 'favourites':
+                        return getFavourites(skipCount, cardsPerPage);
+                    case 'books':
+                        return getBooks(skipCount, cardsPerPage);
                     default:
                         return getProperties(
                             city.value, false, catagory, rangeValue,
@@ -138,18 +142,23 @@ const PropertiesArray = ({ type, userId, catagoryParam, isEnglish, cardsPerPage 
             settingPropertiesArray(); 
     }, [catagory]);
 
+    useEffect(() => {
+        if(!isHide) settingPropertiesArray();
+    }, [isHide]);
+
   return (
-    <>
+    <div className='props-array' style={{ display: isHide ? 'none' : undefined }}>
+        <h3 id='title-h'>المعروضات</h3>
         {(!fetching && properitiesArray?.length > 0) ? <ul className="resultUL">
             {properitiesArray.map((item) => (
-                <Card isEnglish={isEnglish} key={item._id} item={item}/>
+                <Card type={isEdit ? 'myProp' : null} isEnglish={isEnglish} key={item._id} item={item}/>
             ))}
         </ul> : fetching ? <MySkeleton loadingType={'cards'}/> : <NotFound isEnglish={isEnglish}/>}
-        <PagesHandler triggerPropsArrayFetch={settingPropertiesArray} isEnglish={isEnglish} 
+        <PagesHandler isHide={isHide} triggerPropsArrayFetch={settingPropertiesArray} isEnglish={isEnglish} 
         indexSlide={indexSlide} city={city} 
         setIndexSlide={setIndexSlide} properitiesArray={properitiesArray} 
         cardsPerPage={cardsPerPage} foundItems={foundItems}/>
-    </>
+    </div>
   )
 };
 

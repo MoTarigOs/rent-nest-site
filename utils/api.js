@@ -541,17 +541,17 @@ export const getOwnerProperties = async(userId, skipCount, cardsPerPage) => {
     }
 };
 
-export const getFavourites = async() => {
+export const getFavourites = async(skip, cardsPerPage) => {
 
     try {
 
-        const url = `${baseUrl}/user/favourites`;
+        const url = `${baseUrl}/user/favourites?skip=${skip}&cardsPerPage=${cardsPerPage}`;
 
         const res = await axios.get(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
         
         if(!res?.status || res.status !== 200) return { success: false, dt: getErrorText(res?.data?.message ? res.data.messsage : '') }
     
-        return { success: true, dt: res.data };
+        return { success: true, dt: res.data?.properties, count: res.data?.count };
     
     } catch (err) {
         return { success: false, dt: err?.response?.data ? getErrorText(err.response.data.message) : getErrorText('')}
@@ -613,17 +613,17 @@ export const removeGuest = async(guestId, propertyId) => {
 
 };
 
-export const getBooks = async() => {
+export const getBooks = async(skip, cardsPerPage) => {
 
     try {
 
-        const url = `${baseUrl}/user/books`;
+        const url = `${baseUrl}/user/books?skip=${skip}&cardsPerPage=${cardsPerPage}`;
 
         const res = await axios.get(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
         
         if(!res?.status || res.status !== 200) return { success: false, dt: getErrorText(res?.data?.message ? res.data.messsage : '') }
     
-        return { success: true, dt: res.data };
+        return { success: true, dt: res.data?.properties, count: res.data?.count };
     
     } catch (err) {
         return { success: false, dt: err?.response?.data ? getErrorText(err.response.data.message) : getErrorText('')}

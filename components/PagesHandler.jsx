@@ -1,12 +1,12 @@
 'use client';
 
-import Svgs from "@utils/Svgs";
 import { useEffect, useState } from "react";
 import '@styles/components_styles/PagesHandler.css';
 
 const PagesHandler = ({ 
     properitiesArray, foundItems, indexSlide, setIndexSlide, 
-    cardsPerPage, city, isEnglish, triggerPropsArrayFetch
+    cardsPerPage, city, isEnglish, triggerPropsArrayFetch,
+    isHide
 }) => {
     
     const [currentPage, setCurrentPage] = useState(1);
@@ -35,7 +35,7 @@ const PagesHandler = ({
     }, [foundItems]);
 
   return (
-    <div className="pagesHandler">
+    <div className="pagesHandler" style={{ display: isHide ? 'none' : undefined }}>
 
         <div className="pagination-text">
             {foundItems > 0 ? <>{'('}

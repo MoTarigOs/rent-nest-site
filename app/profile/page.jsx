@@ -507,11 +507,11 @@ const page = () => {
             <p id='underusername'>{'الملف الشخصي الخاص بك'}</p>
 
             <ul className='tabButtons'>
-              <li className={isProfileDetails && 'selectedTab'} onClick={() => {setIsProfileDetails(true); setIsItems(false); setIsFavourites(false); setIsBooks(false); setIsSignOut(false)}}>بيانات الملف الشخصي</li>
-              <li className={isItems && 'selectedTab'} onClick={() => {setIsProfileDetails(false); setIsItems(true); setIsFavourites(false); setIsBooks(false); setIsSignOut(false)}}>المعروضات</li>
-              <li className={isBooks && 'selectedTab'} onClick={() => {setIsProfileDetails(false); setIsItems(false); setIsFavourites(false); setIsBooks(true); setIsSignOut(false)}}>حجوزاتي</li>
-              <li className={isFavourites && 'selectedTab'} onClick={() => {setIsProfileDetails(false); setIsItems(false); setIsFavourites(true); setIsBooks(false); setIsSignOut(false)}}>المفضلة</li>
-              <li className={isSignOut && 'selectedTab'} onClick={() => {setIsProfileDetails(false); setIsItems(false); setIsFavourites(false); setIsBooks(false); setIsSignOut(true)}}>تسجيل الخروج</li>
+              <li className={isProfileDetails ? 'selectedTab' : undefined + 'disable-text-copy'} onClick={() => {setIsProfileDetails(true); setIsItems(false); setIsFavourites(false); setIsBooks(false); setIsSignOut(false)}}>بيانات الملف الشخصي</li>
+              <li className={isItems ? 'selectedTab' : undefined + 'disable-text-copy'} onClick={() => {setIsProfileDetails(false); setIsItems(true); setIsFavourites(false); setIsBooks(false); setIsSignOut(false)}}>المعروضات</li>
+              <li className={isBooks ? 'selectedTab' : undefined + 'disable-text-copy'} onClick={() => {setIsProfileDetails(false); setIsItems(false); setIsFavourites(false); setIsBooks(true); setIsSignOut(false)}}>حجوزاتي</li>
+              <li className={isFavourites ? 'selectedTab' : undefined + 'disable-text-copy'} onClick={() => {setIsProfileDetails(false); setIsItems(false); setIsFavourites(true); setIsBooks(false); setIsSignOut(false)}}>المفضلة</li>
+              <li className={isSignOut ? 'selectedTab' : undefined + 'disable-text-copy'} onClick={() => {setIsProfileDetails(false); setIsItems(false); setIsFavourites(false); setIsBooks(false); setIsSignOut(true)}}>تسجيل الخروج</li>
             </ul>
 
             <div className='profileDetails' style={{ display: !isProfileDetails && 'none' }}>
@@ -680,25 +680,11 @@ const page = () => {
               </ul>
             </div>}
 
-            {/* <ul className='items' style={{ display: !isItems ? 'none' : undefined, marginTop: 32 }}>
-              {itemsArray?.length > 0 ? itemsArray.map((item) => (
-                  <li key={item._id}><Card item={item} type={'myProp'}/></li>
-              )) : loadingItems ? <MySkeleton loadingType={'cards'} /> : <NotFound />}
-            </ul> */}
+            <PropertiesArray isEdit isHide={!isItems} userId={userId} cardsPerPage={cardsPerPage} type={'owner'}/>
 
-            <PropertiesArray userId={userId} cardsPerPage={cardsPerPage} type={'owner'}/>
-
-            <ul className='items' style={{ display: !isFavourites && 'none' }}>
-              {favArray?.length > 0 ? favArray.map((item) => (
-                  <li key={item._id}><Card item={item}/></li>
-              )) : loadingItems ? <MySkeleton loadingType={'cards'} /> : <NotFound />}
-            </ul>
-
-            <ul className='items' style={{ display: !isBooks && 'none' }}>
-              {booksArray?.length > 0 ? booksArray.map((item) => (
-                  <li key={item._id}><Card item={item}/></li>
-              )) : loadingItems ? <MySkeleton loadingType={'cards'} /> : <NotFound />}
-            </ul>
+            <PropertiesArray isHide={!isFavourites} userId={userId} cardsPerPage={cardsPerPage} type={'favourites'}/>
+            
+            <PropertiesArray isHide={!isBooks} userId={userId} cardsPerPage={cardsPerPage} type={'books'}/>
 
             <div className='profileDetails signOut' style={{ display: !isSignOut && 'none' }}>
                 <p style={{ display: signOutInfo.length <= 0 && 'none' }}><Svgs name={'info'}/>{signOutInfo}</p>

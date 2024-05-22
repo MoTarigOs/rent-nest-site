@@ -495,8 +495,8 @@ const page = () => {
 
                 <div className='insuranceDetail'>
                     <h3>هل الايجار يتطلب تأمين؟</h3>
-                    <input type='radio' name='insurance_group' onChange={() => setRequireInsurance(true)}/><label>نعم</label>
-                    <input checked={requireInsurance ? false : true} type='radio' name='insurance_group' onChange={() => setRequireInsurance(false)}/><label>لا</label>
+                    <input type='radio' checked={requireInsurance} name='insurance_group' onChange={() => setRequireInsurance(true)}/><label>نعم</label>
+                    <input checked={!requireInsurance} type='radio' name='insurance_group' onChange={() => setRequireInsurance(false)}/><label>لا</label>
                 </div>
 
                 <div className='detailItem area-div' style={{ display: selectedCatagories === '0' ? 'none' : null}}>
