@@ -37,7 +37,7 @@ export const getUserInfo = async(
     setUserEmail, setIsVerified, setUserAddress,
     setUserPhone, setBooksIds, setFavouritesIds,
     setLoading, setStorageKey, setUserAddressEN, 
-    setUserUsernameEN
+    setUserUsernameEN, setNotifications
 ) => {
 
     try {
@@ -59,6 +59,7 @@ export const getUserInfo = async(
         if(res.data.my_books) setBooksIds(res.data.my_books);
         if(res.data.my_fav) setFavouritesIds(res.data.my_fav);
         if(res.data.storage_key) setStorageKey(res.data.storage_key);
+        if(res.data.notifications) setNotifications(res.data.notifications);
         setLoading(false);
         return { success: true, dt: res.data };
     } catch (err) {

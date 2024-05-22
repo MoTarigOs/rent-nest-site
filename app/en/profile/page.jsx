@@ -14,6 +14,7 @@ import NotFound from '@components/NotFound';
 import CustomInputDivWithEN from '@components/CustomInputDivWithEN';
 import LoadingCircle from '@components/LoadingCircle';
 import Image from 'next/image';
+import PropertiesArray from '@components/PropertiesArray';
 
 const page = () => {
 
@@ -73,60 +74,11 @@ const page = () => {
     const [deletingAccount, setDeletingAccount] = useState(false);
     const [deleteAccountSuccess, setDeleteAccountSuccess] = useState('');
     const [deleteAccountError, setDeleteAccountError] = useState('');
-    const reCaptchaRef = useRef();
-
-    const [itemsArray, setItemsArray] = useState([]);
-    const [favArray, setFavArray] = useState([]);
-    const [booksArray, setBooksArray] = useState([]);
 
     const [signOutInfo, setSignOutInfo] = useState('');
     const [signingOut, setSigningOut] = useState(false);
 
-    const settingItems = async() => {
-
-      setLoadingItems(true);
-
-      try {
-        
-        const res = await getOwnerProperties(userId);
-
-        if(res.success !== true){
-          setLoadingItems(false);
-          return;
-        };
-
-        setItemsArray(res.dt);
-        setLoadingItems(false);
-
-      } catch (err) {
-        console.log(err);
-        setLoadingItems(false);
-      }
-
-    };
-    
-    const settingFavs = async() => {
-
-      setLoadingItems(true);
-
-      try {
-        
-        const res = await getFavourites();
-
-        if(res.success !== true){
-          setLoadingItems(false);
-          return;
-        };
-
-        setFavArray(res.dt);
-        setLoadingItems(false);
-
-      } catch (err) {
-        console.log(err);
-        setLoadingItems(false);
-      }
-
-    };
+    const cardsPerPage = 12;
 
     const settingGuests = async() => {
 
@@ -177,29 +129,6 @@ const page = () => {
         console.log(err);
         setDeletingGuets(-1);
       }
-    };
-    
-    const settingBooks = async() => {
-
-      setLoadingItems(true);
-
-      try {
-        
-        const res = await getBooks();
-
-        if(res.success !== true){
-          setLoadingItems(false);
-          return;
-        };
-
-        setBooksArray(res.dt);
-        setLoadingItems(false);
-
-      } catch (err) {
-        console.log(err);
-        setLoadingItems(false);
-      }
-
     };
 
     const sendCodeToEmail = async(x, notVerify) => {
@@ -446,12 +375,6 @@ const page = () => {
       }
 
     };
-    
-    useEffect(() => {
-      if(isItems === true) { settingItems(); settingGuests(); };
-      if(isFavourites === true) settingFavs();
-      if(isBooks === true) settingBooks();
-    }, [isItems, isBooks, isFavourites]);
 
     useEffect(() => {
       setEditInfo({
@@ -504,14 +427,14 @@ const page = () => {
             <p id='underusername'>Your profile</p>
 
             <ul className='tabButtons'>
-              <li className={isProfileDetails && 'selectedTab'} onClick={() => {setIsProfileDetails(true); setIsItems(false); setIsFavourites(false); setIsBooks(false); setIsSignOut(false)}}>Profile data</li>
-              <li className={isItems && 'selectedTab'} onClick={() => {setIsProfileDetails(false); setIsItems(true); setIsFavourites(false); setIsBooks(false); setIsSignOut(false)}}>Offers</li>
-              <li className={isBooks && 'selectedTab'} onClick={() => {setIsProfileDetails(false); setIsItems(false); setIsFavourites(false); setIsBooks(true); setIsSignOut(false)}}>Reservations</li>
-              <li className={isFavourites && 'selectedTab'} onClick={() => {setIsProfileDetails(false); setIsItems(false); setIsFavourites(true); setIsBooks(false); setIsSignOut(false)}}>Favourites</li>
-              <li className={isSignOut && 'selectedTab'} onClick={() => {setIsProfileDetails(false); setIsItems(false); setIsFavourites(false); setIsBooks(false); setIsSignOut(true)}}>Logout</li>
+              <li className={isProfileDetails ? 'selectedTab' : undefined} onClick={() => {setIsProfileDetails(true); setIsItems(false); setIsFavourites(false); setIsBooks(false); setIsSignOut(false)}}>Profile data</li>
+              <li className={isItems ? 'selectedTab' : undefined} onClick={() => {setIsProfileDetails(false); setIsItems(true); setIsFavourites(false); setIsBooks(false); setIsSignOut(false)}}>Offers</li>
+              <li className={isBooks ? 'selectedTab' : undefined} onClick={() => {setIsProfileDetails(false); setIsItems(false); setIsFavourites(false); setIsBooks(true); setIsSignOut(false)}}>Reservations</li>
+              <li className={isFavourites ? 'selectedTab' : undefined} onClick={() => {setIsProfileDetails(false); setIsItems(false); setIsFavourites(true); setIsBooks(false); setIsSignOut(false)}}>Favourites</li>
+              <li className={isSignOut ? 'selectedTab' : undefined} onClick={() => {setIsProfileDetails(false); setIsItems(false); setIsFavourites(false); setIsBooks(false); setIsSignOut(true)}}>Logout</li>
             </ul>
 
-            <div className='profileDetails' style={{ display: !isProfileDetails && 'none' }}>
+            <div className='profileDetails' style={{ display: !isProfileDetails ? 'none' : undefined }}>
 
                 <InfoDiv isEnglish title={'Email'} value={userEmail} 
                 isInfo={!isVerified && true} info={'This account is not verified'}
@@ -679,28 +602,17 @@ const page = () => {
               </ul>
             </div>}
 
-            <ul className='items' style={{ display: !isItems && 'none', marginTop: 32 }}>
-              {itemsArray.map((item) => (
-                  <li key={item._id}><Card isEnglish item={item} type={'myProp'}/></li>
-              ))}
-            </ul>
+            <PropertiesArray isEdit isHide={!isItems} userId={userId} cardsPerPage={cardsPerPage} type={'owner'}/>
 
-            <ul className='items' style={{ display: !isFavourites && 'none' }}>
-              {favArray.map((item) => (
-                  <li key={item._id}><Card isEnglish item={item}/></li>
-              ))}
-            </ul>
+            <PropertiesArray isHide={!isFavourites} userId={userId} cardsPerPage={cardsPerPage} type={'favourites'}/>
+            
+            <PropertiesArray isHide={!isBooks} userId={userId} cardsPerPage={cardsPerPage} type={'books'}/>
 
-            <ul className='items' style={{ display: !isBooks && 'none' }}>
-              {booksArray.map((item) => (
-                  <li key={item._id}><Card isEnglish item={item}/></li>
-              ))}
-            </ul>
 
             <div className='profileDetails signOut' style={{ display: !isSignOut && 'none' }}>
                 <p style={{ display: signOutInfo.length <= 0 && 'none' }}><Svgs name={'info'}/>{signOutInfo}</p>
                 <button onClick={handleSignOut} className='editDiv'>
-                  {signingOut ? 'Loging out...' : 'Logout'}
+                  {signingOut ? <LoadingCircle /> : 'Logout'}
                 </button>
             </div>
 

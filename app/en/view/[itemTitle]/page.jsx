@@ -19,6 +19,7 @@ import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
 import Link from 'next/link';
 import { bathroomFacilities, facilities, kitchenFacilities, poolType } from '@utils/Facilities';
+import LoadingCircle from '@components/LoadingCircle';
 
 const page = () => {
 
@@ -374,7 +375,10 @@ const page = () => {
 
       if(adminType === 'pass-property') setItem(res.dt);
 
-      if(adminType === 'reject-property') setItem(res.dt);
+      if(adminType === 'reject-property') {
+        setItem(res.dt);
+        setAdminType('pass-property');
+      };
 
       if(adminType === 'hide-property') {
         setItem(res.dt);
@@ -991,7 +995,7 @@ const page = () => {
             onClick={handleBook}>
               {(item.owner_id !== userId) 
                 ? (canBook ? (addingToBooks 
-                    ? 'Editing book status...' 
+                    ? <LoadingCircle isLightBg/>
                     : (booksIds.find(i => i.property_id === id) ? 'Remove from my Books' : 'Book')) : ((!isOkayBookDays(calendarDoubleValue, item.booked_days) && item.is_able_to_book) ? 'Reservations are not possible on these days' 
                   : getReasonForNotBook()))
               : 'This is your own offer'}
@@ -1050,7 +1054,7 @@ const page = () => {
             {(item.owner_id !== userId) 
               ? (canBook 
                 ? (addingToBooks 
-                  ? 'Updating...' 
+                  ? <LoadingCircle />
                   : (booksIds.find(i => i.property_id === id) ? 'Remove from book list' : 'Book')) 
                 : getReasonForNotBook())
             : 'This is your own offer'}

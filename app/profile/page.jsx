@@ -1,9 +1,8 @@
 'use client';
 
 import './Profile.css';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Context } from '@utils/Context';
-import Card from '@components/Card';
 import { deleteMyAccount, editUser, getBooks, getFavourites, getGuests, getOwnerProperties, removeGuest, sendCode, signOut, verifyGuest, verifyMyEmail } from '@utils/api';
 import InfoDiv from '@components/InfoDiv';
 import CustomInputDiv from '@components/CustomInputDiv';
@@ -74,62 +73,12 @@ const page = () => {
     const [deleteAccountSuccess, setDeleteAccountSuccess] = useState('');
     const [deleteAccountError, setDeleteAccountError] = useState('');
 
-    const [itemsArray, setItemsArray] = useState([]);
-    const [favArray, setFavArray] = useState([]);
-    const [booksArray, setBooksArray] = useState([]);
     const [guestsArray, setGuestsArray] = useState([]);
 
     const [signOutInfo, setSignOutInfo] = useState('');
     const [signingOut, setSigningOut] = useState(false);
 
     const cardsPerPage = 12;
-
-    const settingItems = async() => {
-
-      return;
-      setLoadingItems(true);
-
-      try {
-        
-        const res = await getOwnerProperties(userId);
-
-        if(res.success !== true){
-          setLoadingItems(false);
-          return;
-        };
-
-        setItemsArray(res.dt);
-        setLoadingItems(false);
-
-      } catch (err) {
-        console.log(err);
-        setLoadingItems(false);
-      }
-
-    };
-    
-    const settingFavs = async() => {
-
-      setLoadingItems(true);
-
-      try {
-        
-        const res = await getFavourites();
-
-        if(res.success !== true){
-          setLoadingItems(false);
-          return;
-        };
-
-        setFavArray(res.dt);
-        setLoadingItems(false);
-
-      } catch (err) {
-        console.log(err);
-        setLoadingItems(false);
-      }
-
-    };
 
     const settingGuests = async() => {
 
@@ -180,29 +129,6 @@ const page = () => {
         console.log(err);
         setDeletingGuets(-1);
       }
-    };
-    
-    const settingBooks = async() => {
-
-      setLoadingItems(true);
-
-      try {
-        
-        const res = await getBooks();
-
-        if(res.success !== true){
-          setLoadingItems(false);
-          return;
-        };
-
-        setBooksArray(res.dt);
-        setLoadingItems(false);
-
-      } catch (err) {
-        console.log(err);
-        setLoadingItems(false);
-      }
-
     };
 
     const sendCodeToEmail = async(x, notVerify) => {
@@ -449,12 +375,6 @@ const page = () => {
       }
 
     };
-    
-    useEffect(() => {
-      if(isItems === true) { settingItems(); settingGuests(); };
-      if(isFavourites === true) settingFavs();
-      if(isBooks === true) settingBooks();
-    }, [isItems, isBooks, isFavourites]);
 
     useEffect(() => {
       setEditInfo({
@@ -507,14 +427,14 @@ const page = () => {
             <p id='underusername'>{'الملف الشخصي الخاص بك'}</p>
 
             <ul className='tabButtons'>
-              <li className={isProfileDetails ? 'selectedTab' : undefined + 'disable-text-copy'} onClick={() => {setIsProfileDetails(true); setIsItems(false); setIsFavourites(false); setIsBooks(false); setIsSignOut(false)}}>بيانات الملف الشخصي</li>
-              <li className={isItems ? 'selectedTab' : undefined + 'disable-text-copy'} onClick={() => {setIsProfileDetails(false); setIsItems(true); setIsFavourites(false); setIsBooks(false); setIsSignOut(false)}}>المعروضات</li>
-              <li className={isBooks ? 'selectedTab' : undefined + 'disable-text-copy'} onClick={() => {setIsProfileDetails(false); setIsItems(false); setIsFavourites(false); setIsBooks(true); setIsSignOut(false)}}>حجوزاتي</li>
-              <li className={isFavourites ? 'selectedTab' : undefined + 'disable-text-copy'} onClick={() => {setIsProfileDetails(false); setIsItems(false); setIsFavourites(true); setIsBooks(false); setIsSignOut(false)}}>المفضلة</li>
-              <li className={isSignOut ? 'selectedTab' : undefined + 'disable-text-copy'} onClick={() => {setIsProfileDetails(false); setIsItems(false); setIsFavourites(false); setIsBooks(false); setIsSignOut(true)}}>تسجيل الخروج</li>
+              <li className={isProfileDetails ? 'selectedTab' : undefined} onClick={() => {setIsProfileDetails(true); setIsItems(false); setIsFavourites(false); setIsBooks(false); setIsSignOut(false)}}>بيانات الملف الشخصي</li>
+              <li className={isItems ? 'selectedTab' : undefined} onClick={() => {setIsProfileDetails(false); setIsItems(true); setIsFavourites(false); setIsBooks(false); setIsSignOut(false)}}>المعروضات</li>
+              <li className={isBooks ? 'selectedTab' : undefined} onClick={() => {setIsProfileDetails(false); setIsItems(false); setIsFavourites(false); setIsBooks(true); setIsSignOut(false)}}>حجوزاتي</li>
+              <li className={isFavourites ? 'selectedTab' : undefined} onClick={() => {setIsProfileDetails(false); setIsItems(false); setIsFavourites(true); setIsBooks(false); setIsSignOut(false)}}>المفضلة</li>
+              <li className={isSignOut ? 'selectedTab' : undefined} onClick={() => {setIsProfileDetails(false); setIsItems(false); setIsFavourites(false); setIsBooks(false); setIsSignOut(true)}}>تسجيل الخروج</li>
             </ul>
 
-            <div className='profileDetails' style={{ display: !isProfileDetails && 'none' }}>
+            <div className='profileDetails' style={{ display: !isProfileDetails ? 'none' : undefined }}>
 
                 <InfoDiv title={'البريد الالكتروني'} value={userEmail} 
                 isInfo={!isVerified && true} info={'هذا الحساب غير موثق'}
@@ -689,7 +609,7 @@ const page = () => {
             <div className='profileDetails signOut' style={{ display: !isSignOut && 'none' }}>
                 <p style={{ display: signOutInfo.length <= 0 && 'none' }}><Svgs name={'info'}/>{signOutInfo}</p>
                 <button onClick={handleSignOut} className='editDiv'>
-                  {signingOut ? 'جاري تسجيل الخروج...' : 'تسجيل الخروج'}
+                  {signingOut ? <LoadingCircle /> : 'تسجيل الخروج'}
                 </button>
             </div>
 

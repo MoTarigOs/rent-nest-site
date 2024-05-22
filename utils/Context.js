@@ -16,6 +16,7 @@ function DataContext({ children }) {
     const [userAddress, setUserAddress] = useState('');
     const [userAddressEN, setUserAddressEN] = useState('');
     const [userPhone, setUserPhone] = useState('');
+    const [notifications, setNotifications] = useState([]);
     const [loadingUserInfo, setLoadingUserInfo] = useState(false);
     const [isVerified, setIsVerified] = useState('');
     const [userRole, setUserRole] = useState('');
@@ -72,6 +73,7 @@ function DataContext({ children }) {
             userAddress, setUserAddress,
             userAddressEN, setUserAddressEN,
             userPhone, setUserPhone,
+            notifications, setNotifications,
             loadingUserInfo, setLoadingUserInfo,
             isVerified, setIsVerified,
             userRole, setUserRole,

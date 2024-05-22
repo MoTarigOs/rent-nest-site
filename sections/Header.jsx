@@ -20,7 +20,6 @@ import { getUserInfo, refresh } from '@utils/api';
 import { getArabicNameCatagory, getNameByLang, getReadableDate } from '@utils/Logic';
 import { isLoginedCookie, isPreviouslyLogined } from '@utils/ServerComponents';
 import { VehiclesTypes, contactInfo } from '@utils/Data';
-import Ripple from '@components/Ripple';
 
 const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }) => {
 
@@ -38,7 +37,6 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
     const [isPrevLogined, setIsPrevLogined] = useState(false);
 
     const mobileSearchDivRef = useRef();
-    const mobileSearchDivSpanRef = useRef();
 
     const id = useSearchParams().get('id');
 
@@ -50,8 +48,8 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       setUserPhone, setUserAddress, setBooksIds, 
       setFavouritesIds, mapType, mapArray, isMap, setIsMap, 
       latitude, setLatitude, longitude, setLongitude,
-      calendarDoubleValue, setIsMobileHomeFilter, 
-      setIsCalendarValue, setLoadingUserInfo,
+      calendarDoubleValue, setIsMobileHomeFilter, notifications,
+      setIsCalendarValue, setLoadingUserInfo, setNotifications,
       isMobileHomeFilter, setStorageKey, isMobile, setIsMobile,
       setIsEnglish, isVerified, setIsModalOpened, isModalOpened,
       setIsSearchMap, isMapSearch, vehicleType, setUserAddressEN, setUserUsernameEN
@@ -167,7 +165,8 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
         setUserId, setUserUsername, setUserRole, 
         setUserEmail, setIsVerified, setUserAddress,
         setUserPhone, setBooksIds, setFavouritesIds, 
-        setLoadingUserInfo, setStorageKey, setUserAddressEN, setUserUsernameEN
+        setLoadingUserInfo, setStorageKey, setUserAddressEN, 
+        setUserUsernameEN, setNotifications
       );
 
       if(!infoRes?.success || infoRes.success !== true) return;
@@ -187,27 +186,6 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       };
 
     };
-
-    // function createRipple(event) {
-
-    //   const button = mobileSearchDivRef?.current;
-    
-    //   const circle = mobileSearchDivSpanRef?.current;
-    //   const diameter = Math.max(button.clientWidth, button.clientHeight);
-    //   const radius = diameter / 2;
-    
-    //   circle.style.width = circle.style.height = `${diameter}px`;
-    //   circle.style.left = `${event.clientX - button.offsetLeft - radius}px`;
-    //   circle.style.top = `${event.clientY - button.offsetTop - radius}px`;
-    //   circle.classList.add("ripple");
-    
-    //   const ripple = button.getElementsByClassName("ripple")[0];
-    
-    //   if (ripple) {
-    //     ripple.remove();
-    //   }
-
-    // }
 
     useEffect(() => {
       
@@ -237,12 +215,6 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
       }
     }, []);
-
-    // useEffect(() => {
-    //   if(mobileSearchDivRef?.current)
-    //     mobileSearchDivRef.current?.addEventListener('click', (e) => createRipple(e));
-    //   return () => mobileSearchDivRef.current?.removeEventListener('click', (e) => createRipple(e));
-    // }, [mobileSearchDivRef]);
 
     useEffect(() => {
       setRunOnce(true);
@@ -286,32 +258,6 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       return (<></>)
     };
 
-    // const [coords, setCoords] = useState({ x: -1, y: -1 });
-    // const [isRippling, setIsRippling] = useState(false);
-
-    // useEffect(() => {
-    //   if (coords.x !== -1 && coords.y !== -1) {
-    //     setIsRippling(true);
-    //     setTimeout(() => setIsRippling(false), 300);
-    //   } else setIsRippling(false);
-    // }, [coords]);
-  
-    // useEffect(() => {
-    //   if (!isRippling) setCoords({ x: -1, y: -1 });
-    // }, [isRippling]);
-
-    // {isRippling ? (
-    //   <span
-    //     className="ripple"
-    //     style={{
-    //       left: coords.x,
-    //       top: coords.y
-    //     }}
-    //   />
-    // ) : (
-    //   ''
-    // )}
-
   return (
 
     <div suppressContentEditableWarning className={(pathname.includes('/en') ? 'header englishHeader' : 'header')} style={{ 
@@ -345,6 +291,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
             <Link href={getHref('add')} style={{ display: !userId?.length > 0 ? 'none' : null }} className='addItemHeaderDiv disable-text-copy'>{getNameByLang('أضف عقارك', pathname.includes('/en'))}</Link>
 
             <div className='user disable-text-copy' style={{ maxWidth: !userId?.length > 0 ? 'unset' : null }}>
+              <span id='notif-span' style={{ display: !notifications?.length > 0 ? 'none' : undefined }}>{userId?.length > 10 && notifications.length}</span>
               <Link href={userId?.length > 0 ? getHref('profile', userId) : getHref('sign-up')}>
                 <div className='profileSvg'><Svgs name={'profile'}/></div>
                 <p>{userId?.length > 0 ? userUsername : getNameByLang('الدخول أو انشاء حساب', pathname.includes('/en'))}</p>
@@ -422,6 +369,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
           <span id='menu-active-background' style={{ display: !isMenu ? 'none' : undefined }}/>
           
           <div className='user disable-text-copy'>
+            <span id='notif-span' style={{ display: !notifications?.length > 0 ? 'none' : undefined }}>{userId?.length > 10 && notifications.length}</span>
             <Link href={userId?.length > 0 ? getHref('profile', userId) : getHref('sign-up')}>
               <div className='profileSvg'><Svgs name={'profile'}/></div>
               <p>{userId?.length > 0 ? userUsername : getNameByLang('الدخول أو انشاء حساب', pathname.includes('/en'))}</p>

@@ -18,6 +18,7 @@ import { getBookDateFormat, getNumOfBookDays, getReadableDate, isOkayBookDays, i
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
 import Link from 'next/link';
+import LoadingCircle from '@components/LoadingCircle';
 
 const page = () => {
 
@@ -380,7 +381,10 @@ const page = () => {
 
       if(adminType === 'pass-property') setItem(res.dt);
 
-      if(adminType === 'reject-property') setItem(res.dt);
+      if(adminType === 'reject-property') {
+        setItem(res.dt);
+        setAdminType('pass-property');
+      };
 
       if(adminType === 'hide-property') {
         setItem(res.dt);
@@ -1017,7 +1021,7 @@ const page = () => {
               {(item.owner_id !== userId) 
                 ? (canBook 
                   ? (addingToBooks 
-                    ? 'جاري تعديل الحجز...' 
+                    ? <LoadingCircle isLightBg/>
                     : (booksIds.find(i => i.property_id === id) ? 'أزل من الحجز' : 'احجز')) 
                   : getReasonForNotBook())
               : 'هذا عرضك الخاص'}
@@ -1076,7 +1080,7 @@ const page = () => {
             {(item.owner_id !== userId) 
               ? (canBook 
                 ? (addingToBooks 
-                  ? 'جاري تعديل الحجز...' 
+                  ? <LoadingCircle />
                   : (booksIds.find(i => i.property_id === id) ? 'أزل من الحجز' : 'احجز')) 
                 : getReasonForNotBook())
             : 'هذا عرضك الخاص'}
