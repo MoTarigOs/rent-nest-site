@@ -9,6 +9,7 @@ import { register } from '@utils/api';
 import NotFound from '@components/NotFound';
 import { Context } from '@utils/Context';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import LoadingCircle from '@components/LoadingCircle';
 
 const page = () => {
 
@@ -199,7 +200,7 @@ const page = () => {
           
           <label id='success' style={{ padding: !successRegister && 0, margin: !successRegister && 0 }}>{successRegister && 'Account successfully created'} <Link href={'/sign-in'} style={{ display: !successRegister && 'none' }}>الذهاب الى تسجيل الدخول</Link></label>
 
-          <button type='submit'>{loading ? 'Creating Account...' : 'Create Account'}</button>
+          <button type='submit'>{loading ? <LoadingCircle /> : 'Create Account'}</button>
 
         </form>
 

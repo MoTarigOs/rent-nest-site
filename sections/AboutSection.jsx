@@ -10,6 +10,7 @@ import 'swiper/swiper-bundle.css';
 import { useContext, useEffect } from 'react';
 import { Context } from '@utils/Context';
 import { getNameByLang } from '@utils/Logic';
+import Link from 'next/link';
 
 const AboutSection = ({ isEnglish }) => {
 
@@ -25,7 +26,7 @@ const AboutSection = ({ isEnglish }) => {
     { _id: '3', iconName: 'seller', title: 'Flexibility for advertiser and buyer', slogan: 'You will find great flexibility in amending the offer and flexibility in choosing the booking date' }
   ];
 
-  const { setIsMobileHomeFilter, setCatagory, setSection } = useContext(Context);
+  const { setIsMobileHomeFilter, setCatagory, setSection, userId  } = useContext(Context);
 
   let swiper = null;
 
@@ -46,6 +47,11 @@ const AboutSection = ({ isEnglish }) => {
 
   return (
     <div className='aboutSection' dir={isEnglish ? 'ltr' : null}>
+
+        <Link id='add-page' className='disable-text-copy' href={userId?.length > 0 ? (isEnglish ? '/en/add' : '/add') : (isEnglish ? '/en/sign-up' : '/sign-up')}>
+          {userId?.length > 0 && <Svgs name={'students'}/>}
+          {isEnglish ? 'Add a Property' : 'أضف عقار'}
+        </Link>
 
         <div className='perfectRent'>
 

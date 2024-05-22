@@ -2,7 +2,7 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    margin-top: 64px;
+    margin-top: 16px;
     padding: 32px ;
     border-radius: 8px;
     max-width: 1300px;
@@ -190,6 +190,41 @@
         }
     }
 
+    #add-page{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 16px;
+        border-radius: 50px;
+        border: 1px solid rgba(0, 0, 0, 0.193);
+        text-decoration: none;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var();
+        background: white;
+        color: var(--secondColorDark);
+        gap: 12px;
+        margin-bottom: 48px;
+        transition: all 0.2s ease-out;
+
+        svg{
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid var(--secondColor);
+
+            path{
+                fill: var(--secondColor)
+            }
+        }
+    }
+
+    #add-page:hover{
+        background: var(--darkWhiteLight);
+        transition: all 0.2s ease-in;
+    }
+
     .whatWeOffer{
         width: 100%;
         margin-top: 96px;
@@ -284,7 +319,15 @@
     }
 }
 
-@media screen and (max-width: 960px){
+@media only screen and (max-width: 1160px){
+    .aboutSection{
+        #add-page{
+            display: flex;
+        }
+    }
+}
+
+@media only screen and (max-width: 960px){
     .aboutSection{
 
         .perfectRent{
@@ -356,7 +399,7 @@
     }
 }
 
-@media screen and (max-width: 680px){
+@media only screen and (max-width: 680px){
     .aboutSection{
         padding: 12px;
         margin: 32px 0 0 0;

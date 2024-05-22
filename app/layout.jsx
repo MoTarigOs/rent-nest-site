@@ -10,6 +10,8 @@ const Layout = ({ children }) => {
 
             <head>
 
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
                 <meta name="format-detection" content="telephone=no, date=no, email=no, address=no" />
                 
                 <title>Rent Nest | منصة ايجار عقارات داخل الاردن</title>

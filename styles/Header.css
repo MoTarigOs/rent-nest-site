@@ -940,24 +940,22 @@
 #sideNavActive{ top: var(--headerHeightMobile); scale: 1; transition: all 0.4s cubic-bezier(0, 0.65, 0.4, 1); }
 #sideNavNotActive{ top: -100%; scale: 1.1; transition: all 0s cubic-bezier(0.075, 0.82, 0.165, 1); }
 
+@keyframes ripple-effect {
+0% {
+    transform: scale(1);
+    opacity: 1;
+}
+50% {
+    transform: scale(10);
+    opacity: 0.375;
+}
+100% {
+    transform: scale(35);
+    opacity: 0;
+}
+}
 
-  
-  @keyframes ripple-effect {
-    0% {
-      transform: scale(1);
-      opacity: 1;
-    }
-    50% {
-      transform: scale(10);
-      opacity: 0.375;
-    }
-    100% {
-      transform: scale(35);
-      opacity: 0;
-    }
-  }
-
-@media screen and (max-width: 1200px){
+@media only screen and (max-width: 1200px){
     .header, .englishHeader{
         .desktopWrapper{
             .navBtn{
@@ -967,7 +965,7 @@
     }
 }
 
-@media screen and (max-width: 1160px){
+@media only screen and (max-width: 1160px){
     .header{
         width: 100vw;
         background: white;
@@ -1070,7 +1068,7 @@
     }
 }
 
-@media screen and (max-width: 960px){
+@media only screen and (max-width: 960px){
     .header{
         width: 100%;
         .mobileHeader{
@@ -1082,7 +1080,7 @@
     }
 }
 
-@media screen and (max-width: 680px){
+@media only screen and (max-width: 680px){
     .header{
         margin: 0;
         .filterHeaderDiv{
@@ -1114,7 +1112,7 @@
     }
 }
 
-@media screen and (max-width: 480px){
+@media only screen and (max-width: 480px){
     .header{
         .headerSearchDiv{
             width: 80%;

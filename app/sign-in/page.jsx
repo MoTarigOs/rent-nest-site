@@ -9,6 +9,7 @@ import { getUserInfo, login } from '@utils/api';
 import { Context } from '@utils/Context';
 import NotFound from '@components/NotFound';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import LoadingCircle from '@components/LoadingCircle';
 
 const page = () => {
 
@@ -143,7 +144,7 @@ const page = () => {
 
           <label id='success' style={{ padding: !successLogin && 0, margin: !successLogin && 0 }}>{successLogin && 'تم تسجيل الدخول بنجاح'} <Link href={isVerified ? `/profile?id=${userId}` : '/verify-account'} style={{ display: !successLogin && 'none' }}>الذهاب الى الملف الشخصي</Link></label>
 
-          <button>{loading ? 'جاري تسجيل الدخول ...' : 'تسجيل الدخول'}</button>
+          <button>{loading ? <LoadingCircle /> : 'تسجيل الدخول'}</button>
 
         </form>
 
