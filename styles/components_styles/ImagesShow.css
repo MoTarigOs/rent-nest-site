@@ -379,6 +379,11 @@
 
 @media screen and (max-width: 680px){
     .imagesDiv{
+        #auto-scroll{
+            width: 28px;
+            height: 28px;
+            bottom: 36px;
+        }
         .swiper-images-show{
             .swiper-wrapper{
                 .swiper-slide{

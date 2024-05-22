@@ -443,7 +443,8 @@ export const getPropIdByUnitCode = async(unit_code) => {
 export const editProperty = async(
     propertyId, title, description, price, 
     details, terms_and_conditions, contacts,
-    discount, isEnglish, gRecaptchaToken
+    discount, isEnglish, gRecaptchaToken,
+    enObj, cancellation, capacity, customerType
 ) => {
 
     try {
@@ -453,7 +454,8 @@ export const editProperty = async(
         const body = { 
             title, description, price, 
             details, terms_and_conditions,
-            contacts, discount, gRecaptchaToken
+            contacts, discount, gRecaptchaToken,
+            enObj, cancellation, capacity, customerType
         };
 
         const res = await axios.put(url, body, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
@@ -522,17 +524,17 @@ export const deleteFiles = async(id, filenames, key, email, isEnglish) => {
 
 };
 
-export const getOwnerProperties = async(userId) => {
+export const getOwnerProperties = async(userId, skipCount, cardsPerPage) => {
 
     try {
 
-        const url = `${baseUrl}/property/owner/${userId}`;
+        const url = `${baseUrl}/property/owner/${userId}?skip=${skipCount}&cardsPerPage=${cardsPerPage}`;
 
         const res = await axios.get(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
         
         if(!res?.status || res.status !== 200) return { success: false, dt: getErrorText(res?.data?.message ? res.data.messsage : '') }
     
-        return { success: true, dt: res.data };
+        return { success: true, dt: res.data?.properties, count: res.data?.count };
     
     } catch (err) {
         return { success: false, dt: getErrorText(err.response?.data ? err.response.data.message : 'unknown error')}

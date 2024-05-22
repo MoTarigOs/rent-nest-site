@@ -298,9 +298,9 @@ const page = () => {
                 }
             });
 
-            if(itemTitleEN) enObj.titleEN = itemTitleEN;
-            if(itemDescEN) enObj.descEN = itemDescEN;
-            if(itemNeighbourEN) enObj.neighbourEN = itemNeighbourEN;
+            if(itemTitleEN?.length > 0) enObj.titleEN = itemTitleEN;
+            if(itemDescEN?.length > 0) enObj.descEN = itemDescEN;
+            if(itemNeighbourEN?.length > 0) enObj.neighbourEN = itemNeighbourEN;
             if(customersTypesArray().includes(customerType)){
                 let cst = '';
                 customersTypesArray().forEach((element, index) => {

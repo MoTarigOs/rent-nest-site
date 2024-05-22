@@ -14,6 +14,7 @@ import NotFound from '@components/NotFound';
 import CustomInputDivWithEN from '@components/CustomInputDivWithEN';
 import LoadingCircle from '@components/LoadingCircle';
 import Image from 'next/image';
+import PropertiesArray from '@components/PropertiesArray';
 
 const page = () => {
 
@@ -81,8 +82,11 @@ const page = () => {
     const [signOutInfo, setSignOutInfo] = useState('');
     const [signingOut, setSigningOut] = useState(false);
 
+    const cardsPerPage = 12;
+
     const settingItems = async() => {
 
+      return;
       setLoadingItems(true);
 
       try {
@@ -676,11 +680,13 @@ const page = () => {
               </ul>
             </div>}
 
-            <ul className='items' style={{ display: !isItems ? 'none' : undefined, marginTop: 32 }}>
+            {/* <ul className='items' style={{ display: !isItems ? 'none' : undefined, marginTop: 32 }}>
               {itemsArray?.length > 0 ? itemsArray.map((item) => (
                   <li key={item._id}><Card item={item} type={'myProp'}/></li>
               )) : loadingItems ? <MySkeleton loadingType={'cards'} /> : <NotFound />}
-            </ul>
+            </ul> */}
+
+            <PropertiesArray userId={userId} cardsPerPage={cardsPerPage} type={'owner'}/>
 
             <ul className='items' style={{ display: !isFavourites && 'none' }}>
               {favArray?.length > 0 ? favArray.map((item) => (

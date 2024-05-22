@@ -9,7 +9,7 @@ import { useSearchParams } from 'next/navigation';
 import Svgs from '@utils/Svgs';
 import { Context } from '@utils/Context';
 import Link from 'next/link';
-import { getBookDateFormat, getOptimizedAttachedFiles, isValidArrayOfStrings, isValidContactURL, isValidNumber, isValidText } from '@utils/Logic';
+import { getBookDateFormat, getOptimizedAttachedFiles, isValidContactURL, isValidNumber, isValidText } from '@utils/Logic';
 import MyCalendar from '@components/MyCalendar';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
@@ -19,6 +19,7 @@ import CustomInputDivWithEN from '@components/CustomInputDivWithEN';
 import InfoDiv from '@components/InfoDiv';
 import HeaderPopup from '@components/popups/HeaderPopup';
 import { bathroomFacilities, customersTypesArray, facilities, kitchenFacilities, poolType } from '@utils/Facilities';
+import LoadingCircle from '@components/LoadingCircle';
 
 const Page = () => {
 
@@ -146,6 +147,133 @@ const Page = () => {
         }
     };
 
+    const getEnglishDetailsArray = (type, arabicValue, isEnDtlArray) => {
+        
+        if(item.en_data?.english_details?.length <= 0) return [];
+
+        if(arabicValue){
+            item.en_data?.english_details?.forEach(element => {
+                if(element?.arName === arabicValue) return element?.enName;
+            });
+        }
+
+        const getBaseEnglishdtlsArr = () => {
+            switch(type){
+                case 'rooms':
+                    return item.details?.guest_rooms;
+                case 'places':
+                    return item.details?.near_places;
+                case 'terms':
+                    return item.terms_and_conditions;
+                case 'vehicle specs':
+                    return item.details?.vehicle_specifications;
+                case 'vehcile features':
+                    return item.details?.vehicle_addons;
+                default:
+                    return null;
+            }
+        };
+        
+        const baseArray = getBaseEnglishdtlsArr();
+        if(!baseArray) return [];
+        let arr = [];
+        for (let i = 0; i < baseArray.length; i++) {
+            item.en_data?.english_details.forEach(dtl => {
+                if(dtl?.arName === baseArray[i]) arr.push(isEnDtlArray ? dtl : dtl.enName);
+            });
+        }
+
+        // if(arr?.length !== baseArray?.length){
+        //     for (let i = 0; i < baseArray.length - arr?.length - 1; i++) {
+        //         arr.push({ arName: baseArray[i], enName: '' });
+        //     }
+        // }
+        return arr;
+
+    };
+
+    const isSomethingChanged = () => {
+
+        let tempContacts = [], tempItemContacts = [];
+
+        contacts.forEach((item) => {
+            tempContacts.push({
+                platform: item.platform, val: item.val
+            });
+        });
+
+        item.contacts?.forEach((item) => {
+            tempItemContacts.push({
+                platform: item.platform, val: item.val
+            });
+        });
+
+        const compareTwoValuesIsNotEqual = (a, b, type) => {
+
+            if(type === 'array'){
+                console.log('a array: ', a);
+                console.log('b array: ', b);
+                console.log(JSON.stringify(a) === JSON.stringify(b));
+            }
+
+            if(type === 'array' && JSON.stringify(a) === JSON.stringify(b)) return false;
+
+            if(type === 'array' && a?.length <= 0 && (b === null || b === undefined)) return false;
+
+            if(a === b) return false;
+            
+            return true;
+
+        };
+
+        const compareAllValues = () => {
+
+            if(compareTwoValuesIsNotEqual(itemTitle, item.title)) return false;
+            if(compareTwoValuesIsNotEqual(itemTitleEN, item.en_data?.titleEN)) return false;
+            if(compareTwoValuesIsNotEqual(itemDesc, item.description)) return false;
+            if(compareTwoValuesIsNotEqual(itemDescEN, item.en_data?.descEN)) return false;
+            if(compareTwoValuesIsNotEqual(itemPrice, item.price)) return false;
+            if(compareTwoValuesIsNotEqual(discountNights, item.discount?.num_of_days_for_discount)) return false;
+            if(compareTwoValuesIsNotEqual(discountPer, item.discount?.percentage)) return false;
+            if(compareTwoValuesIsNotEqual(requireInsurance, item.details?.insurance)) return false;
+            if(compareTwoValuesIsNotEqual(tempContacts, tempItemContacts, 'array')) return false;
+
+            if(compareTwoValuesIsNotEqual(conditionsAndTerms, item.terms_and_conditions, 'array')) return false;
+            if(compareTwoValuesIsNotEqual(conditionsAndTermsEN?.map(o=>o.enName), getEnglishDetailsArray('terms'), 'array')) return false;
+            if(compareTwoValuesIsNotEqual(nearPlaces, item.details?.near_places, 'array')) return false;
+            if(compareTwoValuesIsNotEqual(nearPlacesEN?.map(o=>o.enName), getEnglishDetailsArray('places'), 'array')) return false;
+
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(vehicleSpecifications, item.details?.vehicle_specifications, 'array')) return false;
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(vehicleSpecificationsEN?.map(o=>o.enName), getEnglishDetailsArray('vehicle specs'), 'array')) return false;
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(vehicleFeatures, item.details?.vehicle_addons, 'array')) return false;
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(vehicleFeaturesEN?.map(o=>o.enName), getEnglishDetailsArray('vehicle features'), 'array')) return false;
+            if(item.type_is_vehicle) return true;
+
+            if(compareTwoValuesIsNotEqual(cancellationsArray().indexOf(cancellation), item.cancellation)) return false;
+            if(compareTwoValuesIsNotEqual(capacity, item.capacity)) return false;
+            if(compareTwoValuesIsNotEqual(customerType, item.customer_type)) return false;
+
+            if(compareTwoValuesIsNotEqual(guestRoomsDetailArray, item.details?.guest_rooms, 'array')) return false;
+            if(compareTwoValuesIsNotEqual(guestRoomsDetailArrayEN?.map(o=>o.enName), getEnglishDetailsArray('rooms'), 'array')) return false;
+            if(compareTwoValuesIsNotEqual(companionsDetailArray, item.details?.facilities, 'array')) return false;
+            if(compareTwoValuesIsNotEqual(bathroomsNum, item.details?.bathrooms?.num)) return false;
+            if(compareTwoValuesIsNotEqual(bathroomsDetailArray, item.details?.bathrooms?.companians, 'array')) return false;
+            if(compareTwoValuesIsNotEqual(kitchenDetailArray, item.details?.kitchen?.companians, 'array')) return false;
+            if(compareTwoValuesIsNotEqual(poolsDetailArray, item.details?.pool?.companians, 'array')) return false;
+
+            if(compareTwoValuesIsNotEqual(roomObj?.num, item.details?.rooms?.num)) return false;
+            if(compareTwoValuesIsNotEqual(roomObj?.single_beds, item.details?.rooms?.single_beds)) return false;
+            if(compareTwoValuesIsNotEqual(roomObj?.double_beds, item.details?.rooms?.double_beds)) return false;
+            if(compareTwoValuesIsNotEqual(poolNum, item.details?.pool?.num)) return false;
+
+            return true;
+
+        };
+
+        return !compareAllValues();
+    
+    };
+
     const handleSubmit = async() => {
 
         let tempContacts = [], tempItemContacts = [];
@@ -162,56 +290,22 @@ const Page = () => {
             });
         });
 
-        // if(
-        //     !item.type_is_vehicle 
-        //     && itemTitle === item.title
-        //     && itemDesc === item.description
-        //     && itemPrice === item.price
-        //     && requireInsurance === item.details.insurance
-        //     && conditionsAndTerms === item.terms_and_conditions
-        //     && guestRoomsDetailArray === item.details.guest_rooms
-        //     && companionsDetailArray === item.details.facilities
-        //     && bathroomsDetailArray === item.details.bathrooms
-        //     && kitchenDetailArray === item.details.kitchen
-        //     && attachedFilesUrls.length <= 0
-        //     && uploadedFiles.toString() === [...item.images, ...item.videos].toString()
-        //     && filesToDelete.length <= 0
-        //     && discountPer === item.discount?.percentage && discountNights === item.discount?.num_of_days_for_discount
-        //     && JSON.stringify(tempContacts) === JSON.stringify(tempItemContacts) || (tempContacts.length <= 0 && (item.contacts === null || item.contacts === undefined))
-        // ){
-        //     setError('لم يتم تعديل أي بيانات');
-        //     setSuccess(false);
-        //     return;
-        // } else if(
-        //     item.type_is_vehicle
-        //     && itemTitle === item.title
-        //     && itemDesc === item.description
-        //     && itemPrice === item.price
-        //     && requireInsurance === item.details.insurance
-        //     && conditionsAndTerms === item.terms_and_conditions
-        //     && vehicleSpecifications === item.details.vehicle_specifications
-        //     && vehicleFeatures === item.details.vehicle_addons
-        //     && attachedFilesUrls.length <= 0
-        //     && uploadedFiles.toString() === [...item.images, ...item.videos].toString()
-        //     && filesToDelete.length <= 0
-        //     && discountPer === item.discount?.percentage && discountNights === item.discount?.num_of_days_for_discount
-        //     && JSON.stringify(tempContacts) === JSON.stringify(tempItemContacts) || (tempContacts.length <= 0 && (item.contacts === null || item.contacts === undefined))
-        // ) {
-        //     setError('لم يتم تعديل أي بيانات');
-        //     setSuccess(false);
-        //     return;
-        // }
+        if(!isSomethingChanged()){
+            setError('لا يوجد تغيير لتعديل الوحدة');
+            setSuccess(false);
+            return;
+        }
 
         let attahcedFilesError = false;
         let errorEncountered = false;
         let newItem = null;
 
-        if(!isValidText(itemTitle) || !isValidText(itemTitle)){
+        if((itemTitle && !isValidText(itemTitle)) || (itemTitleEN && !isValidText(itemTitleEN))){
             setItemTitle('-1');
             errorEncountered = true;
         }
 
-        if(!isValidText(itemDesc) || !isValidText(itemDesc)){
+        if((itemDesc && !isValidText(itemDesc)) || (itemDescEN && !isValidText(itemDescEN))){
             setItemDesc('-1');
             errorEncountered = true;
         }
@@ -219,6 +313,15 @@ const Page = () => {
         if(!isValidNumber(itemPrice)){
             setItemPrice(-1);
             errorEncountered = true;
+        }
+
+        if(errorEncountered === true){
+            window.scrollTo({
+                top: 320, behavior: 'smooth'
+            });
+            setError('هنالك خطأ في أحد الحقول.');
+            setSuccess(false);
+            return;
         }
 
         if(!contacts || !contacts?.length > 0){
@@ -243,12 +346,52 @@ const Page = () => {
             errorEncountered = true;
         }
 
+        if(typeof requireInsurance !== 'boolean') errorEncountered = true;
+
+        if(cancellation && cancellationsArray().indexOf(cancellation) === -1) { setCancellation(-1); errorEncountered = true; }
+        
+        if(capacity && !isValidNumber(capacity)) { setCapacity(-1); errorEncountered = true; }
+
+        if(customerType && !customersTypesArray().includes(customerType)) { setCustomerType('-1'); errorEncountered = true; }
+        
         if(errorEncountered === true){
-            if(!contactsError?.length > 0)
-                window.scrollTo({
-                    top: 320, behavior: 'smooth'
+            setError('هنالك خطأ في أحد الحقول.' + contactsError);
+            setSuccess(false);
+            return;
+        }
+
+        const testAllDetails = () => {
+
+            const testValidDetailArray = (dtlsArray) => {
+                if(!dtlsArray) return false;
+                if(dtlsArray.length <= 0) return true;
+                dtlsArray.forEach(element => {
+                    if(!isValidText(element)) return false; 
                 });
-            setError('أكمل الحقول الفارغة.');
+                return true;
+            }
+
+            let errMsg = '';
+            
+            if(!testValidDetailArray(guestRoomsDetailArray)) return errMsg += ', ' + 'خطأ في تفصيلة غرف الضيوف';
+            if(!testValidDetailArray(guestRoomsDetailArrayEN)) return errMsg += ', ' + 'خطأ في تفصيلة غرف الضيوف بالانجليزي';
+            if(!testValidDetailArray(nearPlaces)) return errMsg += ', ' + 'خطأ في تفصيلة الأماكن القريبة';
+            if(!testValidDetailArray(nearPlacesEN)) return errMsg += ', ' + 'خطأ في تفصيلة الأماكن القريبة بالانجليزي';
+            if(!testValidDetailArray(conditionsAndTerms)) return errMsg += ', ' + 'خطأ في تفصيلة الشروط و الأحكام';
+            if(!testValidDetailArray(conditionsAndTermsEN)) return errMsg += ', ' + 'خطأ في تفصيلة الشروط و الأحكام بالانجليزي';
+            if(!testValidDetailArray(vehicleSpecifications)) return errMsg += ', ' + 'خطأ في تفصيلة مواصفات السيارة';
+            if(!testValidDetailArray(vehicleSpecificationsEN)) return errMsg += ', ' + 'خطأ في تفصيلة مواصفات السيارة بالانجليزي';
+            if(!testValidDetailArray(vehicleFeatures)) return errMsg += ', ' + 'خطأ في تفصيلة مميزات السيارة';
+            if(!testValidDetailArray(vehicleFeaturesEN)) return errMsg += ', ' + 'خطأ في تفصيلة مميزات السيارة بالانجليزي';
+
+            return errMsg;
+
+        }
+
+        if(testAllDetails()?.length > 0) errorEncountered = true;
+
+        if(errorEncountered === true){
+            setError(testAllDetails());
             setSuccess(false);
             return;
         }
@@ -284,65 +427,68 @@ const Page = () => {
             };
 
             const xDetails = item.type_is_vehicle ? {
-                insurance:  requireInsurance,
                 vehicle_specifications: vehicleSpecifications,
-                vehicle_addons: vehicleFeatures
+                vehicle_addons: vehicleFeatures,
+                near_places: nearPlaces
             } : {
                 insurance:  requireInsurance, 
-                guest_rooms: guestRoomsDetailArray, 
-                // facilities: companionsDetailArray, 
-                // bathrooms: bathroomsDetailArray, 
-                // kitchen: kitchenDetailArray, 
-                // rooms: roomsDetailArray 
+                guest_rooms: guestRoomsDetailArray,
+                bathrooms: { num: bathroomsNum, companians: bathroomsDetailArray},
+                kitchen: { companians: kitchenDetailArray },   
+                rooms: { num: roomObj?.num, single_beds: roomObj?.single_beds, double_beds: roomObj?.double_beds },
+                near_places: nearPlaces,
+                pool: { num: poolNum, companians: poolsDetailArray },
+                facilities: companionsDetailArray, 
             };
+
+            const getEnObj = () => {
+
+                let enObj = {
+                    english_details: []
+                };
+    
+                const getEnglishBaseArray = () => {
+                    if(item.type_is_vehicle){
+                        return [vehiclesDetails[0], vehiclesDetails[1]];
+                    } else {
+                        return [...details]
+                    }
+                }
+    
+                getEnglishBaseArray().forEach(element => {
+                    if(element.detailsEN?.length > 0){
+                        enObj.english_details.push(...element.detailsEN);
+                    }
+                });
+    
+                if(itemTitleEN?.length > 0) enObj.titleEN = itemTitleEN;
+                if(itemDescEN?.length > 0) enObj.descEN = itemDescEN;
+                if(customersTypesArray().includes(customerType)){
+                    let cst = '';
+                    customersTypesArray().forEach((element, index) => {
+                        if(customerType === element){
+                            cst = customersTypesArray(true)[index];
+                        }
+                    });
+                    if(cst?.length > 0) enObj.customerTypeEN = cst;
+                }
+
+                return enObj;
+
+            };
+
+            const enObj = getEnObj();
 
             const token = await getRecaptchaToken();
 
             let res = null;
 
-            // if(
-            //     !item.type_is_vehicle 
-            //     && itemTitle === item.title
-            //     && itemDesc === item.description
-            //     && itemPrice === item.price
-            //     && requireInsurance === item.details.insurance
-            //     && conditionsAndTerms === item.terms_and_conditions
-            //     && guestRoomsDetailArray === item.details.guest_rooms
-            //     && companionsDetailArray === item.details.facilities
-            //     && bathroomsDetailArray === item.details.bathrooms
-            //     && kitchenDetailArray === item.details.kitchen
-            //     && roomsDetailArray === item.details.rooms
-            //     && discountPer === item.discount?.percentage && discountNights === item.discount?.num_of_days_for_discount
-            //     && JSON.stringify(tempContacts) === JSON.stringify(tempItemContacts) || (tempContacts.length <= 0 && (item.contacts === null || item.contacts === undefined))
-            // ){
-            //     res = { success: true, dt: { message: 'no details to add' } };
-            // } else if(
-            //     item.type_is_vehicle
-            //     && itemTitle === item.title
-            //     && itemDesc === item.description
-            //     && itemPrice === item.price
-            //     && requireInsurance === item.details.insurance
-            //     && conditionsAndTerms === item.terms_and_conditions
-            //     && vehicleSpecifications === item.details.vehicle_specifications
-            //     && vehicleFeatures === item.details.vehicle_addons
-            //     && discountPer === item.discount?.percentage && discountNights === item.discount?.num_of_days_for_discount
-            //     && JSON.stringify(tempContacts) === JSON.stringify(tempItemContacts) || (tempContacts.length <= 0 && (item.contacts === null || item.contacts === undefined))
-            // ) {
-            //     res = { success: true, dt: { message: 'no details to add' } };
-            // } else {
-            //     res = await editProperty(
-            //         id, itemTitle, itemDesc, itemPrice, xDetails, conditionsAndTerms, 
-            //         tempContacts?.length > 0 ? tempContacts : null, xDiscount(), null,
-            //         token
-            //     );
-            // }
-
-            res = await editProperty(
+            isSomethingChanged() ? res = await editProperty(
                 id, itemTitle, itemDesc, itemPrice, xDetails, conditionsAndTerms, 
                 tempContacts?.length > 0 ? tempContacts : null, xDiscount(), null,
-                token
-            );
-            
+                token, enObj, cancellationsArray().indexOf(cancellation), capacity, customerType
+            ) : res = { success: true, dt: { message: 'no details to add' } };
+
             console.log('res: ', res);    
 
             if(res.success !== true){
@@ -647,12 +793,12 @@ const Page = () => {
             setItemDescEN(item.en_data?.descEN);
             setItemPrice(item.price);
             setUploadedFiles([...item.images, ...item.videos]);
-            setRequireInsurance(item.details.insurance);
+            setRequireInsurance(item.details?.insurance);
             setSelectBookedDays(item.booked_days || []);
             if(item.contacts) setContacts(item.contacts);
             setDiscountNights(item.discount?.num_of_days_for_discount);
             setDiscountPer(item.discount?.percentage);
-            setCancellation(cancellationsArray()[(item.cancellation)]);
+            setCancellation(cancellationsArray()[item.cancellation]);
             setCapacity(item.capacity);
             setCustomerType(item.customer_type);
 
@@ -660,6 +806,10 @@ const Page = () => {
                 setVehicleSpecifications(item.details?.vehicle_specifications);
                 setVehicleFeatures(item.details?.vehicle_addons);
                 setNearPlaces(item.details?.near_places);
+
+                setVehicleSpecificationsEN(getEnglishDetailsArray('vehicle specs', null, true));
+                setVehicleFeaturesEN(getEnglishDetailsArray('vehicle features', null, true));
+                setNearPlacesEN(getEnglishDetailsArray('places', null, true));
             } else {
                 setGuestRoomsDetailArray(item.details?.guest_rooms);
                 setBathroomsDetailArray(item.details?.bathrooms?.companians);
@@ -670,6 +820,10 @@ const Page = () => {
                 setPoolNum(item.details?.pool.num);
                 setPoolsDetailArray(item.details?.pool.companians);
                 setCompanionsDetailArray(item.details?.facilities);
+
+                setGuestRoomsDetailArrayEN(getEnglishDetailsArray('rooms', null, true));
+                setNearPlacesEN(getEnglishDetailsArray('places', null, true));
+                setConditionsAndTermsEN(getEnglishDetailsArray('terms', null, true));
             }
             
             setConditionsAndTerms(item.terms_and_conditions);
@@ -879,19 +1033,21 @@ const Page = () => {
                 <div className='insuranceDetail'>
                     <h3>هل الايجار يتطلب تأمين؟</h3>
                     <input type='radio' name='insurance_group' checked={item.details?.insurance} onChange={() => setRequireInsurance(true)}/><label>نعم</label>
-                    <input checked={item.details?.insurance} type='radio' name='insurance_group' onChange={() => setRequireInsurance(false)}/><label>لا</label>
+                    <input checked={!item.details?.insurance} type='radio' name='insurance_group' onChange={() => setRequireInsurance(false)}/><label>لا</label>
                 </div>
 
                 <div className='detailItem area-div' style={{ display: item.type_is_vehicle ? 'none' : null }}>
                     <h3>حدد امكانية الغاء الحجز</h3>
                     <InfoDiv title={'الغاء الحجز'} divClick={() => setIsCancellation(!isCancellation)} value={cancellation === '' ? 'غير محدد' : cancellation}/>
+                    {cancellation === '-1' && <p id='error2'>خطأ بالفئة</p>}
                     <HeaderPopup type={'customers'} customArray={cancellationsArray()} selectedCustom={cancellation}
                     setSelectedCustom={setCancellation} isCustom={isCancellation} setIsCustom={setIsCancellation}/>
                 </div>
 
                 <div className='detailItem area-div' style={{ display: item.type_is_vehicle ? 'none' : null}}>
                     <h3>اكتب أقصى سعة أو عدد نزلاء متاح بالعقار</h3>
-                    <CustomInputDiv title={capacity > 0 ? `${capacity} نزيل` : ''} max={150000} min={-1} myStyle={{ marginBottom: 0 }} placholderValue={'كم نزيل مسموح بالعقار؟'} type={'number'} isError={capacity === -1} errorText={'الرجاء ادخال عدد من صفر الى 150000'} listener={(e) => {
+                    <CustomInputDiv title={capacity > 0 ? `${capacity} نزيل` : ''} max={150000} min={-1} myStyle={{ marginBottom: 0 }} 
+                    placholderValue={'كم نزيل مسموح بالعقار؟'} type={'number'} isError={capacity === -1} errorText={'الرجاء ادخال عدد من صفر الى 150000'} listener={(e) => {
                         if(Number(e.target.value)) {
                             setCapacity(Number(e.target.value))
                         } else {
@@ -953,6 +1109,7 @@ const Page = () => {
                 <div className='detailItem area-div' style={{ display: item.type_is_vehicle ? 'none' : null}}>
                     <h3>حدد فئة النزلاء المسموحة (اختياري)</h3>
                     <InfoDiv title={'الفئة المسموحة'} divClick={() => setIsCustomerType(!isCustomerType)} value={customerType === '' ? 'غير محدد' : customerType}/>
+                    {customerType === ' -1' && <p id='error2'>خطأ بالفئة</p>}
                     <HeaderPopup type={'customers'} customArray={customersTypesArray()} selectedCustom={customerType}
                     setSelectedCustom={setCustomerType} isCustom={isCustomerType} setIsCustom={setIsCustomerType}/>
                 </div>
@@ -976,7 +1133,7 @@ const Page = () => {
                                         let arr = [...item.array];
                                         arr[myIndex] = e.target.value;
                                         item.setArray(arr);
-                                    }}/> : <CustomInputDivWithEN placholderValue={'أضف تفصيلة بالعربي'} enPlacholderValue={'أضف ترجمة التفصيلة بالانجليزي'}  deletable 
+                                    }}/> : <CustomInputDivWithEN placholderValue={'أضف تفصيلة بالعربي'} deletable 
                                     handleDelete={() => {
                                         let arr = [];
                                         for (let i = 0; i < item.array.length; i++) {
@@ -993,7 +1150,8 @@ const Page = () => {
                                             }
                                         }
                                         item.setDetailsEN(enArr);
-                                    }} 
+                                    }}  isProfileDetails enPlacholderValue={item.detailsEN.find(i => i.arName === obj)?.enName || 'أضف ترجمة التفصيلة بالانجليزي'}
+                                    value={obj}
                                     listener={(e) => {
 
                                         let arr = [...item.array];
@@ -1109,7 +1267,7 @@ const Page = () => {
                 
                 <label id='success' style={{ padding: !success && 0, margin: !success && 0 }}>{success && 'تم التعديل بنجاح'}</label>
                 
-                <button onClick={handleSubmit}>{loading ? 'جاري التعديل ...' : 'تعديل'}</button>
+                <button className='submit-btn' onClick={handleSubmit}>{loading ? <LoadingCircle /> : 'تعديل'}</button>
                 
             </div>
 

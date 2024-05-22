@@ -6,11 +6,11 @@ import Card from "./Card";
 import MySkeleton from "./MySkeleton";
 import NotFound from "./NotFound";
 import { Context } from "@utils/Context";
-import { getLocation, getProperties } from "@utils/api";
+import { getLocation, getOwnerProperties, getProperties } from "@utils/api";
 import PagesHandler from "./PagesHandler";
 import { isOkayBookDays } from '@utils/Logic';
 
-const PropertiesArray = ({ type, catagoryParam, isEnglish, cardsPerPage }) => {
+const PropertiesArray = ({ type, userId, catagoryParam, isEnglish, cardsPerPage }) => {
 
     const [runOnce, setRunOnce] = useState(false);
     const [fetching, setFetching] = useState(false);
@@ -51,37 +51,47 @@ const PropertiesArray = ({ type, catagoryParam, isEnglish, cardsPerPage }) => {
                 addressLong = loc.long;
                 addressLat = loc.lat;
             };
+
+            const getRes = () => {
+                switch(type){
+                    case 'vehicles':
+                        return getProperties(
+                            city.value, true, 'transports', rangeValue,
+                            ratingScore, searchText, arrangeValue, addressLong, addressLat, skipCount,
+                            quickFilter,
+                            neighbourSearchText,
+                            unitCode,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null, null, vehicleType, cardsPerPage
+                        );
+                    case 'owner':
+                        return getOwnerProperties(userId, skipCount, cardsPerPage);  
+                    default:
+                        return getProperties(
+                            city.value, false, catagory, rangeValue,
+                            ratingScore, searchText, arrangeValue, addressLong, addressLat, skipCount,
+                            quickFilter,
+                            neighbourSearchText,
+                            unitCode,
+                            bedroomFilter,
+                            capacityFilter,
+                            poolFilter,
+                            customersTypesFilter,
+                            companiansFilter,
+                            bathroomsFilterNum,
+                            bathroomsCompaniansFilter,
+                            kitchenFilter, categoryArray, null, cardsPerPage
+                        );
+                }
+            }
             
-            const res = type === 'vehicles' ? 
-                await getProperties(
-                    city.value, true, 'transports', rangeValue,
-                    ratingScore, searchText, arrangeValue, addressLong, addressLat, skipCount,
-                    quickFilter,
-                    neighbourSearchText,
-                    unitCode,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null, null, vehicleType, cardsPerPage
-                ) : await getProperties(
-                    city.value, false, catagory, rangeValue,
-                    ratingScore, searchText, arrangeValue, addressLong, addressLat, skipCount,
-                    quickFilter,
-                    neighbourSearchText,
-                    unitCode,
-                    bedroomFilter,
-                    capacityFilter,
-                    poolFilter,
-                    customersTypesFilter,
-                    companiansFilter,
-                    bathroomsFilterNum,
-                    bathroomsCompaniansFilter,
-                    kitchenFilter, categoryArray, null, cardsPerPage
-                );
+            const res = await getRes();
 
             if(res.success !== true || !res.dt?.length > 0) {
                 setProperitiesArray([]);

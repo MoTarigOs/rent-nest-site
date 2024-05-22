@@ -847,6 +847,10 @@
         z-index: 1;
     }
 
+    .submit-btn{
+        max-height: 64px;
+    }
+
     .chngpassbtn{
         svg{
             transform: rotate(180deg) translateY(-2px);
