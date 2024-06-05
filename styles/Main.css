@@ -4,10 +4,6 @@
     box-sizing: border-box;
 }
 
-input, textarea, select, button{
-    font-family: sans-serif;
-}
-
 :root{
     --backgroundMainColor: white;
     --white: white;

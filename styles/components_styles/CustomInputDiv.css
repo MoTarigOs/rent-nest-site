@@ -9,6 +9,7 @@
         outline: none;
         border: 2px solid var(--secondColor);
         background: transparent;
+        font-family: inherit;
     }
 
     textarea{
@@ -19,6 +20,7 @@
         border: 2px solid var(--secondColor);
         background: transparent;
         resize: vertical;
+        font-family: inherit;
     }
 
     span{

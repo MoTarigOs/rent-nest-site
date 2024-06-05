@@ -1416,7 +1416,7 @@ const page = () => {
                                     item.setArray([...item.array, '']);
                                     if(item.isWithEN) item.setDetailsEN([...item.detailsEN, { enName: '', arName: '' }]);
                                 }
-                            }>{'أضف تفصيلة'}</button>
+                            } className={arabicFont}>{'أضف تفصيلة'}</button>
                         </div> : <div className='detailItem area-div dtl-sels-div disable-text-copy' onClick={() => {
                             if(!item.isShow) {
                                 item.setIsShow(true);
@@ -1434,7 +1434,7 @@ const page = () => {
                             <h3>{item.name}</h3>
 
                             {item.isNum && (item.array?.length > 0 ? item.array?.map((obj) => (
-                                <p className='dtl-array-p'>{getNames('one', false, false, item.idName)} {obj?.room_type} {obj?.capacity ? 'بسعة ' + obj?.capacity + ' شخص' : ''} {obj?.dim ? 'بعرض ' + obj?.dim?.y + ' متر و بطول ' + obj?.dim?.x + ' متر ' : ''} {obj?.single_beds ? ', ' + obj?.single_beds + 'سرير مفرد ' : ''} {obj?.double_beds ? ', ' + obj?.double_beds + 'سرير ماستر ' : ''} {obj?.depth ? ', و بعمق ' + obj?.depth + ' متر ' : ''}</p>
+                                <p className='dtl-array-p'>{getNames('one', false, false, item.idName)} {obj?.room_type} {obj?.capacity ? 'بسعة ' + obj?.capacity + ' شخص' : ''} {obj?.dim ? 'بعرض ' + obj?.dim?.y + ' متر و بطول ' + obj?.dim?.x + ' متر ' : ''} {obj?.single_beds ? ', ' + obj?.single_beds + ' سرير مفرد ' : ''} {obj?.double_beds ? ', ' + obj?.double_beds + ' سرير ماستر ' : ''} {obj?.depth ? ', و بعمق ' + obj?.depth + ' متر ' : ''}</p>
                             )) : <p className='dtl-array-p'>لم يتم اضافة {getNames('one', false, false, item.idName)} بعد</p>)}
 
                             {(item.idName !== 'rooms' && item.idName !== 'guest_rooms') && <InfoDiv 
