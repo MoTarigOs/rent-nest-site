@@ -100,7 +100,7 @@ const AddDetailsPopup = ({
 
                 {array.map((item, index) => (
                     <div className='room-dtl'>
-                        <h4>{getNames('one', false, isEnglish, type)} {index + 1} <Svgs name={'delete'} on_click={() => popFromArray(index)}/></h4>
+                        <h4 style={{ width: '100%' }}>{getNames('one', false, isEnglish, type)} {index + 1} <Svgs name={'delete'} on_click={() => popFromArray(index)}/></h4>
                         {sections?.includes('capacity') && <CustomInputDiv min={0} type={'number'} myStyle={{ marginBottom: 16 }} title={'السعة (عدد الأشخاص)'} placholderValue={'السعة أو عدد الأشخاص'} value={item?.capacity} listener={(e) => editArray(index, e, 'capacity')}/>}
                         {type === 'rooms' && <CustomInputDiv min={0} type={'number'} myStyle={{ marginBottom: 16 }} title={'عدد الأسرّة المفردة'} placholderValue={'عدد الأسرّة المفردة'} value={item?.single_beds} listener={(e) => editArray(index, e, 'singleBeds')}/>}
                         {type === 'rooms' && <CustomInputDiv min={0} type={'number'} myStyle={{ marginBottom: 16 }} title={'عدد الأسرّة الماستر'} placholderValue={'عدد الأسرّة الماستر'} value={item?.double_beds} listener={(e) => editArray(index, e, 'doubleBeds')}/>}
@@ -110,7 +110,7 @@ const AddDetailsPopup = ({
                             customArray={roomTypesArray(isEnglish)} selectedCustom={item?.room_type}
                             isNotSearchBar setSelectedCustom={(choosen) => editArray(index, choosen, 'roomType')} isCustom/>
                         </div>}
-                        {sections?.includes('dim') && <div className='dimensionDiv'>
+                        {sections?.includes('dim') && <div className='dimensionDiv' style={{ width: '100%' }}>
                             <CustomInputDiv title={'طول ' + getNames('one', true, isEnglish, type)} 
                             listener={(e) => editArray(index, e, 'dimensionX')} type={'number'} 
                             min={0} max={100000} value={item.dim?.x} placholderValue={'حدد الطول'}
