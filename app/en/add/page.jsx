@@ -8,7 +8,7 @@ import GoogleMapImage from '@assets/images/google-map-image.jpg';
 import VehicleImage from '@assets/images/sedan-car.png';
 import PropertyImage from '@assets/images/property.png';
 import PropertyWhiteImage from '@assets/images/property-white.png';
-import { CustomerTypesArray, JordanCities, ProperitiesCatagories, VehicleCatagories, VehiclesTypes, cancellationsArray, contactsPlatforms, getContactPlaceHolder, isInsideJordan } from '@utils/Data';
+import { CustomerTypesArray, JordanCities, ProperitiesCatagories, VehicleCatagories, VehiclesTypes, cancellationsArray, contactsPlatforms, currencyCode, getContactPlaceHolder, isInsideJordan, reservationType } from '@utils/Data';
 import CustomInputDiv from '@components/CustomInputDiv';
 import { createProperty, uploadFiles } from '@utils/api';
 import HeaderPopup from '@components/popups/HeaderPopup';
@@ -22,6 +22,8 @@ import { bathroomFacilities, customersTypesArray, facilities, kitchenFacilities,
 import InfoDiv from '@components/InfoDiv';
 import CustomInputDivWithEN from '@components/CustomInputDivWithEN';
 import LoadingGif from '@components/LoadingCircle';
+import LoadingCircle from '@components/LoadingCircle';
+import { getUserLocation } from '@utils/ServerComponents';
 
 const page = () => {
 
@@ -29,7 +31,8 @@ const page = () => {
         userId, setIsMap, setMapType,
         latitude, setLatitude, storageKey,
         longitude, setLongitude, userEmail,
-        loadingUserInfo, isVerified
+        loadingUserInfo, isVerified,
+        userAccountType
     } = useContext(Context);
 
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/mp4', 'video/avi'];
@@ -43,6 +46,9 @@ const page = () => {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [mapUsed, setMapUsed] = useState(false);
+
+    const [expandPrices, setExpandPrices] = useState(false);
+    const [pricesError, setPricesError] = useState([]);
 
     const [customerType, setCustomerType] = useState('');
     const [isCustomerType, setIsCustomerType] = useState(false);
@@ -59,10 +65,16 @@ const page = () => {
     const [itemNeighbour, setItemNeighbour] = useState('');
     const [itemNeighbourEN, setItemNeighbourEN] = useState('');
     const [itemPrice, setItemPrice] = useState(0);
+    const [itemPrices, setItemPrices] = useState(null);
     const [requireInsurance, setRequireInsurance] = useState(false);
     const [attachedFilesUrls, setAttachedFilesUrls] = useState([]);
     const [itemLong, setItemLong] = useState(null);
     const [itemLat, setItemLat] = useState(null);
+
+    const [locObj, setLocObj] = useState(null);
+    const [fetchingLocation, setFetchingLocation] = useState(false);
+    const [isUserLoc, setIsUserLoc] = useState('');
+    const [isManualLocSet, setIsManualLocSet] = useState(false);
 
     const [contacts, setContacts] = useState([]);
     const [contactsError, setContactsError] = useState('');
@@ -140,6 +152,88 @@ const page = () => {
         }
     };
 
+    const isValidPrices = () => {
+
+        let priceErrorEncountered = false;
+        let atLeastOneIsExit = false;
+
+        if(itemPrices?.daily && !isValidNumber(itemPrices?.daily)){
+            const obj = itemPrices;
+            if(obj) obj.daily = undefined;
+            setItemPrices(obj);
+            let arr = pricesError;
+            arr.push('daily');
+            setPricesError(arr);
+            priceErrorEncountered = true;
+        } else {
+            if(itemPrices?.daily > 0) atLeastOneIsExit = true;
+            setPricesError(pricesError.filter(i => i === 'daily'));
+        };
+
+        if(itemPrices?.weekly && !isValidNumber(itemPrices?.weekly)){
+            const obj = itemPrices;
+            if(obj) obj.weekly = undefined;
+            setItemPrices(obj);
+            let arr = pricesError;
+            arr.push('weekly');
+            setPricesError(arr);
+            priceErrorEncountered = true;
+        } else {
+            if(itemPrices?.weekly > 0) atLeastOneIsExit = true;
+            setPricesError(pricesError.filter(i => i === 'weekly'));
+        };
+
+        if(itemPrices?.monthly && !isValidNumber(itemPrices?.monthly)){
+            const obj = itemPrices;
+            if(obj) obj.monthly = undefined;
+            setItemPrices(obj);
+            let arr = pricesError;
+            arr.push('monthly');
+            setPricesError(arr);
+            priceErrorEncountered = true;
+        } else {
+            if(itemPrices?.monthly > 0) atLeastOneIsExit = true;
+            setPricesError(pricesError.filter(i => i === 'monthly'));
+        };
+
+        if(itemPrices?.seasonly && !isValidNumber(itemPrices?.seasonly)){
+            const obj = itemPrices;
+            if(obj) obj.seasonly = undefined;
+            setItemPrices(obj);
+            let arr = pricesError;
+            arr.push('seasonly');
+            setPricesError(arr);
+            priceErrorEncountered = true;
+        } else {
+            if(itemPrices?.seasonly > 0) atLeastOneIsExit = true;
+            setPricesError(pricesError.filter(i => i === 'seasonly'));
+        };
+
+        if(itemPrices?.yearly && !isValidNumber(itemPrices?.yearly)){
+            const obj = itemPrices;
+            if(obj) obj.yearly = undefined;
+            setItemPrices(obj);
+            let arr = pricesError;
+          
+            arr.push('yearly');
+            setPricesError(arr);
+            priceErrorEncountered = true;
+        } else {
+            if(itemPrices?.yearly > 0) atLeastOneIsExit = true;
+            setPricesError(pricesError.filter(i => i === 'yearly'));
+        };
+
+        if(priceErrorEncountered) return false;
+        if(!atLeastOneIsExit) {
+            let arr = pricesError;
+            arr.push('daily');
+            setPricesError(arr);
+            return false;
+        }
+        return true;
+
+    };
+
     const handleSubmit = async() => {
 
         if(selectedCatagories !== '0' && selectedCatagories !== '1') return;
@@ -156,12 +250,12 @@ const page = () => {
             errorEncountered = true;
         }
 
-        if(!isValidText(itemTitle, null) || !isValidText(itemTitleEN)){
+        if(!isValidText(itemTitle) || (itemTitleEN && !isValidText(itemTitleEN))){
             setItemTitle('-1');
             errorEncountered = true;
         }
 
-        if(!isValidText(itemDesc) || !isValidText(itemDescEN)){
+        if(!isValidText(itemDesc) || (itemDescEN && !isValidText(itemDescEN))){
             setItemDesc('-1');
             errorEncountered = true;
         }
@@ -195,11 +289,8 @@ const page = () => {
             setItemNeighbourEN('');
         }
         
-        if(!itemPrice || typeof itemPrice !== 'number' || itemPrice <= 0 || itemPrice > 10000000000000){
-            setItemPrice(-1);
-            errorEncountered = true;
-        }
-
+        if(!isValidPrices()) errorEncountered = true;
+        
         if(itemLong || itemLat){
             if(!isInsideJordan(itemLong, itemLat)){
                 setError('Error in location data, please specify a valid location on the map');
@@ -341,7 +432,8 @@ const page = () => {
                 xDetails, conditionsAndTerms, area > 0 ? area : null,
                 tempContacts?.length > 0 ? tempContacts : null, true, token, 
                 capacity, customersTypesArray()[customersTypesArray(true)?.indexOf(customerType)], enObj, cancellationsArray(true).indexOf(cancellation), 
-                VehiclesTypes.find(i => i.value === vehicleType)?.id);
+                VehiclesTypes.find(i => i.value === vehicleType)?.id,
+                itemPrices);
 
             if(res.success !== true){
                 setError(res.dt);
@@ -375,15 +467,107 @@ const page = () => {
 
     };
 
-    const showMap = () => {
-        setIsMap(true);            
-        if(mapUsed === false || !itemLong || !itemLat || !JordanCities || JordanCities.length <= 0){
-            const obj = JordanCities.find(i => i.city_id === itemCity?.city_id);
-            setLatitude(obj?.lat ? obj.lat : null);
-            setLongitude(obj?.long ? obj.long : null);
-        }
+    const getPriceValue = (reservationType) => {
+        switch(reservationType){
+            case 'Daily':
+              return itemPrices?.daily;
+            case 'Weekly':
+              return itemPrices?.weekly;
+            case 'Monthly':
+              return itemPrices?.monthly;
+            case 'Seasonly':
+              return itemPrices?.seasonly;
+            case 'Yearly':
+              return itemPrices?.yearly;
+            default:
+                return null;
+        };
+    };
+
+    const handlePriceChange = (e, reservationType) => {
+        switch(reservationType){
+            case 'Daily':
+                return setItemPrices({
+                    daily: Number(e.target.value),
+                    weekly: itemPrices?.weekly,
+                    monthly: itemPrices?.monthly,
+                    seasonly: itemPrices?.seasonly,
+                    yearly: itemPrices?.yearly,
+                });
+            case 'Weekly':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: Number(e.target.value),
+                    monthly: itemPrices?.monthly,
+                    seasonly: itemPrices?.seasonly,
+                    yearly: itemPrices?.yearly,
+                });
+            case 'Monthly':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: itemPrices?.weekly,
+                    monthly: Number(e.target.value),
+                    seasonly: itemPrices?.seasonly,
+                    yearly: itemPrices?.yearly,
+                });
+            case 'Seasonly':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: itemPrices?.weekly,
+                    monthly: itemPrices?.monthly,
+                    seasonly: Number(e.target.value),
+                    yearly: itemPrices?.yearly,
+                });
+            case 'Yearly':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: itemPrices?.weekly,
+                    monthly: itemPrices?.monthly,
+                    seasonly: itemPrices?.seasonly,
+                    yearly: Number(e.target.value),
+                });
+        };
+    };
+
+    const showMap = () => {      
         setMapUsed(true);
         setMapType('select-point');
+        setIsMap(true);
+    };
+
+    const setAutomaticLocation = async() => {
+
+        try {
+
+            setIsManualLocSet(false);
+            setFetchingLocation(true);
+            setIsUserLoc('');
+
+            navigator.geolocation.getCurrentPosition((geoPos) => {
+                setLocObj({
+                    lat: geoPos?.coords?.latitude,
+                    long: geoPos?.coords?.longitude,
+                    // ...reverseGeoCode(geoPos?.coords?.latitude, geoPos?.coords?.longitude)
+                });
+                setLatitude(geoPos?.coords?.latitude);
+                setLongitude(geoPos?.coords?.longitude);
+                setIsUserLoc('true');
+                setIsManualLocSet(true);
+                setFetchingLocation(false);
+            }, async() => {
+                const res = await getUserLocation();
+                console.log(res);
+                if(res.ok !== true) return setFetchingLocation(false);
+                setLocObj(res);
+                setFetchingLocation(false);
+            });
+            
+        } catch (err) {
+            console.log(err);
+            setLocObj(null);
+            setFetchingLocation(false);
+        }
+        
     };
 
     useEffect(() => {
@@ -409,9 +593,9 @@ const page = () => {
         return <span id='righticonspan'/>
     }
 
-    if(!userId?.length > 0 || !isVerified){
+    if(!userId?.length > 0 || !isVerified || userAccountType !== 'host'){
         return (
-            fetching ? <MySkeleton isMobileHeader={true}/> : <NotFound type={'not allowed'} isEnglish/>
+            fetching ? <MySkeleton isMobileHeader={true}/> : <NotFound navToVerify={!isVerified} type={'not allowed'} isEnglish/>
         )
     }
 
@@ -463,15 +647,75 @@ const page = () => {
                 <CustomInputDivWithEN title={'Neighborhood'} listener={(e) => setItemNeighbour(e.target.value)} placholderValue={'Neighborhood in Arabic'} enPlacholderValue={'Neighborhood in English'} enListener={(e) => setItemNeighbourEN(e.target.value)} type={'text'} isEnglish/>
             </div>
 
-            <div className='googleMapDiv' onClick={showMap}>
-                <span>Locate using map</span>
-                <Image src={GoogleMapImage}/>
+            <div className='location-div disable-text-copy'>
+                
+                <h3>Determine the geographical location of the property</h3>
+                
+                <button className='editDiv' onClick={setAutomaticLocation}>{fetchingLocation ? <LoadingCircle isLightBg/> : 'Automatic Location'}</button>
+
+                {locObj && <div className='automatic-location'>
+                    {locObj?.city && 
+                    <><h4>Is the location of the property in {locObj?.city}, {locObj?.principalSubdivision}, {locObj?.locality} city?</h4>
+                    <button style={isUserLoc?.length > 0 ? {
+                        background: 'white', color: 'black', fontWeight: 400,
+                        cursor: 'default'
+                    } : undefined} className='btnbackscndclr' onClick={() => { 
+                        setLatitude(locObj?.lat);
+                        setLongitude(locObj?.long);
+                        setIsUserLoc('true'); 
+                        setIsManualLocSet(true); 
+                    }}>Yes</button>
+                    <button style={isUserLoc?.length > 0 ? {
+                        background: 'white', color: 'black', fontWeight: 400,
+                        cursor: 'default'
+                    } : undefined} className='btnbackscndclr' onClick={() => { 
+                        if(isUserLoc?.length > 0) return;
+                        setIsUserLoc('false');
+                        setIsManualLocSet(true);
+                        setLatitude(itemCity?.lat || JordanCities[0]?.lat);
+                        setLongitude(itemCity?.long || JordanCities[0]?.long);
+                    }}>No</button></>}
+                    <p style={isUserLoc === '' ? { display: 'none', margin: 0 } : undefined}>{isUserLoc === 'false' ? 'Please stop the VPN if you are using it and try again, or specify the location manually.' : (isUserLoc === 'true' ? 'Verify the location using the map' : '')}</p>
+                </div>}
+
+                <button style={{ margin: '24px 0' }} onClick={() => {
+                    if(isUserLoc !== 'true'){
+                        setLatitude(itemCity?.lat || JordanCities[0]?.lat);
+                        setLongitude(itemCity?.long || JordanCities[0]?.long);
+                    };             
+                    setIsManualLocSet(true); 
+                    setIsUserLoc(''); 
+                    setLocObj(null);
+                }} className='editDiv'>Manual Location</button>
+
+                {isManualLocSet && <div className='googleMapDiv' onClick={showMap}>
+                    <span>{isUserLoc === 'true' ? 'Check the site and modify it.' : 'Locate using map'}</span>
+                    <Image src={GoogleMapImage}/>
+                </div>}
+
             </div>
 
-            <div className='priceDiv'>
-                <CustomInputDiv isError={itemPrice === -1 && true} errorText={'Set a price per night'} title={'Price in dollar'} listener={(e) => setItemPrice(Number(e.target.value))} type={'number'}/>
-                <strong>/</strong>
-                <h4>Night</h4>
+            <div className='prices'>
+                
+                <h3>Price </h3>
+
+                <p>Set a price for each booking period {'(Daily, weekly, monthly, seasonly and yearly)'}</p>
+
+                {(expandPrices ? reservationType() : [reservationType()[0]]).map((item) => (
+                    <div className='priceDiv' style={{ marginBottom: 16 }}>
+                        <CustomInputDiv isError={pricesError.includes(item.enName?.toLowerCase())} 
+                        errorText={'Set a price for the ' + item.oneEn} 
+                        title={`Price in ${currencyCode(true, true)}`} 
+                        listener={(e) => handlePriceChange(e, item.enName)} 
+                        min={0} value={getPriceValue(item.enName)}
+                        type={'number'} myStyle={{ marginBottom: 16 }}/>
+                        <strong>/</strong>
+                        <h4>{item.oneEn}</h4>
+                    </div>
+                ))}
+
+                <button className='editDiv' onClick={() => setExpandPrices(!expandPrices)}>{expandPrices ? 'Less' : 'Expand'}</button>
+
             </div>
 
             <div className='attachFiles' ref={attachImagesDivRef}>
@@ -494,12 +738,16 @@ const page = () => {
                     >{attachedFilesUrls.length > 0 ? 'Add More' : `Choose photos and videos for ${selectedCatagories === '0' ? 'The Vehicle' : 'The Property'}`}<p>(File type must be PNG, JPG, MP4, or AVI)</p></li>
                 </ul>
 
-                <input ref={inputFilesRef} accept='.png, .jpg, .mp4, .avi' type='file' onChange={(e) => {
-                    const file = e.target.files[0];
-                    console.log(file);
-                    if(file && allowedMimeTypes.includes(file.type)){
-                        setAttachedFilesUrls([...attachedFilesUrls, file])
+                <input ref={inputFilesRef} multiple accept='.png, .jpg, .mp4, .avi' type='file' onChange={(e) => {
+                    const files = e.target.files;
+                    let arr = [];
+                    for (let i = 0; i < files.length; i++) {
+                        if(files[i] && allowedMimeTypes.includes(files[i].type) 
+                        && !attachedFilesUrls.find(f => f.name === files[i].name)){
+                            arr.push(files[i]);
+                        }
                     }
+                    setAttachedFilesUrls([...attachedFilesUrls, ...arr]);
                 }}/>
 
             </div>

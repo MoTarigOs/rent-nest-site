@@ -1221,13 +1221,22 @@
 
         .nightsDiv{
             width: 100%;
+            cursor: pointer;
+            position: relative;
             margin-bottom: 24px;
             border-bottom: 2px solid rgba(0, 0, 0, 0.147);
+
+            #res-type{
+                font-size: 1rem;
+                color: rgb(88, 88, 88);
+                font-weight: 400;
+                margin-bottom: 8px;
+            }
 
             h3{
                 font-weight: 500;
                 font-size: 1.2rem;
-                margin-bottom: 16px;
+                margin-bottom: 4px;
                 display: flex;
                 align-items: center;
 
@@ -1237,6 +1246,16 @@
                     margin: 0 8px;
                     font-size: 0.9rem;
                 }
+            }
+
+            .cityPopup{
+                top: 110%;
+                left: 0;
+                right: unset;
+                width: 100%;
+                height: fit-content;
+                max-height: 320px;
+                z-index: 2;
             }
         }
 
@@ -1401,6 +1420,7 @@
         top: 0;
         left: calc(50% - 50vw);
         z-index: 1;
+        background: rgba(0, 0, 0, 0.159);
     }
 
     #unactive-btn{

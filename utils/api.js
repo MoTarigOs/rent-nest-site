@@ -12,15 +12,35 @@ export const getLocation = async() => {
 
     try {
 
-        const url = 'https://api.bigdatacloud.net/data/reverse-geocode-client';
+        // const url = 'https://api.bigdatacloud.net/data/reverse-geocode-client';
+
+        // if(res){
+        //     return { 
+        //         ok: true, 
+        //         long: res.longitude, 
+        //         lat: res.latitude, 
+        //         city: res.city,
+        //         principalSubdivision: res.principalSubdivision,
+        //         locality: res.locality 
+        //     };
+        // }
+        
+        const url = 'https://freeipapi.com/api/json';
 
         const res = await axios.get(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
 
-        if(res && res.latitude && res.longitude){
-            return { long: res.longitude, lat: res.latitude };
+        if(res){
+            return { 
+                ok: true, 
+                long: res.longitude, 
+                lat: res.latitude, 
+                city: res.cityName,
+                principalSubdivision: '',
+                locality: res.regionName
+            };
         }
 
-        return { long: null, lat: null };
+        return { long: null, lat: null, ok: false };
         
     } catch (err) {
         console.log(err.message);
@@ -37,7 +57,10 @@ export const getUserInfo = async(
     setUserEmail, setIsVerified, setUserAddress,
     setUserPhone, setBooksIds, setFavouritesIds,
     setLoading, setStorageKey, setUserAddressEN, 
-    setUserUsernameEN, setNotifications
+    setUserUsernameEN, setNotifications,
+    setUserLastName, setUserFirstName,
+    setUserAccountType, setUserFirstNameEN,
+    setUserLastNameEN
 ) => {
 
     try {
@@ -49,7 +72,6 @@ export const getUserInfo = async(
         }
         if(res.data.user_id) setUserId(res.data.user_id);
         if(res.data.user_username) setUserUsername(res.data.user_username);
-        if(res.data.user_usernameEN) setUserUsernameEN(res.data.user_usernameEN);
         if(res.data.user_email) setUserEmail(res.data.user_email);
         if(res.data.address) setUserAddress(res.data.address);
         if(res.data.addressEN) setUserAddressEN(res.data.addressEN);
@@ -60,6 +82,11 @@ export const getUserInfo = async(
         if(res.data.my_fav) setFavouritesIds(res.data.my_fav);
         if(res.data.storage_key) setStorageKey(res.data.storage_key);
         if(res.data.notifications) setNotifications(res.data.notifications);
+        if(res.data.firstName) setUserFirstName(res.data.firstName);
+        if(res.data.firstNameEN) setUserFirstNameEN(res.data.firstNameEN);
+        if(res.data.lastName) setUserLastName(res.data.lastName);
+        if(res.data.lastNameEN) setUserLastNameEN(res.data.lastNameEN);
+        if(res.data.accountType) setUserAccountType(res.data.accountType);
         setLoading(false);
         return { success: true, dt: res.data };
     } catch (err) {
@@ -69,15 +96,20 @@ export const getUserInfo = async(
 
 };
 
-export const register = async(username, email, password, isEnglish, token) => {
+export const register = async(
+    username, email, password, isEnglish, token,
+    firstName, lastName, accountType, phone, address) => {
 
     try {
 
         const url = `${baseUrl}/user/register`;
 
         const body = {
-            username, email, password, gRecaptchaToken: token
+            username, email, password, gRecaptchaToken: token,
+            firstName, lastName, accountType, phone, address
         };
+
+        // return { success: false, dt: JSON.stringify(body) };
 
         const res = await axios.post(url, body, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
         
@@ -89,6 +121,28 @@ export const register = async(username, email, password, isEnglish, token) => {
         
     } catch (err) {
         return { success: false, dt: getErrorText(err.response?.data, isEnglish) };
+    }
+
+};
+
+export const checkUsername = async(username, isEnglish) => {
+
+    try {
+
+        const url = `${baseUrl}/user/check-username/${username}`;
+
+        const res = await axios.get(url, { 
+            withCredentials: true, 'Access-Control-Allow-Credentials': true 
+        });
+
+        if(!res?.status || res.status !== 200) 
+            return { success: false, dt: getErrorText(res.data, isEnglish) };
+        
+        return { success: true, dt: 'success' };
+
+    } catch (err) {
+        console.log(err);
+        return { success: false, dt: getErrorText(err?.response?.data, isEnglish) }
     }
 
 };
@@ -375,7 +429,7 @@ export const createProperty = async(
     type_is_vehicle, specific_catagory, title, description, city, neighbourhood,
     map_coordinates, price, details, terms_and_conditions, area,
     contacts, isEnglish, gRecaptchaToken, capacity, customer_type, 
-    en_data, cancellation, vehicleType
+    en_data, cancellation, vehicleType, prices
 ) => {
 
     try {
@@ -384,9 +438,12 @@ export const createProperty = async(
 
         let body = { 
             type_is_vehicle, specific_catagory, title, description, 
-            city, neighbourhood, map_coordinates, price, details, 
+            city, neighbourhood, map_coordinates, details, 
             terms_and_conditions, area: type_is_vehicle ? null : area, contacts, gRecaptchaToken, vehicleType: !type_is_vehicle ? null : vehicleType,
-            capacity: type_is_vehicle ? null : capacity, customer_type: type_is_vehicle ? null : customer_type, en_data, cancellation
+            capacity: type_is_vehicle ? null : capacity, 
+            customer_type: type_is_vehicle ? null : customer_type, 
+            en_data, cancellation, prices,
+            // price
         };
 
         const res = await axios.post(url, body, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
@@ -421,6 +478,24 @@ export const getHost = async(id) => {
     }
 };
 
+export const askToBeHost = async() => {
+
+    try {
+        
+        const url = `${baseUrl}/user/ask-for-host`;
+
+        const res = await axios.put(url, null, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+
+        if(!res || res.status !== 201) return { ok: false, dt: getErrorText(res.data) };
+
+        return { ok: true, dt: 'success' };
+
+    } catch (err) {
+        console.log(err);
+        return { ok: false, dt: getErrorText(err?.response?.data?.message) };
+    }
+};
+
 export const getPropIdByUnitCode = async(unit_code) => {
 
     try {
@@ -445,7 +520,8 @@ export const editProperty = async(
     propertyId, title, description, price, 
     details, terms_and_conditions, contacts,
     discount, isEnglish, gRecaptchaToken,
-    enObj, cancellation, capacity, customerType
+    enObj, cancellation, capacity, customerType, 
+    prices
 ) => {
 
     try {
@@ -456,7 +532,8 @@ export const editProperty = async(
             title, description, price, 
             details, terms_and_conditions,
             contacts, discount, gRecaptchaToken,
-            enObj, cancellation, capacity, customerType
+            enObj, cancellation, capacity, customerType,
+            prices
         };
 
         const res = await axios.put(url, body, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
@@ -666,12 +743,13 @@ export const getProperties = async(
     kitchenFilter,
     categoryArray,
     vehicleType,
-    cardsPerPage
+    cardsPerPage,
+    isSearchMap
 ) => {
 
     try {
 
-        const url = `${baseUrl}/property?${city?.length > 0 ? 'city=' + city.replaceAll(' ', '-') : ''}${(isType === true) ? '&type_is_vehicle=true' + (vehicleType >= 0 ? '&vehicleType=' + vehicleType : '') : ''}${categoryArray?.length > 0 ? '&categories=' + categoryArray.map(o=>o?.value).join(',') : (specific?.length > 0 ? '&specific=' + specific : '')}${(priceRange?.length > 1 && (priceRange[0] > 0 || priceRange[1] < maximumPrice)) ? '&price_range=' + priceRange.toString() : ''}${minRate > 0 ? '&min_rate=' + minRate : ''}${(searchText?.length > 0 || neighbourSearchText?.length > 0) ? '&text=' + searchText + neighbourSearchText : ''}${sort?.length > 0 ? '&sort=' + sort : ''}${long > 0 ? '&long=' + long : ''}${lat > 0 ? '&lat=' + lat : ''}${(typeof skip === 'number' && skip > 0) ? '&skip=' + skip : ''}${quickFilter?.length > 0 ? '&quickFilter=' + quickFilter.map(o => o.idName).join(",") : ''}${unitCode > 0 ? '&unitCode=' + unitCode : ''}${(bedroomFilter?.num || bedroomFilter?.single_beds || bedroomFilter?.double_beds) ? '&bedroomFilter=' + bedroomFilter?.num + ',' + bedroomFilter?.single_beds + ',' + bedroomFilter?.double_beds : ''}${(capacityFilter?.min >= 0 || capacityFilter?.max > 0) ? '&capacityFilter=' + capacityFilter.min + ',' + capacityFilter.max : ''}${poolFilter?.length > 0 ? '&poolFilter=' + poolFilter.toString() : ''}${customersTypesFilter?.length > 0 ? '&customers=' + customersTypesFilter.toString() : ''}${companiansFilter?.length > 0 ? '&companiansFilter=' + companiansFilter.toString() : ''}${bathroomsFilterNum > 0 ? '&bathroomsNum=' + bathroomsFilterNum : ''}${bathroomsCompaniansFilter?.length > 0 ? '&bathroomFacilities=' + bathroomsCompaniansFilter.toString() : ''}${kitchenFilter?.length > 0 ? '&kitchenFilter=' + kitchenFilter.toString() : ''}${cardsPerPage ? '&cardsPerPage=' + cardsPerPage : ''}`;
+        const url = `${baseUrl}/property?${city?.length > 0 ? 'city=' + city.replaceAll(' ', '-') : ''}${(isType === true) ? '&type_is_vehicle=true' + (vehicleType >= 0 ? '&vehicleType=' + vehicleType : '') : ''}${categoryArray?.length > 0 ? '&categories=' + categoryArray.map(o=>o?.value).join(',') : (specific?.length > 0 ? '&specific=' + specific : '')}${(priceRange?.length > 1 && (priceRange[0] > 0 || priceRange[1] < maximumPrice)) ? '&price_range=' + priceRange.toString() : ''}${minRate > 0 ? '&min_rate=' + minRate : ''}${(searchText?.length > 0 || neighbourSearchText?.length > 0) ? '&text=' + searchText + neighbourSearchText : ''}${sort?.length > 0 ? '&sort=' + sort : ''}${long > 0 ? '&long=' + long : ''}${lat > 0 ? '&lat=' + lat : ''}${(typeof skip === 'number' && skip > 0) ? '&skip=' + skip : ''}${quickFilter?.length > 0 ? '&quickFilter=' + quickFilter.map(o => o.idName).join(",") : ''}${unitCode > 0 ? '&unitCode=' + unitCode : ''}${(bedroomFilter?.num || bedroomFilter?.single_beds || bedroomFilter?.double_beds) ? '&bedroomFilter=' + bedroomFilter?.num + ',' + bedroomFilter?.single_beds + ',' + bedroomFilter?.double_beds : ''}${(capacityFilter?.min >= 0 || capacityFilter?.max > 0) ? '&capacityFilter=' + capacityFilter.min + ',' + capacityFilter.max : ''}${poolFilter?.length > 0 ? '&poolFilter=' + poolFilter.toString() : ''}${customersTypesFilter?.length > 0 ? '&customers=' + customersTypesFilter.toString() : ''}${companiansFilter?.length > 0 ? '&companiansFilter=' + companiansFilter.toString() : ''}${bathroomsFilterNum > 0 ? '&bathroomsNum=' + bathroomsFilterNum : ''}${bathroomsCompaniansFilter?.length > 0 ? '&bathroomFacilities=' + bathroomsCompaniansFilter.toString() : ''}${kitchenFilter?.length > 0 ? '&kitchenFilter=' + kitchenFilter.toString() : ''}${cardsPerPage ? '&cardsPerPage=' + cardsPerPage : ''}${isSearchMap ? '&isSearchMap=' + isSearchMap : ''}`;
 
         console.log('url: ', url);
 
@@ -931,6 +1009,23 @@ export const getUserByEmailAdmin = async(email, isEnglish) => {
     try {
 
         const url = `${baseUrl}/admin/user-by-email/${email}`;
+
+        const res = await axios.get(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+
+        if(!res?.status || res.status !== 200) return { success: false, dt: getErrorText(res?.data?.message ? res.data.messsage : '', isEnglish) }
+    
+        return { success: true, dt: res.data };
+    
+    } catch (err) {
+        return { success: false, dt: err?.response?.data ? getErrorText(err.response.data.message, isEnglish) : getErrorText('', isEnglish)}
+    }
+};
+
+export const getUserByIdAdmin = async(id, isEnglish) => {
+
+    try {
+
+        const url = `${baseUrl}/admin/user-by-id/${id}`;
 
         const res = await axios.get(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
 
@@ -1271,6 +1366,24 @@ export const getStorageSize = async(key, email) => {
 
 };
 
+export const convertToBeHost = async(id) => {
+
+    try {
+        
+        const url = `${baseUrl}/admin/convert-to-host/${id}`;
+
+        const res = await axios.put(url, null, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+
+        if(!res || res.status !== 201) return { ok: false, dt: getErrorText(res.data) };
+
+        return { ok: true, dt: 'success' };
+
+    } catch (err) {
+        console.log(err);
+        return { ok: false, dt: getErrorText(err?.response?.data?.message) };
+    }
+};
+
 // test methods
 export const sendTest = async(key, email) => {
     try {
@@ -1284,4 +1397,4 @@ export const sendTest = async(key, email) => {
     } catch (err) {
         console.log(err.message);
     }
-}
+};

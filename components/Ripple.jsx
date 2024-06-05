@@ -4,75 +4,55 @@ import { useState, useLayoutEffect } from "react";
 import '@styles/components_styles/Ripple.css';
 import PropTypes from "prop-types";
 
-const useDebouncedRippleCleanUp = (rippleCount, duration, cleanUpFunction) => {
-  useLayoutEffect(() => {
-    let bounce = null;
-    if (rippleCount > 0) {
-      clearTimeout(bounce);
 
-      bounce = setTimeout(() => {
-        cleanUpFunction();
-        clearTimeout(bounce);
-      }, duration * 4);
-    }
+const ButtonRipple = ({ children }) => {
 
-    return () => clearTimeout(bounce);
-  }, [rippleCount, duration, cleanUpFunction]);
-};
 
-const Ripple = props => {
-  const { duration, color } = props;
-  const [rippleArray, setRippleArray] = useState([]);
 
-  useDebouncedRippleCleanUp(rippleArray.length, duration, () => {
-    setRippleArray([]);
-  });
+  /*
+    #test-btn{
+                padding: 12px 32px;
+                background: var(--secondColor);
+                color: white;
+                border: none;
+                outline: none; 
+                border-radius: 8px;
+                overflow: hidden;
+                position: relative;
+                
+                .start-ripple{
+                    display: block;
+                    position: absolute;
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50px;
+                    background: rgba(67, 67, 67, 0.756);
+                    animation-name: ripple-effect;
+                    animation-duration: 1s;
+                }
 
-  const addRipple = event => {
-    const rippleContainer = event.currentTarget.getBoundingClientRect();
-    const size =
-      rippleContainer.width > rippleContainer.height
-        ? rippleContainer.width
-        : rippleContainer.height;
-    const x = event.clientX - rippleContainer.x - size / 2;
-    const y = event.clientY - rippleContainer.y - size / 2;
-    const newRipple = {
-      x,
-      y,
-      size
-    };
-
-    setRippleArray([...rippleArray, newRipple]);
-  };
-
+                .stop-ripple{
+                    display: none;
+                  }
+                }
+  */
+  
   return (
-    <div className="ripple" onMouseDown={addRipple}>
-      {rippleArray.length > 0 &&
-        rippleArray.map((ripple, index) => {
-          return (
-            <span
-              key={"span" + index}
-              style={{
-                top: ripple.y,
-                left: ripple.x,
-                width: ripple.size,
-                height: ripple.size,
-              }}
-            />
-          );
-        })}
-    </div>
+
+    <button id='test-btn' ref={testBtnRef} onClick={(e) => {
+      console.log(e);
+      if(!animateRipple) setCoords({ x: e.clientX - testBtnRef?.current?.offsetTop, y: e.clientY - testBtnRef?.current?.offsetTop });
+    }}>
+      Click
+      <span className={animateRipple ? 'start-ripple' : 'stop-ripple'} 
+        style={{ 
+          top: coords.y - 96, 
+          left: coords.x - 16,
+          background: bgColor || 'rgba(67, 67, 67, 0.756)'
+        }}
+      />
+    </button>
   );
 };
 
-Ripple.propTypes = {
-  duration: PropTypes.number,
-  color: PropTypes.string
-};
-
-Ripple.defaultProps = {
-  duration: 850,
-  color: "#fff"
-};
-
-export default Ripple;
+export default ButtonRipple;

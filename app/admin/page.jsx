@@ -14,6 +14,7 @@ import MySkeleton from '@components/MySkeleton';
 import Image from 'next/image';
 import Skeleton from 'react-loading-skeleton';
 import { errorsSection } from '@utils/Data';
+import LoadingCircle from '@components/LoadingCircle';
 
 const page = () => {
 
@@ -441,7 +442,7 @@ const page = () => {
 
                 <CustomInputDiv title={'ادخل بريد المستخدم'} isError={userFindError.length > 0} errorText={userFindError === '-1' ? 'ايميل غير صالح' : ''} value={userFindEmail} listener={(e) => setUserFindEmail(e.target.value)}/>
             
-                <button className='btnbackscndclr' onClick={findUserByEmail}>{findingUser ? 'جاري البحث...' : 'البحث'}</button>
+                <button className='btnbackscndclr' onClick={findUserByEmail}>{findingUser ? <LoadingCircle /> : 'البحث'}</button>
 
                 <p id={userFindError?.length > 0 ? 'p-info-error' : 'p-info'}>{userFindError === '-1' ? '' : userFindError}</p>
 
@@ -489,7 +490,7 @@ const page = () => {
 
                 <CustomInputDiv title={'ادخل اسم الملف'} isError={filename === '-1'} errorText={'اسم ملف غير صالح'} value={filename} listener={(e) => setFilename(e.target.value)}/>
             
-                <button className='btnbackscndclr' onClick={deleteFileByName}>{deletingSpecificFile ? 'جاري حذف الملف...' : 'حذف الملف'}</button>
+                <button className='btnbackscndclr' onClick={deleteFileByName}>{deletingSpecificFile ? <LoadingCircle /> : 'حذف الملف'}</button>
 
                 <p id={fileDeleteError?.length > 0 ? 'p-info-error' : 'p-info'}>{fileDeleteError?.length > 0 ? fileDeleteError : fileDeleteSuccess}</p>
 

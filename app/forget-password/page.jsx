@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { Context } from '@utils/Context';
 import NotFound from '@components/NotFound';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import LoadingCircle from '@components/LoadingCircle';
 
 const page = () => {
 
@@ -164,7 +165,7 @@ const page = () => {
             <h1>كلمة سر جديدة</h1>
 
             <CustomInputDiv title={'ادخل بريدك الالكتروني'} isError={email === '-1'} errorText={'بريد الكتروني غير صالح.'} listener={(e) => setEmail(e.target.value)}/>
-            <button type='button' className='btnbackscndclr' style={{ margin: '-24px 0 0 0' }} onClick={sendCodeToEmail}>{sendingCode ? 'جاري الارسال...' : 'ارسال رمز الى بريدك الالكتروني'}</button>
+            <button type='button' className='btnbackscndclr' style={{ margin: '-24px 0 0 0' }} onClick={sendCodeToEmail}>{sendingCode ? <LoadingCircle /> : 'ارسال رمز الى بريدك الالكتروني'}</button>
             <p id={sendCodeError.length > 0 ? 'p-info-error' : 'p-info'}>{sendCodeError?.length > 0 ? sendCodeError : sendCodeSuccess}</p>
 
             <hr/>
@@ -177,7 +178,7 @@ const page = () => {
 
             <label id='success' style={!operationSuccess ? { margin: 0, padding: 0 } : {}}>{operationSuccess && 'تم تغيير كلمة السر بنجاح'} <Link href={'/sign-in'} style={{ display: !operationSuccess && 'none' }}>الذهاب الى تسجيل الدخول</Link></label>
 
-            <button type='submit' className='btnbackscndclr' onClick={changePassword}>{isChangingPass ? 'جاري تغيير كلمة السر...' : 'تغيير كلمة السر'}</button>
+            <button type='submit' className='btnbackscndclr' onClick={changePassword}>{isChangingPass ? <LoadingCircle /> : 'تغيير كلمة السر'}</button>
 
             <p id='p-info-error'>{changePassError?.length > 0 ? changePassError : ''}</p>
         

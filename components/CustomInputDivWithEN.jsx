@@ -12,7 +12,8 @@ const CustomInputDivWithEN = ({
   return (
     <div className='inputDivWithEN' style={{ ...myStyle, borderColor: isError ? 'var(--softRed)' : undefined, flexDirection: isEnglish ? 'column-reverse' : undefined }}>
       {!isTextArea ? 
-        <><input dir={isEnglish ? 'rtl' : undefined} onFocus={settingFocused} value={value} placeholder={placholderValue} max={max} min={min} 
+        <><input dir={isEnglish ? 'rtl' : undefined} onFocus={settingFocused} 
+        value={value} placeholder={placholderValue} max={max} min={min} 
         onChange={listener} readOnly={isCity ? true : false}/>
         <div id="hrSpanElement"/>
         <input onFocus={settingFocused} dir="ltr" value={enValue ? enValue : (isProfileDetails ? null : value)} placeholder={enPlacholderValue} max={max} min={min} 

@@ -11,6 +11,7 @@ import imageCompression from 'browser-image-compression';
 // });
 
 const allowedFilenameChar = 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz0123456789-_.';
+const allowedUsernameChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_';
 const testCharacaters = 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz -!_*&%?.#+/@0123456789أابتثجحخدذرزعغلمنهويئسشصضطكفقةىءؤ';
 const imageCompressionOptions = {
     maxSizeMB: 1,
@@ -39,6 +40,7 @@ export const propsSections = [
 
 export const usersSections = [
     { value: 'all-users', arabicName: 'كل المستخدمين' },
+    { value: 'Host_requests', arabicName: 'طلبات تحويل الى معلن' },
     { value: 'blocked-true', arabicName: 'محظور' },
     { value: 'blocked-false', arabicName: 'غير محظور' },
     { value: 'email_verified-true', arabicName: 'موثق الحساب' },
@@ -73,7 +75,7 @@ export const isValidUsername = (name) => {
     let notAllowed = [];
 
     for (let i = 0; i < name.length; i++) {
-        if(!testCharacaters.includes(name[i])){
+        if(!allowedUsernameChars.includes(name[i])){
             if(!notAllowed.find(item => item === name[i])) notAllowed.push(name[i]);
         }
     }
@@ -276,6 +278,8 @@ export const getBookDateFormat = (date) => {
 const isOkayText = s => (!/[^\u0600-\u06FF\u0020-\u0040\u005B-\u0060\u007B-\u007E-\u0000-\u007F]/.test(s));
 
 export const isValidText = (text, minLength) => {
+
+    if(!text) return false;
 
     if(!minLength && (!text || typeof text !== "string" || text.length <= 0)) return false;
 

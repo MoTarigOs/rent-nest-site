@@ -2,7 +2,7 @@ import '@styles/components_styles/Card.css';
 import Image from 'next/image';
 import RatingStar from '@assets/icons/rating.png';
 import Link from 'next/link';
-import { JordanCities } from '@utils/Data';
+import { JordanCities, currencyCode } from '@utils/Data';
 import dynamic from 'next/dynamic';
 const ImagesShow = dynamic(() => import('./ImagesShow'), { ssr: false });
 
@@ -30,9 +30,24 @@ const Card = ({ item, type, isVertical, isEnglish, handleWishList }) => {
       }
     };
 
+    const getPriceReservationType = () => {
+      if(item?.prices?.daily) return isEnglish ? 'Day' : 'اليوم';
+      if(item?.prices?.weekly) return isEnglish ? 'Week' : 'الاسبوع';
+      if(item?.prices?.monthly) return isEnglish ? 'Month' : 'الشهر';
+      if(item?.prices?.seasonly) return isEnglish ? 'Season' : 'الموسم';
+      if(item?.prices?.yearly) return isEnglish ? 'Year' : 'السنة';
+      return '';
+    };
+
+    const getPrice = () => {
+      return item?.prices?.daily || item?.prices?.weekly 
+        || item?.prices?.monthly
+        || item?.prices?.seasonly || item?.prices?.yearly;
+    };
+
     if(!item){
       return (<div></div>)
-    }
+    };
 
   return (
 
@@ -61,7 +76,8 @@ const Card = ({ item, type, isVertical, isEnglish, handleWishList }) => {
           : JordanCities.find(i => i.value === item.city)?.arabicName}, {' '}
           {isEnglish ? item.en_data?.neighbourEN || item.neighbourhood : item.neighbourhood}</h3>
 
-          <h4><span>${item.price} {' / '}</span>{' '}{isEnglish ? 'Night' : 'اليوم'}</h4>
+          <h4><span style={isEnglish ? { marginRight: 2 } : { marginLeft: 2 }}>
+            {getPrice()} {currencyCode(isEnglish)} {' / '}</span> {getPriceReservationType()}</h4>
           
         </div>
 

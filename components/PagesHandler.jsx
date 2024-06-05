@@ -6,7 +6,7 @@ import '@styles/components_styles/PagesHandler.css';
 const PagesHandler = ({ 
     properitiesArray, foundItems, indexSlide, setIndexSlide, 
     cardsPerPage, city, isEnglish, triggerPropsArrayFetch,
-    isHide
+    isHide, centerTheDiv
 }) => {
     
     const [currentPage, setCurrentPage] = useState(1);
@@ -35,7 +35,11 @@ const PagesHandler = ({
     }, [foundItems]);
 
   return (
-    <div className="pagesHandler" style={{ display: isHide ? 'none' : undefined }}>
+    <div className="pagesHandler" style={{ 
+        display: isHide ? 'none' : undefined,
+        justifyContent: centerTheDiv ? 'center' : undefined,
+        flexDirection: centerTheDiv ? 'column' : undefined
+    }} dir={isEnglish ? 'ltr' : undefined}>
 
         <div className="pagination-text">
             {foundItems > 0 ? <>{'('}

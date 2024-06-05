@@ -7,7 +7,7 @@ import { useState } from 'react';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
 import { getHost, getOwnerProperties } from '@utils/api';
-import { useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import Card from '@components/Card';
 import ReviewCard from '@components/ReviewCard';
 import { Context } from '@utils/Context';
@@ -184,7 +184,7 @@ const Page = () => {
 
         <div className='host-intro'>
             <div className='image-span'><span className='disable-text-copy'>{hostObj?.username?.at(0)}</span></div>
-            <h1>{hostObj?.username}</h1>
+            <h1>{hostObj?.firstName || hostObj?.lastName || hostObj?.username}</h1>
             <div className='host-details'>
                 <h4><Svgs name={'star'}/> تقييم {hostObj?.rating || 0} {`(من ${hostObj?.reviewsNum || 0} مراجعة)`}</h4>
                 <h4><Svgs name={'host'}/> مضيف منذ {getReadableDate(new Date(hostObj?.joinDate), true)}</h4>

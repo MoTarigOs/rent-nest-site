@@ -1,12 +1,9 @@
 'use client';
 
 import '@styles/components_styles/Filter.css';
-import { JordanCities, ProperitiesCatagories, VehicleCatagories, maximumPrice, minimumPrice } from '@utils/Data';
+import { ProperitiesCatagories, VehicleCatagories, maximumPrice } from '@utils/Data';
 import Svgs from '@utils/Svgs';
-import Image from 'next/image';
 import { useContext, useEffect, useRef, useState } from 'react';
-import MapImage from '@assets/icons/google-map.png';
-import Link from 'next/link';
 import { Context } from '@utils/Context';
 import { getNameByLang } from '@utils/Logic';
 import CustomInputDiv from './CustomInputDiv';
@@ -17,8 +14,6 @@ import { bathroomFacilities, customersTypesArray, facilities, kitchenFacilities,
 const Filter = ({ 
     isEnglish, type, isVehicles, isFilter, setIsFilter, triggerFetch, setTriggerFetch 
 }) => {
-
-    //setRatingScore
 
     const { 
         setCurrentMinPrice, setCurrentMaxPrice,
@@ -119,8 +114,8 @@ const Filter = ({
     const FilterSectionMultipleSelections = ({ item }) => {
         if(!item || (isVehicles && item.vehiclesNot)) return<></>
         return (
-            <div className="catagory" onClick={() => item.setIsShow(!item.isShow)}>
-                <h2 className='disable-text-copy'>{isEnglish ? item.enTitle : item.arTitle}  <h3>{item.isShow ? '-' : '+'}</h3></h2>
+            <div className="catagory">
+                <h2 className='disable-text-copy' onClick={() => item.setIsShow(!item.isShow)}>{isEnglish ? item.enTitle : item.arTitle}  <h3>{item.isShow ? '-' : '+'}</h3></h2>
                 <ul style={{ display: !item.isShow ? 'none' : undefined}}>
                     {item.baseArr?.map((ctg, index) => (
                         <li key={index} onClick={() => {
@@ -149,7 +144,7 @@ const Filter = ({
     const FilterSectionSingleSelection = ({ item }) => {
         if(!item || (isVehicles && item.vehiclesNot)) return<></>
         return (
-            <div className="catagory" onClick={() => item.setIsShow(!item.isShow)}>
+            <div className="catagory">
                 <h2 className='disable-text-copy' onClick={() => item.setIsShow(!item.isShow)}>{isEnglish ? item.enTitle : item.arTitle} <h3>{item.isShow ? '-' : '+'}</h3></h2>
                 <ul style={{ display: !item.isShow ? 'none' : undefined}}>
                     {item.baseArr?.map((ctg, index) => (
@@ -189,8 +184,8 @@ const Filter = ({
 
             <div className='filters-container'>
 
-                <div className="price" onClick={() => setShowPrice(!showPrice)}>
-                    <h2 className='disable-text-copy'>{getNameByLang('السعر', isEnglish)} <h3>{showPrice ? '-' : '+'}</h3></h2>
+                <div className="price">
+                    <h2 className='disable-text-copy' onClick={() => setShowPrice(!showPrice)}>{getNameByLang('السعر', isEnglish)} <h3>{showPrice ? '-' : '+'}</h3></h2>
                     {showPrice && <><RangeSlider
                         id="range-slider-gradient"
                         className="margin-lg"
@@ -207,9 +202,9 @@ const Filter = ({
 
                 <FilterSectionSingleSelection item={filters.find(i => i.idName === 'ratings')}/>
 
-                <div className='filterSearchDiv' onClick={() => setShowAdvanceSearch(!showAdvanceSearch)}>
+                <div className='filterSearchDiv'>
 
-                    <h2 className='disable-text-copy'>{isEnglish ? 'Advance Search' : 'البحث المتقدم'} <h3>{showAdvanceSearch ? '-' : '+'}</h3></h2>
+                    <h2 className='disable-text-copy'  onClick={() => setShowAdvanceSearch(!showAdvanceSearch)}>{isEnglish ? 'Advance Search' : 'البحث المتقدم'} <h3>{showAdvanceSearch ? '-' : '+'}</h3></h2>
                     
                     {showAdvanceSearch && <><CustomInputDiv title={isEnglish ? 'Write a name or description' : 'اكتب اسم أو وصف للعقار'} placholderValue={isEnglish ? 'Like: Amman resorts' : 'مثال: مخيمات عمان'}
                     listener={(e) => setSearchText(e.target.value)} value={searchText}/>
@@ -225,9 +220,9 @@ const Filter = ({
                 <FilterSectionMultipleSelections item={filters.find(i => i.idName === 'prop-type')}/>
 
                 <div className='filterSearchDiv' style={{ display: isVehicles ? 'none' : undefined }}
-                onClick={() => setShowBedrooms(!showBedrooms)}>
+                >
 
-                    <h2 className='disable-text-copy'>{isEnglish ? 'Bedrooms' : 'غرف النوم'} <h3>{showBedrooms ? '-' : '+'}</h3></h2>
+                    <h2 className='disable-text-copy' onClick={() => setShowBedrooms(!showBedrooms)}>{isEnglish ? 'Bedrooms' : 'غرف النوم'} <h3>{showBedrooms ? '-' : '+'}</h3></h2>
 
                     {showBedrooms && <><CustomInputDiv title={isEnglish ? 'Desired Number of rooms' : 'عدد غرف النوم'} type={'number'} placholderValue={isEnglish ? 'Like: Amman resorts' : 'مثال: مخيمات عمان'}
                     listener={(e) => setBedroomFilter({ num: Number(e.target.value), single_beds: bedroomFilter?.single_beds, double_beds: bedroomFilter?.double_beds })} value={bedroomFilter.num}/>
@@ -249,9 +244,9 @@ const Filter = ({
                 <FilterSectionMultipleSelections item={filters.find(i => i.idName === 'pool facilities')}/>
 
                 <div className='catagory filterSearchDiv' style={{ display: isVehicles ? 'none' : undefined }}
-                onClick={() => setShowBath(!showBath)}>
+                >
 
-                    <h2 className='disable-text-copy'>{isEnglish ? 'Bathrooms' : 'دورات المياه'} <h3>{showBath ? '-' : '+'}</h3></h2>
+                    <h2 className='disable-text-copy' onClick={() => setShowBath(!showBath)}>{isEnglish ? 'Bathrooms' : 'دورات المياه'} <h3>{showBath ? '-' : '+'}</h3></h2>
 
                     {showBath && <><CustomInputDiv title={isEnglish ? 'Number of bathrooms' : 'عدد دورات المياه'} type={'number'} 
                     listener={(e) => setBathroomsNumFilter(Number(e.target.value))} value={bathroomsFilterNum}/>

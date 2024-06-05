@@ -78,7 +78,7 @@ const Component = ({ isEnglish, isMobile960 }) => {
 
           {section.includes('city') && <div className='city-div-filter' style={{ height: '100%' }}>
             <div className='city-div-header'>
-              <div id='city-back' onClick={deleteAndClose}><Svgs name={'dropdown arrow'}/></div>
+              <div id='city-back' style={{ transform: isEnglish ? 'rotate(180deg)' : undefined }} onClick={deleteAndClose}><Svgs name={'dropdown arrow'}/></div>
               <h3>{isEnglish ? 'Choose City' : 'أختر مدينة'}</h3> 
               <h4>{isEnglish ? city.value : city.arabicName}</h4> 
             </div>
@@ -90,7 +90,7 @@ const Component = ({ isEnglish, isMobile960 }) => {
           {section === 'category' && <div className="catagory" style={{ flex: isMobile ? 1 : undefined, height: '100%' }}>
 
               <div className='city-div-header'>
-                <div id='city-back' onClick={() => setSection('city')}><Svgs name={'dropdown arrow'}/></div>
+                <div id='city-back' style={{ transform: isEnglish ? 'rotate(180deg)' : undefined }} onClick={() => setSection('city')}><Svgs name={'dropdown arrow'}/></div>
                 <h3>{isEnglish ? 'What do you want to rent?' : 'ما الذي تريد ايجاره؟'}</h3> 
                 <h4 style={{ fontSize: '0.75rem' }}>{getSelectedCategories(isEnglish)}</h4> 
               </div>
@@ -137,7 +137,7 @@ const Component = ({ isEnglish, isMobile960 }) => {
           {section === 'calender' && <div className='book-date' style={{ flex: 1, height: isMobile ? '100%' : undefined }}>
 
             <div className='city-div-header' style={{ borderBottom: '2px solid var(--darkWhite);', paddingBottom: 24 }}>
-              <div id='city-back' onClick={() => setSection('category')}><Svgs name={'dropdown arrow'}/></div>
+              <div id='city-back' style={{ transform: isEnglish ? 'rotate(180deg)' : undefined }} onClick={() => setSection('category')}><Svgs name={'dropdown arrow'}/></div>
               <h3>{isEnglish ? 'Choose reservation date' : 'اختر تاريخ للحجز'}</h3> 
               <h4 style={{ fontSize: '0.75rem' }}>{isEnglish ? city.value || 'City undefined' : city.arabicName || 'المدينة غير محددة'} / {getSelectedCategories(isEnglish) || 'كل التصنيفات'}</h4> 
               <h4 suppressHydrationWarning style={{ marginTop: -8, fontSize: '0.75rem' }}>{isEnglish ? 'Book from' : 'حجز من'} {getReadableDate(calendarDoubleValue?.at(0), true, isEnglish)} {isEnglish ? 'To' : 'الى'} {getReadableDate(calendarDoubleValue?.at(1), true, isEnglish)}</h4> 

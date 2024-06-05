@@ -13,7 +13,7 @@ import { getBookDateFormat, getOptimizedAttachedFiles, isValidContactURL, isVali
 import MyCalendar from '@components/MyCalendar';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
-import { cancellationsArray, contactsPlatforms } from '@utils/Data';
+import { cancellationsArray, contactsPlatforms, currencyCode, reservationType } from '@utils/Data';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import CustomInputDivWithEN from '@components/CustomInputDivWithEN';
 import InfoDiv from '@components/InfoDiv';
@@ -62,6 +62,9 @@ const Page = () => {
     const [bookDaysError, setBookDaysError] = useState('');
     const [bookDaysSuccess, setBookDaysSuccess] = useState('');
 
+    const [expandPrices, setExpandPrices] = useState(false);
+    const [pricesError, setPricesError] = useState([]);
+
     const [selectBookedDays, setSelectBookedDays] = useState([]);
     const [triggerCalendarRender, setTriggerCalendarRender] = useState(true);
     const [calendarSelect, setCalenderSelect] = useState(null);
@@ -76,6 +79,7 @@ const Page = () => {
     const [itemDesc, setItemDesc] = useState('');
     const [itemDescEN, setItemDescEN] = useState('');
     const [itemPrice, setItemPrice] = useState(0);
+    const [itemPrices, setItemPrices] = useState(null);
     const [requireInsurance, setRequireInsurance] = useState(false);
     const [uploadedFiles, setUploadedFiles] = useState([]);
     const [attachedFilesUrls, setAttachedFilesUrls] = useState([]);
@@ -209,11 +213,11 @@ const Page = () => {
 
         const compareTwoValuesIsNotEqual = (a, b, type) => {
 
-            if(type === 'array'){
-                console.log('a array: ', a);
-                console.log('b array: ', b);
-                console.log(JSON.stringify(a) === JSON.stringify(b));
-            }
+            // if(type === 'array'){
+            //     console.log('a array: ', a);
+            //     console.log('b array: ', b);
+            //     console.log(JSON.stringify(a) === JSON.stringify(b));
+            // }
 
             if(type === 'array' && JSON.stringify(a) === JSON.stringify(b)) return false;
 
@@ -231,7 +235,13 @@ const Page = () => {
             if(compareTwoValuesIsNotEqual(itemTitleEN, item.en_data?.titleEN)) return false;
             if(compareTwoValuesIsNotEqual(itemDesc, item.description)) return false;
             if(compareTwoValuesIsNotEqual(itemDescEN, item.en_data?.descEN)) return false;
-            if(compareTwoValuesIsNotEqual(itemPrice, item.price)) return false;
+            
+            if(compareTwoValuesIsNotEqual(itemPrices?.daily, item.prices?.daily)) return false;
+            if(compareTwoValuesIsNotEqual(itemPrices?.weekly, item.prices?.weekly)) return false;
+            if(compareTwoValuesIsNotEqual(itemPrices?.monthly, item.prices?.monthly)) return false;
+            if(compareTwoValuesIsNotEqual(itemPrices?.seasonly, item.prices?.seasonly)) return false;
+            if(compareTwoValuesIsNotEqual(itemPrices?.yearly, item.prices?.yearly)) return false;
+
             if(compareTwoValuesIsNotEqual(discountNights, item.discount?.num_of_days_for_discount)) return false;
             if(compareTwoValuesIsNotEqual(discountPer, item.discount?.percentage)) return false;
             if(compareTwoValuesIsNotEqual(requireInsurance, item.details?.insurance)) return false;
@@ -273,6 +283,90 @@ const Page = () => {
     
     };
 
+    const isValidPrices = () => {
+
+        console.log(itemPrices);
+
+        let priceErrorEncountered = false;
+        let atLeastOneIsExit = false;
+
+        if(itemPrices?.daily && !isValidNumber(itemPrices?.daily)){
+            const obj = itemPrices;
+            if(obj) obj.daily = undefined;
+            setItemPrices(obj);
+            let arr = pricesError;
+            arr.push('daily');
+            setPricesError(arr);
+            priceErrorEncountered = true;
+        } else {
+            if(itemPrices?.daily > 0) atLeastOneIsExit = true;
+            setPricesError(pricesError.filter(i => i === 'daily'));
+        };
+
+        if(itemPrices?.weekly && !isValidNumber(itemPrices?.weekly)){
+            const obj = itemPrices;
+            if(obj) obj.weekly = undefined;
+            setItemPrices(obj);
+            let arr = pricesError;
+            arr.push('weekly');
+            setPricesError(arr);
+            priceErrorEncountered = true;
+        } else {
+            if(itemPrices?.weekly > 0) atLeastOneIsExit = true;
+            setPricesError(pricesError.filter(i => i === 'weekly'));
+        };
+
+        if(itemPrices?.monthly && !isValidNumber(itemPrices?.monthly)){
+            const obj = itemPrices;
+            if(obj) obj.monthly = undefined;
+            setItemPrices(obj);
+            let arr = pricesError;
+            arr.push('monthly');
+            setPricesError(arr);
+            priceErrorEncountered = true;
+        } else {
+            if(itemPrices?.monthly > 0) atLeastOneIsExit = true;
+            setPricesError(pricesError.filter(i => i === 'monthly'));
+        };
+
+        if(itemPrices?.seasonly && !isValidNumber(itemPrices?.seasonly)){
+            const obj = itemPrices;
+            if(obj) obj.seasonly = undefined;
+            setItemPrices(obj);
+            let arr = pricesError;
+            arr.push('seasonly');
+            setPricesError(arr);
+            priceErrorEncountered = true;
+        } else {
+            if(itemPrices?.seasonly > 0) atLeastOneIsExit = true;
+            setPricesError(pricesError.filter(i => i === 'seasonly'));
+        };
+
+        if(itemPrices?.yearly && !isValidNumber(itemPrices?.yearly)){
+            const obj = itemPrices;
+            if(obj) obj.yearly = undefined;
+            setItemPrices(obj);
+            let arr = pricesError;
+          
+            arr.push('yearly');
+            setPricesError(arr);
+            priceErrorEncountered = true;
+        } else {
+            if(itemPrices?.yearly > 0) atLeastOneIsExit = true;
+            setPricesError(pricesError.filter(i => i === 'yearly'));
+        };
+
+        if(priceErrorEncountered) return false;
+        if(!atLeastOneIsExit) {
+            let arr = pricesError;
+            arr.push('daily');
+            setPricesError(arr);
+            return false;
+        }
+        return true;
+
+    };
+
     const handleSubmit = async() => {
 
         let tempContacts = [], tempItemContacts = [];
@@ -309,10 +403,7 @@ const Page = () => {
             errorEncountered = true;
         }
         
-        if(!isValidNumber(itemPrice)){
-            setItemPrice(-1);
-            errorEncountered = true;
-        }
+        if(!isValidPrices()) errorEncountered = true;
 
         if(errorEncountered === true){
             window.scrollTo({
@@ -483,9 +574,10 @@ const Page = () => {
             let res = null;
 
             isSomethingChanged() ? res = await editProperty(
-                id, itemTitle, itemDesc, itemPrice, xDetails, conditionsAndTerms, 
+                id, itemTitle, itemDesc, null, xDetails, conditionsAndTerms, 
                 tempContacts?.length > 0 ? tempContacts : null, xDiscount(), null,
-                token, enObj, cancellationsArray().indexOf(cancellation), capacity, customerType
+                token, enObj, cancellationsArray().indexOf(cancellation), 
+                capacity, customerType, itemPrices
             ) : res = { success: true, dt: { message: 'no details to add' } };
 
             console.log('res: ', res);    
@@ -757,6 +849,69 @@ const Page = () => {
 
     };
 
+    const getPriceValue = (reservationType) => {
+        switch(reservationType){
+            case 'Daily':
+              return itemPrices?.daily;
+            case 'Weekly':
+              return itemPrices?.weekly;
+            case 'Monthly':
+              return itemPrices?.monthly;
+            case 'Seasonly':
+              return itemPrices?.seasonly;
+            case 'Yearly':
+              return itemPrices?.yearly;
+            default:
+                return null;
+        };
+    };
+
+    const handlePriceChange = (e, reservationType) => {
+        switch(reservationType){
+            case 'Daily':
+                return setItemPrices({
+                    daily: Number(e.target.value),
+                    weekly: itemPrices?.weekly,
+                    monthly: itemPrices?.monthly,
+                    seasonly: itemPrices?.seasonly,
+                    yearly: itemPrices?.yearly,
+                });
+            case 'Weekly':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: Number(e.target.value),
+                    monthly: itemPrices?.monthly,
+                    seasonly: itemPrices?.seasonly,
+                    yearly: itemPrices?.yearly,
+                });
+            case 'Monthly':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: itemPrices?.weekly,
+                    monthly: Number(e.target.value),
+                    seasonly: itemPrices?.seasonly,
+                    yearly: itemPrices?.yearly,
+                });
+            case 'Seasonly':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: itemPrices?.weekly,
+                    monthly: itemPrices?.monthly,
+                    seasonly: Number(e.target.value),
+                    yearly: itemPrices?.yearly,
+                });
+            case 'Yearly':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                
+                    weekly: itemPrices?.weekly,
+                    monthly: itemPrices?.monthly,
+                    seasonly: itemPrices?.seasonly,
+                    yearly: Number(e.target.value),
+                });
+        };
+    };
+
     useEffect(() => {
         setRunOnce(true);
         //location.href = '/edit-prop?id=' + id;
@@ -778,7 +933,7 @@ const Page = () => {
             setItemTitleEN(item.en_data?.titleEN);
             setItemDesc(item.description);
             setItemDescEN(item.en_data?.descEN);
-            setItemPrice(item.price);
+            setItemPrices(item.prices);
             setUploadedFiles([...item.images, ...item.videos]);
             setRequireInsurance(item.details?.insurance);
             setSelectBookedDays(item.booked_days || []);
@@ -843,7 +998,7 @@ const Page = () => {
 
     if(!item || !userId?.length > 0 || !isVerified){
         return (
-            (fetchingOnce || fetchingUserInfo) ? <MySkeleton isMobileHeader/> : <NotFound isEnglish type={!isVerified ? 'not allowed' : undefined}/>
+            (fetchingOnce || fetchingUserInfo) ? <MySkeleton isMobileHeader/> : <NotFound navToVerify={!isVerified} isEnglish type={!isVerified ? 'not allowed' : undefined}/>
         )
     }
 
@@ -934,10 +1089,27 @@ const Page = () => {
 
             <CustomInputDivWithEN isError={itemDesc === '-1' && true} errorText={'Please write a clear description of what you want to display, in no less than 10 words.'} title={'Write Description in English & Arabic'} isTextArea={true} placholderValue={'Description in Arabic here'} enPlacholderValue={'Description in English here'} isEnglish listener={(e) => setItemDesc(e.target.value)} enListener={(e) => setItemDescEN(e.target.value)} type={'text'} value={itemDesc} enValue={itemDescEN}/>
 
-            <div className='priceDiv'>
-                <CustomInputDiv isError={itemPrice === -1 && true} errorText={'Set a price per night'} value={itemPrice} title={'Price in dollars'} listener={(e) => setItemPrice(Number(e.target.value))} type={'number'}/>
-                <strong>/</strong>
-                <h4>Night</h4>
+            <div className='prices'>
+                
+                <h3>Price </h3>
+
+                <p>Set a price for each booking period {'(Daily, weekly, monthly, seasonly and yearly)'}</p>
+
+                {(expandPrices ? reservationType() : [reservationType()[0]]).map((item) => (
+                    <div className='priceDiv' style={{ marginBottom: 16 }}>
+                        <CustomInputDiv isError={pricesError.includes(item.enName?.toLowerCase())} 
+                        errorText={'Set a price for the ' + item.oneEn} 
+                        title={`Price in ${currencyCode(true, true)}`} 
+                        listener={(e) => handlePriceChange(e, item.enName)} 
+                        min={0} value={getPriceValue(item.enName)}
+                        type={'number'} myStyle={{ marginBottom: 16 }}/>
+                        <strong>/</strong>
+                        <h4>{item.oneEn}</h4>
+                    </div>
+                ))}
+
+                <button className='editDiv' onClick={() => setExpandPrices(!expandPrices)}>{expandPrices ? 'Less' : 'Expand'}</button>
+
             </div>
 
             <div className='set-discount'>
@@ -995,12 +1167,16 @@ const Page = () => {
                     >{attachedFilesUrls.length > 0 ? 'Add more' : 'Add files'}<p>(File type must be PNG, JPG, MP4, or AVI)</p></li>
                 </ul>
 
-                <input ref={inputFilesRef} accept='.png, .jpeg, .mp4, .avi' type='file' onChange={(e) => {
-                    const file = e.target.files[0];
-                    console.log(file);
-                    if(file && allowedMimeTypes.includes(file.type)){
-                        setAttachedFilesUrls([...attachedFilesUrls, file])
+                <input ref={inputFilesRef} multiple accept='.png, .jpg, .mp4, .avi' type='file' onChange={(e) => {
+                    const files = e.target.files;
+                    let arr = [];
+                    for (let i = 0; i < files.length; i++) {
+                        if(files[i] && allowedMimeTypes.includes(files[i].type) 
+                        && !attachedFilesUrls.find(f => f.name === files[i].name)){
+                            arr.push(files[i]);
+                        }
                     }
+                    setAttachedFilesUrls([...attachedFilesUrls, ...arr]);
                 }}/>
 
             </div>
@@ -1225,13 +1401,13 @@ const Page = () => {
                     </ul>
                 </div>
 
-                <div className='edits-info'>
-                    This what will be modified
-                    {itemTitle !== item.title && <h4 style={{ marginTop: 24}}>Title: {itemTitle}</h4>}
+                <div className='edits-info' style={{ display: !isSomethingChanged() ? 'none' : undefined }}>
+                    Some data will be modified
+                    {/* {itemTitle !== item.title && <h4 style={{ marginTop: 24}}>Title: {itemTitle}</h4>}
                     {itemDesc !== item.description && <h4> Description: {itemDesc}</h4>}
                     {itemPrice !== item.price && <h4>Price: {itemPrice}</h4>}
                     {conditionsAndTerms !== item.terms_and_conditions && <h4>Terms & Conditions: {conditionsAndTerms.toString()}</h4>}
-                    {contactsIsChanged() && <h4>Communications methods</h4>}
+                    {contactsIsChanged() && <h4>Communications methods</h4>} */}
                
                 </div>
 

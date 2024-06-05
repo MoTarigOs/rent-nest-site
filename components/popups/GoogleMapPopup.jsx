@@ -1,27 +1,28 @@
 'use client';
 
 import '@styles/components_styles/GoogleMapPopup.css';
-import { Autocomplete, Circle, GoogleMap, Marker, OverlayView, OverlayViewF, StandaloneSearchBox, useJsApiLoader } from "@react-google-maps/api";
-import { memo, useEffect, useState } from 'react';
-import { JordanCities, getCategoryImage, isInsideJordan } from '@utils/Data';
-import Image from 'next/image';
-import MarkerVehicleImage from '@assets/icons/car-inbound.svg';
-import MarkerPropImage from '@assets/icons/house.svg';
+import { Autocomplete, Circle, GoogleMap, Marker, OverlayView, OverlayViewF, useJsApiLoader } from "@react-google-maps/api";
+import { memo, useContext, useState } from 'react';
+import { JordanCities, isInsideJordan } from '@utils/Data';
 import Svgs from '@utils/Svgs';
-import { getArabicNameCatagory } from '@utils/Logic';
+import LoadingCircle from '@components/LoadingCircle';
+import { Context } from '@utils/Context';
 
 const GoogleMapPopup = ({ 
-  isShow, setIsShow, mapType, latitude, 
-  longitude, setLatitude, setLongitude,
-  props, setSelectedProp, style, searchHere,
-  selectedProp, isEnglish
+  isShow, setIsShow, mapType, 
+  // latitude, 
+  // longitude, setLatitude, setLongitude,
+  props, setSelectedProp, style,
+  selectedProp, isEnglish, fetching,
+  setSearchHere
 }) => {
 
-    const [triggerSearch, setTriggerSearch] = useState(null);
-    const [searching, setSearching] = useState(null);
+    const AMMAN_LAT = JordanCities[5].lat;
+    const AMMAN_LONG = JordanCities[5].long;
 
-    const AMMAN_LAT = JordanCities[0].lat;
-    const AMMAN_LONG = JordanCities[0].long;
+    const { 
+      latitude, longitude, setLatitude, setLongitude 
+    } = useContext(Context);
 
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
@@ -60,40 +61,29 @@ const GoogleMapPopup = ({
       setLatitude(eLat);
     };
 
-    const search = async() => {
-      try {
-        if(searching) return;
-          setSearching(true);
-          await searchHere();
-          setSearching(false);
-      } catch (err) {
-          setSearching(false);
-      } 
-    };
-
-    useEffect(() => {
-      search();
-    }, [triggerSearch]);
-
   return (
     <div className={mapType === 'search' ? "google-map-popup-wrapper search-map" : "google-map-popup-wrapper" }
-      style={mapType !== 'search' ? { left: isShow ? null : '-200vw' } : style}>
+      style={mapType !== 'search' ? { left: isShow ? null : '-200vw' } : style}
+      dir={isEnglish ? 'ltr' : undefined}>
 
         <span onClick={() => setIsShow(false)}/>
 
         <div id='cross-close-map' onClick={() => setIsShow(false)}><Svgs name={'cross'}/></div>
 
-        {mapType === 'search' && <button id='more-btn' onClick={() => {
+        {mapType === 'search' && <button id='more-btn' style={{ background: fetching ? 'var(--darkWhite)' : undefined }} onClick={() => {
           setLatitude(map?.center?.lat());
           setLongitude(map?.center?.lng());
-          setTriggerSearch(!triggerSearch);
-        }}>{searching ? (isEnglish ? 'Searching...' : 'جاري البحث...') : (isEnglish ? 'Search on this area' : 'البحث في هذه المنطقة')}</button>}
+          setSearchHere(true);
+        }}>{fetching ? <LoadingCircle isLightBg/> : (isEnglish ? 'Search on this area' : 'البحث في هذه المنطقة')}</button>}
 
         <div className='google-map-popup' style={mapType === 'search' ? style : undefined}>
 
             {isLoaded && <GoogleMap
                 mapContainerStyle={containerStyle}
-                center={center}
+                center={{
+                  lat: latitude || AMMAN_LONG,
+                  lng: longitude || AMMAN_LAT
+                }}
                 onLoad={onLoad}
                 zoom={12}
                 onUnmount={onUnmount}

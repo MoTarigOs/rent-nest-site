@@ -183,7 +183,7 @@ const Page = () => {
 
         <div className='host-intro'>
             <div className='image-span'><span className='disable-text-copy'>{hostObj?.usernameEN?.at(0) || hostObj?.username?.at(0)}</span></div>
-            <h1>{hostObj?.usernameEN || hostObj?.username}</h1>
+            <h1>{hostObj?.firstNameEN || hostObj?.lastNameEN || hostObj?.firstName || hostObj?.username}</h1>
             <div className='host-details'>
                 <h4><Svgs name={'star'}/> Evaluation {hostObj?.rating || 0} {`(from ${hostObj?.reviewsNum || 0} review)`}</h4>
                 <h4><Svgs name={'host'}/> Joined since {getReadableDate(new Date(hostObj?.joinDate), true, true)}</h4>

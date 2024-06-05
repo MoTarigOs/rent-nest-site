@@ -15,7 +15,12 @@ const MainWrapper = ({ children }) => {
 
   const pathname = usePathname();
 
-  const { isModalOpened } = useContext(Context);
+  const { isModalOpened, setArabicFont, setEnglishFont } = useContext(Context);
+
+  useEffect(() => {
+    setArabicFont(cairo.className);
+    setEnglishFont(roboto.className);
+  }, []);
 
   useEffect(() => {
       if(isModalOpened){

@@ -3,17 +3,18 @@
 import { useSearchParams } from 'next/navigation';
 import '../profile/Profile.css';
 import Svgs from '@utils/Svgs';
-import { Suspense, useContext, useEffect, useRef, useState } from 'react';
+import { Suspense, useContext, useEffect, useState } from 'react';
 import Card from '@components/Card';
 import InfoDiv from '@components/InfoDiv';
 import { blockDurationsArray, getDurationReadable, getReadableDate, getRoleArabicName } from '@utils/Logic';
 import HeaderPopup from '@components/popups/HeaderPopup';
 import { Context } from '@utils/Context';
 import CustomInputDiv from '@components/CustomInputDiv';
-import { blockUser, deleteAccountAdmin, deleteUserAccountFilesAdmin, getOwnerProperties, getUserByEmailAdmin, handlePromotion, sendCode, unBlockUser } from '@utils/api';
+import { blockUser, convertToBeHost, deleteAccountAdmin, deleteUserAccountFilesAdmin, getOwnerProperties, getUserByEmailAdmin, getUserByIdAdmin, handlePromotion, sendCode, unBlockUser } from '@utils/api';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
 import Skeleton from 'react-loading-skeleton';
+import LoadingCircle from '@components/LoadingCircle';
 
 const Page = () => {
 
@@ -54,11 +55,19 @@ const Page = () => {
     const [deletingAccount, setDeletingAccount] = useState(false);
     const [deleteAccountError, setDeleteAccountError] = useState('');
     const [deleteAccountSuccess, setDeleteAccountSuccess] = useState('');
+    
+    const [isConvertDiv, setIsConvertDiv] = useState(false);
+    const [convertingToHost, setConvertingToHost] = useState(false);
+    const [convertError, setConvertError] = useState('');
+    const [convertSuccess, setConvertSuccess] = useState('');
 
     const fetchUserDetails = async() => {
 
       try {
-        const res = await getUserByEmailAdmin(email);
+        const res = id 
+          ? await getUserByIdAdmin(id)
+          : await getUserByEmailAdmin(email);
+          
         if(res.success === true) {
           setUser(res.dt);
           setFetchingUserInfo(false);
@@ -324,6 +333,27 @@ const Page = () => {
 
     };
 
+    const convertUserToHost = async() => {
+
+      try {
+          setConvertingToHost(true);
+          const res = await convertToBeHost(user._id);
+          if(!res || res.ok !== true) {
+            setConvertError('حدث خطأ ما أثناء العملية.');
+            setConvertSuccess('');
+            setConvertingToHost(false);
+            return;
+          }
+          setConvertError('');
+          setConvertSuccess('تم تحويل المستخدم الى معلن.');
+          setConvertingToHost(false);
+      } catch (err) {
+          console.log(err);
+          setConvertingToHost(false);
+      }
+
+    };
+
     const isNormalUser = () => {
       if(user.role === 'admin') return false;
       if(user.role === 'owner') return false;
@@ -351,12 +381,32 @@ const Page = () => {
   return (
     <div className='profile user-profile'>
 
+        {user.ask_convert_to_host && user.account_type !== 'host' && <div className='convert-to-host-div disable-text-copy' style={{ display: !isConvertDiv ? 'none' : undefined }}>
+          <span id='close-span' onClick={() => setIsConvertDiv(false)}/>
+          <div className='convertDiv'>
+            <h3>هل أنت متأكد من تحويل حساب هذا المستخدم الى معلن على المنصة ؟</h3>
+            <div className='btns'>
+              <button className='btnbackscndclr' onClick={convertUserToHost} style={convertSuccess?.length > 0 ? { background: 'var(--darkWhite)', color: '#767676' } : null}>{convertingToHost ? <LoadingCircle /> : (convertSuccess?.length > 0 ? 'تم التحويل' : 'التحويل')}</button>
+              <button className='btnbackscndclr' onClick={() => setIsConvertDiv(false)} style={{ background: 'var(--darkWhite)', color: '#767676' }}>الغاء</button>
+            </div>
+            <p style={{ display: convertingToHost ? 'none' : undefined }} id={convertError?.length > 0 ? 'p-info-error' : 'p-info'}>{convertError?.length > 0 ? convertError : convertSuccess }</p>
+          </div>
+        </div>}
+
         <div className='profileDetails'>
             
-            <h2>{!isNormalUser() ? (user.role === 'admin' ? 'المسؤول' : 'المالك'): 'المستخدم'} <span>{username}</span></h2>
+            <h2>{!isNormalUser() ? (user.role === 'admin' ? 'المسؤول' : 'المالك'): 'المستخدم'} <span>{user.first_name || username}</span></h2>
 
-            <InfoDiv title={'اسم المستخدم'} value={username}/>
+            {user.ask_convert_to_host && user.account_type !== 'host' 
+              && <div className='askForHost'>
+              <h3>طلب هذا المستخدم تحويله الى معلن على المنصة {'(قم بالتواصل معه من خلال الرقم أو البريد الالكتروني لمعرفة تفاصيل أكثر عنه, من ثم قم بتحويله الى معلن عن طريق زر "تحويل")'}</h3>
+              <button className='btnbackscndclr' onClick={() => setIsConvertDiv(true)}>تحويل</button>  
+            </div>}
 
+            <InfoDiv title={'معرف المستخدم'} value={user.username || username}/>
+
+            <InfoDiv title={'نوع الحساب'} value={user.account_type === 'host' ? 'حساب معلن' : 'حساب نزيل'}/>
+            
             <InfoDiv title={'الرتبة'} value={getRoleArabicName(user.role)}/>
 
             <InfoDiv title={'البريد الالكتروني'} isInfo={user?.email_verified ? false : true} 

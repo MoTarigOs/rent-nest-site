@@ -11,6 +11,12 @@
 
     .skeleton{
         margin: 0;
+
+        .container{
+            .skeleton-item{
+                max-width: 291px;
+            }
+        }
     }
     
     #title-h{
@@ -42,6 +48,15 @@
             .card{
                 width: 100%;
                 max-width: 480px;
+            }
+        }
+        .skeleton{
+            margin: 0;
+    
+            .container{
+                .skeleton-item{
+                    max-width: unset;
+                }
             }
         }
     }

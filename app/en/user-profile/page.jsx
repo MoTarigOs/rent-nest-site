@@ -10,7 +10,7 @@ import { blockDurationsArray, getDurationReadable, getReadableDate, getRoleArabi
 import HeaderPopup from '@components/popups/HeaderPopup';
 import { Context } from '@utils/Context';
 import CustomInputDiv from '@components/CustomInputDiv';
-import { blockUser, deleteAccountAdmin, deleteUserAccountFilesAdmin, getOwnerProperties, getUserByEmailAdmin, handlePromotion, sendCode, unBlockUser } from '@utils/api';
+import { blockUser, deleteAccountAdmin, deleteUserAccountFilesAdmin, getOwnerProperties, getUserByEmailAdmin, getUserByIdAdmin, handlePromotion, sendCode, unBlockUser } from '@utils/api';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
 import Skeleton from 'react-loading-skeleton';
@@ -55,10 +55,18 @@ const Page = () => {
     const [deleteAccountError, setDeleteAccountError] = useState('');
     const [deleteAccountSuccess, setDeleteAccountSuccess] = useState('');
 
+    const [isConvertDiv, setIsConvertDiv] = useState(false);
+    const [convertingToHost, setConvertingToHost] = useState(false);
+    const [convertError, setConvertError] = useState('');
+    const [convertSuccess, setConvertSuccess] = useState('');
+
     const fetchUserDetails = async() => {
 
       try {
-        const res = await getUserByEmailAdmin(email);
+        const res = id 
+          ? await getUserByIdAdmin(id)
+          : await getUserByEmailAdmin(email);
+
         if(res.success === true) {
           setUser(res.dt);
           setFetchingUserInfo(false);
@@ -324,6 +332,27 @@ const Page = () => {
 
     };
 
+    const convertUserToHost = async() => {
+
+      try {
+          setConvertingToHost(true);
+          const res = await convertToBeHost(user._id);
+          if(!res || res.ok !== true) {
+            setConvertError('حدث خطأ ما أثناء العملية.');
+            setConvertSuccess('');
+            setConvertingToHost(false);
+            return;
+          }
+          setConvertError('');
+          setConvertSuccess('تم تحويل المستخدم الى معلن.');
+          setConvertingToHost(false);
+      } catch (err) {
+          console.log(err);
+          setConvertingToHost(false);
+      }
+
+    };
+
     const isNormalUser = () => {
       if(user.role === 'admin') return false;
       if(user.role === 'owner') return false;
@@ -351,20 +380,38 @@ const Page = () => {
   return (
     <div className='profile user-profile' dir='ltr'>
 
+        {user.ask_convert_to_host && user.account_type !== 'host' && <div className='convert-to-host-div disable-text-copy' style={{ display: !isConvertDiv ? 'none' : undefined }}>
+          <span id='close-span' onClick={() => setIsConvertDiv(false)}/>
+          <div className='convertDiv'>
+            <h3>Are you sure to convert this user's account into an advertiser on the platform?</h3>
+            <div className='btns'>
+              <button className='btnbackscndclr' onClick={convertUserToHost} style={convertSuccess?.length > 0 ? { background: 'var(--darkWhite)', color: '#767676' } : null}>{convertingToHost ? <LoadingCircle /> : (convertSuccess?.length > 0 ? 'Convert Done' : 'Convert')}</button>
+              <button className='btnbackscndclr' onClick={() => setIsConvertDiv(false)} style={{ background: 'var(--darkWhite)', color: '#767676' }}>Cancel</button>
+            </div>
+            <p style={{ display: convertingToHost ? 'none' : undefined }} id={convertError?.length > 0 ? 'p-info-error' : 'p-info'}>{convertError?.length > 0 ? convertError : convertSuccess }</p>
+          </div>
+        </div>}
+
         <div className='profileDetails'>
             
-            <h2>{!isNormalUser() ? (user.role === 'admin' ? 'Admin' : 'Owner'): 'User'} <span>{username}</span></h2>
+            <h2>{!isNormalUser() ? (user.role === 'admin' ? 'Admin' : 'Owner'): 'User'} <span>{user?.firstNameEN || user?.lastNameEN || user?.username}</span></h2>
+
+            {user.ask_convert_to_host && user.account_type !== 'host' 
+              && <div className='askForHost'>
+              <h3>This user requested to be converted into an advertiser on the platform {'(Contact him via number or email to find out more details about him, then convert him to an advertiser via the “Convert” button.)'}</h3>
+              <button className='btnbackscndclr' onClick={() => setIsConvertDiv(true)}>Convert</button>  
+            </div>}
 
             <InfoDiv title={'Username'} value={username}/>
 
-            <InfoDiv title={'Role'} value={getRoleArabicName(user.role)}/>
+            <InfoDiv title={'Role'} value={user.role}/>
 
             <InfoDiv title={'Email'} isInfo={user?.email_verified ? false : true} 
                 info={'This user has not verified his account'} value={email} type={'email'}/>
 
             <InfoDiv title={'Phone number'} value={user?.phone ? user.phone : ''}/>
             
-            <InfoDiv title={'User Address'} value={user?.address ? user.address : ''}/>
+            <InfoDiv title={'User Address'} value={user?.addressEN || user?.address}/>
             
             <hr />
 

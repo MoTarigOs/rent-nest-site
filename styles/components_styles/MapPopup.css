@@ -1,0 +1,362 @@
+.map-div{
+    position: fixed;
+    top: -10px;
+    left: calc(-(100vw - 100%) / 2);
+    width: 100vw;
+    display: flex;
+    padding: 0;
+    margin: 0;
+    z-index: 10;
+
+    .search-map{
+        position: absolute;
+        top: 10px;
+        left: 0;
+        width: 100vw;
+        height: 100%;
+        z-index: 8;
+
+        div{
+            border-radius: 0;
+        }
+    }
+
+    #more-btn, #list-btn{
+        z-index: 9;
+        width: 172px;
+        position: absolute;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: none;
+        background: white;
+        font-weight: 500;
+        color: var(--secondColorHover);
+        box-shadow: 1px 1px 12px rgba(24, 24, 24, 0.245);
+        cursor: pointer;
+        top: 100px;
+        font-size: 0.82rem;
+        left: calc(50% - 86px);
+        transition: all 0.2s ease-out;
+    }
+
+    #list-btn{
+        top: 36px;
+        background: var(--secondColor);
+        color: white;
+        box-shadow: unset;
+        border-radius: 50px;
+        font-size: 1rem;
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+
+        svg{
+            width: 24px;
+            height: 24px;
+            scale: 0.8 1;
+            transform: rotate(180deg);
+
+            path{
+                stroke: white;
+            }
+        }
+    }
+
+    #more-btn:hover{
+        box-shadow: 1px 1px 12px rgba(24, 24, 24, 0.500);
+        transition: all 0.2s ease-in;
+    }
+
+    #list-btn:hover{
+        background: var(--secondColorHover);
+        transition: all 0.2s ease-in;
+    }
+
+    .units-div{
+        z-index: 100;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        background: white;
+        padding: 0;
+        width: 100%;
+        height: calc(100dvh - 120px);
+        min-height: 100%;
+        overflow-y: scroll;
+        padding-top: 16px;
+
+        .not-found{
+            height: calc(100vh - var(--headerHeightMobile) - 68px);
+        }
+
+        .selected-prop{
+            padding: 12px;
+            box-shadow: unset;
+            border: none;
+            margin-bottom: 24px;
+            margin: 0;
+
+            .units-div-header{
+                margin-top: 12px;
+                margin-bottom: 0;
+                justify-content: flex-start;
+                border: none;
+            }
+
+            .card{
+                box-shadow: 1px 1px 12px rgba(0, 0, 0, 0.173);
+            }
+        }
+
+        .resultUL{
+            width: 100%;
+            padding: 24px 12px;
+            height: fit-content;
+            overflow-y: hidden;
+
+            .card{
+                .imagesDiv{
+                    height: 120px;
+                }
+            }
+        }
+        
+        .units-div-header{
+            width: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.116);
+            padding-bottom: 16px;
+
+            h3{
+                color: var(--secondColorHover);
+            }
+
+            svg{
+                position: absolute;
+                top: 2px;
+                left: 16px;
+                width: 32px;
+                height: 32px;
+                padding: 4px;
+                border-radius: 50%;
+                transition: all 0.2s ease-out;
+                cursor: pointer;
+                z-index: 1;
+
+                path{
+                    fill: var(--secondColorDark);
+                }
+            }
+
+            svg:hover{
+                background: var(--darkWhite);
+                transition: all 0.2s ease-in;
+            }
+        }
+    }
+
+    .selected-prop{
+        top: unset;
+        bottom: 0;
+        padding: 12px;
+        min-height: unset;
+        height: fit-content;
+        max-height: 100%;
+        margin-bottom: 76px;
+        padding-bottom: 32px;
+        box-shadow: 1px 1px 12px rgba(0, 0, 0, 0.186);
+        overflow: hidden;
+
+        .units-div-header{
+            margin-bottom: 24px;
+            width: 100%;
+            padding: 0;
+            padding-bottom: 12px;
+            justify-content: space-between;
+            align-items: center;
+
+            svg{
+                position: static;
+                margin-right: auto;
+            
+                &:dir(ltr){
+                    margin-right: unset;
+                    margin-left: auto;
+                }
+            }
+        }
+
+        .card{
+            height: fit-content;
+            width: 100%;
+            max-width: unset;
+        }
+    }
+
+    .filterHeaderDiv{
+        background: var(--secondColor);
+        position: absolute;
+        width: 160px;
+        bottom: 10vh;
+        left: calc(50% - 80px);
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        margin: 0 auto;
+        color: white;
+
+        button{
+            background: var(--secondColor);
+            padding: 12px;
+            border-top-right-radius: 50px;
+            border-bottom-right-radius: 50px;
+            border: none;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.1s ease-in;
+        }
+
+        #secondFilterHeaderDivBtn{
+            border-top-right-radius: unset;
+            border-bottom-right-radius: unset;
+            border-top-left-radius: 50px;
+            border-bottom-left-radius: 50px;
+        }
+
+        button:hover{
+            background: var(--secondColorHover);
+            transition: all 0.1s ease-in;
+        }
+
+        svg{
+            width: 20px;
+            height: 20px;
+            margin-left: 8px;
+            
+            path{
+                stroke: white;
+                fill: white;
+            }
+        }
+
+        span{
+            height: 24px;
+            width: 1px;
+            background: white;
+        }
+    }
+
+    &:dir(ltr){
+        .card{
+            margin-left: 0;
+            margin-right: 24px;
+        }
+    }
+}
+
+@media screen and (min-width: 1160px){
+    .map-div{
+        position: fixed;
+        flex-direction: row-reverse;
+        margin-top: 0;
+        top: calc(var(--headerHeight) + 0px);
+        padding: 0;
+        height: calc(100vh - var(--headerHeight) - 0px);
+        gap: 16px;
+        max-width: 1300px;
+        z-index: 1;
+        overflow-y: hidden;
+
+        #list-btn{
+            display: none;
+        }
+
+        .search-map{
+            position: relative;
+            width: 70%;
+            top: unset;
+            left: unset;
+        }
+
+        .units-div{
+            position: relative;
+            width: 45%;
+            max-width: 680px;
+            top: unset;
+            left: unset;
+            padding-right: 16px;
+            padding-left: 8px;
+            height: calc(100dvh - var(--headerHeight) - 64px);
+            overflow-y: scroll;
+
+            .resultUL{
+                height: fit-content;
+                overflow: hidden;
+                width: 100%;
+                padding: 24px 12px 12px 12px;
+                align-items: center;
+
+                .card{
+                    margin: 0;
+                }
+
+
+            }
+            .pagesHandler{
+                margin-bottom: 32px;
+            }
+            .card{
+                width: 100%;
+                height: fit-content;
+                max-width: unset;
+            }
+        }
+
+        .selected-prop{
+            margin-bottom: 76px;
+        }
+
+        .filterHeaderDiv{
+            bottom: 4vh;
+        }
+    }
+}
+
+@media screen and (max-width: 680px){
+    .map-div{
+        flex-direction: column-reverse;
+
+        .google-map-popup-wrapper{
+            height: 240px;
+        }
+
+        .units-div{
+            padding: 16px;
+            padding-bottom: 32px;
+            .resultUL{
+                .card{
+                    max-height: unset;
+                    width: 100%;
+                    max-width: unset;
+                    margin: 0;
+                    height: 380px;
+                    .imagesDiv{
+                        height: 100%;
+                    }
+                }
+            }
+        }
+
+        .card{
+            margin-top: 24px;
+            width: 100%;
+            height: 280px;
+            max-width: 680px;
+        }
+    }
+}

@@ -4,10 +4,24 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
+    gap: 16px;
     background: var(--darkWhite);
 
-    svg{
-        width: 44px;
-        height: 44px;
+    .main-text{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+    
+        svg{
+            width: 44px;
+            height: 44px;
+        }
+    }
+
+    a{
+        display: block;
+        color: var(--secondColorDark);
     }
 }

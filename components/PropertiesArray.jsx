@@ -9,8 +9,14 @@ import { Context } from "@utils/Context";
 import { getBooks, getFavourites, getLocation, getOwnerProperties, getProperties } from "@utils/api";
 import PagesHandler from "./PagesHandler";
 import { isOkayBookDays } from '@utils/Logic';
+import { JordanCities } from '@utils/Data';
 
-const PropertiesArray = ({ type, isEdit, isHide, userId, catagoryParam, isEnglish, cardsPerPage }) => {
+const PropertiesArray = ({ 
+    type, isEdit, isHide, isSearchMap, title, userId, 
+    catagoryParam, isEnglish, cardsPerPage, longitude,
+    latitude, propsArr, setPropsArr, fetchingProp, setFetchingProp,
+    dontFetchWithHide
+}) => {
 
     const [runOnce, setRunOnce] = useState(false);
     const [fetching, setFetching] = useState(false);
@@ -38,11 +44,11 @@ const PropertiesArray = ({ type, isEdit, isHide, userId, catagoryParam, isEnglis
     
     const settingPropertiesArray = async(skipCount) => {
 
-        if(fetching) return;
+        if(fetching || fetchingProp) return;
 
         try {
 
-            setFetching(true);
+            (isSearchMap && setFetchingProp) ? setFetchingProp(true) : setFetching(true);
 
             let addressLong, addressLat;
 
@@ -76,6 +82,23 @@ const PropertiesArray = ({ type, isEdit, isHide, userId, catagoryParam, isEnglis
                         return getFavourites(skipCount, cardsPerPage);
                     case 'books':
                         return getBooks(skipCount, cardsPerPage);
+                    case 'search':
+                        return getProperties(
+                            city.value, null, catagory, rangeValue,
+                            ratingScore, searchText, isSearchMap ? 'address' : arrangeValue, longitude || JordanCities[0].long, latitude || JordanCities[0].lat, skipCount,
+                            quickFilter,
+                            neighbourSearchText,
+                            unitCode,
+                            bedroomFilter,
+                            capacityFilter,
+                            poolFilter,
+                            customersTypesFilter,
+                            companiansFilter,
+                            bathroomsFilterNum,
+                            bathroomsCompaniansFilter,
+                            kitchenFilter,
+                            categoryArray, null, cardsPerPage, isSearchMap
+                        );
                     default:
                         return getProperties(
                             city.value, false, catagory, rangeValue,
@@ -97,10 +120,13 @@ const PropertiesArray = ({ type, isEdit, isHide, userId, catagoryParam, isEnglis
             
             const res = await getRes();
 
+            console.log('res: ', res);
+
             if(res.success !== true || !res.dt?.length > 0) {
+                if(setPropsArr) setPropsArr([]);
                 setProperitiesArray([]);
                 setFoundItems(0);
-                setFetching(false);
+                (isSearchMap && setFetchingProp) ? setFetchingProp(false) : setFetching(false);
                 return;
             };
 
@@ -113,15 +139,16 @@ const PropertiesArray = ({ type, isEdit, isHide, userId, catagoryParam, isEnglis
                 }
             };
 
-            setProperitiesArray(((isCalendarValue && calendarDoubleValue) ? arr : res?.dt));
+            if(setPropsArr) setPropsArr(((isCalendarValue && calendarDoubleValue) ? arr : res?.dt));
+            else setProperitiesArray(((isCalendarValue && calendarDoubleValue) ? arr : res?.dt));
 
-            setFoundItems(res?.count);
+            if(!res?.count <= 0) setFoundItems(res?.count);
 
-            setFetching(false);
+            (isSearchMap && setFetchingProp) ? setFetchingProp(false) : setFetching(false);
 
         } catch (err) {
             console.log(err);
-            setFetching(false);
+            (isSearchMap && setFetchingProp) ? setFetchingProp(false) : setFetching(false);
         }
     };
 
@@ -143,20 +170,24 @@ const PropertiesArray = ({ type, isEdit, isHide, userId, catagoryParam, isEnglis
     }, [catagory]);
 
     useEffect(() => {
-        if(!isHide) settingPropertiesArray();
+        if(!isHide && !dontFetchWithHide) settingPropertiesArray();
     }, [isHide]);
+
+    const getPropsArray = () => {
+        return setPropsArr ? propsArr : properitiesArray;
+    };
 
   return (
     <div className='props-array' style={{ display: isHide ? 'none' : undefined }}>
-        <h3 id='title-h'>المعروضات</h3>
-        {(!fetching && properitiesArray?.length > 0) ? <ul className="resultUL">
-            {properitiesArray.map((item) => (
+        {title && <h3 id='title-h'>{title}</h3>}
+        {(!fetching && getPropsArray()?.length > 0) ? <ul className="resultUL">
+            {getPropsArray().map((item) => (
                 <Card type={isEdit ? 'myProp' : null} isEnglish={isEnglish} key={item._id} item={item}/>
             ))}
         </ul> : fetching ? <MySkeleton loadingType={'cards'}/> : <NotFound isEnglish={isEnglish}/>}
-        <PagesHandler isHide={isHide} triggerPropsArrayFetch={settingPropertiesArray} isEnglish={isEnglish} 
-        indexSlide={indexSlide} city={city} 
-        setIndexSlide={setIndexSlide} properitiesArray={properitiesArray} 
+        <PagesHandler centerTheDiv={type === 'search'} isHide={isHide} triggerPropsArrayFetch={settingPropertiesArray} isEnglish={isEnglish} 
+        indexSlide={indexSlide} city={city}
+        setIndexSlide={setIndexSlide} properitiesArray={getPropsArray()} 
         cardsPerPage={cardsPerPage} foundItems={foundItems}/>
     </div>
   )

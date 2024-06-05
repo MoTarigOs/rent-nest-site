@@ -12,7 +12,9 @@ import { getNameByLang } from '@utils/Logic';
 const HeaderPopup = ({ 
     type, pathname, isEnglish, triggerHomeFilterSection,
     itemCity, setItemCity, isViewPage, days,
-    isCustom, setIsCustom, customArray, selectedCustom, setSelectedCustom 
+    isCustom, setIsCustom, customArray, selectedCustom, 
+    setSelectedCustom, initialValueIndex, isSingleSelection,
+    isNotSearchBar, myStyle, searchBarPlaceHolder
 }) => {
 
     const [searched, setSearched] = useState(customArray ? customArray : JordanCities);
@@ -24,12 +26,16 @@ const HeaderPopup = ({
     const { 
         city, setCity, triggerFetch, setTriggerFetch, 
         catagory, setCatagory, setCalendarDoubleValue, setLongitude, 
-        setLatitude, vehicleType, setVehicleType
+        setLatitude, vehicleType, setVehicleType, setCategoryArray
     } = useContext(Context);
 
     useEffect(() => {
         if(triggerHomeFilterSection) setSearched(JordanCities);
     }, []);
+
+    useEffect(() => {
+        if(initialValueIndex >= 0) setSelectedCustom(customArray[0]);
+    }, [initialValueIndex]);
 
     const getCatagories = () => {
         if(pathname === '/vehicles' || type.includes('vehicle'))
@@ -38,12 +44,12 @@ const HeaderPopup = ({
     }
 
     const RightIconSpan = () => {
-        return <span id='righticonspan'/>
+        return <div id='righticonspan'><span /></div>
     }
 
   return (
     <>
-        {type?.includes('city') && <motion.div className='cityPopup'
+        {type === 'city' && <motion.div className='cityPopup'
             initial={{ opacity: 0, scale: 0.7 }}
             animate={{ opacity: 1, scale: 1 }}
             style={{ width: type?.includes('mobile-filter') ? '100%' : undefined }}
@@ -85,9 +91,10 @@ const HeaderPopup = ({
 
         </motion.div>}
 
-        {type?.includes('add-city') && <motion.div className='cityPopup'
+        {type === 'add-city' && <motion.div className='cityPopup addCity disable-text-copy'
             initial={{ opacity: 0, scale: 0.7 }}
             animate={{ opacity: 1, scale: 1 }}
+            style={myStyle}
         >
              <div id='searchBar'>
                 <Svgs name={'search'}/>
@@ -102,24 +109,24 @@ const HeaderPopup = ({
                     setSearched(arr);
                 }} placeholder={(pathname?.includes('/en') || isEnglish) ? 'Search a city...' : 'ابحث عن مدينة...'}/>
             </div>
-            <ul>
-                <li onClick={() => {
-                    setItemCity({ city_id: -1 });
+            <ul className='disable-text-copy'>
+                {/* <li className={itemCity?.city_id === -1 ? 'selectedCatagory' : undefined} onClick={() => {
+                    setItemCity({ city_id: -1, value: '', arabicName: '' });
                     setLongitude(null);
                     setLatitude(null);
                 }}>
+                    <RightIconSpan />
                     {isEnglish ? 'All Cities' : 'كل المدن'}
-                    {itemCity?.city_id === -1 && <RightIconSpan />}
-                </li>
+                </li> */}
                 {searched.map((cty) => (
-                    <li onClick={() => { 
+                    <li className={(itemCity?.city_id === cty.city_id ? 'selectedCatagory' : undefined) + ' disable-text-copy'} onClick={() => { 
                         setItemCity(cty);
                         setLongitude(cty.long);
                         setLatitude(cty.lat);
                     }} 
                     key={cty.city_id}>
+                        <RightIconSpan />
                         {isEnglish ? cty.value : cty.arabicName} 
-                        {itemCity.city_id === cty.city_id && <RightIconSpan />}
                     </li>
                 ))}
             </ul>
@@ -146,6 +153,7 @@ const HeaderPopup = ({
                     <li key={ctg.id} onClick={() => {
                         if(catagory !== ctg.value){
                             setCatagory(ctg.value);
+                            setCategoryArray([]);
                             setTriggerFetch(!triggerFetch);
                         }
                     }}>
@@ -212,30 +220,36 @@ const HeaderPopup = ({
             </ul>
         </motion.div>}
 
-        {type === 'customers' && <motion.div className='cityPopup'
-            initial={{ opacity: 0, scale: 0.7 }}
+        {type === 'customers' && <motion.div className='cityPopup addCity'
+            initial={{ opacity: 0, scale: 0.7 }} style={myStyle}
             animate={{ opacity: isCustom ? 1 : 0, scale: isCustom ? 1 : 0 }}
         >
              <ul>
-                <li onClick={() => { setSelectedCustom(''); setIsCustom(false)}}>{isEnglish ? 'Undefined' : 'غير محدد'} {selectedCustom === '' && <RightIconSpan />}</li>
+                {initialValueIndex === undefined && <li className={selectedCustom === '' ? 'selectedCatagory' : undefined} 
+                onClick={() => { 
+                    setSelectedCustom(''); setIsCustom(false)
+                }}>
+                    <RightIconSpan />
+                    {isEnglish ? 'Undefined' : 'غير محدد'} 
+                </li>}
                 {customArray.map((cst) => (
-                    <li onClick={() => {
+                    <li className={selectedCustom === cst ? 'selectedCatagory' : undefined} onClick={() => {
                         setSelectedCustom(cst);
                         setIsCustom(false);
-                    }} key={cst}>
+                    }} key={cst} style={{ width: 'fit-content' }}>
+                        <RightIconSpan />
                         {cst}
-                        {selectedCustom === cst && <RightIconSpan />}
                     </li>
                 ))}
             </ul>
         </motion.div>}
 
-        {type === 'selections' && <motion.div className='cityPopup'
-            initial={{ opacity: 0, scale: 0.7 }}
+        {type === 'selections' && <motion.div className='cityPopup addCity'
+            initial={{ opacity: 0, scale: 0.7 }} style={myStyle}
             animate={{ opacity: isCustom ? 1 : 0, scale: isCustom ? 1 : 0 }}
         >
              <ul>
-                <li id='searchBar'>
+                {!isNotSearchBar && <li id='searchBar'>
                     <Svgs name={'search'}/>
                     <input onChange={(e) => {
                         if(e.target.value?.length <= 0) return setSearched(customArray);
@@ -246,10 +260,12 @@ const HeaderPopup = ({
                             }
                         });
                         setSearched(arr);
-                    }}/>
-                </li>
+                    }} placeholder={searchBarPlaceHolder} style={{ fontSize: '1rem' }}/>
+                </li>}
                 {searched.map((cst) => (
-                    <li onClick={() => {
+                    <li className={selectedCustom?.includes(cst) ? 'selectedCatagory' : undefined} 
+                    onClick={() => {
+                        if(isSingleSelection) return setSelectedCustom(cst);
                         if(selectedCustom?.includes(cst)){
                             setSelectedCustom(selectedCustom?.filter(
                                 i => i !== cst
@@ -258,8 +274,8 @@ const HeaderPopup = ({
                             setSelectedCustom([...selectedCustom, cst]);
                         }
                     }} key={cst}>
+                        <RightIconSpan />
                         {cst}
-                        {selectedCustom?.includes(cst) && <RightIconSpan />}
                     </li>
                 ))}
             </ul>

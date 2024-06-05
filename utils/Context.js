@@ -11,6 +11,11 @@ function DataContext({ children }) {
     const [isEnglish, setIsEnglish] = useState(false);
     const [userId, setUserId] = useState('');
     const [userUsername, setUserUsername] = useState('');
+    const [userFirstName, setUserFirstName] = useState('');
+    const [userFirstNameEN, setUserFirstNameEN] = useState('');
+    const [userLastName, setUserLastName] = useState('');
+    const [userLastNameEN, setUserLastNameEN] = useState('');
+    const [userAccountType, setUserAccountType] = useState('');
     const [userUsernameEN, setUserUsernameEN] = useState('');
     const [userEmail, setUserEmail] = useState('');
     const [userAddress, setUserAddress] = useState('');
@@ -25,6 +30,8 @@ function DataContext({ children }) {
     const [booksIds, setBooksIds] = useState([]);
     const [favouritesIds, setFavouritesIds] = useState([]);
     const [isModalOpened, setIsModalOpened] = useState(false);
+    const [arabicFont, setArabicFont] = useState('');
+    const [englishFont, setEnglishFont] = useState('');
     const [city, setCity] = useState({});
     const [catagory, setCatagory] = useState('');    
     const [vehicleType, setVehicleType] = useState(-1);    
@@ -41,6 +48,8 @@ function DataContext({ children }) {
     const [searchText, setSearchText] = useState('');
     const [arrangeValue, setArrangeValue] = useState('default');
     const [isMap, setIsMap] = useState(false);
+    const [isFilter, setIsFilter] = useState(false);    
+    const [isArrange, setIsArrange] = useState(false);
     const [mapType, setMapType] = useState('');
     const [mapArray, setMapArray] = useState([]);
     const [longitude, setLongitude] = useState(JordanCities[0].long);
@@ -68,6 +77,11 @@ function DataContext({ children }) {
             isEnglish, setIsEnglish,
             userId, setUserId,
             userUsername, setUserUsername,
+            userFirstName, setUserFirstName,
+            userFirstNameEN, setUserFirstNameEN,
+            userLastName, setUserLastName,
+            userLastNameEN, setUserLastNameEN,
+            userAccountType, setUserAccountType,
             userUsernameEN, setUserUsernameEN,
             userEmail, setUserEmail,
             userAddress, setUserAddress,
@@ -82,6 +96,8 @@ function DataContext({ children }) {
             booksIds, setBooksIds,
             favouritesIds, setFavouritesIds,
             isModalOpened, setIsModalOpened,
+            arabicFont, setArabicFont,
+            englishFont, setEnglishFont,
             city, setCity,
             catagory, setCatagory,
             vehicleType, setVehicleType,
@@ -100,6 +116,8 @@ function DataContext({ children }) {
             mapType, setMapType,
             mapArray, setMapArray,
             isMap, setIsMap,
+            isFilter, setIsFilter,
+            isArrange, setIsArrange,
             longitude, setLongitude,
             latitude, setLatitude,
             

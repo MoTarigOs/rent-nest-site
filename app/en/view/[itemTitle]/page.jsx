@@ -2,7 +2,7 @@
 
 import '../../../view/view-style/View.css';
 import ImagesShow from "@components/ImagesShow";
-import { JordanCities, cancellationsArray, myConditions } from "@utils/Data";
+import { JordanCities, cancellationsArray, currencyCode, myConditions, reservationType } from "@utils/Data";
 import GoogleMapImage from '@assets/images/google-map-image.jpg';
 import Image from "next/image";
 import LocationGif from '@assets/icons/location.gif';
@@ -104,6 +104,10 @@ const page = () => {
   const [isVehicleSpecs, setIsVehicleSpecs] = useState(false);
   const [isVehicleAddons, setIsVehicleAddons] = useState(false);
   const [isCheckout, setIsCheckout] = useState(false);
+
+  const [isReservationType, setIsReservationType] = useState(false);
+  const [resType, setResType] = useState(reservationType()[0]);
+  const [resTypeNum, setResTypeNum] = useState(1);
 
   const whatsappBaseUrl = 'https://wa.me/';
 
@@ -573,6 +577,24 @@ const page = () => {
     && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1))) return 'Specify book days';
   };
 
+  const getPriceReservationType = () => {
+    if(item?.prices?.daily) return setResType(reservationType()?.find(i=>i.value?.toLowerCase() === 'daily'));
+    if(item?.prices?.weekly) return setResType(reservationType()?.find(i=>i.value?.toLowerCase() === 'weekly'));
+    if(item?.prices?.monthly) return setResType(reservationType()?.find(i=>i.value?.toLowerCase() === 'monthly'));
+    if(item?.prices?.seasonly) return setResType(reservationType()?.find(i=>i.value?.toLowerCase() === 'seasonly'));
+    if(item?.prices?.yearly) return setResType(reservationType()?.find(i=>i.value?.toLowerCase() === 'yearly'));
+    return null;
+  };
+
+  const getPrice = () => {
+    if(resType?.value?.toLowerCase() === 'daily') return item.prices?.daily || '';
+    else if(resType?.value?.toLowerCase() === 'weekly') return item.prices?.weekly || 'Undefined price';
+    else if(resType?.value?.toLowerCase() === 'monthly') return item.prices?.monthly || 'Undefined price';
+    else if(resType?.value?.toLowerCase() === 'seasonly') return item.prices?.seasonly || 'Undefined price';
+    else if(resType?.value?.toLowerCase() === 'yearly') return item.prices?.yearly || 'Undefined price';
+    return 'Undefined price';
+  };
+
   useEffect(() => {
     setRunOnce(true);
     setAdminSending(false);
@@ -581,7 +603,7 @@ const page = () => {
 
   useEffect(() => {
     setCanBook(isAbleToBook());
-    console.log(item?.booked_days);
+    getPriceReservationType();
   }, [item]);
 
   useEffect(() => {
@@ -843,9 +865,9 @@ const page = () => {
 
           {host && <Link href={`/en/host?id=${item.owner_id}`} className='the-host'>
             <h3 className='header-host'>Advertisor <span className='disable-text-copy'>About him <Svgs name={'dropdown arrow'}/></span></h3>
-            <span id='image-span' className='disable-text-copy'>{host?.usernameEN?.at(0) || host?.username?.at(0)}</span>
+            <span id='image-span' className='disable-text-copy'>{host?.firstNameEN?.at(0) || host?.lastNameEN?.at(0) || host?.username?.at(0) || host?.firstName?.at(0)}</span>
             <div>
-              <h3>{host?.usernameEN || host?.username}</h3>
+              <h3>{host?.firstNameEN || host?.lastNameEN || host?.username || host?.firstName}</h3>
               <h4><Svgs name={'star'}/> Evaluation {host?.rating || 0} {`(${host?.reviewsNum || 0} reviews)`}</h4>
             </div>
             <p>{host?.units || 0} Units</p>
@@ -968,28 +990,37 @@ const page = () => {
 
         <div className='checkout'>
 
-          {(isCalendar && !isCheckout) && <HeaderPopup type={'calendar'} isViewPage days={item.booked_days} setCalendarDoubleValue={setCalendarDoubleValue}/>}
+          {(isCalendar && !isCheckout) && <HeaderPopup type={'calendar'} isViewPage days={item.booked_days} setCalendarDoubleValue={setCalendarDoubleValue} isEnglish/>}
 
-          <div className='nightsDiv'>
-            <h3 style={{ color: 'var(--secondColorDark)' }}>{item.price}<span style={{ marginLeft: 6 }}>$ / Night</span></h3>
-            <h3 style={{ color: '#777' }}><span style={{ marginRight: 6 }}>Number of Nights</span> {getNumOfBookDays(calendarDoubleValue)}</h3>
+          <div className='nightsDiv' onClick={() => setIsReservationType(!isReservationType)}>
+            <h3 id='res-type'>Select Type of reservation {'(daily, weekly, yearly ...etc)'}</h3>
+            <h3 style={{ color: 'var(--secondColorDark)' }}>{getPrice()}<span style={{ marginLeft: 8 }}> {currencyCode(true, true)} / {reservationType()?.find(i => i.id === resType?.id)?.oneEn}</span></h3>
+            <h3 style={{ color: '#777' }}><span>Number of {reservationType()?.find(i => i.id === resType?.id)?.oneEn + 's'}</span> {resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)}</h3>
+            <HeaderPopup type={'custom'} isCustom={isReservationType} selectedCustom={resType}
+            setSelectedCustom={setResType} setIsCustom={setIsReservationType}
+            customArray={reservationType()}/>
           </div>
 
           <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
-            {getNameByLang('تاريخ الحجز', true)}
+          {getNameByLang('تاريخ الحجز', true)}
             <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(0), true, true)}</h3>
           </div>
 
-          <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
+          <div style={{ display: resType?.id > 0 ? 'none' : undefined }} className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
             {getNameByLang('تاريخ انتهاء الحجز', true)}
             <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, true)}</h3>
           </div>
 
-          <div className='cost'>
+          {resType?.id > 0 && <CustomInputDiv title={'Enter number of ' + reservationType()?.find(i => i.id === resType?.id)?.oneEn + 's'}
+          type={'number'} value={resTypeNum} listener={(e) => {
+            setResTypeNum(Number(e.target.value));
+          }} myStyle={{ marginBottom: 32 }}/>}
+
+          <div className='cost' style={{ marginTop: 'auto' }}>
             <h3 style={{ display: (getNumOfBookDays(calendarDoubleValue) >= item.discount?.num_of_days_for_discount && item.discount?.percentage > 0)
-              ? null : 'none' }}>Discount {item.discount?.percentage}% <span>- {(getNumOfBookDays(calendarDoubleValue) * item.price * item.discount?.percentage / 100).toFixed(2)} $</span></h3>
-            <h3>Total cost {getNumOfBookDays(calendarDoubleValue)} Night <span>{((getNumOfBookDays(calendarDoubleValue) * item.price) - (item.discount?.percentage ? (getNumOfBookDays(calendarDoubleValue) * item.price * item.discount.percentage / 100) : 0)).toFixed(2)} $</span></h3>
-          </div>
+              ? null : 'none' }}>Discount {item.discount?.percentage}% <span>- {(resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue) * getPrice() * item.discount?.percentage / 100).toFixed(2)} {currencyCode(false, true)}</span></h3>
+            <h3>Total Cost of {resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)} {reservationType(null, resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue), true)?.find(i => i.id === resType?.id)?.oneEn + 's'} <span>{(((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice()) - (item.discount?.percentage ? ((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice() * item.discount.percentage / 100) : 0)).toFixed(2)} {currencyCode(true, true)}</span></h3>
+          </div> 
 
           <button className='btnbackscndclr' id={(item.owner_id === userId || !canBook || (!booksIds.find(i => i.property_id === id) && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1)))) ? 'disable-button' : ''} 
             onClick={handleBook}>
@@ -1010,9 +1041,9 @@ const page = () => {
       {isMobile && <div className='mobileBookBtn'>
         <button onClick={() => setIsCheckout(true)} className='btnbackscndclr'>Book now</button>
         <div>
-          <span id={item.discount?.percentage > 0 ? 'old-price' : 'original-price'}>{item.price} $</span>
-          {item.discount?.percentage > 0 && <span id='discounted-price'>{item.price - (item.price * (item.discount?.percentage)) / 100} $</span>}
-          / Night
+          <span id={item.discount?.percentage > 0 ? 'old-price' : 'original-price'}>{getPrice()} {currencyCode(true, true)}</span>
+          {item.discount?.percentage > 0 && <span id='discounted-price'>{getPrice() - (getPrice() * (item.discount?.percentage)) / 100} {currencyCode(true, true)}</span>}
+          / {reservationType()?.find(i => i.id === resType?.id)?.oneEn}
         </div>
       </div>}
 
@@ -1026,11 +1057,15 @@ const page = () => {
 
         <div id='close-checkout' onClick={() => setIsCheckout(false)}><Svgs name={'cross'}/></div>
 
-        {isCalendar && <HeaderPopup type={'calendar'} isViewPage days={item.booked_days} setCalendarDoubleValue={setCalendarDoubleValue}/>}
+        {(isCalendar && isCheckout) && <HeaderPopup type={'calendar'} isViewPage days={item.booked_days} setCalendarDoubleValue={setCalendarDoubleValue}/>}
 
-        <div className='nightsDiv'>
-          <h3 style={{ color: 'var(--secondColorDark)' }}>${item.price}<span> / Night</span></h3>
-          <h3 style={{ color: '#777' }}><span style={{ marginLeft: 0 }}>No of Nights</span> {getNumOfBookDays(calendarDoubleValue)}</h3>
+        <div className='nightsDiv' onClick={() => setIsReservationType(!isReservationType)}>
+        <h3 id='res-type'>Select Type of reservation {'(daily, weekly, yearly ...etc)'}</h3>
+          <h3 style={{ color: 'var(--secondColorDark)' }}>{getPrice()}<span> {currencyCode(true, true)} / {reservationType()?.find(i => i.id === resType?.id)?.oneEn}</span></h3>
+          <h3 style={{ color: '#777' }}><span>Number of {reservationType()?.find(i => i.id === resType?.id)?.oneEn + 's'}</span> {resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)}</h3>
+          <HeaderPopup type={'custom'} isCustom={isReservationType} selectedCustom={resType}
+          setSelectedCustom={setResType} setIsCustom={setIsReservationType}
+          customArray={reservationType()} isEnglish/>
         </div>
 
         <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
@@ -1038,16 +1073,21 @@ const page = () => {
           <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(0), true, true)}</h3>
         </div>
 
-        <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
+        <div className='bookingDate' style={{ display: resType?.id > 0 ? 'none' : undefined }} onClick={() => setIsCalendar(!isCalendar)}>
           Book End Date
           <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, true)}</h3>
         </div>
 
-        <div className='cost'>
+        {resType?.id > 0 && <CustomInputDiv title={'Enter number of ' + reservationType()?.find(i => i.id === resType?.id)?.oneEn + 's'}
+        type={'number'} value={resTypeNum} listener={(e) => {
+          setResTypeNum(Number(e.target.value));
+        }} myStyle={{ marginBottom: 32 }}/>}
+
+        <div className='cost' style={{ marginTop: 'auto' }}>
           <h3 style={{ display: (getNumOfBookDays(calendarDoubleValue) >= item.discount?.num_of_days_for_discount && item.discount?.percentage > 0)
-            ? null : 'none' }}>Discount {item.discount?.percentage}% <span>- ${(getNumOfBookDays(calendarDoubleValue) * item.price * item.discount?.percentage / 100).toFixed(2)}</span></h3>
-          <h3>Total {getNumOfBookDays(calendarDoubleValue)} Night <span>${((getNumOfBookDays(calendarDoubleValue) * item.price) - (item.discount?.percentage ? (getNumOfBookDays(calendarDoubleValue) * item.price * item.discount.percentage / 100) : 0)).toFixed(2)}</span></h3>
-        </div>
+            ? null : 'none' }}>Discount {item.discount?.percentage}% <span>- {(resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue) * getPrice() * item.discount?.percentage / 100).toFixed(2)} {currencyCode(false, true)}</span></h3>
+          <h3>Total Cost {resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)} {reservationType(null, resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue), true)?.find(i => i.id === resType?.id)?.oneEn + 's'} <span>{(((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice()) - (item.discount?.percentage ? ((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice() * item.discount.percentage / 100) : 0)).toFixed(2)} {currencyCode(true, true)}</span></h3>
+        </div> 
 
         <button className='btnbackscndclr' id={(item.owner_id === userId || !canBook || (!booksIds.find(i => i.property_id === id) && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1)))) ? 'disable-button' : ''} 
           onClick={handleBook}>
@@ -1064,8 +1104,8 @@ const page = () => {
 
       </div>}
 
-      {(isCalendar || shareDiv || reportDiv) && <span onClick={() => {
-        setIsCalendar(false); setShareDiv(false); setReportDiv(false);
+      {(isCalendar || shareDiv || reportDiv || isReservationType) && <span onClick={() => {
+        setIsCalendar(false); setShareDiv(false); setReportDiv(false); setIsReservationType(false);
       }} id='spanForClosingPopups'/>}
 
     </div>

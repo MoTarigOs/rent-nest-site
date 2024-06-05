@@ -14,6 +14,7 @@ import MySkeleton from '@components/MySkeleton';
 import Image from 'next/image';
 import Skeleton from 'react-loading-skeleton';
 import { errorsSection } from '@utils/Data';
+import LoadingCircle from '@components/LoadingCircle';
 
 const page = () => {
 
@@ -439,7 +440,7 @@ const page = () => {
 
                 <CustomInputDiv title={'Enter the user email'} isError={userFindError.length > 0} errorText={userFindError === '-1' ? 'invalid email' : ''} value={userFindEmail} listener={(e) => setUserFindEmail(e.target.value)}/>
             
-                <button className='btnbackscndclr' onClick={findUserByEmail}>{findingUser ? 'Searching...' : 'Search'}</button>
+                <button className='btnbackscndclr' onClick={findUserByEmail}>{findingUser ? <LoadingCircle /> : 'Search'}</button>
 
                 <p id={userFindError?.length > 0 ? 'p-info-error' : 'p-info'}>{userFindError === '-1' ? '' : userFindError}</p>
 
@@ -487,7 +488,7 @@ const page = () => {
 
                 <CustomInputDiv title={'Enter the file name'} isError={filename === '-1'} errorText={'invalid filename'} value={filename} listener={(e) => setFilename(e.target.value)}/>
             
-                <button className='btnbackscndclr' onClick={deleteFileByName}>{deletingSpecificFile ? 'Deleting file...' : 'Delete the file'}</button>
+                <button className='btnbackscndclr' onClick={deleteFileByName}>{deletingSpecificFile ? <LoadingCircle /> : 'Delete the file'}</button>
 
                 <p id={fileDeleteError?.length > 0 ? 'p-info-error' : 'p-info'}>{fileDeleteError?.length > 0 ? fileDeleteError : fileDeleteSuccess}</p>
 

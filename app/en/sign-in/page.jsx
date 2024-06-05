@@ -26,7 +26,9 @@ const page = () => {
     setUserUsername, setUserRole, setUserEmail, setIsVerified,
     setUserPhone, setUserAddress, setBooksIds, isVerified,
     setFavouritesIds, setLoadingUserInfo, setStorageKey,
-    setUserAddressEN, setUserUsernameEN
+    setUserAddressEN, setNotifications, setUserLastName, 
+    setUserFirstName, setUserAccountType, setUserFirstNameEN,
+    setUserLastNameEN
   } = useContext(Context);
 
   const { executeRecaptcha } = useGoogleReCaptcha();
@@ -102,8 +104,10 @@ const page = () => {
         setUserId, setUserUsername, setUserRole, 
         setUserEmail, setIsVerified, setUserAddress,
         setUserPhone, setBooksIds, setFavouritesIds, 
-        setLoadingUserInfo, setStorageKey,
-        setUserAddressEN, setUserUsernameEN
+        setLoadingUserInfo, setStorageKey, setUserAddressEN, 
+        null, setNotifications, setUserLastName, 
+        setUserFirstName, setUserAccountType, setUserFirstNameEN,
+        setUserLastNameEN
       );
 
     } catch (err) {
@@ -123,7 +127,7 @@ const page = () => {
   }, [emailError, passwordError])
 
   if(!successLogin && userId?.length > 10){
-    return <NotFound type={'user id exist'}/>
+    return <NotFound type={'user id exist'} isEnglish />
   }
 
   return (

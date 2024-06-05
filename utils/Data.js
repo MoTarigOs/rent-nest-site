@@ -639,7 +639,6 @@ export const homePageCatagories = (isEn) => {
     'Nature of Tafilah',
     'Salt'
   ];
-  
 };
 
 export const VehicleCatagories = [
@@ -647,12 +646,12 @@ export const VehicleCatagories = [
 ];
 
 export const VehiclesTypes = [
-  { id: 0, value: 'Sedan', arabicName: 'صالون' },
-  { id: 1, value: 'Pickup Truck', arabicName: 'سيارة بوكس' },
-  { id: 2, value: 'Sport Car', arabicName: 'سيارة رياضية' },
-  { id: 3, value: 'Mini Van', arabicName: 'سيارة فان صغير' },
-  { id: 4, value: 'SUV', arabicName: 'سيارات دفع رباعي' },
-  { id: 5, value: 'Luxury Car', arabicName: 'سيارة فخمة' },
+  { id: 0, value: 'Sedan', arabicName: 'سيارة سيدان' },
+  { id: 1, value: 'Sport Car', arabicName: 'سيارة رياضية' },
+  { id: 2, value: 'SUV', arabicName: 'سيارات دفع رباعي' },
+  { id: 3, value: 'Luxury Car', arabicName: 'سيارة فاخرة' },
+  { id: 4, value: 'Transport Bus', arabicName: 'باص نقل كبير' },
+  { id: 5, value: 'Mini Bus', arabicName: 'باص ركاب صغير' }
 ];
 
 export const contactInfo = [
@@ -697,6 +696,106 @@ export const cancellationsArray = (isEnglish) => {
     'امكانية الغاء الحجز حتى قبل اسبوع من الموعد',
     'لا يمكن الغاء الحجز'
   ];
+};
+
+export const vehicleRentTypesArray = (isEnglish) => {
+  return isEnglish ? [
+    'Events',
+    'Local transport',
+    'Long distance travel'
+  ] : [
+    'مناسبات',
+    'تنقل داخلي',
+    'سفر لمسافات طويلة'
+  ];
+};
+
+export const carGearboxes = (isEnglish) => {
+  return isEnglish ? [
+    'Automatic',
+    'Manual',
+    'Tiptronic'
+  ] : [
+    'اوتوماتيك',
+    'يدوي',
+    'تبترونيك'
+  ];
+};
+
+export const carFuelTypesArray = (isEnglish) => {
+  return isEnglish ? [
+    'Gasoline',
+    'Diesel',
+    'Electric',
+    'Hybrid',
+    'Mild Hybrid',
+    'Plug-in Hybrid',
+  ] : [
+    'بنزين',
+    'ديزل',
+    'كهربائي',
+    'هايبرد',
+    'مايلد هايبرد',
+    'هايبرد plug in'
+  ];
+};
+
+export const roomTypesArray = (isEnglish) => {
+  return isEnglish 
+    ? [
+      'Single', 
+      'Double', 
+      'Triple ', 
+      'All'
+    ] : [
+      'مفردة',
+      'مزدوجة',
+      'ثلاثية',
+      'الكل'
+    ];
+};
+
+export const getNames = (nameType, withEL, isEn, type) => {
+  switch(type){
+      case 'rooms':
+          if (nameType === 'one') return (withEL ? (isEn ? 'The ' : 'ال') : '') + (isEn ? 'Room' : 'غرفة');
+          if (nameType === 'mul') return (withEL ? (isEn ? 'The ' : 'ال') : '') + (isEn ? 'Rooms' : 'غرف');
+          return;
+      case 'bathrooms':
+          if (nameType === 'one') return (withEL ? (isEn ? 'Bathroom' : 'دورة المياه') : (isEn ? 'Bathroom' : 'دورة مياه'));
+          if (nameType === 'mul') return (withEL ? (isEn ? 'Bathrooms' : 'دورات المياه') : (isEn ? 'Bathrooms' : 'دورات مياه'));
+          return;
+      case 'kitchen':
+          if (nameType === 'one') return (withEL ? (isEn ? 'The ' : 'ال') : '') + (isEn ? 'Kitchen' : 'مطبخ');
+          if (nameType === 'mul') return (withEL ? (isEn ? 'The ' : 'ال') : '') + (isEn ? 'Kitchens' : 'مطابخ');
+          return;
+      case 'guest_rooms':
+          if (nameType === 'one') return (withEL ? (isEn ? 'The ' : 'ال') : '') + (isEn ? 'Room' : 'غرفة');
+          if (nameType === 'mul') return (withEL ? (isEn ? 'The ' : 'ال') : '') + (isEn ? 'Rooms' : 'غرف الضيوف');
+          return;
+      case 'pool':
+          if (nameType === 'one') return (withEL ? (isEn ? 'The ' : 'ال') : '') + (isEn ? 'Pool' : 'مسبح');
+          if (nameType === 'mul') return (withEL ? (isEn ? 'The ' : 'ال') : '') + (isEn ? 'Pools' : 'المسابح');
+          return;
+      case 'near_places':
+          return isEn ? 'Places' : 'أماكن';
+      case 'facilities':
+          return '';
+      case 'cancellation':
+          return isEn ? 'Cancel reservation rule' : 'امكانية الغاء الحجز';
+      case 'customerType':
+          return isEn ? 'Guests Category' : 'فئة النزلاء';
+      case 'carRentType':
+          return isEn ? 'Rent Type' : 'نوع الايجار';
+      case 'carGearBox':
+          return isEn ? 'Gearbox type' : 'نوع ناقل الحركة';
+      case 'carFuelType':
+          return isEn ? 'Fuel type' : 'نوع الوقود';
+      default:
+          if (nameType === 'one') return (withEL ? (isEn ? 'The ' : 'ال') : '') + (isEn ? 'Room' : 'غرفة');
+          if (nameType === 'mul') return (withEL ? (isEn ? 'The ' : 'ال') : '') + (isEn ? 'Rooms' : 'غرف');
+          return;
+  }
 };
 
 export const existedDetailIcon = ['bathrooms'];
@@ -744,6 +843,24 @@ export const getContactPlaceHolder = (platform) => {
     default: 
       return ''
   }
+};
+
+export const currencyCode = (isEn, fullName) => {
+  if(!fullName) {
+    return isEn ? 'JOD' : 'د.أ';
+  } else {
+    return isEn ? 'Jordan Dinar' : 'دينار';
+  }
+};
+
+export const reservationType = (isEn, num, noEL) => {
+  return [
+    { id: 0,  value: 'Daily', multipleAr: (!num || num < 10) ? (noEL ? '' : 'ال') + 'أيام' : 'يوم', multipleEn: 'Days', enName: 'Daily', arabicName: 'يومي', arName: 'يومي', oneAr: 'اليوم', oneEn: 'Day' },
+    { id: 1,  value: 'Weekly', multipleAr: (!num || num < 10) ? (noEL ? '' : 'ال') + 'أسابيع' : 'اسبوع', multipleEn: 'Days', enName: 'Weekly', arabicName: 'اسبوعي', arName: 'اسبوعي', oneAr: 'الاسبوع', oneEn: 'Week' },
+    { id: 2,  value: 'Monthly', multipleAr: (!num || num < 10) ? (noEL ? '' : 'ال') + 'شهور' : 'شهر', multipleEn: 'Days', enName: 'Monthly', arabicName: 'شهري', arName: 'شهري', oneAr: 'الشهر', oneEn: 'Month' },
+    { id: 3,  value: 'Seasonly', multipleAr: (!num || num < 10) ? (noEL ? '' : 'ال') + 'مواسم' : 'موسم', multipleEn: 'Days', enName: 'Seasonly', arabicName: 'فصلي', arName: 'فصلي', oneAr: 'الفصل', oneEn: 'Season' },
+    { id: 4,  value: 'Yearly', multipleAr: (!num || num < 10) ? (noEL ? '' : 'ال') + 'سنين' : 'سنة', multipleEn: 'Days', enName: 'Yearly', arabicName: 'سنوي', arName: 'سنوي', oneAr: 'السنة', oneEn: 'Year' },
+  ];
 };
 
 export const minimumPrice = 5;

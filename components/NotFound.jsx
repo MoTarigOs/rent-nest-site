@@ -1,7 +1,8 @@
 import '@styles/components_styles/NotFound.css';
 import Svgs from '@utils/Svgs';
+import Link from 'next/link';
 
-const NotFound = ({ type, isEnglish }) => {
+const NotFound = ({ type, isEnglish, navToVerify }) => {
 
   const getText = () => {
     switch(type){
@@ -16,8 +17,13 @@ const NotFound = ({ type, isEnglish }) => {
 
   return (
     <div className='not-found'>
-      {getText()}
-      <Svgs name={'not found'}/>
+      <div className='main-text'>
+        {getText()}
+        <Svgs name={'not found'}/>
+      </div>
+      {navToVerify && <Link style={{margin: 0}} href={isEnglish ? '/en/verify-account' : '/verify-account'}>
+        {isEnglish ? 'Verify account from here' : 'قم بتوثيق حسابك من هنا'}
+      </Link>}
     </div>
   )
 };

@@ -24,7 +24,7 @@ const Page = () => {
 
     const { 
         city, setCity, catagory, categoryArray,
-        setCatagory, calendarDoubleValue, 
+        setCatagory, calendarDoubleValue,
         setCalendarDoubleValue, setIsSearchMap,
         triggerFetch, setTriggerFetch
     } = useContext(Context);
@@ -32,7 +32,7 @@ const Page = () => {
     const getSelectedCategories = (array) => {
         let str = '';
         array.forEach((element, index) => {
-          str += element.arabicName + (index >= array.length - 1 ? '' : ', ');
+          str += element.value + (index >= array.length - 1 ? '' : ', ');
         });
         return str?.length > 0 ? str : ('الكل');
     };

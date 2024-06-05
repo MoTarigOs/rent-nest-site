@@ -1,4 +1,4 @@
-.cityPopup{
+/* .cityPopup{
     width: 320px;
     height: 400px;
     box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.164);
@@ -39,6 +39,73 @@
     &:dir(ltr){
         left: -60px;
         right: unset;
+    }
+} */
+
+.addCity{
+
+}
+
+.addCity{
+    width: 100%;
+    padding: 16px 0 16px 0;
+    border-bottom: 1px solid rgba(31, 31, 31, 0.122);
+    cursor: pointer;
+
+    ul{
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        list-style: none;
+        gap: 8px;
+        margin-top: 8px;
+        transition: all 0.2s ease-out;
+
+        li{
+            padding: 4px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+
+            #righticonspan{
+                border: 1px solid rgb(76, 76, 76);
+                border-radius: 50%;
+                width: 24px;
+                height: 24px;
+                scale: 0.8;
+                margin-left: 8px;
+        
+                &:dir(ltr){
+                    margin-left: unset;
+                    margin-right: 8px;
+        
+                    span{
+                        transform: translate(8px, 4px);        
+                    }
+                }
+        
+                span{
+                    width: 6px;
+                    height: 14px;
+                    border-right: 2px solid var(--secondColorDark);
+                    border-bottom: 2px solid var(--secondColorDark);
+                    transform: translate(-9px, 4px);            
+                }
+            }
+        }
+
+        .selectedCatagory{
+            #righticonspan{
+                background: var(--secondColor);
+                border-color: transparent;
+
+                span{
+                    display: block;
+                    border-color: white;
+                }
+            }
+        }
     }
 }
 
@@ -167,9 +234,28 @@
 }
 
 #righticonspan{
-    width: 8px;
-    height: 20px;
-    border-right: 2px solid var(--secondColorDark);
-    border-bottom: 2px solid var(--secondColorDark);
-    transform: rotate(45deg);
+    border: 1px solid rgb(76, 76, 76);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    scale: 0.8;
+    margin-left: 8px;
+
+    &:dir(ltr){
+        margin-left: unset;
+        margin-right: 8px;
+
+        span{
+            transform: translate(8px, 4px);        
+        }
+    }
+
+    span{
+        display: none;
+        width: 6px;
+        height: 14px;
+        border-right: 2px solid var(--secondColorDark);
+        border-bottom: 2px solid var(--secondColorDark);
+        transform: translate(-9px, 4px);            
+    }
 }

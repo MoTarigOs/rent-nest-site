@@ -8,6 +8,7 @@ import HeaderPopup from "./popups/HeaderPopup";
 import Svgs from "@utils/Svgs";
 import Skeleton from "react-loading-skeleton";
 import NotFound from "./NotFound";
+import LoadingCircle from "./LoadingCircle";
 
 const AdminPart = ({ 
     trigger, title, type, array, isFetching, isShow, setIsShow, 
@@ -30,7 +31,7 @@ const AdminPart = ({
                 <button className={isShow ? 'editDiv chngpassbtn' : 'editDiv'} onClick={() => {
                     setIsShow(!isShow); 
                     if(type === 'reports' || type === 'reviews') trigger()
-                }}>{title} <Svgs name={'dropdown arrow'}/></button>
+                }}>{isFetching ? <LoadingCircle isLightBg/> : <>{title} <Svgs name={'dropdown arrow'}/></>}</button>
             
                 {isFilter && <><button style={{ display: !isShow ? 'none' : null }} className='filter-btn'
                     onClick={() => setIsPartFilter(!isPartFilter)}

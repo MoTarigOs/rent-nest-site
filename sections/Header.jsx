@@ -32,8 +32,6 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
     const [isCalendarFilter, setIsCalendarFilter] = useState(false);
     const [isLogined, setIsLogined] = useState(false);
     
-    const [isFilter, setIsFilter] = useState(false);
-    const [isArrange, setIsArrange] = useState(false);
     const [isPrevLogined, setIsPrevLogined] = useState(false);
 
     const mobileSearchDivRef = useRef();
@@ -52,7 +50,11 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       setIsCalendarValue, setLoadingUserInfo, setNotifications,
       isMobileHomeFilter, setStorageKey, isMobile, setIsMobile,
       setIsEnglish, isVerified, setIsModalOpened, isModalOpened,
-      setIsSearchMap, isMapSearch, vehicleType, setUserAddressEN, setUserUsernameEN
+      setIsSearchMap, isSearchMap, vehicleType, setUserAddressEN, 
+      setUserUsernameEN, isFilter, setIsFilter, setUserAccountType,
+      isArrange, setIsArrange, setUserLastName, setUserFirstName,
+      setUserLastNameEN, setUserFirstNameEN, userFirstName,
+      userLastName, userFirstNameEN
     } = useContext(Context);
 
     const settingMobile = () => {
@@ -166,7 +168,9 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
         setUserEmail, setIsVerified, setUserAddress,
         setUserPhone, setBooksIds, setFavouritesIds, 
         setLoadingUserInfo, setStorageKey, setUserAddressEN, 
-        setUserUsernameEN, setNotifications
+        null, setNotifications, setUserLastName, 
+        setUserFirstName, setUserAccountType, setUserFirstNameEN,
+        setUserLastNameEN
       );
 
       if(!infoRes?.success || infoRes.success !== true) return;
@@ -249,10 +253,10 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
     }, [isCalendarFilter]);
 
     useEffect(() => {
-      if(isMobileHomeFilter || isFilter || isMapSearch || isArrange || isMenu || isCityFilter || isCatagoryFilter || isCalendarFilter) 
+      if(isMobileHomeFilter || isFilter || (isSearchMap && pathname.includes('/search')) || isArrange || isMenu || isCityFilter || isCatagoryFilter || isCalendarFilter) 
         return setIsModalOpened(true);
       setIsModalOpened(false);
-    }, [isMobileHomeFilter, isFilter, isArrange, isMenu, isCityFilter, isCatagoryFilter, isCalendarFilter, isMapSearch]);
+    }, [isMobileHomeFilter, isFilter, isArrange, isMenu, isCityFilter, isCatagoryFilter, isCalendarFilter, isSearchMap]);
 
     if(!pathname){
       return (<></>)
@@ -261,9 +265,11 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
   return (
 
     <div suppressContentEditableWarning className={(pathname.includes('/en') ? 'header englishHeader' : 'header')} style={{ 
-      position: 'fixed', boxShadow: (pathname.includes('/search') && isModalOpened) ? 'unset' : undefined, zIndex: (isArrange || isFilter || isMenu || isMap 
+      position: 'fixed', boxShadow: (pathname.includes('/search') && isModalOpened) ? 'unset' : undefined, 
+      zIndex: (isArrange || isFilter || isMenu || isMap 
           || isCatagoryFilter || isCityFilter || isCalendarFilter
-          || isMobileHomeFilter) && 11
+          || isMobileHomeFilter) ? 11 : undefined,
+          padding: (isSearchMap && pathname.includes('/search')) ? 0 : undefined
     }} suppressHydrationWarning={true} dir={pathname.includes('/en') ? 'ltr' : null}>
 
         <div className='desktopWrapper'>
@@ -294,7 +300,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
               <span id='notif-span' style={{ display: !notifications?.length > 0 ? 'none' : undefined }}>{userId?.length > 10 && notifications.length}</span>
               <Link href={userId?.length > 0 ? getHref('profile', userId) : getHref('sign-up')}>
                 <div className='profileSvg'><Svgs name={'profile'}/></div>
-                <p>{userId?.length > 0 ? userUsername : getNameByLang('الدخول أو انشاء حساب', pathname.includes('/en'))}</p>
+                <p>{userId?.length > 0 ? (pathname.includes('/en') ? userFirstNameEN || userUsername || userFirstName : userFirstName || userUsername || userLastName) : getNameByLang('الدخول أو انشاء حساب', pathname.includes('/en'))}</p>
                 <div className='arrowSvg'><Svgs name={'dropdown arrow'}/></div>
               </Link>
             </div>
@@ -364,7 +370,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
           </Link>
         </div>}
 
-        <div className="mobileHeader" style={{ zIndex: isMenu ? 20 : null, display: isMobile ? undefined : 'none' }}>
+        <div className="mobileHeader" style={{ zIndex: isMenu ? 20 : null, display: (isMobile && !(isSearchMap && pathname.includes('/search'))) ? undefined : 'none' }}>
 
           <span id='menu-active-background' style={{ display: !isMenu ? 'none' : undefined }}/>
           
@@ -385,7 +391,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
               <Image src={LogoImage} alt='rentnext website logo image'/>
           </Link>
 
-          <div className="menuIconDiv disable-text-copy" onClick={() => setIsMenu(!isMenu)}
+          <div className={`menuIconDiv disable-text-copy ${isMenu ? 'activeMenu' : undefined}`} onClick={() => setIsMenu(!isMenu)}
           style={{ zIndex: isMenu ? 15 : undefined }}>
 
             <span id={isMenu ? 'span1Active' : 'span1NotActive'}/>
@@ -465,9 +471,10 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
         {(isCityFilter || isCatagoryFilter || isCalendarFilter || isMenu) && <span id='closeFilterPopupSpan' onClick={() => {
           setIsCityFilter(false); setIsCatagoryFilter(false); setIsCalendarFilter(false); setIsMenu(false);
-        }} />}
+        }} style={{ background: (isMenu && isMobile) ? 'rgba(0, 0, 0, 0.24)' : undefined }}/>}
 
-        {(pathname === '/properties' || pathname === '/vehicles' || pathname === '/en/properties' || pathname === '/en/vehicles' || pathname.includes('search')) && <div className='filterHeaderDiv'>
+        {!(isSearchMap && pathname.includes('/search')) && (pathname === '/properties' || pathname === '/vehicles' || pathname === '/en/properties' || pathname === '/en/vehicles' || pathname.includes('search')) 
+        && <div className='filterHeaderDiv'>
           <button onClick={() => setIsFilter(true)}><Svgs name={'filter'}/>{getNameByLang('تصفية', pathname.includes('/en'))}</button>
           <span />
           <button id='secondFilterHeaderDivBtn' onClick={() => setIsArrange(true)}><Svgs name={'filter'}/>{getNameByLang('ترتيب', pathname.includes('/en'))}</button>

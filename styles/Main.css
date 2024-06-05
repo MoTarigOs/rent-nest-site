@@ -34,7 +34,8 @@ body{
 
 .grecaptcha-badge {
     z-index: 10;
-    top: 65vh;
+    scale: 0.8;
+    bottom: 10vh;
 }
 
 .disable-scrolling{
@@ -49,12 +50,18 @@ body{
 }
 
 .disable-text-copy{
+    -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     -o-user-select: none;
     user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    &:focus{
+        outline: none !important;
+    }
 }
 
 .main {
@@ -82,3 +89,4 @@ body{
         }
     }
 }
+
