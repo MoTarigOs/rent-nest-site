@@ -47,6 +47,7 @@ const page = () => {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [mapUsed, setMapUsed] = useState(false);
+    const [triggerSectionError, setTriggerSectionError] = useState(false);
 
     const [section, setSection] = useState(0);
     const [sectionError, setSectionError] = useState('');
@@ -632,12 +633,12 @@ const page = () => {
                 errorEncountered = true;
             }
 
-            if(!isValidText(itemTitle) || (itemTitleEN && !isValidText(itemTitleEN))){
+            if(itemTitle === '-1' || !isValidText(itemTitle) || (itemTitleEN && !isValidText(itemTitleEN))){
                 setItemTitle('-1');
                 errorEncountered = true;
             }
     
-            if(!isValidText(itemDesc) || (itemDescEN && !isValidText(itemDescEN))){
+            if(itemDesc === '-1' || !isValidText(itemDesc) || (itemDescEN && !isValidText(itemDescEN))){
                 setItemDesc('-1');
                 errorEncountered = true;
             }
@@ -916,9 +917,9 @@ const page = () => {
     useEffect(() => {
         setSectionError('');
     }, [
-        specificCatagory, itemTitle, itemTitleEN, 
-        itemDesc, itemDescEN, itemCity, itemNeighbourEN, 
-        itemNeighbour, itemPrices, attachedFilesUrls,
+        itemTitleEN, itemDescEN, 
+        triggerSectionError,
+        itemPrices, attachedFilesUrls,
         locObj,
         vehicleFeatures,
         carCompany,
@@ -1034,7 +1035,8 @@ const page = () => {
                 errorText={'الرجاء كتابة عنوان صالح, مع عدم استخدام حروف غير صالحة مثل <, &, " ...الخ'} 
                 title={'العنوان بالعربية و الانجليزية'} placholderValue={'اكتب العنوان باللغة العربية هنا'} 
                 enPlacholderValue={'اكتب العنوان باللغة الانجليزية هنا'} 
-                listener={(e) => setItemTitle(e.target.value)} enValue={itemTitleEN}
+                listener={(e) => { setItemTitle(e.target.value); setTriggerSectionError(!triggerSectionError); }} 
+                enValue={itemTitleEN}
                 enListener={(e) => setItemTitleEN(e.target.value)} isProfileDetails/>
 
                 <CustomInputDivWithEN isError={itemDesc === '-1'} 
@@ -1043,7 +1045,7 @@ const page = () => {
                 placholderValue={'اكتب الوصف باللغة العربية هنا'}
                 value={itemDesc === '-1' ? null : itemDesc} enValue={itemDescEN} 
                 enPlacholderValue={'اكتب الوصف باللغة الانجليزية هنا'} 
-                listener={(e) => setItemDesc(e.target.value)} isProfileDetails
+                listener={(e) => { setItemDesc(e.target.value); setTriggerSectionError(!triggerSectionError); }} isProfileDetails
                 enListener={(e) => setItemDescEN(e.target.value)} type={'text'}/>
                 
                 <div className='address' style={{ zIndex: cityPopup ? 11 : 0 }}>
