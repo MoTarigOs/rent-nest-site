@@ -875,8 +875,8 @@ const page = () => {
                 console.log('i is: ', i);
                 if(i === 1) 
                     if(!testSec1()) errorEncounteredIndex = i;
-                if(i === 2) 
-                    if(!testSec2()) errorEncounteredIndex = i;
+                // if(i === 2) 
+                //     if(!testSec2()) errorEncounteredIndex = i;
                 if(i === 3) 
                     if(!testSec3()) errorEncounteredIndex = i;
                 if(i === 4) 
@@ -993,7 +993,7 @@ const page = () => {
                             onClick={() => {
                                 if(!freeSection) setSection(section > sec.id ? sec.id : section);
                                 else if(isTestSection(sec.id)) setSection(sec.id);
-                            }}>
+                            }} className='disable-text-copy'>
                                 {sec.id + 1}
                             </strong>
                             {sec.id < 6 && <span style={{ background: section > sec.id ? undefined : 'var(--darkWhite)' }}/>}
@@ -1149,7 +1149,7 @@ const page = () => {
                             }
                         </li>
                     ))}
-                    <li id='chooseFileLastLi'
+                    <li id='chooseFileLastLi' className='disable-text-copy'
                         onClick={() => inputFilesRef.current.click()}
                     >{attachedFilesUrls.length > 0 ? 'أضف المزيد' : `اختر صور وفيدوهات لل${selectedCatagories === '0' ? 'سيارة' : 'عقار'}`}<p>(يجب أن يكون نوع الملف PNG أو JPG أو MP4 أو AVI)</p></li>
                 </ul>

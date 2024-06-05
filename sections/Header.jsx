@@ -444,8 +444,14 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
                 </Link>
               </div>
 
-              <Link href={getHref('add')} onClick={() => setIsMenu(false)}
+              {/* Add button */}
+              {/* <Link href={getHref('add')} onClick={() => setIsMenu(false)}
                 style={{ display: !userId?.length > 0 ? 'none' : null }} className='addItemHeaderDiv disable-text-copy'>
+                {getNameByLang('أضف عقارك', pathname.includes('/en'))}
+              </Link> */}
+
+              <Link href={'/add'} onClick={() => setIsMenu(false)}
+                style={{ display: userId?.length > 0 ? 'none' : null }} className='addItemHeaderDiv disable-text-copy'>
                 {getNameByLang('أضف عقارك', pathname.includes('/en'))}
               </Link>
 
