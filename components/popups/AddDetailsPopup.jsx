@@ -22,16 +22,15 @@ const AddDetailsPopup = ({
     const { isMobile, englishFont, arabicFont } = useContext(Context);
     
     const editArray = (index, e, editSection) => {
-        const arr = array;
-        if(!arr?.at(index)) return;
-        if(editSection === 'capacity') arr[index].capacity = Number(e.target.value);
-        if(editSection === 'singleBeds') arr[index].single_beds = Number(e.target.value);
-        if(editSection === 'doubleBeds') arr[index].double_beds = Number(e.target.value);
-        if(editSection === 'roomType') arr[index].room_type = e;
-        if(editSection === 'depth') arr[index].depth = Number(e.target.value);
-        if(editSection === 'dimensionX') arr[index].dim = { x: Number(e.target.value), y: arr[index].dim?.y };
-        if(editSection === 'dimensionY') arr[index].dim = { y: Number(e.target.value), x: arr[index].dim?.x };
-        setArray(arr);
+        let myObj = {};
+        if(editSection === 'capacity') myObj.capacity = Number(e.target.value);
+        if(editSection === 'singleBeds') myObj.single_beds = Number(e.target.value);
+        if(editSection === 'doubleBeds') myObj.double_beds = Number(e.target.value);
+        if(editSection === 'roomType') myObj.room_type = e;
+        if(editSection === 'depth') myObj.depth = Number(e.target.value);
+        if(editSection === 'dimensionX') myObj.dim = { x: Number(e.target.value), y: array[index].dim?.y };
+        if(editSection === 'dimensionY') myObj.dim = { y: Number(e.target.value), x: array[index].dim?.x };
+        if(Object.keys(myObj)?.length > 0) setArray(array.map((ob,i) => i === index ? myObj : ob));
         setTrigger(!trigger);
     };
 

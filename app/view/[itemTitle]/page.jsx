@@ -2,7 +2,7 @@
 
 import '../view-style/View.css';
 import ImagesShow from "@components/ImagesShow";
-import { JordanCities, cancellationsArray, currencyCode, myConditions, reservationType } from "@utils/Data";
+import { JordanCities, VehiclesTypes, cancellationsArray, carFuelTypesArray, carGearboxes, currencyCode, getNames, myConditions, reservationType, vehicleRentTypesArray } from "@utils/Data";
 import GoogleMapImage from '@assets/images/google-map-image.jpg';
 import Image from "next/image";
 import LocationGif from '@assets/icons/location.gif';
@@ -28,7 +28,7 @@ const page = () => {
     setMapType, setLatitude, setLongitude,
     calendarDoubleValue, setCalendarDoubleValue,
     storageKey, userEmail, isMobile, isVerified,
-    setIsModalOpened
+    setIsModalOpened, userUsername
   } = useContext(Context);
   
   const id = useSearchParams().get('id');
@@ -84,6 +84,7 @@ const page = () => {
 
   const [reportDiv, setReportDiv] = useState(false);
   const [writerId, setWriterId] = useState('');
+  const [reviewsNum, setReviewsNum] = useState(null);
   const [reportText, setReportText] = useState('');
   const [reporting, setReporting] = useState(false);
 
@@ -98,6 +99,7 @@ const page = () => {
   const [isRooms, setIsRooms] = useState(false);
   const [isBathrooms, setIsBathrooms] = useState(false);
   const [isPlaces, setIsPlaces] = useState(false);
+  const [isFeatures, setIsFeatures] = useState(false);
   const [isFacilities, setIsFacilities] = useState(false);
   const [isPool, setIsPool] = useState(false);
   const [isVehicleSpecs, setIsVehicleSpecs] = useState(false);
@@ -252,9 +254,12 @@ const page = () => {
 
   };
 
-  const generateWhatsappText = () => {
-    const text = `أريد أن احجز هذا العرص, عنوان العرض '${item.title}', معرف العرض '${item.unit_code}', في التاريخ بين '${getReadableDate(calendarDoubleValue?.at(0), true)}'  و '${getReadableDate(calendarDoubleValue?.at(1), true)}'`;
-    return text;
+  const generateWhatsappText = (notLogined, isSimple) => {
+    const text = !isSimple
+      ? `${(notLogined || !userId?.length > 0) ? '** تحذير: هذا المستخدم ليس مسجل بالمنصة ** \n\n• ' : ''}أنا صاحب الحساب "${userUsername || 'لا يوجد اسم'}" معرف: "${userId || 'لا يوجد معرف'}" \n\n• أريد أن احجز هذا العرض\n\n• عنوان العرض: "${item.title}" \n\n• كود الوحدة (معرف العرض): "${item.unit_code}"\n\n• نوع الحجز: ${resType?.arabicName} \n\n• بدءا من التاريخ: "${getReadableDate(calendarDoubleValue?.at(0), true)}" \n\n• وحتى التاريخ: "${getReadableDate(calendarDoubleValue?.at(1), true)}"\n\n• مدة الحجز: ${resTypeNum} ${reservationType(false, resTypeNum, true).find(i=>i.id === resType?.id)?.multipleAr}\n\n• السعر الظاهر لي: ${(((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice()) - (item.discount?.percentage ? ((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice() * item.discount.percentage / 100) : 0)).toFixed(2)} ${currencyCode(false, false)}`
+      : `${(notLogined || !userId?.length > 0) ? '** تحذير: هذا المستخدم ليس مسجل بالمنصة ** \n\n• ' : ''}أنا صاحب الحساب "${userUsername || 'لا يوجد اسم'}" معرف: "${userId || 'لا يوجد معرف'}" \n\n• أريد أن أتواصل معك بخصوص هذا العرض\n\n• عنوان العرض: "${item.title}" \n\n• كود الوحدة (معرف العرض): "${item.unit_code}`;
+    console.log('url: ', encodeURIComponent(text));
+    return encodeURIComponent(text);
   };
 
   const handleBook = async() => {
@@ -269,10 +274,10 @@ const page = () => {
         if(whatsapp && !isNaN(Number(whatsapp.val))) {
           if(whatsapp.val?.at(0) === '0' && whatsapp.val?.at(1) === '0') 
             whatsapp = whatsapp.val?.replace('00', '+');
-          return window.open(`${whatsappBaseUrl}/${whatsapp.val}`, '_blank');
+          return window.open(`${whatsappBaseUrl}/${whatsapp.val}?text=${generateWhatsappText(true)}`, '_blank');
         }
         if(whatsapp && isValidContactURL(whatsapp))
-          return window.open(whatsapp.val, '_blank');
+          return window.open(`${whatsapp.val}?text=${generateWhatsappText(true)}`, '_blank');
         setBookSuccess('تواصل مع مقدم الخدمة من قسم الشروط و التواصل');
         return;
       }
@@ -307,7 +312,7 @@ const page = () => {
         }
   
         if(whatsapp && isValidContactURL(whatsapp))
-          return window.open(whatsapp.val, '_blank');
+          return window.open(`${whatsapp.val}?text=${generateWhatsappText()}`, '_blank');
   
         let telegram = item?.contacts?.find(i => i.platform === 'telegram');
   
@@ -565,11 +570,14 @@ const page = () => {
     console.log(myContact, isValidContactURL(myContact));
     if(!myContact?.platform) return '';
     if(myContact.platform === 'whatsapp'){
-      if(isValidNumber(Number(myContact.val))) {
+      if(myContact && isValidNumber(myContact.val)) {
         if(myContact.val?.at(0) === '0' && myContact.val?.at(1) === '0') 
           myContact = myContact.val?.replace('00', '+');
-        return window.open(`${whatsappBaseUrl}/${myContact.val}?text=${generateWhatsappText()}`, '_blank');
+        return window.open(`${whatsappBaseUrl}/${whatsapp.val}?text=${generateWhatsappText(null, true)}`, '_blank');
       }
+      if(myContact && isValidContactURL(myContact))
+        return window.open(`${myContact.val}?text=${generateWhatsappText(null, true)}`, '_blank');
+      return;
     }
     if(isValidContactURL(myContact)) return window.open(myContact.val, '_blank');
   };
@@ -601,6 +609,38 @@ const page = () => {
     return 'سعر غير محدد';
   };
 
+  const getDetailText = (obj, objType, index) => {
+
+    const str = `
+      ${getNames('one', false, false, objType) + ' ' + ((index + 1) || '')}
+      ${obj?.room_type ? obj?.room_type : ''} 
+      ${obj?.capacity ? 'بسعة ' + obj?.capacity + ' شخص' : ''} 
+      ${obj?.dim ? 'بعرض ' + obj?.dim?.y + ' متر و بطول ' + obj?.dim?.x + ' متر ' : ''} 
+      ${obj?.single_beds ? ', ' + obj?.single_beds + ' سرير مفرد ' : ''} 
+      ${obj?.double_beds ? ', ' + obj?.double_beds + ' سرير ماستر ' : ''} 
+      ${obj?.depth ? ', و بعمق ' + obj?.depth + ' متر ' : ''}
+    `
+    return str;
+
+  };
+
+  const settingReviewsNum = () => {
+    const five = item?.num_of_reviews_percentage?.five;
+    const four = item?.num_of_reviews_percentage?.four;
+    const three = item?.num_of_reviews_percentage?.three;
+    const two = item?.num_of_reviews_percentage?.two;
+    const one = item?.num_of_reviews_percentage?.one;
+    const total = five + four + three + two + one;
+    if(total <= 0) return;
+    setReviewsNum({
+      five: five / total * 100,
+      four: four / total * 100,
+      three: three / total * 100,
+      two: two / total * 100,
+      one: one / total * 100,
+    });
+  };
+
   useEffect(() => {
     setRunOnce(true);
     setAdminSending(false);
@@ -610,6 +650,7 @@ const page = () => {
   useEffect(() => {
     setCanBook(isAbleToBook());
     getPriceReservationType();
+    settingReviewsNum();
   }, [item]);
 
   useEffect(() => {
@@ -859,7 +900,7 @@ const page = () => {
           <ul>
             <li><Svgs name={'star'}/> {Number(item.ratings?.val).toFixed(2)} ({item.ratings?.no} تقييم)</li>
             <li><Svgs name={item.type_is_vehicle ? 'loc vehicle' : 'location'}/> {JordanCities.find(i => i.value === item.city)?.arabicName}, {item.neighbourhood}</li>
-            {!(item.type_is_vehicle && item.area > 0) && <li><Svgs name={'area'}/> المساحة {item.area} م2</li>}
+            {(!item.type_is_vehicle || item.area > 0) && <li><Svgs name={'area'}/> المساحة {item.area} م2</li>}
             {getDesiredContact(null, true) && <li><Svgs name={getDesiredContact(true, true)?.platform}/> <Link href={getDesiredContact(null, true)}>{getDesiredContact(true, true)?.val}</Link></li>}
             <li id='giveThisMarginRight' onClick={handleFav}><Svgs name={`wishlist${favouritesIds.includes(id) ? ' filled' : ''}`}/> {addingToFavs ? 'جاري الاضافة...' : (favouritesIds.includes(id) ? 'أزل من المفضلة' : 'اضف الى المفضلة')}</li>
             <li style={{ marginLeft: 0 }} onClick={() => setShareDiv(!shareDiv)}><Svgs name={'share'}/> مشاركة</li>
@@ -908,37 +949,110 @@ const page = () => {
           <h2>{isSpecifics ? 'المواصفات' : isReviews ? 'التقييمات' : isMap ? 'الخريطة' : isTerms ? 'الأحكام و الشروط' : ''}</h2>
 
           <ul className='specificationsUL disable-text-copy' style={{ display: !isSpecifics && 'none' }}>
+            
+            {item?.details?.insurance && <li><Svgs name={'insurance'}/><h3>{item.details.insurance === true ? 'يتطلب تأمين قبل الحجز' : 'لا يتطلب تأمين'}</h3></li>}
+            {(item.cancellation >= 0 && item.cancellation < cancellationsArray().length) && <li><Svgs name={'cancellation'}/><h3>{cancellationsArray()?.at(item.cancellation)}</h3></li>}
+
             {!item.type_is_vehicle ? <>
-              {item?.details?.insurance && <li><Svgs name={'insurance'}/><h3>{item.details.insurance === true ? 'يتطلب تأمين قبل الحجز' : 'لا يتطلب تأمين'}</h3></li>}
-              {(item.cancellation >= 0 && item.cancellation < cancellationsArray().length) && <li><Svgs name={'cancellation'}/><h3>{cancellationsArray()?.at(item.cancellation)}</h3></li>}
+
               {item.customer_type && <li><Svgs name={'customers'}/><h3>الفئة المسموحة {item?.customer_type}</h3></li>}
               {item.capacity > 0 && <li><Svgs name={'guests'}/><h3>{`أقصى عدد للنزلاء ${item.capacity} نزيل`}</h3></li>}
-              {item.details?.guest_rooms?.length > 0 && <li onClick={() => setIsGuestRooms(!isGuestRooms)}><Svgs name={'guest room'}/><h3>غرف الضيوف</h3><span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isGuestRooms ? '-' : '+'}</span><ul style={{ display: (isGuestRooms || !isMobile) ? undefined : 'none' }}>{item.details?.guest_rooms?.map((i) => (<li>{i}</li>))}</ul></li>}
-              {(item.details?.kitchen?.dim || item.details?.kitchen?.companians) && <li onClick={() => setIsKitchen(!isKitchen)}><Svgs name={'kitchen'}/><h3>المطبخ</h3><span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isKitchen ? '-' : '+'}</span><ul style={{ display: (isKitchen || !isMobile) ? undefined : 'none' }}>
-                <SpecificationListItemDimensions content={item.details?.kitchen?.dim} idName='kitchen'/>
-                {item.details?.kitchen?.companians?.map((i) => (<li>{i}</li>))}
-              </ul></li>}
-              {(item?.details?.rooms?.num > 0 || item?.details?.rooms?.single_beds > 0 || item?.details?.rooms?.double_beds > 0) && <li onClick={() => setIsRooms(!isRooms)}><Svgs name={'rooms'}/><h3>غرف النوم</h3><span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isRooms ? '-' : '+'}</span><ul style={{ display: (!isRooms && isMobile) ? 'none' : undefined }}>
-                <SpecificationListItemNum content={item?.details?.rooms?.num} idName={'bedrooms'}/>
-                <SpecificationListItemNum content={item?.details?.rooms?.single_beds} idName={'single beds'}/>
-                <SpecificationListItemNum content={item?.details?.rooms?.double_beds} idName={'double beds'}/>
-              </ul></li>}
-              {(item.details?.bathrooms?.num > 0 || item.details?.bathrooms?.companians?.length > 0) && <li onClick={() => setIsBathrooms(!isBathrooms)}><Svgs name={'bathrooms'}/><h3>دورات المياه</h3><span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isBathrooms ? '-' : '+'}</span><ul style={{ display: (!isBathrooms && isMobile) ? 'none' : undefined }}>
-                <SpecificationListItemNum content={item.details?.bathrooms?.num} idName='bathrooms'/>
-                {item.details?.bathrooms?.companians?.map((i) => (<li>{i}</li>))}
-              </ul></li>}
-              {item.details?.near_places?.length > 0 && <li onClick={() => setIsPlaces(!isPlaces)}><Svgs name={'places'}/><h3>الأماكن القريبة</h3><span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isPlaces ? '-' : '+'}</span><ul style={{ display: (!isPlaces && isMobile) ? 'none' : undefined }}>{item.details?.near_places?.map((i) => (<li>{i}</li>))}</ul></li>}
-              {item.details?.facilities?.length > 0 && <li onClick={() => setIsFacilities(!isFacilities)}><Svgs name={'facilities'}/><h3>المرافق</h3><span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isFacilities ? '-' : '+'}</span><ul style={{ display: (!isFacilities && isMobile) ? 'none' : undefined }}>{item.details?.facilities?.map((i) => (<li>{i}</li>))}</ul></li>}
-              {(item.details?.pool?.companians?.length > 0 || item?.details?.pool?.num || item?.details?.pool?.dim) && <li onClick={() => setIsPool(!isPool)} id='lastLiTabButtonUL'><Svgs name={'pool'}/><h3>المسبح</h3><span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isPool ? '-' : '+'}</span><ul style={{ display: (!isPool && isMobile) ? 'none' : undefined }}>
-                {item.details?.pool?.companians?.map((i) => (<li>{i}</li>))}
-                <SpecificationListItemNum content={item?.details?.pool?.num} idName='pool'/>  
-                <SpecificationListItemDimensions content={item?.details?.pool?.dim} idName='pool'/>
-              </ul></li>}
+              {(item.specific_catagory === 'apartment' && item.floor?.length > 0) && <li><Svgs name={'steps'}/><h3>{`الطابق ${item.floor}`}</h3></li>}
+              {item.area > 0 && <li><Svgs name={'area'}/><h3>{`مساحة العقار ${item.area}`}</h3></li>}
+              {(item.specific_catagory === 'farm' && item.landArea?.length > 0) && <li><Svgs name={'area'}/><h3>{`مساحة الأرض ${item.landArea}`}</h3></li>}
+              
+              {item.details?.guest_rooms?.length > 0 && <li onClick={() => setIsGuestRooms(!isGuestRooms)}>
+                <Svgs name={'guest room'}/>
+                <h3>غرف الضيوف</h3>
+                <span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isGuestRooms ? '-' : '+'}</span>
+                <ul style={{ display: (isGuestRooms || !isMobile) ? undefined : 'none' }}>
+                  {item.details?.guest_rooms?.map((i, index) => (<li>{getDetailText(i, 'rooms', index)}</li>))}
+                </ul>
+              </li>}
+              
+              {(item.details?.kitchen?.array?.length > 0 || item.details?.kitchen?.companians?.length > 0) && <li onClick={() => setIsKitchen(!isKitchen)}>
+                <Svgs name={'kitchen'}/>
+                <h3>المطابخ</h3>
+                <span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isKitchen ? '-' : '+'}</span>
+                <ul style={{ display: (isKitchen || !isMobile) ? undefined : 'none' }}>
+                  {item.details?.kitchen?.array?.map((i, index) => (<li>{getDetailText(i, 'kitchen', index)}</li>))}
+                </ul>
+                <h3 style={{ display: (isKitchen || !isMobile) ? undefined : 'none' }} className='accompany-h3'>مرافق المطبخ</h3>
+                <p style={{ display: (isKitchen || !isMobile) ? undefined : 'none' }} className='accompany-p'>{item.details?.kitchen?.companians?.toString()?.replaceAll(',', ', ')}</p>
+              </li>}
+
+              {item?.details?.rooms?.length > 0 && <li onClick={() => setIsRooms(!isRooms)}>
+                <Svgs name={'rooms'}/>
+                <h3>غرف النوم</h3>
+                <span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isRooms ? '-' : '+'}</span>
+                <ul style={{ display: (!isRooms && isMobile) ? 'none' : undefined }}>
+                  {item.details?.rooms?.map((i, index) => (
+                    <li>{getDetailText(i, 'rooms', index)}</li>
+                  ))}
+                </ul>
+              </li>}
+
+              {(item.details?.bathrooms?.array?.length > 0 || item.details?.bathrooms?.companians?.length > 0) && <li onClick={() => setIsBathrooms(!isBathrooms)}>
+                <Svgs name={'bathrooms'}/>
+                <h3>دورات المياه</h3>
+                <span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isBathrooms ? '-' : '+'}</span>
+                <ul style={{ display: (!isBathrooms && isMobile) ? 'none' : undefined }}>
+                  {item.details?.bathrooms?.array?.map((i, index) => (<li>{getDetailText(i, 'bathrooms', index)}</li>))}
+                </ul>
+                <h3 style={{ display: (!isBathrooms && isMobile) ? 'none' : undefined }} className='accompany-h3'>مرافق دورات المياه</h3>
+                <p style={{ display: (!isBathrooms && isMobile) ? 'none' : undefined }} className='accompany-p'>{item.details?.bathrooms?.companians?.toString()?.replaceAll(',', ', ')}</p>
+              </li>}
+
+              {(item.details?.pool?.companians?.length > 0 || item.details?.pool?.array?.length > 0) && <li onClick={() => setIsPool(!isPool)}>
+                <Svgs name={'pool'}/>
+                <h3>المسابح</h3>
+                <span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isPool ? '-' : '+'}</span>
+                <ul style={{ display: (!isPool && isMobile) ? 'none' : undefined }}>
+                  {item.details?.pool?.array?.map((i, index) => (<li>{getDetailText(i, 'pool', index)}</li>))}
+                </ul>
+                <h3 style={{ display: (!isPool && isMobile) ? 'none' : undefined }} className='accompany-h3'>مرافق المسبح</h3>
+                <p style={{ display: (!isPool && isMobile) ? 'none' : undefined }} className='accompany-p'>{item.details?.pool?.companians?.toString()?.replaceAll(',', ', ')}</p>
+              </li>}
+              
+              {item.details?.facilities?.length > 0 && <li onClick={() => setIsFacilities(!isFacilities)}>
+                <Svgs name={'facilities'}/>
+                <h3>المرافق</h3>
+                <span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isFacilities ? '-' : '+'}</span>
+                <ul style={{ display: (!isFacilities && isMobile) ? 'none' : undefined }}>
+                  {item.details?.facilities?.map((i) => (<li>{i}</li>))}
+                </ul>
+              </li>}
+
             </> : <>
-              {item.details?.vehicle_specifications?.length > 0 && <li onClick={() => setIsVehicleSpecs(!isVehicleSpecs)}><Svgs name={'vehicle'}/><h3>مواصفات السيارة</h3><span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isVehicleSpecs ? '-' : '+'}</span><ul style={{ display: (!isVehicleSpecs && isMobile) ? 'none' : undefined }}>{item?.details?.vehicle_specifications?.map((i) => (<li>{i}</li>))}</ul></li>}
-              {item.details?.vehicle_addons?.length > 0 && <li onClick={() => setIsVehicleAddons(!isVehicleAddons)}><Svgs name={'vehicle'}/><h3>ملحقات السيارة</h3><span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isVehicleAddons ? '-' : '+'}</span><ul style={{ display: (!isVehicleAddons && isMobile) ? 'none' : undefined }}>{item?.details?.vehicle_addons?.map((i) => (<li>{i}</li>))}</ul></li>}
-              {item.details?.near_places?.length > 0 && <li onClick={() => setIsPlaces(!isPlaces)} id='lastLiTabButtonUL'><Svgs name={'places'}/><h3>الأماكن القريبة</h3><span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isPlaces ? '-' : '+'}</span><ul style={{ display: (!isPlaces && isMobile) ? 'none' : undefined }}>{item.details?.near_places?.map((i) => (<li>{i}</li>))}</ul></li>}
+
+              <li><Svgs name={'vehicle'}/><h3>{'فئة السيارة ' + VehiclesTypes?.find(i=>i.id === item.vehicle_type)?.arabicName}</h3></li>
+              {typeof item?.details?.vehicle_specifications?.driver === 'boolean' && <li><Svgs name={'driver'}/><h3>{item?.details?.vehicle_specifications?.driver ? 'السيارة تأتي مع سائق' : 'السيارة تأتي بدون سائق'}</h3></li>}
+              {item?.details?.vehicle_specifications?.rent_type?.length > 0 && <li><Svgs name={'car rentType'}/><h3>{'نوع الايجار ' + vehicleRentTypesArray()[vehicleRentTypesArray(true).indexOf(item?.details?.vehicle_specifications?.rent_type)]}</h3></li>}
+              {item?.details?.vehicle_specifications?.company?.length > 0 && <li><Svgs name={'vehicle'}/><h3>{'نوع أو مصنّع السيارة ' + item?.details?.vehicle_specifications?.company}</h3></li>}
+              {item?.details?.vehicle_specifications?.model?.length > 0 && <li><Svgs name={'vehicle'}/><h3>{'موديل السيارة ' + item?.details?.vehicle_specifications?.model}</h3></li>}
+              {item?.details?.vehicle_specifications?.color?.length > 0 && <li><Svgs name={'vehicle'}/><h3>{'لون السيارة ' + item?.details?.vehicle_specifications?.color}</h3></li>}
+              {item?.details?.vehicle_specifications?.year?.length > 0 && <li><Svgs name={'vehicle'}/><h3>{'سنة صنع السيارة ' + item?.details?.vehicle_specifications?.year}</h3></li>}
+              {item?.details?.vehicle_specifications?.gearbox?.length > 0 && <li><Svgs name={'gearbox'}/><h3>{'ناقل الحركة ' + carGearboxes()[carGearboxes(true).indexOf(item?.details?.vehicle_specifications?.gearbox)]}</h3></li>}
+              {item?.details?.vehicle_specifications?.fuel_type?.length > 0 && <li><Svgs name={'fueltype'}/><h3>{'نوع الوقود ' + carFuelTypesArray()[carFuelTypesArray(true).indexOf(item?.details?.vehicle_specifications?.fuel_type)]}</h3></li>}
+
             </>}
+
+            {item.details?.near_places?.length > 0 && <li onClick={() => setIsPlaces(!isPlaces)}>
+              <Svgs name={'places'}/>
+              <h3>الأماكن القريبة</h3>
+              <span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isPlaces ? '-' : '+'}</span>
+              <ul style={{ display: (!isPlaces && isMobile) ? 'none' : undefined }}>
+                {item.details?.near_places?.map((i) => (<li>{i}</li>))}
+            </ul></li>}
+
+            {item.details?.features?.length > 0 && <li onClick={() => setIsFeatures(!isFeatures)}>
+              <Svgs name={'places'}/>
+              <h3>المميزات الخاصة</h3>
+              <span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isFeatures ? '-' : '+'}</span>
+              <ul style={{ display: (!isFeatures && isMobile) ? 'none' : undefined }}>
+                {item.details?.features?.map((i) => (<li>{i}</li>))}
+            </ul></li>}
+
           </ul>
 
           <div className='reviews' style={{ display: !isReviews ? 'none' : null }}>
@@ -960,6 +1074,30 @@ const page = () => {
                 {sendReviewError.length > 0 ? sendReviewError : sendReviewSuccess}
               </p>
             </div>}
+
+            <div className="reviews-layout">
+            
+              <div className='numbers'>
+                  <h4>{item.ratings?.val}</h4>
+                  <div className="rating">
+                    <Svgs name={'star'} styling={Math.round(item.ratings?.val) > 0 ? true : false}/>
+                    <Svgs name={'star'} styling={Math.round(item.ratings?.val) > 1 ? true : false} />
+                    <Svgs name={'star'} styling={Math.round(item.ratings?.val) > 2 ? true : false} />
+                    <Svgs name={'star'} styling={Math.round(item.ratings?.val) > 3 ? true : false} />
+                    <Svgs name={'star'} styling={Math.round(item.ratings?.val) > 4 ? true : false} />
+                </div>
+                <p>{item.ratings?.no} تقييم</p>
+              </div>
+
+              <div className='charts'>
+                <div>5.0 <p>{'('}{item?.num_of_reviews_percentage?.five || 0} مراجعة{')'}</p><div><span style={{ width: `${reviewsNum?.five || 0}%` }} /></div></div>
+                <div>4.0 <p>{'('}{item?.num_of_reviews_percentage?.four || 0} مراجعة{')'}</p><div><span style={{ width: `${reviewsNum?.four || 0}%` }} /></div></div>
+                <div>3.0 <p>{'('}{item?.num_of_reviews_percentage?.three || 0} مراجعة{')'}</p><div><span style={{ width: `${reviewsNum?.three || 0}%` }} /></div></div>
+                <div>2.0 <p>{'('}{item?.num_of_reviews_percentage?.two || 0} مراجعة{')'}</p><div><span style={{ width: `${reviewsNum?.two || 0}%` }} /></div></div>
+                <div>1.0 <p>{'('}{item?.num_of_reviews_percentage?.one || 0} مراجعة{')'}</p><div><span style={{ width: `${reviewsNum?.one || 0}%` }} /></div></div>
+              </div>
+
+            </div>
 
             <ul>
               {item.reviews.slice(0, reviewsNumber).map((rv) => (
@@ -1021,9 +1159,9 @@ const page = () => {
             <h3 id='res-type'>اختر طريقة الحجز {'(يومي, شهري, سنوي ...الخ)'}</h3>
             <h3 style={{ color: 'var(--secondColorDark)' }}>{getPrice()}<span> {currencyCode(null, true)} / {reservationType()?.find(i => i.id === resType?.id)?.oneAr}</span></h3>
             <h3 style={{ color: '#777' }}><span>عدد {reservationType()?.find(i => i.id === resType?.id)?.multipleAr}</span> {resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)}</h3>
-            <HeaderPopup type={'custom'} isCustom={isReservationType} selectedCustom={resType}
+            {isReservationType && !isCheckout && <HeaderPopup type={'custom'} isCustom={isReservationType} selectedCustom={resType}
             setSelectedCustom={setResType} setIsCustom={setIsReservationType}
-            customArray={reservationType()}/>
+            customArray={reservationType()} />}
           </div>
 
           <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
@@ -1075,8 +1213,8 @@ const page = () => {
 
       {(isMobile) && <div className={`checkout ${isCheckout ? 'mobile-checkout-popup' : 'mobile-checkout-popup-hidden'}`}>
 
-        {isCalendar && <span onClick={() => {
-          setIsCalendar(false);
+        {(isCalendar || isReservationType) && <span onClick={() => {
+          setIsCalendar(false); setIsReservationType(false);
         }} id='spanForClosingPopups'/>}
 
         <h2 id='checkoutDetailsH2'>تفاصيل الحجز </h2>
@@ -1089,9 +1227,9 @@ const page = () => {
           <h3 id='res-type'>اختر طريقة الحجز {'(يومي, شهري, سنوي ...الخ)'}</h3>
           <h3 style={{ color: 'var(--secondColorDark)' }}>{getPrice()}<span> {currencyCode(true, true)} / {reservationType()?.find(i => i.id === resType?.id)?.oneAr}</span></h3>
           <h3 style={{ color: '#777' }}><span>عدد {reservationType()?.find(i => i.id === resType?.id)?.multipleAr}</span> {resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)}</h3>
-          <HeaderPopup type={'custom'} isCustom={isReservationType} selectedCustom={resType}
+          {isReservationType && isCheckout && <HeaderPopup type={'custom'} isCustom={isReservationType} selectedCustom={resType}
           setSelectedCustom={setResType} setIsCustom={setIsReservationType}
-          customArray={reservationType()}/>
+          customArray={reservationType()}/>}
         </div>
 
         <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>

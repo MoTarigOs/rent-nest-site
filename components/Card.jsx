@@ -74,7 +74,7 @@ const Card = ({ item, type, isVertical, isEnglish, handleWishList }) => {
           <h3>{isEnglish 
           ? JordanCities.find(i => i.value === item.city)?.value
           : JordanCities.find(i => i.value === item.city)?.arabicName}, {' '}
-          {isEnglish ? item.en_data?.neighbourEN || item.neighbourhood : item.neighbourhood}</h3>
+          {isEnglish ? (item.en_data?.neighbourEN || item.neighbourhood) : item.neighbourhood}</h3>
 
           <h4><span style={isEnglish ? { marginRight: 2 } : { marginLeft: 2 }}>
             {getPrice()} {currencyCode(isEnglish)} {' / '}</span> {getPriceReservationType()}</h4>

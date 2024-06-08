@@ -122,13 +122,7 @@ const page = () => {
     const [isCarGearboxShow, setIsCarGearboxShow] = useState(false);
     const [isCarFuelTypeShow, setIsCarFuelTypeShow] = useState('');
 
-    
     const [isAddDetails, setIsAddDetails] = useState(false);
-    const [addDetailsType, setAddDetailsType] = useState(false);
-    const [addDetailsSections, setAddDetailsSections] = useState('');
-    const [addDetailsBaseArray, setAddDetailsBaseArray] = useState([]);
-    const [addDetailsItemArray, setAddDetailsItemArray] = useState(null);
-    const [addDetailsItemSetArray, setAddDetailsItemSetArray] = useState(null);
 
     const { executeRecaptcha } = useGoogleReCaptcha();
 
@@ -176,9 +170,7 @@ const page = () => {
     ];
 
     const vehiclesDetails = [
-        {idName: 'car_specs', name: 'مواصفات السيارة', isWithEN: true, detailsEN: vehicleSpecificationsEN, setDetailsEN: setVehicleSpecificationsEN, array: vehicleSpecifications, setArray: setVehicleSpecifications},
         {idName: 'features', name: 'المزايا الاضافية', isWithEN: true, detailsEN: vehicleFeaturesEN, setDetailsEN: setVehicleFeaturesEN, array: vehicleFeatures, setArray: setVehicleFeatures},
-        // {name: 'الأماكن القريبة', isWithEN: true, detailsEN: nearPlacesEN, setDetailsEN: setNearPlacesEN, array: nearPlaces, setArray: setNearPlaces},
         {idName: 'terms', name: 'شروط و أحكام الحجز', isWithEN: true, detailsEN: conditionsAndTermsEN, setDetailsEN: setConditionsAndTermsEN,  array: conditionsAndTerms, setArray: setConditionsAndTerms},
     ];
 
@@ -282,98 +274,6 @@ const page = () => {
 
     const handleSubmit = async() => {
 
-        return setError('الارسال لا يزال تحت التطوير');
-
-        if(selectedCatagories !== '0' && selectedCatagories !== '1') return;
-
-        let attahcedFilesError = false;
-        let errorEncountered = false;
-
-        if(selectedCatagories === '1' && !ProperitiesCatagories.find(i => i.value === specificCatagory)){
-            setSpecificCatagory('-2');
-            errorEncountered = true;
-        } else if(selectedCatagories === '0' && (!VehiclesTypes.find(i => i.value === vehicleType) || specificCatagory !== 'transports')){
-            setSpecificCatagory('-2');
-            setVehicleType('');
-            errorEncountered = true;
-        }
-
-        if(!isValidText(itemTitle) || (itemTitleEN && !isValidText(itemTitleEN))){
-            setItemTitle('-1');
-            errorEncountered = true;
-        }
-
-        if(!isValidText(itemDesc) || (itemDescEN && !isValidText(itemDescEN))){
-            setItemDesc('-1');
-            errorEncountered = true;
-        }
-
-        if(!isValidPrices()) errorEncountered = true;
-
-        if(area === -1 || (area > 0 && (typeof area !== 'number' || area < 0 || area > 1000000))){
-            setArea(-1);
-            errorEncountered = true;
-        }
-
-        if(!contacts || !contacts?.length > 0){
-            setContactsError('الرجاء كتابة طريقة تواصل واحدة على الأقل.');
-            errorEncountered = true;
-        } else {
-            for (let i = 0; i < contacts.length; i++) {
-                if(!isValidContactURL(contacts[i])) {
-                    setContactsError('هنالك رابط غير صالح, الرجاء اختيار منصة و ادخال رابط صالح.');
-                    errorEncountered = true;
-                }
-            }
-        }
-
-        if(!itemCity || itemCity === {} || typeof itemCity.value !== 'string' || itemCity.value.length <= 0){
-            const obj = itemCity;
-            obj.value = '-1';
-            setItemCity(obj);
-            errorEncountered = true;
-        }
-
-        if(!isValidText(itemNeighbour) || (itemNeighbourEN && !isValidText(itemNeighbourEN))){
-            setItemNeighbour('');
-            setItemNeighbourEN('');
-        }
-
-        if(itemLong || itemLat){
-            if(!isInsideJordan(itemLong, itemLat)){
-                setError('خطأ في بيانات الموقع, الرجاء تحديد موقع صالح على الخريطة');
-                errorEncountered = true;
-            }
-        }
-
-        if(capacity > 0 && !isValidNumber(capacity)){
-            setCapacity(-1);
-            errorEncountered = true;
-        }
-
-        if(customerType?.length > 0 && !customersTypesArray().includes(customerType)){
-            setCustomerType('-1');
-            errorEncountered = true;
-        }
-
-        if(cancellation?.length > 0 && !cancellationsArray().includes(cancellation)){
-            setCancellation('-1');
-            errorEncountered = true;
-        }
-
-        if(errorEncountered === true){
-            window.scrollTo({
-                top: contactsError?.length > 0 
-                ? window.scrollY + attachImagesDivRef.current.getBoundingClientRect().top 
-                : 320, behavior: 'smooth'
-            });
-            setError('أكمل الحقول الفارغة.');
-            setSuccess(false);
-            return;
-        }
-
-        setContactsError('');
-
         try {
 
             setLoading(true);
@@ -384,39 +284,34 @@ const page = () => {
 
             //attached file, atleast one
             if(optimizedFiles.optArr.length <= 0){
-                attahcedFilesError = true;
-                errorEncountered = true;
-            }
-
-            if(attahcedFilesError === true) setError('أضف صور و فيديوهات تعبر عن المعروض.');
-
-            if(errorEncountered === true) {
-                if(attachImagesDivRef.current){
-                    window.scrollTo({
-                        top: window.scrollY + attachImagesDivRef.current.getBoundingClientRect().top, behavior: 'smooth'
-                    });
-                }
+                setError('أضف صور و فيديوهات تعبر عن المعروض.');
                 setSuccess(false);
                 setLoading(false);
                 return;
-            };
+            }
 
             /*  create property or vehicle instance then 
                 upload images with the id of the created instance  */
 
             const xDetails = selectedCatagories === '0' ? {
-                vehicle_specifications: vehicleSpecifications,
-                vehicle_addons: vehicleFeatures,
+                insurance:  requireInsurance, 
+                vehicle_specifications: {
+                    driver: withDriver, rent_type: vehicleRentTypesArray(true)[vehicleRentTypesArray().indexOf(vehicleRentType)],
+                    company: carCompany, model: carModel, color: carColor,
+                    year: carYear, gearbox: carGearboxes(true)[carGearboxes().indexOf(carGearbox)], fuel_type: carFuelTypesArray(true)[carFuelTypesArray().indexOf(carFuelType)]
+                },
+                features: vehicleFeatures,
                 near_places: nearPlaces
             } : {
                 insurance:  requireInsurance, 
                 guest_rooms: guestRoomsDetailArray, 
-                facilities: companionsDetailArray, 
-                bathrooms: { num: numOf.find(i => i.name === 'bathrooms')?.value, companians: bathroomsDetailArray}, 
-                kitchen: { dim: { x: dimensionOf.find(i => i.name === 'kitchen')?.x, y: dimensionOf.find(i => i.name === 'kitchen')?.y }, companians: kitchenDetailArray }, 
-                rooms: { num: numOf.find(i => i.name === 'rooms')?.value, single_beds: numOf.find(i => i.name === 'single beds')?.value, double_beds: numOf.find(i => i.name === 'double beds')?.value },
+                bathrooms: { array: bathroomsDetailArray, companians: bathroomsAccompany }, 
+                kitchen: { array: kitchenDetailArray, companians: kitchenAccompany }, 
+                rooms: roomsDetailArray,
+                pool: { array: poolsDetailArray, companians: poolAccompany },
                 near_places: nearPlaces,
-                pool: { num: numOf.find(i => i.name === 'pool')?.value, dim: { x: dimensionOf.find(i => i.name === 'pool')?.x, y: dimensionOf.find(i => i.name === 'pool')?.y }, companians: poolsDetailArray }
+                facilities: companionsDetailArray, 
+                features: vehicleFeatures
             };
 
             let enObj = {
@@ -460,7 +355,7 @@ const page = () => {
 
             const token = await getRecaptchaToken();
             
-            const res = await createProperty(
+            const res = await createProperty( 
                 selectedCatagories === '0' ? true : false, 
                 specificCatagory, itemTitle, itemDesc, 
                 itemCity.value, itemNeighbour, [itemLong, itemLat], itemPrice, 
@@ -468,7 +363,7 @@ const page = () => {
                 tempContacts?.length > 0 ? tempContacts : null, null, token, 
                 capacity, customerType, enObj, cancellationsArray().indexOf(cancellation),
                 VehiclesTypes.find(i => i.value === vehicleType)?.id,
-                itemPrices);
+                itemPrices, landArea, floor);
 
             if(res.success !== true){
                 setError(res.dt.toString());
@@ -744,6 +639,11 @@ const page = () => {
                 detailsErrorMsg = detailsErrorMsg + ' area ';
                 errorEncountered = true;
             }
+
+            if(capacity && !isValidNumber(capacity)){
+                detailsErrorMsg = detailsErrorMsg + ' capacity ';
+                errorEncountered = true;
+            }
     
             if(landArea && !isValidText(landArea)){
                 detailsErrorMsg = detailsErrorMsg + ' landArea ';
@@ -954,6 +854,8 @@ const page = () => {
     }, [userId]);
 
     useEffect(() => {
+        setSuccess(false);
+        setError('');
         setSectionTitle(sectionsArray.find(i => i.id === section)?.name);
         if(section === 6) setFreeSection(true);
     }, [section]);
@@ -969,11 +871,11 @@ const page = () => {
         return <span id='righticonspan'/>
     }
 
-    // if(!userId?.length > 0 || !isVerified || userAccountType !== 'host'){
-    //     return (
-    //         fetching ? <MySkeleton isMobileHeader={true}/> : <NotFound navToVerify={!isVerified} type={'not allowed'}/>
-    //     )
-    // }
+    if(!userId?.length > 0 || !isVerified || userAccountType !== 'host'){
+        return (
+            fetching ? <MySkeleton isMobileHeader={true}/> : <NotFound navToVerify={!isVerified} type={'not allowed'}/>
+        )
+    }
 
   return (
     <div className='add'>
@@ -1189,7 +1091,6 @@ const page = () => {
                     <h3>حدد امكانية الغاء الحجز</h3>
                     <InfoDiv title={'الغاء الحجز'} value={cancellation === '' ? 'غير محدد' : cancellation}/>
                     {isCancellation && <AddDetailsPopup array={cancellation} setArray={setCancellation} type={'cancellation'} sections={'selections'} isSingleSelect setIsShow={setIsCancellation} baseArr={cancellationsArray()} isNotFacilities/>}
-
                 </div>
 
                 <div className='detailItem contacts-div'>
@@ -1244,6 +1145,18 @@ const page = () => {
                     <button className='btnbackscndclr' onClick={() => setContacts([...contacts, { platform: '', val: '', isPlatforms: false }])}>أضف المزيد</button>
                 </div>
                 
+                {(selectedCatagories === '1' && specificCatagory !== 'students') && <div className='detailItem area-div' style={{ display: selectedCatagories === '0' ? 'none' : null}}>
+                    <h3>اكتب أقصى سعة أو عدد نزلاء متاح بالعقار</h3>
+                    <CustomInputDiv title={capacity > 0 ? `${capacity} نزيل` : ''} max={150000} min={-1} myStyle={{ marginBottom: 0 }} 
+                    placholderValue={'كم نزيل مسموح بالعقار؟'} type={'number'} isError={detailsError?.includes('capacity')} errorText={'الرجاء ادخال عدد من صفر الى 150000'} listener={(e) => {
+                        if(Number(e.target.value)) {
+                            setCapacity(Number(e.target.value))
+                        } else {
+                            setCapacity(0);
+                        };
+                    }}/>
+                </div>}
+
                 {(selectedCatagories === '1' && specificCatagory !== 'students') && <div className='detailItem area-div' style={{ display: (selectedCatagories === '0') ? 'none' : null}}>
                     <h3 style={{ cursor: 'text' }}>اكتب مساحة العقار بالأمتار</h3>
                     <CustomInputDiv title={area > 0 ? `${area} متر مربع` : ''} max={1000000} min={0} myStyle={{ marginBottom: 0 }} placholderValue={'غير محدد'} type={'number'} 
@@ -1258,7 +1171,7 @@ const page = () => {
 
                 {(selectedCatagories === '1' && specificCatagory === 'farm') && <div className='detailItem area-div'>
                     <h3>اكتب مساحة أرض المزرعة أو الشاليه</h3>
-                    <CustomInputDiv title={landArea || 'اكتب مساحة'} 
+                    <CustomInputDiv title={landArea || 'مساحة الأرض'} 
                     max={1000000} min={0} myStyle={{ marginBottom: 0 }} 
                     placholderValue={'مثال: 2 فدان أو 500 متر'} 
                     isError={detailsError.includes('landArea')} 

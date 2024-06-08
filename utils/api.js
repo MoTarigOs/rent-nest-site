@@ -429,7 +429,7 @@ export const createProperty = async(
     type_is_vehicle, specific_catagory, title, description, city, neighbourhood,
     map_coordinates, price, details, terms_and_conditions, area,
     contacts, isEnglish, gRecaptchaToken, capacity, customer_type, 
-    en_data, cancellation, vehicleType, prices
+    en_data, cancellation, vehicleType, prices, landArea, floor
 ) => {
 
     try {
@@ -442,7 +442,7 @@ export const createProperty = async(
             terms_and_conditions, area: type_is_vehicle ? null : area, contacts, gRecaptchaToken, vehicleType: !type_is_vehicle ? null : vehicleType,
             capacity: type_is_vehicle ? null : capacity, 
             customer_type: type_is_vehicle ? null : customer_type, 
-            en_data, cancellation, prices,
+            en_data, cancellation, prices, landArea, floor
             // price
         };
 
@@ -521,7 +521,8 @@ export const editProperty = async(
     details, terms_and_conditions, contacts,
     discount, isEnglish, gRecaptchaToken,
     enObj, cancellation, capacity, customerType, 
-    prices
+    prices, landArea, floor, city, neighbourhood,
+    map_coordinates, type_is_vehicle
 ) => {
 
     try {
@@ -533,7 +534,8 @@ export const editProperty = async(
             details, terms_and_conditions,
             contacts, discount, gRecaptchaToken,
             enObj, cancellation, capacity, customerType,
-            prices
+            prices, landArea, floor, city, neighbourhood,
+            map_coordinates, type_is_vehicle
         };
 
         const res = await axios.put(url, body, { withCredentials: true, 'Access-Control-Allow-Credentials': true });

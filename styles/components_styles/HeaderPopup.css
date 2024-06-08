@@ -1,4 +1,4 @@
-/* .cityPopup{
+.cityPopup{
     width: 320px;
     height: 400px;
     box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.164);
@@ -40,10 +40,6 @@
         left: -60px;
         right: unset;
     }
-} */
-
-.addCity{
-
 }
 
 .addCity{
@@ -99,12 +95,25 @@
             #righticonspan{
                 background: var(--secondColor);
                 border-color: transparent;
-
+        
                 span{
                     display: block;
                     border-color: white;
                 }
             }
+        }
+
+    }
+}
+
+.selectedCatagory{
+    #righticonspan{
+        background: var(--secondColor);
+        border-color: transparent;
+
+        span{
+            display: block;
+            border-color: white;
         }
     }
 }

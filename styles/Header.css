@@ -874,6 +874,10 @@
     opacity: 1;
     animation: 0.9s ease 1 forwards ripple-effect;
     }
+
+    button{
+        font-family: inherit;
+    }
 }
 
 .englishHeader{

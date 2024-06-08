@@ -824,7 +824,7 @@
                     ul{
                         width: 100%;
                         margin-right: 40px;
-                        margin-top: 24px;
+                        margin-top: 16px;
 
                         li{
                             border: none;
@@ -939,6 +939,68 @@
                     p{
                         color: var(--secondColor);
                         margin-top: 12px;
+                    }
+                }
+
+                .reviews-layout{
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    gap: 32px;
+
+                    .numbers{
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 0;
+                        min-width: fit-content;
+
+                        h4{
+                            font-size: 2.5rem;
+                        }
+                    }
+
+                    .charts{
+                        width: 100%;
+                        display: flex;
+                        flex-direction: column;
+
+                        div{
+                            width: 100%;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            color: rgb(81, 81, 81);
+                            font-weight: 600;
+                            font-size: 1.1rem;
+
+                            p{
+                                font-size: 1rem;
+                                font-weight: 400;
+                                white-space: nowrap;
+                                color: rgb(124, 124, 124);
+                            }
+
+                            div{
+                                width: 100%;
+                                background: var(--darkWhite);
+                                height: 8px;
+                                border-radius: 12px;
+                                margin-right: 16px;
+                                overflow: hidden;
+
+                                &:dir(ltr){
+                                    margin-right: unset;
+                                    margin-left: 16px;
+                                }
+
+                                span{
+                                    width: 80%;
+                                    height: 100%;
+                                    background: var(--secondColor);
+                                }
+                            }
+                        }
                     }
                 }
         
@@ -1133,6 +1195,15 @@
                     }
                 }
             }
+
+            .accompany-h3{
+                margin: 20px 32px 8px 32px;
+            }
+
+            .accompany-p{
+                width: 100%;
+                margin: 0 40px 0 40px;
+            }
         }
 
         #checkoutDetailsH2{
@@ -1248,14 +1319,31 @@
                 }
             }
 
-            .cityPopup{
+            .addCity{
                 top: 110%;
                 left: 0;
+                position: absolute;
                 right: unset;
                 width: 100%;
                 height: fit-content;
                 max-height: 320px;
-                z-index: 2;
+                z-index: 200;
+                padding: 0;
+                border-radius: 8px;
+                background: white;
+                gap: 0;
+
+                ul{
+                    gap: 0;
+                    margin: 0;
+
+                    li{
+                        padding: 12px 12px;
+                        margin: 0;
+                    }
+                }
+
+
             }
         }
 
@@ -1470,6 +1558,10 @@
         }
     }
 
+    button, input{
+        font-family: inherit;
+    }
+
     .editDiv:hover{
         background: rgba(0, 0, 0, 0.126);
     }
@@ -1647,6 +1739,12 @@
                     flex: 1;
                     max-width: 50%;
                 }
+            }
+        }
+        .reviews-layout{
+            flex-direction: column;
+            .charts{
+                gap: 0;
             }
         }
     }

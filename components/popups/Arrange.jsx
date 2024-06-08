@@ -14,7 +14,7 @@ const Arrange = ({ isEnglish, isArrange, setIsArrange, setTriggerFetch, triggerF
     ];
 
     const RightIconSpan = () => {
-        return <span id='righticonspan'/>
+        return <div id='righticonspan'><span /></div>
     }
 
     useEffect(() => {

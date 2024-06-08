@@ -213,7 +213,7 @@ export const customersTypesArray = (isEnglish) => {
        'أزواج',
        'المسافرين',
        'عائلات فقط',
-       'عزاب و عوائل'
+       'عزاب و عائلات'
     ];
 };
 

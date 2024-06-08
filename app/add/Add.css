@@ -952,6 +952,10 @@
                     margin-top: 16px;
                 }
             }
+
+            button{
+                font-family: inherit;
+            }
         }
 
         #error{

@@ -391,6 +391,10 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
               <Image src={LogoImage} alt='rentnext website logo image'/>
           </Link>
 
+          {/* <Link href={
+            `https://wa.me/+963991012169?text=`
+          }>Test</Link> */}
+
           <div className={`menuIconDiv disable-text-copy ${isMenu ? 'activeMenu' : undefined}`} onClick={() => setIsMenu(!isMenu)}
           style={{ zIndex: isMenu ? 15 : undefined }}>
 
@@ -444,14 +448,8 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
                 </Link>
               </div>
 
-              {/* Add button */}
-              {/* <Link href={getHref('add')} onClick={() => setIsMenu(false)}
+              <Link href={getHref('add')} onClick={() => setIsMenu(false)}
                 style={{ display: !userId?.length > 0 ? 'none' : null }} className='addItemHeaderDiv disable-text-copy'>
-                {getNameByLang('أضف عقارك', pathname.includes('/en'))}
-              </Link> */}
-
-              <Link href={'/add'} onClick={() => setIsMenu(false)}
-                style={{ display: userId?.length > 0 ? 'none' : null }} className='addItemHeaderDiv disable-text-copy'>
                 {getNameByLang('أضف عقارك', pathname.includes('/en'))}
               </Link>
 

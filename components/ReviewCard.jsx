@@ -31,7 +31,6 @@ const ReviewCard = ({
           if(item.writer_id){ 
             setReportDiv(true); 
             setWriterId(item.writer_id); 
-            
           }
       }}>{isEnglish ? 'Report' : 'إِبلاغ'} <Svgs name={'report'}/></h4>
       {(isAdmin && revsToDeleteAdmin) && <h3 className='delete-file' style={{ display: revsToDeleteAdmin.includes(item) ? 'none' : null }} onClick={() => {

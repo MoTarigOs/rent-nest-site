@@ -68,15 +68,15 @@ const HeaderPopup = ({
                 }} placeholder={(pathname?.includes('/en') || isEnglish) ? 'Search a city...' : 'ابحث عن مدينة...'}/>
             </div>
             <ul>
-                <li onClick={() => {
+                <li className={(!city.value ? 'selectedCatagory' : undefined) + ' disable-text-copy'} onClick={() => {
                     if(city !== {}){
                         setCity({});
                         setTriggerFetch(!triggerFetch);
                         if(triggerHomeFilterSection) triggerHomeFilterSection();
                     }
-                }}>{getNameByLang('كل المدن', pathname?.includes('/en') || isEnglish)}{!city.value && <RightIconSpan />}</li>
+                }}>{getNameByLang('كل المدن', pathname?.includes('/en') || isEnglish)}<RightIconSpan /></li>
                 {searched.map((cty) => (
-                    <li onClick={() => {
+                    <li className={(city.city_id === cty.city_id ? 'selectedCatagory' : undefined) + ' disable-text-copy'} onClick={() => {
                         if(city !== cty){
                             setCity(cty);
                             setTriggerFetch(!triggerFetch);
@@ -84,14 +84,14 @@ const HeaderPopup = ({
                         }
                     }} key={cty.city_id}>
                         {pathname?.includes('/en') || isEnglish ? cty.value : cty.arabicName} 
-                        {city.city_id === cty.city_id && <RightIconSpan />}
+                        <RightIconSpan />
                     </li>
                 ))}
             </ul>
 
         </motion.div>}
 
-        {type === 'add-city' && <motion.div className='cityPopup addCity disable-text-copy'
+        {type === 'add-city' && <motion.div className='addCity disable-text-copy'
             initial={{ opacity: 0, scale: 0.7 }}
             animate={{ opacity: 1, scale: 1 }}
             style={myStyle}
@@ -110,14 +110,6 @@ const HeaderPopup = ({
                 }} placeholder={(pathname?.includes('/en') || isEnglish) ? 'Search a city...' : 'ابحث عن مدينة...'}/>
             </div>
             <ul className='disable-text-copy'>
-                {/* <li className={itemCity?.city_id === -1 ? 'selectedCatagory' : undefined} onClick={() => {
-                    setItemCity({ city_id: -1, value: '', arabicName: '' });
-                    setLongitude(null);
-                    setLatitude(null);
-                }}>
-                    <RightIconSpan />
-                    {isEnglish ? 'All Cities' : 'كل المدن'}
-                </li> */}
                 {searched.map((cty) => (
                     <li className={(itemCity?.city_id === cty.city_id ? 'selectedCatagory' : undefined) + ' disable-text-copy'} onClick={() => { 
                         setItemCity(cty);
@@ -138,7 +130,7 @@ const HeaderPopup = ({
             animate={{ opacity: 1, scale: 1 }}
         >
             <ul>
-                <li style={{ margin: 0 }} onClick={() => {
+                <li className={(catagory === '' ? 'selectedCatagory' : undefined) + ' disable-text-copy'} style={{ margin: 0 }} onClick={() => {
                     if(catagory !== ''){
                         setCatagory('');
                         setTriggerFetch(!triggerFetch);
@@ -146,11 +138,11 @@ const HeaderPopup = ({
                 }} id="allCtgLi">
                     <Svgs name={'layer'}/>
                     <h3>{getNameByLang('كل التصنيفات', isEnglish ? true : pathname?.includes('/en') || isEnglish || false)}</h3> 
-                    {catagory === '' && <RightIconSpan />}
+                    <RightIconSpan />
                 </li>
 
                 {getCatagories().map((ctg) => (
-                    <li key={ctg.id} onClick={() => {
+                    <li className={(catagory === ctg.value ? 'selectedCatagory' : undefined) + ' disable-text-copy'} key={ctg.id} onClick={() => {
                         if(catagory !== ctg.value){
                             setCatagory(ctg.value);
                             setCategoryArray([]);
@@ -161,7 +153,7 @@ const HeaderPopup = ({
                         <h3>{pathname !== '/vehicles' 
                         ? getNameByLang(ctg.arabicName, isEnglish ? true : pathname?.includes('/en') || isEnglish || false)
                         : isEnglish ? ctg.value : ctg.arabicName}</h3> 
-                        {catagory === ctg.value && <RightIconSpan />}
+                        <RightIconSpan />
                     </li>
                 ))}
             </ul>
@@ -203,24 +195,25 @@ const HeaderPopup = ({
                 <MyCalendar setCalender={setCalendarDoubleValue} days={days} type={isViewPage ? 'view' : null}/>
         </motion.div>}
 
-        {type === 'custom' && <motion.div className='cityPopup'
-            initial={{ opacity: 0, scale: 0.7 }}
+        {type === 'custom' && <motion.div className='addCity'
+            initial={{ opacity: 0, scale: 0.7 }} style={myStyle}
             animate={{ opacity: isCustom ? 1 : 0, scale: isCustom ? 1 : 0 }}
         >
             <ul>
                 {customArray.map((cst) => (
-                    <li onClick={() => {
+                    <li className={(selectedCustom.value === cst.value ? 'selectedCatagory' : undefined) + ' disable-text-copy'} 
+                    onClick={() => {
                         setSelectedCustom(cst);
                         setIsCustom(false);
                     }} key={cst.value}>
+                        <RightIconSpan />
                         {isEnglish ? cst.value?.replaceAll('-', ' ')?.replaceAll('_', ' ') : cst.arabicName} 
-                        {selectedCustom.value === cst.value && <RightIconSpan />}
                     </li>
                 ))}
             </ul>
         </motion.div>}
 
-        {type === 'customers' && <motion.div className='cityPopup addCity'
+        {type === 'customers' && <motion.div className='addCity'
             initial={{ opacity: 0, scale: 0.7 }} style={myStyle}
             animate={{ opacity: isCustom ? 1 : 0, scale: isCustom ? 1 : 0 }}
         >
@@ -244,7 +237,7 @@ const HeaderPopup = ({
             </ul>
         </motion.div>}
 
-        {type === 'selections' && <motion.div className='cityPopup addCity'
+        {type === 'selections' && <motion.div className='addCity'
             initial={{ opacity: 0, scale: 0.7 }} style={myStyle}
             animate={{ opacity: isCustom ? 1 : 0, scale: isCustom ? 1 : 0 }}
         >
