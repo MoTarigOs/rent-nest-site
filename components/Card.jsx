@@ -1,4 +1,4 @@
-import '@styles/components_styles/Card.css';
+import '@styles/components_styles/Card.scss';
 import Image from 'next/image';
 import RatingStar from '@assets/icons/rating.png';
 import Link from 'next/link';

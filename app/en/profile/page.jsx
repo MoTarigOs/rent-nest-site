@@ -1,6 +1,6 @@
 'use client';
 
-import '../../profile/Profile.css';
+import '../../profile/Profile.scss';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Context } from '@utils/Context';
 import Card from '@components/Card';

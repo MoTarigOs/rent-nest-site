@@ -1,6 +1,6 @@
 'use client';
 
-import '@styles/components_styles/PropertiesArray.css';
+import '@styles/components_styles/PropertiesArray.scss';
 import { useContext, useEffect, useState } from "react";
 import Card from "./Card";
 import MySkeleton from "./MySkeleton";

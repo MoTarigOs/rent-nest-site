@@ -1,5 +1,5 @@
 import { myConditions } from '@utils/Data';
-import './About.css';
+import './About.scss';
 
 const page = () => {
 

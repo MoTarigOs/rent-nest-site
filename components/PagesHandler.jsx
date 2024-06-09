@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import '@styles/components_styles/PagesHandler.css';
+import '@styles/components_styles/PagesHandler.scss';
 
 const PagesHandler = ({ 
     properitiesArray, foundItems, indexSlide, setIndexSlide, 

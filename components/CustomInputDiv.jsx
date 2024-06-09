@@ -1,7 +1,7 @@
 'use client';
 
 import Svgs from "@utils/Svgs";
-import '@styles/components_styles/CustomInputDiv.css';
+import '@styles/components_styles/CustomInputDiv.scss';
 import { useState } from "react";
 import LoadingCircle from "./LoadingCircle";
 

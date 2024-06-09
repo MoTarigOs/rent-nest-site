@@ -1,6 +1,6 @@
 'use client';
 
-import '@styles/components_styles/GoogleMapPopup.css';
+import '@styles/components_styles/GoogleMapPopup.scss';
 import { Autocomplete, Circle, GoogleMap, Marker, OverlayView, OverlayViewF, useJsApiLoader } from "@react-google-maps/api";
 import { memo, useContext, useState } from 'react';
 import { JordanCities, isInsideJordan } from '@utils/Data';

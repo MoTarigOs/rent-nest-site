@@ -1,6 +1,6 @@
 'use client';
 
-import './Profile.css';
+import './Profile.scss';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Context } from '@utils/Context';
 import { askToBeHost, checkUsername, deleteMyAccount, editUser, getGuests, removeGuest, sendCode, signOut, verifyGuest, verifyMyEmail } from '@utils/api';

@@ -1,6 +1,6 @@
 'use client';
 
-import '../add/Add.css';
+import '../add/Add.scss';
 import { Suspense, useContext, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import CustomInputDiv from '@components/CustomInputDiv';

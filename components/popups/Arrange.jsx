@@ -1,6 +1,6 @@
 'use client';
 
-import '@styles/components_styles/Arrange.css';
+import '@styles/components_styles/Arrange.scss';
 import { useEffect } from 'react';
 
 const Arrange = ({ isEnglish, isArrange, setIsArrange, setTriggerFetch, triggerFetch, arrangeValue, setArrangeValue }) => {
@@ -22,7 +22,7 @@ const Arrange = ({ isEnglish, isArrange, setIsArrange, setTriggerFetch, triggerF
     }, [arrangeValue]);
 
   return (
-    <div className='arrangeWrapper' style={{ display: !isArrange && 'none' }}>
+    <div className='arrangeWrapper' style={{ display: !isArrange ? 'none' : undefined }}>
 
         <div id='bgDiv' onClick={() => setIsArrange(false)}></div>
 
@@ -37,7 +37,10 @@ const Arrange = ({ isEnglish, isArrange, setIsArrange, setTriggerFetch, triggerF
                     <li key={index} onClick={() => {
                         setArrangeValue(arng.name === 'default' ? '' : arng.name);
                         setIsArrange(false);
-                    }}>{isEnglish ? arng.name.replace('-', ' ') : arng.arabicName} {arrangeValue === arng.name && <RightIconSpan />}</li>
+                    }} className={(arrangeValue === arng.name || (arng?._id === '0' && arrangeValue === '')) ? 'selectedCatagory' : undefined}>
+                        {isEnglish ? arng.name.replace('-', ' ') : arng.arabicName} 
+                        <RightIconSpan />
+                    </li>
                 ))}
             </ul>
 

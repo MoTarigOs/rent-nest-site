@@ -1,6 +1,6 @@
 'use client';
 
-import '@styles/sections_styles/AboutSection.css';
+import '@styles/sections_styles/AboutSection.scss';
 import Image from 'next/image';
 import AboutBackgroundImage from '@assets/images/image_as_logo2.webp';
 import Svgs from '@utils/Svgs';
@@ -77,7 +77,7 @@ const AboutSection = ({ isEnglish }) => {
               <div className='about-swiper swiperAboutDiv'>
                 <div className='swiper-wrapper wrapperDiv'>
                   {[...ProperitiesCatagories, VehicleCatagories[0]].map((item, index) => (
-                    <div key={index} className='swiper-slide aboutListItem' onClick={() => {
+                    <div key={index} className='swiper-slide aboutListItem disable-text-copy' onClick={() => {
                       setCatagory(item.value); setIsMobileHomeFilter(true); setSection('city skip-category');
                     }}>
                       <Image loading='eager' src={getCategoryImage(item.value)} alt={item.value}/>

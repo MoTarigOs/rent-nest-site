@@ -1,6 +1,6 @@
 'use client';
 
-import '@styles/Header.css';
+import '@styles/Header.scss';
 import Image from 'next/image';
 import LogoImage from '@assets/icons/rent-nest-logo-header.png';
 import Svgs from '@utils/Svgs';
@@ -51,7 +51,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       isMobileHomeFilter, setStorageKey, isMobile, setIsMobile,
       setIsEnglish, isVerified, setIsModalOpened, isModalOpened,
       setIsSearchMap, isSearchMap, vehicleType, setUserAddressEN, 
-      setUserUsernameEN, isFilter, setIsFilter, setUserAccountType,
+      isFilter, setIsFilter, setUserAccountType,
       isArrange, setIsArrange, setUserLastName, setUserFirstName,
       setUserLastNameEN, setUserFirstNameEN, userFirstName,
       userLastName, userFirstNameEN
@@ -269,7 +269,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       zIndex: (isArrange || isFilter || isMenu || isMap 
           || isCatagoryFilter || isCityFilter || isCalendarFilter
           || isMobileHomeFilter) ? 11 : undefined,
-          padding: (isSearchMap && pathname.includes('/search')) ? 0 : undefined
+          padding: (isSearchMap && pathname.includes('/search')) ? 0 : undefined,
     }} suppressHydrationWarning={true} dir={pathname.includes('/en') ? 'ltr' : null}>
 
         <div className='desktopWrapper'>
@@ -357,8 +357,8 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
           <span id='rightSpanHeaderSearch'/>
           <span id='leftSpanHeaderSearch'/>
         </motion.div> : (pathname === '/vehicles' || pathname.includes('search') || pathname === '/properties' || pathname === '/en/vehicles' || pathname === '/en/properties') && <div className='headerSearchOtherDiv'>
-          <ul className='headerNavUL'>
-            <li className='headerNavLi' id='searchLiHeaderOther'><Svgs name={'search'}/></li>
+          <ul className='headerNavUL disable-text-copy'>
+            <li className='headerNavLi ' id='searchLiHeaderOther'><Svgs name={'search'}/></li>
             <li className='headerNavLi' onClick={() => {setIsCityFilter(true); setIsCatagoryFilter(false); setIsCalendarFilter(false);}}><h4>{!city.value ? getNameByLang('كل المدن', pathname.includes('/en')) : pathname.includes('/en') ? city.value : city.arabicName}</h4>{isCityFilter && <HeaderPopup pathname={pathname} type={'city'}/>}</li>
             <li className='headerNavLi' onClick={() => {setIsCatagoryFilter(true); setIsCityFilter(false); setIsCalendarFilter(false)}}><h4>{pathname.includes('/vehicles') ? (pathname.includes('/en') ? VehiclesTypes.find(i => i.id === vehicleType)?.value || 'All' : VehiclesTypes.find(i => i.id === vehicleType)?.arabicName || 'الكل') : (catagory === '' ? getNameByLang('كل التصنيفات', pathname.includes('/en')) : pathname.includes('/en') ? catagory : getArabicNameCatagory(catagory))}</h4>{isCatagoryFilter && <HeaderPopup isEnglish={pathname.includes('/en')}  pathname={pathname} type={'catagory'} handleChoose={() => setIsCatagoryFilter(false)}/>}</li>
             <li className='headerNavLi' onClick={() => {setIsCalendarFilter(true); setIsCityFilter(false); setIsCatagoryFilter(false)}}><h4 suppressHydrationWarning={true}>{getReadableDate(calendarDoubleValue?.at(0), true, pathname.includes('/en'))}</h4>{isCalendarFilter && <HeaderPopup type={'calendar'}/>}</li>

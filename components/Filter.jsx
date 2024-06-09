@@ -1,7 +1,7 @@
 'use client';
 
-import '@styles/components_styles/Filter.css';
-import { ProperitiesCatagories, VehicleCatagories, maximumPrice } from '@utils/Data';
+import '@styles/components_styles/Filter.scss';
+import { ProperitiesCatagories, VehicleCatagories, currencyCode, maximumPrice } from '@utils/Data';
 import Svgs from '@utils/Svgs';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Context } from '@utils/Context';
@@ -176,7 +176,9 @@ const Filter = ({
 
         <div className='wrapper'>
 
-            <div className='filter-header disable-text-copy'>
+            <div className='filter-header disable-text-copy' style={{
+                boxShadow: 'unset', margin: 0
+            }}>
                 <Svgs name={'cross'} on_click={() => setIsFilter(false)}/>
                 {isEnglish ? 'Filter' : 'فلتر'}
                 <span onClick={deleteFilters}>{isEnglish ? 'Delete' : 'مسح'}</span>
@@ -194,8 +196,8 @@ const Filter = ({
                         defaultValue={rangeValue}
                         value={rangeValue}
                     />
-                    <span>{isEnglish ? 'Min ' : 'السعر الأقل:'} {rangeValue[0]}$</span>
-                    <span>{isEnglish ? 'Max ' : 'السعر الأقصى'} {rangeValue[1]}$</span></>}
+                    <span>{isEnglish ? 'Min ' : 'السعر الأقل:'} {rangeValue[0]} {currencyCode(isEnglish)}</span>
+                    <span>{isEnglish ? 'Max ' : 'السعر الأقصى'} {rangeValue[1]} {currencyCode(isEnglish)}</span></>}
                 </div> 
 
                 <FilterSectionMultipleSelections item={filters.find(i => i.idName === 'quick')}/>

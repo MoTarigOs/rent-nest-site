@@ -1,4 +1,4 @@
-import '@styles/components_styles/ReviewCard.css';
+import '@styles/components_styles/ReviewCard.scss';
 import { getReadableDate } from '@utils/Logic';
 import Svgs from '@utils/Svgs';
 

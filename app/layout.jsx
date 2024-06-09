@@ -1,4 +1,4 @@
-import '@styles/Main.css';
+import '@styles/Main.scss';
 import MainWrapper from './MainWrapper';
 import DataContext from '@utils/Context';
 

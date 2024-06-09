@@ -1,8 +1,8 @@
 'use client';
 
 import Svgs from '@utils/Svgs';
-import '../../host/Host.css';
-import { useEffect, useRef } from 'react';
+import '../../host/Host.scss';
+import { useContext, useEffect, useRef } from 'react';
 import { useState } from 'react';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
@@ -13,6 +13,7 @@ import ReviewCard from '@components/ReviewCard';
 import { Suspense } from 'react';
 import { getReadableDate } from '@utils/Logic';
 import Image from 'next/image';
+import { Context } from '@utils/Context';
 
 const Page = () => {
 
@@ -37,7 +38,7 @@ const Page = () => {
 
     const offersRef = useRef(null);
     
-    const [isMobile, setIsMobile] = useState(false);
+    const { isMobile } = useContext(Context);
 
     const fetchHostDetails = async() => {
         
@@ -131,18 +132,8 @@ const Page = () => {
         }
     };
 
-    const settingMobile = () => {
-        if(window.innerWidth < 960){
-            setIsMobile(true);
-        } else {
-            setIsMobile(false);
-        }
-    };
-
     useEffect(() => {
         setRunOnce(true);
-        window.addEventListener('resize', settingMobile);
-        return () => window.removeEventListener('resize', settingMobile);
     }, []);
 
     useEffect(() => {
@@ -207,7 +198,7 @@ const Page = () => {
             </ul>
         </div>
 
-        <span id='hr'/>
+        {!isMobile && <span id='hr'/>}
 
         <div ref={offersRef} className='units' style={{ display: (isMobile && !isOffers) ? 'none' : undefined }}>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import '@styles/components_styles/UserDiv.css';
+import '@styles/components_styles/UserDiv.scss';
 import { getNameByLang, getRoleArabicName } from "@utils/Logic";
 import InfoDiv from './InfoDiv';
 import Link from 'next/link';

@@ -863,5 +863,13 @@ export const reservationType = (isEn, num, noEL) => {
   ];
 };
 
+export const ratingsSections = [
+  { id: 0, value: 5, arabicName: 'رائع', enName: 'Excellent', emoji: '🤩' },
+  { id: 1, value: 4, arabicName: 'جيد', enName: 'Good', emoji: '😄' },
+  { id: 2, value: 3, arabicName: 'مقبول', enName: 'Accepted', emoji: '😐' },
+  { id: 3, value: 2, arabicName: 'لم يعجبني', enName: 'Dislike', emoji: '🙁' },
+  { id: 4, value: 1, arabicName: 'سيئ', enName: 'Bad', emoji: '☹️' },
+];
+
 export const minimumPrice = 5;
 export const maximumPrice = 8000;

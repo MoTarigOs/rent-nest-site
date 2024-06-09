@@ -1,6 +1,6 @@
 'use client';
 
-import '@styles/components_styles/ImagesShow.css';
+import '@styles/components_styles/ImagesShow.scss';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 const Svgs = dynamic(() => import('@utils/Svgs'));

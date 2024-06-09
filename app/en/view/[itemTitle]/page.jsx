@@ -1,6 +1,6 @@
 'use client';
 
-import '../../../view/view-style/View.css';
+import '../../../view/view-style/View.scss';
 import ImagesShow from "@components/ImagesShow";
 import { JordanCities, cancellationsArray, currencyCode, myConditions, reservationType } from "@utils/Data";
 import GoogleMapImage from '@assets/images/google-map-image.jpg';

@@ -136,6 +136,12 @@
                 }
             }
 
+            .mobileSearchDivLI{
+                p{
+                    color: black;
+                }
+            }
+
             .header-search-btn{
                 width: fit-content;
                 padding: 8px;
@@ -864,15 +870,15 @@
     }
     
     .ripple-button > .ripple {
-    width: 20px;
-    height: 20px;
-    position: absolute;
-    background: #63a4ff;
-    display: block;
-    content: "";
-    border-radius: 9999px;
-    opacity: 1;
-    animation: 0.9s ease 1 forwards ripple-effect;
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        background: #63a4ff;
+        display: block;
+        content: "";
+        border-radius: 9999px;
+        opacity: 1;
+        animation: 0.9s ease 1 forwards ripple-effect;
     }
 
     button{
@@ -1007,7 +1013,7 @@
 }
 
 @media screen and (max-width: 1200px){
-    .header, .englishHeader{
+    .header{
         .desktopWrapper{
             .navBtn{
                 margin: 0;
@@ -1035,9 +1041,9 @@
 
         .searchDiv{
             cursor: pointer;
+            box-shadow: 0 0 0 4px #00cacd1e;
             ul{
                 padding: 0;
-
                 .header-search-btn{
                     display: none;
                 }
@@ -1052,6 +1058,9 @@
                     justify-content: center;  
                     overflow: hidden;
                     outline: none;
+                    align-items: center;
+                    padding: 24px 0;
+                    max-height: 0;
                     
                     p{
                         font-size: 0.9rem;
@@ -1069,6 +1078,7 @@
 
         .search-div-scrolled{
             border: none;
+            box-shadow: unset;
         }
 
         .headerSearchOtherDiv{
@@ -1173,13 +1183,19 @@
         }
         .scrolledSearhDiv{
             max-width: 65%;
+            padding-top: 14px;
+
+            .search-div-scrolled{
+                ul{
+                    .mobileSearchDivLI{
+                        padding: 26px 0;
+                    }
+                }
+            }
         }
         .searchDiv{
             ul{
-
                 .mobileSearchDivLI{
-                    padding: 0;
-                    
                     p{
                         font-size: 0.9rem;
                     }
@@ -1199,13 +1215,21 @@
         .headerSearchDiv{
             width: 80%;
         }
+        .scrolledSearhDiv{
+            max-width: 65%;
+            padding-top: 16px;
 
+            .search-div-scrolled{
+                ul{
+                    .mobileSearchDivLI{
+                        padding: 24px 0;
+                    }
+                }
+            }
+        }
         .searchDiv{
             ul{
-
                 .mobileSearchDivLI{
-                    padding: 0;
-                    
                     p{
                         font-size: 0.9rem;
                         font-weight: 600;

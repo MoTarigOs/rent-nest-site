@@ -470,9 +470,9 @@ const Svgs = ({ name, on_click, styling }) => {
             </g>
             </svg>}
 
-            {name === 'vehciles' && <svg fill="#000000" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" 
+            {(name === 'vehciles' || name === 'transports') && <svg fill="#000000" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" 
             width="24px" height="24px" viewBox="0 0 458.775 458.776"
-            xmlSpace="preserve">
+            xmlSpace="preserve" style={styling}>
             <g>
                 <path d="M448.787,266.544V225.03c0-13.045-10.576-23.62-23.621-23.62h-59.938l-84.258-100.888
                     c-3.517-4.208-8.717-6.641-14.199-6.641H68.8c-10.217,0-18.5,8.283-18.5,18.5v66.553l-1.439-1.975

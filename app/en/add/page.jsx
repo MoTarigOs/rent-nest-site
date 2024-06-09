@@ -1,7 +1,7 @@
 'use client';
 
 import { useContext, useEffect, useRef, useState } from 'react';
-import '../../add/Add.css';
+import '../../add/Add.scss';
 import CatagoryCard from '@components/CatagoryCard';
 import Image from 'next/image';
 import GoogleMapImage from '@assets/images/google-map-image.jpg';

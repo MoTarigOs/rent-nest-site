@@ -1,4 +1,4 @@
-import '@styles/components_styles/MapPopup.css';
+import '@styles/components_styles/MapPopup.scss';
 import GoogleMapPopup from './GoogleMapPopup';
 import Svgs from '@utils/Svgs';
 import Card from '@components/Card';

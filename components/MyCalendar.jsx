@@ -1,6 +1,6 @@
 'use client';
 
-import '@styles/components_styles/Calendar.css';
+import '@styles/components_styles/Calendar.scss';
 import { Context } from '@utils/Context';
 import { maxBookDateYears } from '@utils/Data';
 import { getBookDateFormat } from '@utils/Logic';
@@ -8,13 +8,13 @@ import Svgs from '@utils/Svgs';
 import { useContext } from 'react';
 import Calendar from 'react-calendar';
 
-const MyCalendar = ({ setCalender, type, days }) => {
+const MyCalendar = ({ setCalender, type, days, isNotDeleteBtn }) => {
 
   const { isMobile } = useContext(Context);
 
   return (
     <div style={{ width: type === 'mobile-filter' ? '100%' : undefined }} suppressHydrationWarning>
-      <span id='clear-calendar' onClick={() => setCalender(null)}><Svgs name={'delete'}/></span>
+      {!isNotDeleteBtn && <span id='clear-calendar' onClick={() => setCalender(null)}><Svgs name={'delete'}/></span>}
       <Calendar 
           onChange={setCalender}
           calendarType='gregory'

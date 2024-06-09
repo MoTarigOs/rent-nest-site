@@ -1,4 +1,4 @@
-import '@styles/components_styles/CatagoryCard.css';
+import '@styles/components_styles/CatagoryCard.scss';
 import Image from 'next/image';
 
 const CatagoryCard = ({ catagoryId, title, selectedCatagories, setSelectedCatagories, image, type }) => {

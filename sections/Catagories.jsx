@@ -1,4 +1,4 @@
-import '@styles/sections_styles/Catagories.css';
+import '@styles/sections_styles/Catagories.scss';
 import { ProperitiesCatagories, VehicleCatagories } from '@utils/Data';
 import CatagoryCard from '@components/CatagoryCard';
 

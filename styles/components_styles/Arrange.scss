@@ -54,9 +54,7 @@
 }
 
 #righticonspan{
-    width: 8px;
-    height: 20px;
-    border-right: 2px solid var(--secondColorDark);
-    border-bottom: 2px solid var(--secondColorDark);
-    transform: rotate(45deg);
+    span{
+        transform: translate(-9px, 4px) rotate(45deg);            
+    }
 }

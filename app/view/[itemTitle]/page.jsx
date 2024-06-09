@@ -1,8 +1,8 @@
 'use client';
 
-import '../view-style/View.css';
+import '../view-style/View.scss';
 import ImagesShow from "@components/ImagesShow";
-import { JordanCities, VehiclesTypes, cancellationsArray, carFuelTypesArray, carGearboxes, currencyCode, getNames, myConditions, reservationType, vehicleRentTypesArray } from "@utils/Data";
+import { JordanCities, VehiclesTypes, cancellationsArray, carFuelTypesArray, carGearboxes, currencyCode, getNames, myConditions, ratingsSections, reservationType, vehicleRentTypesArray } from "@utils/Data";
 import GoogleMapImage from '@assets/images/google-map-image.jpg';
 import Image from "next/image";
 import LocationGif from '@assets/icons/location.gif';
@@ -68,7 +68,7 @@ const page = () => {
   const [deleteRevsError, setDeleteRevsError] = useState('');
   const [deleteRevsSuccess, setDeleteRevsSuccess] = useState('');
 
-  const [reviewsNumber, setReviewsNumber] = useState(1);
+  const [reviewsNumber, setReviewsNumber] = useState(6);
   const [isCalendar, setIsCalendar] = useState(false);
   const [bookDate, setBookDate] = useState(calendarDoubleValue);
   const [isSpecifics, setIsSpecifics] = useState(true);
@@ -641,6 +641,21 @@ const page = () => {
     });
   };
 
+  const getReviewTextHolder = () => {
+    const x = Math.round(scoreRate);
+    if(x === 5) return 'سعيدين لمعرفة أن' + (item.type_is_vehicle ? ' السيارة' : ' العقار') + ' نال على اعجابك, من فضلك اكتب وصفا بسيطا عن تجربتك.';
+    if(x === 4) return 'من الجيد معرفة أن' + (item.type_is_vehicle ? ' السيارة' : ' العقار') + ' نال على استحسانك, من فضلك اكتب عن الجوانب التي يمكن تحسينها.';
+    if(x === 3) return 'ما المشاكل التي قابلتك أو الجوانب التي تقترح تحسينها ؟';
+    if(x === 2) return 'نتأسف لسماع ذلك, ما سبب عدم اعجابك ب' + (item.type_is_vehicle ? 'السيارة' : 'العقار') + '؟ ';
+    if(x === 1) return 'نعتذر لك جدا عن التجربة السيئة التي خضتها, من فضلك اكتب عن المشاكل التي قابلتك و جعلت تجربتك سيئة.';
+  };
+
+  const getRatingText = () => {
+    const x = Math.round(scoreRate);
+    const obj = ratingsSections.find(i=>i.value === x);
+    return obj?.arabicName + ' ' + obj?.emoji;
+  };
+
   useEffect(() => {
     setRunOnce(true);
     setAdminSending(false);
@@ -1057,24 +1072,6 @@ const page = () => {
 
           <div className='reviews' style={{ display: !isReviews ? 'none' : null }}>
 
-            {(booksIds.find(i => i.property_id === id)?.verified_book && item.owner_id !== userId && isVerified) 
-            && <div className='write-review'>
-              <h3>قيم و صف تجربتك مع هذا العرض</h3>
-              <h4>تقييمك للعرض (<input max="5" min="0" step="0.1" type='number' value={scoreRate} onChange={(e) => setScoreRate(Number(e.target.value))}/>)</h4>
-              <div className="rating">
-                <Svgs name={'star'} styling={Math.round(scoreRate) > 0 ? true : false} on_click={() => {if(Math.round(scoreRate) === 0){ setScoreRate(1) } else { setScoreRate(0) }}}/>
-                <Svgs name={'star'} styling={Math.round(scoreRate) > 1 ? true : false} on_click={() => setScoreRate(2)}/>
-                <Svgs name={'star'} styling={Math.round(scoreRate) > 2 ? true : false} on_click={() => setScoreRate(3)}/>
-                <Svgs name={'star'} styling={Math.round(scoreRate) > 3 ? true : false} on_click={() => setScoreRate(4)}/>
-                <Svgs name={'star'} styling={Math.round(scoreRate) > 4 ? true : false} on_click={() => setScoreRate(5)}/>
-              </div>
-              <textarea onChange={(e) => setReviewText(e.target.value)}/>
-              <button onClick={writeReview}>{sendingReview ? 'جاري الارسال...' : 'نشر'}</button>
-              <p style={{ color: sendReviewError.length > 0 && 'var(--softRed)' }}>
-                {sendReviewError.length > 0 ? sendReviewError : sendReviewSuccess}
-              </p>
-            </div>}
-
             <div className="reviews-layout">
             
               <div className='numbers'>
@@ -1098,6 +1095,27 @@ const page = () => {
               </div>
 
             </div>
+
+            {(booksIds.find(i => i.property_id === id)?.verified_book && item.owner_id !== userId && isVerified) 
+            && <div className='write-review'>
+                <h3>قيم و صف تجربتك لهذ{item.type_is_vehicle ? 'ه السيارة' : 'ا العقار'}</h3>
+
+                {scoreRate !== null && <h4>{getRatingText()}</h4>}
+
+                <div className="rating">
+                  <Svgs name={'star'} styling={Math.round(scoreRate) > 0 ? true : false} on_click={() => setScoreRate(1)}/>
+                  <Svgs name={'star'} styling={Math.round(scoreRate) > 1 ? true : false} on_click={() => setScoreRate(2)}/>
+                  <Svgs name={'star'} styling={Math.round(scoreRate) > 2 ? true : false} on_click={() => setScoreRate(3)}/>
+                  <Svgs name={'star'} styling={Math.round(scoreRate) > 3 ? true : false} on_click={() => setScoreRate(4)}/>
+                  <Svgs name={'star'} styling={Math.round(scoreRate) > 4 ? true : false} on_click={() => setScoreRate(5)}/>
+                </div>
+
+                <textarea onChange={(e) => setReviewText(e.target.value)} placeholder={getReviewTextHolder()}/>
+                <button onClick={writeReview}>{sendingReview ? 'جاري الارسال...' : 'نشر'}</button>
+                <p style={{ color: sendReviewError.length > 0 && 'var(--softRed)' }}>
+                  {sendReviewError.length > 0 ? sendReviewError : sendReviewSuccess}
+                </p>
+            </div>}
 
             <ul>
               {item.reviews.slice(0, reviewsNumber).map((rv) => (

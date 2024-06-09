@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import '../profile/Profile.css';
+import '../profile/Profile.scss';
 import Svgs from '@utils/Svgs';
 import { Suspense, useContext, useEffect, useState } from 'react';
 import Card from '@components/Card';

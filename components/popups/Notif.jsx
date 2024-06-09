@@ -1,6 +1,6 @@
 'use client';
 
-import '@styles/components_styles/Notif.css';
+import '@styles/components_styles/Notif.scss';
 import { Context } from '@utils/Context';
 import Link from 'next/link';
 import { useContext, useState } from 'react';
@@ -10,6 +10,23 @@ const Notif = ({ isEnglish }) => {
     const { userId, notifications } = useContext(Context);
     const [notifsArray, setNotifArray] = useState([]);  
     const [settingNotifs, setSettingNotifs] = useState(false);  
+
+    const notifTypes = [
+        'book',
+        'accept-prop',
+        'reject-prop',
+        'delete-prop',
+        'create-prop',
+        'update-review',
+        'new-review',
+        'edit-prop',
+        'email-verified',
+        'password-change',
+        '',
+        '',
+        '',
+        '',
+    ];
 
     if(!notifications?.length > 0)
         return <></>

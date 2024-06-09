@@ -1,4 +1,4 @@
-import '@styles/components_styles/InfoDiv.css';
+import '@styles/components_styles/InfoDiv.scss';
 import Svgs from '@utils/Svgs';
 
 const InfoDiv = ({ 

@@ -1,7 +1,7 @@
 'use client';
 
 import Svgs from "@utils/Svgs";
-import '@styles/components_styles/CustomInputDivWithEN.css';
+import '@styles/components_styles/CustomInputDivWithEN.scss';
 import { useContext } from "react";
 import { Context } from "@utils/Context";
 

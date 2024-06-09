@@ -1,4 +1,4 @@
-import '@styles/sections_styles/LandingSection.css';
+import '@styles/sections_styles/LandingSection.scss';
 import ImagesShow from '@components/ImagesShow';
 import { getCityImage } from '@utils/Cities';
 

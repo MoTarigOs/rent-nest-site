@@ -1,8 +1,7 @@
 'use client';
 
 import CustomInputDiv from '@components/CustomInputDiv';
-import InfoDiv from '@components/InfoDiv';
-import '@styles/components_styles/AddDetailsPopup.css';
+import '@styles/components_styles/AddDetailsPopup.scss';
 import Svgs from '@utils/Svgs';
 import HeaderPopup from './HeaderPopup';
 import { useContext, useEffect, useState } from 'react';

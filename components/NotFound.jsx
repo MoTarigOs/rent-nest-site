@@ -1,4 +1,4 @@
-import '@styles/components_styles/NotFound.css';
+import '@styles/components_styles/NotFound.scss';
 import Svgs from '@utils/Svgs';
 import Link from 'next/link';
 

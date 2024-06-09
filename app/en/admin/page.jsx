@@ -1,6 +1,6 @@
 'use client';
 
-import '../../admin/Admin.css';
+import '../../admin/Admin.scss';
 import { useContext, useEffect, useState } from 'react';
 import { deleteSpecificFile, getAdminErrors, getAdminProps, getFiles, getReports, getStorageSize, getUserByEmailAdmin, getUsersAdmin } from '@utils/api';
 import {  getReadableFileSizeString, isValidEmail, isValidFilename, propsSections, usersSections } from '@utils/Logic';

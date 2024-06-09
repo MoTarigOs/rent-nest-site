@@ -1,7 +1,7 @@
 'use client';
 
 import MyCalendar from '@components/MyCalendar';
-import '@styles/components_styles/HeaderPopup.css';
+import '@styles/components_styles/HeaderPopup.scss';
 import { motion } from 'framer-motion';
 import { JordanCities, ProperitiesCatagories, VehicleCatagories, VehiclesTypes } from '@utils/Data';
 import Svgs from '@utils/Svgs';
@@ -14,14 +14,15 @@ const HeaderPopup = ({
     itemCity, setItemCity, isViewPage, days,
     isCustom, setIsCustom, customArray, selectedCustom, 
     setSelectedCustom, initialValueIndex, isSingleSelection,
-    isNotSearchBar, myStyle, searchBarPlaceHolder
+    isNotSearchBar, myStyle, searchBarPlaceHolder, isSearch,
+    sections
 }) => {
 
     const [searched, setSearched] = useState(customArray ? customArray : JordanCities);
 
     type = type?.toLowerCase();
 
-    if(pathname?.includes('/vehicles')) type = 'vehcile types';
+    // if(pathname?.includes('/vehicles')) type = 'vehcile types';
 
     const { 
         city, setCity, triggerFetch, setTriggerFetch, 
@@ -40,6 +41,8 @@ const HeaderPopup = ({
     const getCatagories = () => {
         if(pathname === '/vehicles' || type.includes('vehicle'))
             return VehiclesTypes;
+        if(isSearch)
+            return [...ProperitiesCatagories, VehicleCatagories[0]]
         return ProperitiesCatagories;
     }
 
@@ -52,7 +55,7 @@ const HeaderPopup = ({
         {type === 'city' && <motion.div className='cityPopup'
             initial={{ opacity: 0, scale: 0.7 }}
             animate={{ opacity: 1, scale: 1 }}
-            style={{ width: type?.includes('mobile-filter') ? '100%' : undefined }}
+            style={{ width: sections?.includes('mobile-filter') ? '100%' : undefined }}
         >
             <div id='searchBar'>
                 <Svgs name={'search'}/>
@@ -149,7 +152,7 @@ const HeaderPopup = ({
                             setTriggerFetch(!triggerFetch);
                         }
                     }}>
-                        <Svgs name={ctg.value}/>
+                        <Svgs name={ctg.value} styling={{ scale: 1.4, transform: 'translateY(2px)'}}/>
                         <h3>{pathname !== '/vehicles' 
                         ? getNameByLang(ctg.arabicName, isEnglish ? true : pathname?.includes('/en') || isEnglish || false)
                         : isEnglish ? ctg.value : ctg.arabicName}</h3> 
@@ -164,15 +167,15 @@ const HeaderPopup = ({
             animate={{ opacity: 1, scale: 1 }}
         >
             <ul>
-                <li style={{ margin: 0, width: isEnglish ? 'fit-content' : undefined }} onClick={() => {
+                <li onClick={() => {
                     if(vehicleType !== -1){
                         setVehicleType(-1);
                         setTriggerFetch(!triggerFetch);
                     }
-                }} id="allCtgLi">
+                }} id="allCtgLi" className={vehicleType === -1 ? 'selectedCatagory' : undefined}>
                     <Svgs name={'layer'}/>
                     <h3>{getNameByLang('كل السيارات', isEnglish ? true : pathname?.includes('/en') || isEnglish || false)}</h3> 
-                    {vehicleType === -1 && <RightIconSpan />}
+                    <RightIconSpan />
                 </li>
                 {VehiclesTypes.map((ctg) => (
                     <li style={{ width: isEnglish ? '100%' : undefined }} key={ctg.id} onClick={() => {
@@ -180,9 +183,9 @@ const HeaderPopup = ({
                             setVehicleType(ctg.id);
                             setTriggerFetch(!triggerFetch);
                         }
-                    }}>
+                    }} className={vehicleType === ctg.id ? 'selectedCatagory' : undefined}>
                         <h3>{isEnglish ? ctg.value : ctg.arabicName}</h3> 
-                        {vehicleType === ctg.id && <RightIconSpan />}
+                        <RightIconSpan />
                     </li>
                 ))}
             </ul>

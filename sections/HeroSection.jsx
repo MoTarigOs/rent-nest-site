@@ -1,6 +1,6 @@
 'use client';
 
-import '@styles/sections_styles/HeroSection.css';
+import '@styles/sections_styles/HeroSection.scss';
 import Image from 'next/image';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { JordanCities, homePageCatagories } from '@utils/Data';

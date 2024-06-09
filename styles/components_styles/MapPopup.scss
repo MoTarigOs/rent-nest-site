@@ -1,7 +1,7 @@
 .map-div{
     position: fixed;
     top: -10px;
-    left: calc(-(100vw - 100%) / 2);
+    left: calc(-1 * (100vw - 100%) / 2);
     width: 100vw;
     display: flex;
     padding: 0;

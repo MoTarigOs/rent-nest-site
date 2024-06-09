@@ -184,7 +184,7 @@
                         margin-left: 12px;
                     }
 
-                    span{
+                    #righticonspan{
                         margin-right: auto;
                         margin-left: 12px;
                     }
@@ -196,7 +196,7 @@
                             margin-right: 8px;
                         }
 
-                        span{
+                        #righticonspan{
                             margin-left: auto;
                             margin-right: 8px;
                         }
@@ -399,14 +399,6 @@
                 margin-left: 44px;
             }
         }
-    }
-
-    #righticonspan{
-        width: 8px;
-        height: 20px;
-        border-right: 2px solid var(--secondColorDark);
-        border-bottom: 2px solid var(--secondColorDark);
-        transform: rotate(45deg);
     }
 
     &::-webkit-scrollbar{

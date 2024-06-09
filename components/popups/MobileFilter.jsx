@@ -1,6 +1,6 @@
 'use client';
 
-import '@styles/components_styles/MobileFilter.css';
+import '@styles/components_styles/MobileFilter.scss';
 import { Context } from '@utils/Context';
 import { Suspense, useContext, useState } from 'react';
 import { ProperitiesCatagories, VehicleCatagories } from '@utils/Data';
@@ -18,7 +18,7 @@ const Component = ({ isEnglish, isMobile960 }) => {
 
     const { 
       isMobileHomeFilter, setIsMobileHomeFilter, city,
-      catagory, setCatagory, calendarDoubleValue,
+      setCatagory, calendarDoubleValue,
       setCalendarDoubleValue, setCity,
       setCategoryArray, categoryArray,
       section, setSection, isMobile
@@ -57,7 +57,7 @@ const Component = ({ isEnglish, isMobile960 }) => {
     };
 
     const RightIconSpan = () => {
-      return <span id='righticonspan'/>
+      return <div id='righticonspan'><span /></div>
     }
 
   return (
@@ -78,11 +78,12 @@ const Component = ({ isEnglish, isMobile960 }) => {
 
           {section.includes('city') && <div className='city-div-filter' style={{ height: '100%' }}>
             <div className='city-div-header'>
-              <div id='city-back' style={{ transform: isEnglish ? 'rotate(180deg)' : undefined }} onClick={deleteAndClose}><Svgs name={'dropdown arrow'}/></div>
+              <div id='city-back' style={{ transform: isEnglish ? 'rotate(180deg)' : undefined }} 
+                onClick={deleteAndClose}><Svgs name={'dropdown arrow'}/></div>
               <h3>{isEnglish ? 'Choose City' : 'أختر مدينة'}</h3> 
               <h4>{isEnglish ? city.value : city.arabicName}</h4> 
             </div>
-            <HeaderPopup type={'city mobile-filter'} isEnglish={isEnglish} triggerHomeFilterSection={() => {
+            <HeaderPopup type='city' sections='mobile-filter' isEnglish={isEnglish} triggerHomeFilterSection={() => {
               setSection(section.includes('skip-category') ? 'calender' : 'category');
             }}/>
           </div>}
@@ -96,10 +97,11 @@ const Component = ({ isEnglish, isMobile960 }) => {
               </div>
 
               <ul>
-                  <li style={{ width: '100%' }} onClick={() => { setSelectedCatagories([]); setCatagory(''); }}>
+                  <li style={{ width: '100%' }} onClick={() => { setSelectedCatagories([]); setCatagory(''); }}
+                    className={selectedCatagories?.length === 0 ? 'selectedCatagory' : undefined}>
                       <Image src={ImageAsLogo}/>
                       {getNameByLang('كل التصنيفات', isEnglish)}
-                      {selectedCatagories?.length === 0 && <RightIconSpan />}
+                      <RightIconSpan />
                   </li>
                   {[...ProperitiesCatagories, VehicleCatagories[0]].map((ctg, index) => (
                       <li style={{ width: '100%' }} key={index} onClick={() => {
@@ -110,10 +112,10 @@ const Component = ({ isEnglish, isMobile960 }) => {
                         } else {
                           setSelectedCatagories([...selectedCatagories, ctg]);
                         }
-                      }}>
+                      }} className={selectedCatagories.includes(ctg) ? 'selectedCatagory' : undefined}>
                           <Image src={ImageAsLogo}/>
                           {getNameByLang(ctg.arabicName, isEnglish)}
-                          {selectedCatagories.includes(ctg) && <RightIconSpan />}
+                          <RightIconSpan />
                       </li>
                   ))}
               </ul>
@@ -144,7 +146,8 @@ const Component = ({ isEnglish, isMobile960 }) => {
             </div>
 
             <div className='calendar-div' style={{ width: '100%' }}>
-              <MyCalendar type={'mobile-filter'} setCalender={setCalendarDoubleValue}/>
+              <MyCalendar type={'mobile-filter'} setCalender={setCalendarDoubleValue}
+                isNotDeleteBtn={true}/>
             </div>
 
             <div className='mobile-filter-buttons'>

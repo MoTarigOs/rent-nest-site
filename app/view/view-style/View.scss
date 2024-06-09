@@ -883,24 +883,20 @@
 
                     h4{
                         font-weight: 400;
-                        margin-bottom: 6px;
-                        display: flex;
-
-                        input{
-                            background: transparent;
-                            border: none;
-                            width: 36px;
-                            text-align: end;
-                            outline: none;
-                            margin: 0 4px;
-                            border-bottom: 1px solid rgba(0, 0, 0, 0.121);
-                        }
+                        margin-bottom: 16px;
+                        width: 100%;
+                        text-align: center;
                     }
 
                     .rating{
                         margin-bottom: 24px;
+                        width: 100%;
+                        display: flex;
+                        justify-content: center;
 
                         svg{
+                            width: 32px;
+                            height: 32px;
                             cursor: pointer;
                             margin-left: 6px;
                         }
@@ -919,6 +915,8 @@
                         resize: vertical;
                         outline: none;
                         margin-bottom: 24px;
+                        font-family: inherit;
+                        font-size: 0.9rem;
                     }
 
                     button{

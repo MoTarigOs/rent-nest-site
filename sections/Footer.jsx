@@ -1,4 +1,4 @@
-import '@styles/Footer.css';
+import '@styles/Footer.scss';
 import Image from 'next/image';
 import LogoImage from '@assets/icons/rentnext-logo.png';
 import Link from 'next/link';
