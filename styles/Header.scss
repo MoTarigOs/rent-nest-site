@@ -7,7 +7,7 @@
     padding: 0 16px 16px 16px;
     max-width: 1300px;
     height: fit-content;
-    min-height: 64px;
+    -webkit-align-items: center;
     align-items: center;
     position: relative;
     z-index: 10;
@@ -16,6 +16,7 @@
         width: 100%;
         max-width: 1300px;
         display: flex;
+        -webkit-align-items: center;
         align-items: center;
         position: fixed;
         padding: 12px 0;
@@ -97,7 +98,9 @@
         ul{
             width: 100%;
             display: flex;
+            -webkit-justify-content: space-between;
             justify-content: space-between;
+            -webkit-align-items: center;
             align-items: center;
             list-style: none;
             padding-right: 64px;
@@ -156,7 +159,9 @@
 
                 a{
                     display: flex;
+                    -webkit-align-items: center;
                     align-items: center;
+                    -webkit-justify-content: center;
                     justify-content: center;
                     width: 100%;
                     height: 100%;
@@ -290,6 +295,7 @@
 
         .headerNavUL{
             display: flex;
+            -webkit-align-items: center;
             align-items: center;
             list-style: none;
             width: 100%;
@@ -309,6 +315,7 @@
                 h4{
                     height: 100%;
                     display: flex;
+                    -webkit-align-items: center;
                     align-items: center;
                     font-weight: 400;
                     color: rgb(81, 81, 81);
@@ -321,6 +328,7 @@
                 margin: 0;
                 display: flex;
                 height: 100%;
+                -webkit-align-items: center;
                 align-items: center;
                 cursor: default;
                 border: none;
@@ -334,6 +342,7 @@
 
         .showMap{
             display: flex;
+            -webkit-align-items: center;
             align-items: center;
             padding: 12px 16px;
             white-space: nowrap;
@@ -382,8 +391,10 @@
     .mobileHeader{
         width: 100%;
         display: none;
+        -webkit-align-items: center;
         align-items: center;
         height: 100%;
+        -webkit-justify-content: space-between;
         justify-content: space-between;
         margin: 0;
 
@@ -404,7 +415,9 @@
             height: 20px;
             display: flex;
             flex-direction: column;
+            -webkit-justify-content: center;
             justify-content: center;
+            -webkit-align-items: center;
             align-items: center;
             gap: 5px;
             cursor: pointer;
@@ -444,7 +457,6 @@
                 background: rgba(0, 0, 0, 0.055);
         }
         
-
         .activeMenu{
             transform: translateY(2px);
             &:after{
@@ -476,6 +488,7 @@
                 width: 100%;
                 display: flex;
                 flex-direction: column;
+                -webkit-justify-content: flex-start;
                 justify-content: flex-start;
                 list-style: none;
                 padding-top: 32px;
@@ -486,6 +499,7 @@
                     font-size: 1rem;
                     padding: 12px 16px;
                     display: flex;
+                    -webkit-align-items: center;
                     align-items: center;
                     transition: all 0.2s ease-out;
 
@@ -532,7 +546,9 @@
                     width: 100%;
                     display: flex;
                     flex-wrap: wrap;
+                    -webkit-justify-content: space-between;
                     justify-content: space-between;
+                    -webkit-align-items: center;
                     align-items: center;
                     margin-bottom: 24px;
                     
@@ -549,6 +565,7 @@
     
                     ul{
                         display: flex;
+                        -webkit-align-items: center;
                         align-items: center;
                         flex-direction: row;
                         list-style: none;
@@ -598,6 +615,7 @@
         top: 90vh;
         border-radius: 50px;
         display: flex;
+        -webkit-align-items: center;
         align-items: center;
         color: white;
 
@@ -610,6 +628,7 @@
             color: white;
             font-weight: 500;
             display: flex;
+            -webkit-align-items: center;
             align-items: center;
             cursor: pointer;
             transition: all 0.1s ease-in;
@@ -676,7 +695,9 @@
         padding: 8px 12px;
         display: flex;
         flex-direction: column;
+        -webkit-align-items: center;
         align-items: center;
+        -webkit-justify-content: center;
         justify-content: center;
         cursor: pointer;
         border-radius: 4px;
@@ -735,7 +756,9 @@
         div{
             text-decoration: none;        
             display: flex;
+            -webkit-justify-content: center;
             justify-content: center;
+            -webkit-align-items: center;
             align-items: center;
             margin: 0 32px;
             font-size: 10vw;
@@ -773,7 +796,9 @@
             width: 16px;
             height: 16px;
             display: flex;
+            -webkit-align-items: center;
             align-items: center;
+            -webkit-justify-content: center;
             justify-content: center;
             font-size: 0.65rem;
             top: -4px;
@@ -788,6 +813,7 @@
         a{
             padding: 8px 12px;
             display: flex;
+            -webkit-align-items: center;
             align-items: center;
             cursor: pointer;
             border-radius: 12px;
@@ -1035,6 +1061,7 @@
         width: 100vw;
         background: white;
         padding: 16px 12px;
+        min-height: 76px;
         margin: 0;
         box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.268);
         
@@ -1063,9 +1090,11 @@
                 .mobileSearchDivLI{
                     display: flex;
                     position: relative;
+                    -webkit-justify-content: center;  
                     justify-content: center;  
                     overflow: hidden;
                     outline: none;
+                    -webkit-align-items: center;
                     align-items: center;
                     padding: 24px 0;
                     max-height: 0;
