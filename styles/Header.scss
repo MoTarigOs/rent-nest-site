@@ -7,6 +7,7 @@
     padding: 0 16px 16px 16px;
     max-width: 1300px;
     height: fit-content;
+    min-height: 64px;
     align-items: center;
     position: relative;
     z-index: 10;
@@ -409,8 +410,15 @@
             cursor: pointer;
             position: relative;
             z-index: 10;
-            
             transition: all 0.2s ease-out;
+
+            @supports (-webkit-touch-callout: none) and (not (translate: none)) {
+                &:not(:last-child) {
+                    display: grid;
+                    gap: 5px;
+                    grid-gap: 5px;
+                }
+            }
     
             span{
                 width: 20px;
@@ -434,7 +442,7 @@
 
         .menuIconDiv:hover::after{
                 background: rgba(0, 0, 0, 0.055);
-            }
+        }
         
 
         .activeMenu{
