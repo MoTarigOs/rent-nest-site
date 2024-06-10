@@ -54,7 +54,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       isFilter, setIsFilter, setUserAccountType,
       isArrange, setIsArrange, setUserLastName, setUserFirstName,
       setUserLastNameEN, setUserFirstNameEN, userFirstName,
-      userLastName, userFirstNameEN
+      userLastName, userFirstNameEN, triggerUserInfo, storageKey
     } = useContext(Context);
 
     const settingMobile = () => {
@@ -249,6 +249,10 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
     }, [calendarDoubleValue]);
 
     useEffect(() => {
+      console.log('header storage key: ', storageKey);
+    }, [storageKey])
+
+    useEffect(() => {
       if(isCalendarFilter) setIsCalendarValue(false);
     }, [isCalendarFilter]);
 
@@ -257,6 +261,10 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
         return setIsModalOpened(true);
       setIsModalOpened(false);
     }, [isMobileHomeFilter, isFilter, isArrange, isMenu, isCityFilter, isCatagoryFilter, isCalendarFilter, isSearchMap]);
+
+    useEffect(() => {
+      handleGetUserInfo();
+    }, [triggerUserInfo]);
 
     if(!pathname){
       return (<></>)

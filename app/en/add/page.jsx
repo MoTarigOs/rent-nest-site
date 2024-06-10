@@ -34,7 +34,7 @@ const page = () => {
         longitude, setLongitude, userEmail,
         loadingUserInfo, isVerified,
         userAccountType, setIsModalOpened,
-        arabicFont
+        arabicFont, triggerUserInfo, setTriggerUserInfo
     } = useContext(Context);
 
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/mp4', 'video/avi'];
@@ -50,7 +50,7 @@ const page = () => {
     const [mapUsed, setMapUsed] = useState(false);
     const [triggerSectionError, setTriggerSectionError] = useState(false);
 
-    const [section, setSection] = useState(5);
+    const [section, setSection] = useState(0);
     const [sectionError, setSectionError] = useState('');
     const [freeSection, setFreeSection] = useState(false);
 
@@ -364,12 +364,14 @@ const page = () => {
                 setSuccess(false);
                 return;
             }
-
+            
             const uploadFilesRes = await uploadFiles(
                 optimizedFiles.optArr, res.dt.id, storageKey, userEmail
             );
 
             console.log('upload res: ', uploadFilesRes);
+
+            setTriggerUserInfo(!triggerUserInfo);
 
             if(uploadFilesRes.success !== true){
                 setError(uploadFilesRes.dt.toString());

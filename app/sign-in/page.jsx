@@ -5,7 +5,7 @@ import '../sign-up/SignUp.scss';
 import Link from 'next/link';
 import { useContext, useEffect, useState } from 'react';
 import { isValidEmail, isValidPassword } from '@utils/Logic';
-import { getUserInfo, login } from '@utils/api';
+import { login } from '@utils/api';
 import { Context } from '@utils/Context';
 import NotFound from '@components/NotFound';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
@@ -22,13 +22,8 @@ const page = () => {
   const [passwordError, setPasswordError] = useState('');
   const [password, setPassword] = useState('');
   const { 
-    userId, setUserId, 
-    setUserUsername, setUserRole, setUserEmail, setIsVerified,
-    setUserPhone, setUserAddress, setBooksIds, isVerified,
-    setFavouritesIds, setLoadingUserInfo, setStorageKey,
-    setUserAddressEN, setNotifications, setUserLastName, 
-    setUserFirstName, setUserAccountType, setUserFirstNameEN,
-    setUserLastNameEN
+    userId, setTriggerUserInfo, triggerUserInfo,
+    isVerified,
   } = useContext(Context);
   const { executeRecaptcha } = useGoogleReCaptcha();
 
@@ -95,18 +90,10 @@ const page = () => {
         return;
       }
 
+      setTriggerUserInfo(!triggerUserInfo);
       setError('');
       setSuccessLogin(true);
       setLoading(false);        
-      getUserInfo(
-        setUserId, setUserUsername, setUserRole, 
-        setUserEmail, setIsVerified, setUserAddress,
-        setUserPhone, setBooksIds, setFavouritesIds, 
-        setLoadingUserInfo, setStorageKey, setUserAddressEN, 
-        null, setNotifications, setUserLastName, 
-        setUserFirstName, setUserAccountType, setUserFirstNameEN,
-        setUserLastNameEN
-      );
       
     } catch (err) {
       setError(err.message);

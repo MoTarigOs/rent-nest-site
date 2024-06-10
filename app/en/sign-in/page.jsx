@@ -22,13 +22,7 @@ const page = () => {
   const [passwordError, setPasswordError] = useState('');
   const [password, setPassword] = useState('');
   const { 
-    userId, setUserId, 
-    setUserUsername, setUserRole, setUserEmail, setIsVerified,
-    setUserPhone, setUserAddress, setBooksIds, isVerified,
-    setFavouritesIds, setLoadingUserInfo, setStorageKey,
-    setUserAddressEN, setNotifications, setUserLastName, 
-    setUserFirstName, setUserAccountType, setUserFirstNameEN,
-    setUserLastNameEN
+    userId, isVerified, triggerUserInfo, setTriggerUserInfo
   } = useContext(Context);
 
   const { executeRecaptcha } = useGoogleReCaptcha();
@@ -97,18 +91,10 @@ const page = () => {
         return;
       }
 
+      setTriggerUserInfo(!triggerUserInfo);
       setError('');
       setSuccessLogin(true);
       setLoading(false);        
-      getUserInfo(
-        setUserId, setUserUsername, setUserRole, 
-        setUserEmail, setIsVerified, setUserAddress,
-        setUserPhone, setBooksIds, setFavouritesIds, 
-        setLoadingUserInfo, setStorageKey, setUserAddressEN, 
-        null, setNotifications, setUserLastName, 
-        setUserFirstName, setUserAccountType, setUserFirstNameEN,
-        setUserLastNameEN
-      );
 
     } catch (err) {
       setError('unknown error');

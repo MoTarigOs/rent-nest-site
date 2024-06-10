@@ -33,7 +33,7 @@ const page = () => {
         longitude, setLongitude, userEmail,
         loadingUserInfo, isVerified, 
         userAccountType, setIsModalOpened,
-        arabicFont
+        arabicFont, triggerUserInfo, setTriggerUserInfo
     } = useContext(Context);
 
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/mp4', 'video/avi'];
@@ -352,6 +352,8 @@ const page = () => {
             });
 
             const token = await getRecaptchaToken();
+
+            console.log('storage key before: ', storageKey);
             
             const res = await createProperty( 
                 selectedCatagories === '0' ? true : false, 
@@ -375,6 +377,10 @@ const page = () => {
             );
 
             console.log('upload res: ', uploadFilesRes);
+
+            setTriggerUserInfo(!triggerUserInfo);
+
+            console.log('storage key after: ', storageKey);
 
             if(uploadFilesRes.success !== true){
                 setError(uploadFilesRes.dt.toString());
