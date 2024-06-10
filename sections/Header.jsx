@@ -191,7 +191,17 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
     };
 
+    const triggerServers = async() => {
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/test`);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
     useEffect(() => {
+
+      triggerServers();
       
       settingMobile();
 
@@ -250,7 +260,8 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
     useEffect(() => {
       console.log('header storage key: ', storageKey);
-    }, [storageKey])
+      localStorage.setItem('storage-key', storageKey);
+    }, [storageKey]);
 
     useEffect(() => {
       if(isCalendarFilter) setIsCalendarValue(false);

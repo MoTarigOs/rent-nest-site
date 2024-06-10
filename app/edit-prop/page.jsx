@@ -757,7 +757,7 @@ const Page = () => {
 
             setIsDeletingProp(true);
 
-            const deleteFilesRes = await deletePropFiles(id, userEmail);
+            const deleteFilesRes = await deletePropFiles(id, userEmail, false, storageKey);
 
             console.log(deleteFilesRes);
 
@@ -771,7 +771,7 @@ const Page = () => {
             const res = await deleteProp(id);
 
             if(res.success !== true){
-                setDeleteError(res.dt);
+                setDeleteError(res.dt || '');
                 setDeleteSuccess('');
                 setIsDeletingProp(false);
                 return
@@ -1466,7 +1466,7 @@ const Page = () => {
 
                 <div className='hide-show-prop' style={{ display: !isDeleteProp && 'none' }}>
                     <p><Svgs name={'info'}/>سيتم حذف هذا العرض نهائيا.</p>
-                    <p style={{ display: (deleteError.length <= 0 && deleteSuccess.length <= 0) && 'none', color: deleteError.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{deleteError.length > 0 ? deleteError : deleteSuccess}</p>
+                    <p style={{ display: (deleteError?.length <= 0 && deleteSuccess.length <= 0) && 'none', color: deleteError?.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{deleteError?.length > 0 ? deleteError : deleteSuccess}</p>
                     <button onClick={handleDeleteProp} className='btnbackscndclr'>{isDeletingProp ? 'جاري الحذف...' : 'حذف'}</button>
                 </div>
 

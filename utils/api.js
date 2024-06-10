@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { getDurationReadable, getErrorText, getReadableDate, usersSections } from './Logic';
 import { errorsSection, maximumPrice } from './Data';
-import { poolType } from './Facilities';
 axios.defaults.withCredentials = true;
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 const uploadServerBaseUrl = process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL;
@@ -81,6 +80,7 @@ export const getUserInfo = async(
         if(res.data.my_books) setBooksIds(res.data.my_books);
         if(res.data.my_fav) setFavouritesIds(res.data.my_fav);
         if(res.data.storage_key) setStorageKey(res.data.storage_key);
+        if(res.data.storage_key) localStorage.setItem('storage-key', res.data.storage_key);
         if(res.data.notifications) setNotifications(res.data.notifications);
         if(res.data.firstName) setUserFirstName(res.data.firstName);
         if(res.data.firstNameEN) setUserFirstNameEN(res.data.firstNameEN);
@@ -323,7 +323,7 @@ export const deleteMyAccount = async(eCode, key, email, isEnglish) => {
         const deleteFilesRes = await axios.delete(deleteFilesUrl, { 
             withCredentials: true, 
             'Access-Control-Allow-Credentials': true, 
-            headers: {"authorization" : `Bearer ${key}`}
+            headers: {"authorization" : `Bearer ${localStorage.getItem('storage-key')}`}
         });        
 
         if(!deleteFilesRes?.status || deleteFilesRes.status !== 201){
@@ -567,7 +567,7 @@ export const uploadFiles = async(files, id, key, email, isEnglish) => {
         const res = await axios.post(url, data, { 
             withCredentials: true, 
             'Access-Control-Allow-Credentials': true,
-            headers: {"authorization" : `Bearer ${key}`}
+            headers: {"authorization" : `Bearer ${localStorage.getItem('storage-key')}`}
         });
     
         if(res.status === 201) return { success: true, dt: res.data };
@@ -591,7 +591,7 @@ export const deleteFiles = async(id, filenames, key, email, isEnglish) => {
         const res = await axios.post(url, body, { 
             withCredentials: true, 
             'Access-Control-Allow-Credentials': true,
-            headers: {"authorization" : `Bearer ${key}`}
+            headers: {"authorization" : `Bearer ${localStorage.getItem('storage-key')}`}
         });
     
         if(res.status === 201) return { success: true, dt: res.data };
@@ -867,12 +867,13 @@ export const deleteProp = async(propertyId) => {
         return { success: true, dt: '' };
         
     } catch (err) {
+        console.log(err);
         return { success: false, dt: err?.response?.data ? getErrorText(err.response.data.message) : getErrorText('')}
     }
 
 };
 
-export const deletePropFiles = async(propertyId, email, isEnglish) => {
+export const deletePropFiles = async(propertyId, email, isEnglish, key) => {
 
     try {
 
@@ -881,7 +882,7 @@ export const deletePropFiles = async(propertyId, email, isEnglish) => {
         const res = await axios.delete(url, { 
             withCredentials: true, 
             'Access-Control-Allow-Credentials': true,
-            headers: {"authorization" : `Bearer ${key}`}
+            headers: {"authorization" : `Bearer ${localStorage.getItem('storage-key')}`}
         });
         
         if(!res || !res.status || res.status !== 201) return { success: false, dt: getErrorText(res.data, isEnglish) };
@@ -889,6 +890,7 @@ export const deletePropFiles = async(propertyId, email, isEnglish) => {
         return { success: true, dt: '' };
         
     } catch (err) {
+        console.log(err);
         return { success: false, dt: getErrorText(err?.response?.data?.message, isEnglish)}
     }
 
@@ -1051,7 +1053,7 @@ export const deletePropFilesAdmin = async(propId, key, email, isEnglish) => {
         const res = await axios.delete(url, { 
             withCredentials: true, 
             'Access-Control-Allow-Credentials': true,
-            headers: {"authorization" : `Bearer ${key}`}
+            headers: {"authorization" : `Bearer ${localStorage.getItem('storage-key')}`}
         });
     
         if(res.status === 201) return { success: true, dt: res.data };
@@ -1116,7 +1118,7 @@ export const deleteSpecificPropFilesAdmin = async(
         const res = await axios.post(url, body, { 
             withCredentials: true, 
             'Access-Control-Allow-Credentials': true,
-            headers: {"authorization" : `Bearer ${key}`} 
+            headers: {"authorization" : `Bearer ${localStorage.getItem('storage-key')}`} 
         });
     
         if(res.status === 201) return { success: true, dt: res.data };
@@ -1139,7 +1141,7 @@ export const deleteSpecificFile = async(key, email, filename, isEnglish) => {
         const res = await axios.delete(url, { 
             withCredentials: true, 
             'Access-Control-Allow-Credentials': true,
-            headers: {"authorization" : `Bearer ${key}`} 
+            headers: {"authorization" : `Bearer ${localStorage.getItem('storage-key')}`} 
         });
     
         if(res.status === 201) return { success: true, dt: res.data };
@@ -1162,7 +1164,7 @@ export const deleteUserAccountFilesAdmin = async(userId, eCode, key, email, isEn
         const res = await axios.delete(url, { 
             withCredentials: true, 
             'Access-Control-Allow-Credentials': true,
-            headers: {"authorization" : `Bearer ${key}`}
+            headers: {"authorization" : `Bearer ${localStorage.getItem('storage-key')}`}
         });
     
         if(res.status === 201) return { success: true, dt: res.data };
@@ -1331,7 +1333,7 @@ export const getFiles = async(key, email) => {
         const res = await axios.get(url, { 
             withCredentials: true, 
             'Access-Control-Allow-Credentials': true,
-            headers: {"authorization" : `Bearer ${key}`}
+            headers: {"authorization" : `Bearer ${localStorage.getItem('storage-key')}`}
         });
 
         if(!res || res.status !== 200) return { ok: false, dt: getErrorText(res.data) };
@@ -1354,7 +1356,7 @@ export const getStorageSize = async(key, email) => {
         const res = await axios.get(url, { 
             withCredentials: true, 
             'Access-Control-Allow-Credentials': true,
-            headers: {"authorization" : `Bearer ${key}`}
+            headers: {"authorization" : `Bearer ${localStorage.getItem('storage-key')}`}
         });
 
         if(!res || res.status !== 200) return { ok: false, dt: getErrorText(res.data) };
@@ -1393,7 +1395,7 @@ export const sendTest = async(key, email) => {
         const res = await axios.get(url, { 
             withCredentials: true, 
             'Access-Control-Allow-Credentials': true,
-            headers: {"authorization" : `Bearer ${key}`}
+            headers: {"authorization" : `Bearer ${localStorage.getItem('storage-key')}`}
         });
         console.log('نجاح التست');
     } catch (err) {

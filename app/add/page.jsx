@@ -24,6 +24,7 @@ import CustomInputDivWithEN from '@components/CustomInputDivWithEN';
 import LoadingCircle from '@components/LoadingCircle';
 import { getUserLocation } from '@utils/ServerComponents';
 import AddDetailsPopup from '@components/popups/AddDetailsPopup';
+import axios from 'axios';
 
 const page = () => {
 
