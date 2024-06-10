@@ -141,8 +141,6 @@ const page = () => {
     const [bedroomsShow, setBedroomsShow] = useState(false);
     const [poolsShow, setPoolsShow] = useState(false);
     const [nearPlacesShow, setNearPlacesShow] = useState(false);
-    const [numOf, setNumOf] = useState([]);
-    const [dimensionOf, setDimensionOf] = useState([]);
     const [detailsError, setDetailsError] = useState('');
 
     const [sectionTitle, setSectionTitle] = useState('');
@@ -1090,7 +1088,9 @@ const page = () => {
                 }} style={{ cursor: isCancellation ? 'default' : undefined }}>
                     <h3>حدد امكانية الغاء الحجز</h3>
                     <InfoDiv title={'الغاء الحجز'} value={cancellation === '' ? 'غير محدد' : cancellation}/>
-                    {isCancellation && <AddDetailsPopup array={cancellation} setArray={setCancellation} type={'cancellation'} sections={'selections'} isSingleSelect setIsShow={setIsCancellation} baseArr={cancellationsArray()} isNotFacilities/>}
+                    {isCancellation && <AddDetailsPopup array={cancellation} setArray={setCancellation} 
+                    type={'cancellation'} sections={'selections'} isSingleSelect 
+                    setIsShow={setIsCancellation} baseArr={cancellationsArray()} isNotFacilities/>}
                 </div>
 
                 <div className='detailItem contacts-div'>
@@ -1181,10 +1181,10 @@ const page = () => {
                 </div>}
 
                 {(selectedCatagories === '1' && specificCatagory === 'apartment') && <div className='detailItem area-div' style={{ display: (selectedCatagories === '0') ? 'none' : null}}>
-                    <h3>اكتب رقم أو اسم الطابق</h3>
+                    <h3>اكتب رقم الطابق</h3>
                     <CustomInputDiv title={'الطابق ' + floor} max={1000000} min={0} myStyle={{ marginBottom: 0 }} 
-                    placholderValue={'مثل: الثامن أو 8'}  isError={detailsError.includes('floor')} 
-                    errorText={'الرجاء ادخال اسم صالح'} 
+                    placholderValue={'مثل: 7 أو 8'}  isError={detailsError.includes('floor')} 
+                    errorText={'الرجاء ادخال رقم طابق صالح'} 
                     listener={(e) => setFloor(e.target.value)} value={floor}/>
                 </div>}
 
@@ -1242,7 +1242,7 @@ const page = () => {
                     <div className='selection-div disable-text-copy' onClick={() => {
                         if(!isCarGearboxShow) setIsCarGearboxShow(true);
                     }} style={{ cursor: isCarGearboxShow ? 'default' : undefined}}>
-                        <h3>حدد نوع ناقل الحركة Gearbox</h3>
+                        <h3>حدد نوع ناقل الحركة Transmission</h3>
                         <InfoDiv title={'نوع ناقل الحركة'} 
                         value={carGearbox === '' ? 'غير محدد' : carGearbox}/>
                         {isCarGearboxShow && <AddDetailsPopup array={carGearbox} setArray={setCarGearBox} type={'carGearBox'} sections={'selections'} 

@@ -2,7 +2,7 @@
 
 import '../../../view/view-style/View.scss';
 import ImagesShow from "@components/ImagesShow";
-import { JordanCities, cancellationsArray, currencyCode, myConditions, reservationType } from "@utils/Data";
+import { JordanCities, VehiclesTypes, cancellationsArray, currencyCode, getNames, myConditions, ratingsSections, reservationType, roomTypesArray } from "@utils/Data";
 import GoogleMapImage from '@assets/images/google-map-image.jpg';
 import Image from "next/image";
 import LocationGif from '@assets/icons/location.gif';
@@ -18,7 +18,7 @@ import { getNameByLang, getNumOfBookDays, getReadableDate, isOkayBookDays, isVal
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
 import Link from 'next/link';
-import { bathroomFacilities, facilities, kitchenFacilities, poolType } from '@utils/Facilities';
+import { bathroomFacilities, facilities, kitchenFacilities, nearPlacesNames, poolType } from '@utils/Facilities';
 import LoadingCircle from '@components/LoadingCircle';
 
 const page = () => {
@@ -29,7 +29,7 @@ const page = () => {
     setMapType, setLatitude, setLongitude,
     calendarDoubleValue, setCalendarDoubleValue,
     storageKey, userEmail, isMobile, isVerified,
-    setIsModalOpened
+    setIsModalOpened, userUsername
   } = useContext(Context);
   
   const id = useSearchParams().get('id');
@@ -69,7 +69,7 @@ const page = () => {
   const [deleteRevsError, setDeleteRevsError] = useState('');
   const [deleteRevsSuccess, setDeleteRevsSuccess] = useState('');
 
-  const [reviewsNumber, setReviewsNumber] = useState(1);
+  const [reviewsNumber, setReviewsNumber] = useState(6);
   const [isCalendar, setIsCalendar] = useState(false);
   const [bookDate, setBookDate] = useState(calendarDoubleValue);
   const [isSpecifics, setIsSpecifics] = useState(true);
@@ -85,6 +85,7 @@ const page = () => {
 
   const [reportDiv, setReportDiv] = useState(false);
   const [writerId, setWriterId] = useState('');
+  const [reviewsNum, setReviewsNum] = useState(null);
   const [reportText, setReportText] = useState('');
   const [reporting, setReporting] = useState(false);
 
@@ -245,9 +246,12 @@ const page = () => {
 
   };
 
-  const generateWhatsappText = () => {
-    const text = `I want to book a reservation for this offer, Title '${item.title}' or in Arabic '${item.en_data?.titleEN}', Unit ID '${item.unit_code}', Reservation date '${getReadableDate(calendarDoubleValue?.at(0), true, true)}'  To '${getReadableDate(calendarDoubleValue?.at(1), true, true)}'`;
-    return text;
+  const generateWhatsappText = (notLogined, isSimple) => {
+    const text = !isSimple
+      ? `${(notLogined || !userId?.length > 0) ? '** Warning: This user is not registered on the platform ** \n\n• ' : ''}I am the account holder: "${userUsername || 'Name not exist!'}" User ID: "${userId || 'ID not exist!'}" \n\n• I want to book this show\n\n• Title: "${item.en_data?.titleEN || item.title}" \n\n• Unit Code (unit id): "${item.unit_code}"\n\n• Reservation type: ${resType?.value} \n\n• Starting from date: "${getReadableDate(calendarDoubleValue?.at(0), true, true)}" \n\n• To date: "${getReadableDate(calendarDoubleValue?.at(1), true, true)}"\n\n• Duration: ${resTypeNum} ${reservationType(true, resTypeNum, true).find(i=>i.id === resType?.id)?.oneEn + 's'}\n\n• The price shown to me: ${(((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice()) - (item.discount?.percentage ? ((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice() * item.discount.percentage / 100) : 0)).toFixed(2)} ${currencyCode(true, false)}\n\n• ** بالعربية **\n\n${(notLogined || !userId?.length > 0) ? '** تحذير: هذا المستخدم ليس مسجل بالمنصة ** \n\n• ' : ''}أنا صاحب الحساب "${userUsername || 'لا يوجد اسم'}" معرف: "${userId || 'لا يوجد معرف'}" \n\n• أريد أن احجز هذا العرض\n\n• عنوان العرض: "${item.title}" \n\n• كود الوحدة (معرف العرض): "${item.unit_code}"\n\n• نوع الحجز: ${resType?.arabicName} \n\n• بدءا من التاريخ: "${getReadableDate(calendarDoubleValue?.at(0), true)}" \n\n• وحتى التاريخ: "${getReadableDate(calendarDoubleValue?.at(1), true)}"\n\n• مدة الحجز: ${resTypeNum} ${reservationType(false, resTypeNum, true).find(i=>i.id === resType?.id)?.multipleAr}\n\n• السعر الظاهر لي: ${(((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice()) - (item.discount?.percentage ? ((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice() * item.discount.percentage / 100) : 0)).toFixed(2)} ${currencyCode(false, false)}`
+      : `${(notLogined || !userId?.length > 0) ? '** Warning: This user is not registered on the platform ** \n\n• ' : ''}I am the account holder: "${userUsername || 'name not exist!'}" User ID: "${userId || 'Id not exist!'}" \n\n• I would like to contact you about this unit \n\n• Title: "${item.title}" \n\n• Unit Code (unit id): "${item.unit_code}\n\n• ** بالعربية **\n\n${(notLogined || !userId?.length > 0) ? '** تحذير: هذا المستخدم ليس مسجل بالمنصة ** \n\n• ' : ''}أنا صاحب الحساب "${userUsername || 'لا يوجد اسم'}" معرف: "${userId || 'لا يوجد معرف'}" \n\n• أريد أن أتواصل معك بخصوص هذا العرض\n\n• عنوان العرض: "${item.title}" \n\n• كود الوحدة (معرف العرض): "${item.unit_code}`;
+    console.log('url: ', encodeURIComponent(text));
+    return encodeURIComponent(text);
   };
 
   const handleBook = async() => {
@@ -256,31 +260,30 @@ const page = () => {
 
       if(userId === item.owner_id || !canBook || addingToBooks) 
         return;
-
+        
       if(!userId || userId.length <= 10){
         let whatsapp = item?.contacts?.find(i => i.platform === 'whatsapp');
         if(whatsapp && !isNaN(Number(whatsapp.val))) {
           if(whatsapp.val?.at(0) === '0' && whatsapp.val?.at(1) === '0') 
             whatsapp = whatsapp.val?.replace('00', '+');
-          return window.open(`${whatsappBaseUrl}/${whatsapp.val}`, '_blank');
+          return window.open(`${whatsappBaseUrl}/${whatsapp.val}?text=${generateWhatsappText(true)}`, '_blank');
         }
         if(whatsapp && isValidContactURL(whatsapp))
-          return window.open(whatsapp.val, '_blank');
-        setBookSuccess('تواصل مع مقدم الخدمة من قسم الشروط و التواصل');
+          return window.open(`${whatsapp.val}?text=${generateWhatsappText(true)}`, '_blank');
+        setBookSuccess('Contact the service provider from the Terms and Communication section');
         return;
       }
 
-      if(!booksIds.find(i => i.property_id === id) 
-        && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1))) 
-        return;
-      
       const isAlreadyBooked = booksIds.find(i => i.property_id === id);
+
+      if(!booksIds.find(i => i.property_id === id) 
+      && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1)))
+        return;
 
       setAddingToBooks(true);
 
       const res = await handleBooksAddRemove(
-        id,
-        booksIds.find(i => i.property_id === id) ? true : false, 
+        id, booksIds.find(i => i.property_id === id) ? true : false, 
         calendarDoubleValue?.at(0)?.getTime(), 
         calendarDoubleValue?.at(1)?.getTime()
       );
@@ -301,7 +304,7 @@ const page = () => {
         }
   
         if(whatsapp && isValidContactURL(whatsapp))
-          return window.open(whatsapp.val, '_blank');
+          return window.open(`${whatsapp.val}?text=${generateWhatsappText()}`, '_blank');
   
         let telegram = item?.contacts?.find(i => i.platform === 'telegram');
   
@@ -311,12 +314,12 @@ const page = () => {
 
       if(!isAlreadyBooked) navigateToContact();
 
-      if(!booksIds.find(i => i.property_id === id)){
+      if(res.success === true && !booksIds.find(i => i.property_id === id)){
         setIsSpecifics(false); 
         setIsReviews(false); 
         setIsMapDiv(false); 
         setIsTerms(true);  
-        setBookSuccess('Added to books successfully, Contact the service provider from the Terms and Communication section');
+        setBookSuccess('The addition has been completed successfully. Contact the service provider from the Terms and Communication section');
       } else {
         setBookSuccess('');
       }
@@ -559,11 +562,14 @@ const page = () => {
     console.log(myContact, isValidContactURL(myContact));
     if(!myContact?.platform) return '';
     if(myContact.platform === 'whatsapp'){
-      if(isValidNumber(Number(myContact.val))) {
+      if(myContact && isValidNumber(myContact.val)) {
         if(myContact.val?.at(0) === '0' && myContact.val?.at(1) === '0') 
           myContact = myContact.val?.replace('00', '+');
-        return window.open(`${whatsappBaseUrl}/${myContact.val}?text=${generateWhatsappText()}`, '_blank');
+        return window.open(`${whatsappBaseUrl}/${whatsapp.val}?text=${generateWhatsappText(null, true)}`, '_blank');
       }
+      if(myContact && isValidContactURL(myContact))
+        return window.open(`${myContact.val}?text=${generateWhatsappText(null, true)}`, '_blank');
+      return;
     }
     if(isValidContactURL(myContact)) return window.open(myContact.val, '_blank');
   };
@@ -595,6 +601,79 @@ const page = () => {
     return 'Undefined price';
   };
 
+  const getDetailText = (obj, objType, index) => {
+
+    const str = `
+      ${getNames('one', false, true, objType) + ' ' + ((index + 1) || '')}
+      ${obj?.room_type ? (roomTypesArray(true).includes(obj?.room_type) ? obj?.room_type : roomTypesArray(true)[roomTypesArray().indexOf(obj?.room_type)]) : ''} 
+      ${obj?.capacity ? 'with capacity of ' + obj?.capacity + ' people' : ''} 
+      ${obj?.dim ? ' its dimension is width ' + obj?.dim?.y + 'm & length ' + obj?.dim?.x + 'm ' : ''} 
+      ${obj?.single_beds ? ', ' + obj?.single_beds + ' single beds ' : ''} 
+      ${obj?.double_beds ? ', ' + obj?.double_beds + ' master beds ' : ''} 
+      ${obj?.depth ? ', & depth of ' + obj?.depth + ' meter ' : ''}
+    `
+    return str;
+
+  };
+
+  const settingReviewsNum = () => {
+    const five = item?.num_of_reviews_percentage?.five;
+    const four = item?.num_of_reviews_percentage?.four;
+    const three = item?.num_of_reviews_percentage?.three;
+    const two = item?.num_of_reviews_percentage?.two;
+    const one = item?.num_of_reviews_percentage?.one;
+    const total = five + four + three + two + one;
+    if(total <= 0) return;
+    setReviewsNum({
+      five: five / total * 100,
+      four: four / total * 100,
+      three: three / total * 100,
+      two: two / total * 100,
+      one: one / total * 100,
+    });
+  };
+
+  const getReviewTextHolder = () => {
+    const x = Math.round(scoreRate);
+    if(x === 5) return 'Glad to know that you liked the ' + (item.type_is_vehicle ? 'Vehicle' : 'Property') + ', please write a simple description of your experience.';
+    if(x === 4) return 'Good to know that you liked the ' + (item.type_is_vehicle ? 'Vehicle' : 'Property') + ', please write about your experince and what can be improved.';
+    if(x === 3) return 'What problems did you encounter or areas that you suggest improving?';
+    if(x === 2) return "We are sorry to hear that, why don't you like the " + (item.type_is_vehicle ? 'Vehicle' : 'Property') + ' ?';
+    if(x === 1) return 'We are very sorry for the bad experience you had. Please write about the problems you encountered that made your experience bad.';
+  };
+
+  const getRatingText = () => {
+    const x = Math.round(scoreRate);
+    const obj = ratingsSections.find(i=>i.value === x);
+    return obj?.enName + ' ' + obj?.emoji;
+  };
+
+  const getCompanians = (array, comType) => {
+    let arr = [];
+    switch(comType){
+      case 'kitchen':
+        array.forEach(element => {
+            arr.push(kitchenFacilities(true)?.find(i=>i === element)
+              || kitchenFacilities(true)[kitchenFacilities().indexOf(element)])
+        });
+        return arr.toString()?.replaceAll(',', ', ');
+      case 'bathrooms':
+        array.forEach(element => {
+            arr.push(bathroomFacilities(true)?.find(i=>i === element)
+              || bathroomFacilities(true)[bathroomFacilities().indexOf(element)])
+        });
+        return arr.toString()?.replaceAll(',', ', ');
+      case 'pool':
+        array.forEach(element => {
+            arr.push(poolType(true)?.find(i=>i === element)
+              || poolType(true)[poolType().indexOf(element)])
+        });
+        return arr.toString()?.replaceAll(',', ', ');
+      default:
+        return '';
+    }
+  };
+
   useEffect(() => {
     setRunOnce(true);
     setAdminSending(false);
@@ -604,6 +683,7 @@ const page = () => {
   useEffect(() => {
     setCanBook(isAbleToBook());
     getPriceReservationType();
+    settingReviewsNum();
   }, [item]);
 
   useEffect(() => {
@@ -645,19 +725,7 @@ const page = () => {
   }, [isCheckout]);
 
   const RightIconSpan = () => {
-    return <span id='righticonspan'/>
-  }
-
-  const SpecificationListItemNum = ({ content, idName }) => {
-    return content > 0 ? <li>
-      {content.toString()} {idName}
-    </li> : <></>
-  };
-
-  const SpecificationListItemDimensions = ({ content, idName }) => {
-    return (content?.x > 0 || content?.y > 0) ? <li>
-      {idName} dimension {content.x} in length & {content.y} in width
-    </li> : <></>
+    return <div id='righticonspan'><span /></div>
   };
 
   if(!item){
@@ -882,46 +950,155 @@ const page = () => {
 
           <h2>{isSpecifics ? 'Specifications' : isReviews ? 'Reviews' : isMap ? 'Map' : isTerms ? 'Terms and Communication' : ''}</h2>
 
-          <ul className='specificationsUL' style={{ display: !isSpecifics && 'none' }}>
+          <ul className='specificationsUL disable-text-copy' style={{ display: !isSpecifics && 'none' }}>
+            
+            {item?.details?.insurance && <li><Svgs name={'insurance'}/><h3>{item.details.insurance === true ? 'A deposit is required before booking' : 'No insurance required'}</h3></li>}
+            {(item.cancellation >= 0 && item.cancellation < cancellationsArray().length) && <li><Svgs name={'cancellation'}/><h3>{cancellationsArray(true)?.at(item.cancellation)}</h3></li>}
+
             {!item.type_is_vehicle ? <>
-              {item.details?.insurance && <li><Svgs name={'insurance'}/><h3>{item.details.insurance === true ? 'A deposit is required before booking' : 'No insurance required'}</h3></li>}
-              {(item.cancellation >= 0 && item.cancellation < cancellationsArray(true).length) && <li><h3>{item.cancellation >= 0 ? cancellationsArray(true)?.at(item.cancellation) : ''}</h3></li>}
-              {item.en_data?.customerTypeEN && <li><Svgs name={'customers'}/><h3>{item.customer_type !== 'غير محدد' ? 'Only for ' : ''} {item.en_data?.customerTypeEN}</h3></li>}
-              {item.capacity > 0 && <li><Svgs name={'guests'}/><h3>{item.capacity > 0 ? `Max number of Guest ${item.capacity} Guests` : ''}</h3></li>}
-              {item.details?.guest_rooms?.length > 0 && <li onClick={() => setIsGuestRooms(!isGuestRooms)}><Svgs name={'guest room'}/><h3>Living Rooms</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isGuestRooms ? '-' : '+'}</span><ul style={{ display: (!isGuestRooms && isMobile) ? 'none' : undefined}}>{item.details?.guest_rooms?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>}
-              {(item.details?.kitchen.dim || item.details?.kitchen?.companians) && <li onClick={() => setIsKitchen(!isKitchen)}><Svgs name={'kitchen'}/><h3>Kitchen</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isKitchen ? '-' : '+'}</span><ul style={{ display: (!isKitchen && isMobile) ? 'none' : undefined}}>
-                <SpecificationListItemDimensions content={item.details?.kitchen?.dim} idName='kitchen'/>
-                {item.details?.kitchen?.companians?.map((i) => (<li>{kitchenFacilities(true)[kitchenFacilities().indexOf(i)] || i}</li>))}
-              </ul></li>}
-              {(item?.details?.rooms?.num > 0 || item?.details?.rooms?.single_beds > 0 || item?.details?.rooms?.double_beds > 0) && <li onClick={() => setIsRooms(!isRooms)}><Svgs name={'rooms'}/><h3>Bedrooms</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isRooms ? '-' : '+'}</span><ul style={{ display: (!isRooms && isMobile) ? 'none' : undefined}}>
-                <SpecificationListItemNum content={item?.details?.rooms?.num} idName={'bedrooms'}/>
-                <SpecificationListItemNum content={item?.details?.rooms?.single_beds} idName={'single beds'}/>
-                <SpecificationListItemNum content={item?.details?.rooms?.double_beds} idName={'double beds'}/>
-              </ul></li>}
-              {(item.details?.bathrooms?.num > 0 || item.details?.bathrooms?.companians?.length > 0) && <li onClick={() => setIsBathrooms(!isBathrooms)}><Svgs name={'bathrooms'}/><h3>Bathrooms</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isBathrooms ? '-' : '+'}</span><ul style={{ display: (!isBathrooms && isMobile) ? 'none' : undefined}}>
-                <SpecificationListItemNum content={item.details?.bathrooms?.num} idName='bathrooms'/>
-                {item.details?.bathrooms?.companians?.map((i) => (<li>{bathroomFacilities(true)[bathroomFacilities().indexOf(i)] || i}</li>))}
-              </ul></li>}
-              {item.details?.near_places?.length > 0 && <li onClick={() => setIsPlaces(!isPlaces)}><Svgs name={'places'}/><h3>Near places</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isPlaces ? '-' : '+'}</span><ul style={{ display: (!isPlaces && isMobile) ? 'none' : undefined}}>{item.details?.near_places?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>}
-              {item.details?.facilities?.length > 0 && <li onClick={() => setIsFacilities(!isFacilities)}><Svgs name={'facilities'}/><h3>Facilities</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isFacilities ? '-' : '+'}</span><ul style={{ display: (!isFacilities && isMobile) ? 'none' : undefined}}>{item.details?.facilities?.map((i) => (<li>{facilities(true)[facilities().indexOf(i)] || i}</li>))}</ul></li>}
-              {(item.details?.pool?.companians?.length > 0 || item?.details?.pool?.num || item?.details?.pool?.dim) && <li onClick={() => setIsPool(!isPool)} id='lastLiTabButtonUL'><Svgs name={'pool'}/><h3>Pool</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isPool ? '-' : '+'}</span><ul style={{ display: (!isPool && isMobile) ? 'none' : undefined}}>
-                {item.details?.pool?.companians?.map((i) => (<li>{poolType(true)[poolType().indexOf(i)] || i}</li>))}
-                <SpecificationListItemNum content={item?.details?.pool?.num} idName='pool'/>  
-                <SpecificationListItemDimensions content={item?.details?.pool?.dim} idName='pool'/>
-              </ul></li>}
+
+              {item.customer_type && <li><Svgs name={'customers'}/><h3>Guests category {item?.en_data?.customerTypeEN}</h3></li>}
+              {item.capacity > 0 && <li><Svgs name={'guests'}/><h3>{`Maximum number of guests ${item.capacity} guests`}</h3></li>}
+              {(item.specific_catagory === 'apartment' && item.floor?.length > 0) && <li><Svgs name={'steps'}/><h3>{`Floor ${item.floor}`}</h3></li>}
+              {item.area > 0 && <li><Svgs name={'area'}/><h3>{`Property Area ${item.area} square meters`}</h3></li>}
+              {(item.specific_catagory === 'farm' && item.landArea?.length > 0) && <li><Svgs name={'area'}/><h3>{`Land area ${item.landArea}`}</h3></li>}
+              
+              {item.details?.guest_rooms?.length > 0 && <li onClick={() => setIsGuestRooms(!isGuestRooms)}>
+                <Svgs name={'guest room'}/>
+                <h3>Living rooms</h3>
+                <span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isGuestRooms ? '-' : '+'}</span>
+                <ul style={{ display: (isGuestRooms || !isMobile) ? undefined : 'none' }}>
+                  {item.details?.guest_rooms?.map((i, index) => (<li>{getDetailText(i, 'rooms', index)}</li>))}
+                </ul>
+              </li>}
+              
+              {(item.details?.kitchen?.array?.length > 0 || item.details?.kitchen?.companians?.length > 0) && <li onClick={() => setIsKitchen(!isKitchen)}>
+                <Svgs name={'kitchen'}/>
+                <h3>Kitchens</h3>
+                <span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isKitchen ? '-' : '+'}</span>
+                <ul style={{ display: (isKitchen || !isMobile) ? undefined : 'none' }}>
+                  {item.details?.kitchen?.array?.map((i, index) => (<li>{getDetailText(i, 'kitchen', index)}</li>))}
+                </ul>
+                <h3 style={{ display: (isKitchen || !isMobile) ? undefined : 'none' }} className='accompany-h3'>Kitchen facilities</h3>
+                <p style={{ display: (isKitchen || !isMobile) ? undefined : 'none' }} className='accompany-p'>{getCompanians(item.details?.kitchen?.companians, 'kitchen')}</p>
+              </li>}
+
+              {item?.details?.rooms?.length > 0 && <li onClick={() => setIsRooms(!isRooms)}>
+                <Svgs name={'rooms'}/>
+                <h3>Bedrooms</h3>
+                <span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isRooms ? '-' : '+'}</span>
+                <ul style={{ display: (!isRooms && isMobile) ? 'none' : undefined }}>
+                  {item.details?.rooms?.map((i, index) => (
+                    <li>{getDetailText(i, 'rooms', index)}</li>
+                  ))}
+                </ul>
+              </li>}
+
+              {(item.details?.bathrooms?.array?.length > 0 || item.details?.bathrooms?.companians?.length > 0) && <li onClick={() => setIsBathrooms(!isBathrooms)}>
+                <Svgs name={'bathrooms'}/>
+                <h3>Bathrooms</h3>
+                <span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isBathrooms ? '-' : '+'}</span>
+                <ul style={{ display: (!isBathrooms && isMobile) ? 'none' : undefined }}>
+                  {item.details?.bathrooms?.array?.map((i, index) => (<li>{getDetailText(i, 'bathrooms', index)}</li>))}
+                </ul>
+                <h3 style={{ display: (!isBathrooms && isMobile) ? 'none' : undefined }} className='accompany-h3'>Bathrooms facilities</h3>
+                <p style={{ display: (!isBathrooms && isMobile) ? 'none' : undefined }} className='accompany-p'>{getCompanians(item.details?.bathrooms?.companians, 'bathrooms')}</p>
+              </li>}
+
+              {(item.details?.pool?.companians?.length > 0 || item.details?.pool?.array?.length > 0) && <li onClick={() => setIsPool(!isPool)}>
+                <Svgs name={'pool'}/>
+                <h3>Swimming pools</h3>
+                <span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isPool ? '-' : '+'}</span>
+                <ul style={{ display: (!isPool && isMobile) ? 'none' : undefined }}>
+                  {item.details?.pool?.array?.map((i, index) => (<li>{getDetailText(i, 'pool', index)}</li>))}
+                </ul>
+                <h3 style={{ display: (!isPool && isMobile) ? 'none' : undefined }} className='accompany-h3'>Swimming pools facilities</h3>
+                <p style={{ display: (!isPool && isMobile) ? 'none' : undefined }} className='accompany-p'>{getCompanians(item.details?.pool?.companians, 'pool')}</p>
+              </li>}
+              
+              {item.details?.facilities?.length > 0 && <li onClick={() => setIsFacilities(!isFacilities)}>
+                <Svgs name={'facilities'}/>
+                <h3>Facilities</h3>
+                <span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isFacilities ? '-' : '+'}</span>
+                <ul style={{ display: (!isFacilities && isMobile) ? 'none' : undefined }}>
+                  {item.details?.facilities?.map((i) => (<li>{
+                      facilities(true, item.specific_catagory === 'students')?.find(ob=>ob === i)
+                      || facilities(true, item.specific_catagory === 'students')[facilities(false, item.specific_catagory === 'students').indexOf(i)]
+                    }</li>))}
+                </ul>
+              </li>}
+
             </> : <>
-              {item.details?.vehicle_specifications?.length > 0 && <li onClick={() => setIsVehicleSpecs(!isVehicleSpecs)}><Svgs name={'vehicle specifications'}/><h3>Car Specifications</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isVehicleSpecs ? '-' : '+'}</span><ul style={{ display: (!isVehicleSpecs && isMobile) ? 'none' : undefined}}>{item?.details?.vehicle_specifications?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>}
-              {item.details?.vehicle_addons?.length > 0 && <li onClick={() => setIsVehicleAddons(!isVehicleAddons)}><Svgs name={'vehicle addons'}/><h3>Car Features</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isVehicleAddons ? '-' : '+'}</span><ul style={{ display: (!isVehicleAddons && isMobile) ? 'none' : undefined}}>{item?.details?.vehicle_addons?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>}
-              {item.details?.near_places?.length > 0 && <li onClick={() => setIsPlaces(!isPlaces)} id='lastLiTabButtonUL'><Svgs name={'places'}/><h3>Near Places</h3><span style={{ display: !isMobile ? 'none' : undefined}}>{isPlaces ? '-' : '+'}</span><ul style={{ display: (!isPool && isMobile) ? 'none' : undefined}}>{item.details?.near_places?.map((i) => (<li>{item?.en_data?.english_details?.find(x => x.arName == i)?.enName || i}</li>))}</ul></li>}
+
+              <li><Svgs name={'vehicle'}/><h3>{'Vehicle category ' + VehiclesTypes?.find(i=>i.id === item.vehicle_type)?.value}</h3></li>
+              {typeof item?.details?.vehicle_specifications?.driver === 'boolean' && <li><Svgs name={'driver'}/><h3>{item?.details?.vehicle_specifications?.driver ? 'The car comes with a driver' : 'The car comes without a driver'}</h3></li>}
+              {item?.details?.vehicle_specifications?.rent_type?.length > 0 && <li><Svgs name={'car rentType'}/><h3>{'Rent type ' + item?.details?.vehicle_specifications?.rent_type}</h3></li>}
+              {item?.details?.vehicle_specifications?.company?.length > 0 && <li><Svgs name={'vehicle'}/><h3>{'Vehicle manufacturer  ' + item?.details?.vehicle_specifications?.company}</h3></li>}
+              {item?.details?.vehicle_specifications?.model?.length > 0 && <li><Svgs name={'vehicle'}/><h3>{'Vehicle model ' + item?.details?.vehicle_specifications?.model}</h3></li>}
+              {item?.details?.vehicle_specifications?.color?.length > 0 && <li><Svgs name={'vehicle'}/><h3>{'Vehicle color ' + item?.details?.vehicle_specifications?.color}</h3></li>}
+              {item?.details?.vehicle_specifications?.year?.length > 0 && <li><Svgs name={'vehicle'}/><h3>{'Year of made ' + item?.details?.vehicle_specifications?.year}</h3></li>}
+              {item?.details?.vehicle_specifications?.gearbox?.length > 0 && <li><Svgs name={'gearbox'}/><h3>{'Transmission type' + item?.details?.vehicle_specifications?.gearbox}</h3></li>}
+              {item?.details?.vehicle_specifications?.fuel_type?.length > 0 && <li><Svgs name={'fueltype'}/><h3>{'Fuel type ' + item?.details?.vehicle_specifications?.fuel_type}</h3></li>}
+
             </>}
+
+            {item.details?.near_places?.length > 0 && <li onClick={() => setIsPlaces(!isPlaces)}>
+              <Svgs name={'places'}/>
+              <h3>Near places</h3>
+              <span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isPlaces ? '-' : '+'}</span>
+              <ul style={{ display: (!isPlaces && isMobile) ? 'none' : undefined }}>
+                {item.details?.near_places?.map((i) => (<li>{
+                  nearPlacesNames(true)?.find(ob=>ob === i)
+                  || nearPlacesNames(true)[nearPlacesNames(false).indexOf(i)]
+                }</li>))}
+            </ul></li>}
+
+            {item.details?.features?.length > 0 && <li onClick={() => setIsFeatures(!isFeatures)}>
+              <Svgs name={'places'}/>
+              <h3>Features</h3>
+              <span style={{ display: !isMobile ? 'none' : undefined}} id="show-li-span">{isFeatures ? '-' : '+'}</span>
+              <ul style={{ display: (!isFeatures && isMobile) ? 'none' : undefined }}>
+                {item.details?.features?.map((i) => (<li>{
+                  item.en_data?.english_details?.find(i=>i.arName === i)?.enName
+                  || i  
+                }</li>))}
+            </ul></li>}
+
           </ul>
 
           <div className='reviews' style={{ display: !isReviews ? 'none' : null }}>
 
+            <div className="reviews-layout">
+              
+              <div className='numbers'>
+                  <h4>{item.ratings?.val}</h4>
+                  <div className="rating">
+                    <Svgs name={'star'} styling={Math.round(item.ratings?.val) > 0 ? true : false}/>
+                    <Svgs name={'star'} styling={Math.round(item.ratings?.val) > 1 ? true : false} />
+                    <Svgs name={'star'} styling={Math.round(item.ratings?.val) > 2 ? true : false} />
+                    <Svgs name={'star'} styling={Math.round(item.ratings?.val) > 3 ? true : false} />
+                    <Svgs name={'star'} styling={Math.round(item.ratings?.val) > 4 ? true : false} />
+                </div>
+                <p>{item.ratings?.no} reviews</p>
+              </div>
+
+              <div className='charts'>
+                <div>5.0 <p>{'('}{item?.num_of_reviews_percentage?.five || 0} reviews{')'}</p><div><span style={{ width: `${reviewsNum?.five || 0}%` }} /></div></div>
+                <div>4.0 <p>{'('}{item?.num_of_reviews_percentage?.four || 0} reviews{')'}</p><div><span style={{ width: `${reviewsNum?.four || 0}%` }} /></div></div>
+                <div>3.0 <p>{'('}{item?.num_of_reviews_percentage?.three || 0} reviews{')'}</p><div><span style={{ width: `${reviewsNum?.three || 0}%` }} /></div></div>
+                <div>2.0 <p>{'('}{item?.num_of_reviews_percentage?.two || 0} reviews{')'}</p><div><span style={{ width: `${reviewsNum?.two || 0}%` }} /></div></div>
+                <div>1.0 <p>{'('}{item?.num_of_reviews_percentage?.one || 0} reviews{')'}</p><div><span style={{ width: `${reviewsNum?.one || 0}%` }} /></div></div>
+              </div>
+
+            </div>
+
             {(booksIds.find(i => i.property_id === id) && item.owner_id !== userId && isVerified) 
             && <div className='write-review'>
-              <h3>Rate and describe your experience with this offer</h3>
-              <h4>Your evaluation of the offer (<input max="5" min="0" step="0.1" type='number' value={scoreRate} onChange={(e) => setScoreRate(Number(e.target.value))}/>)</h4>
+              
+              <h3>Rate and describe your experience with this {item.type_is_vehicle ? 'Vehicle' : 'Property'}</h3>
+
+              {scoreRate !== null && <h4>{getRatingText()}</h4>}
+              
               <div className="rating">
                 <Svgs name={'star'} styling={Math.round(scoreRate) > 0 ? true : false} on_click={() => {if(Math.round(scoreRate) === 0){ setScoreRate(1) } else { setScoreRate(0) }}}/>
                 <Svgs name={'star'} styling={Math.round(scoreRate) > 1 ? true : false} on_click={() => setScoreRate(2)}/>
@@ -929,13 +1106,35 @@ const page = () => {
                 <Svgs name={'star'} styling={Math.round(scoreRate) > 3 ? true : false} on_click={() => setScoreRate(4)}/>
                 <Svgs name={'star'} styling={Math.round(scoreRate) > 4 ? true : false} on_click={() => setScoreRate(5)}/>
               </div>
-              <textarea onChange={(e) => setReviewText(e.target.value)}/>
-              <button onClick={writeReview}>{sendingReview ? 'Publishing...' : 'Publish'}</button>
+
+              <textarea onChange={(e) => setReviewText(e.target.value)} placeholder={getReviewTextHolder()}/>
+              <button onClick={writeReview}>{sendingReview ? <LoadingCircle /> : 'Publish'}</button>
               <p style={{ color: sendReviewError.length > 0 && 'var(--softRed)' }}>
                 {sendReviewError.length > 0 ? sendReviewError : sendReviewSuccess}
               </p>
-            </div>}
 
+            </div>}
+            <div className='write-review'>
+              
+              <h3>Rate and describe your experience with this {item.type_is_vehicle ? 'Vehicle' : 'Property'}</h3>
+
+              {scoreRate !== null && <h4>{getRatingText()}</h4>}
+              
+              <div className="rating">
+                <Svgs name={'star'} styling={Math.round(scoreRate) > 0 ? true : false} on_click={() => setScoreRate(1)}/>
+                <Svgs name={'star'} styling={Math.round(scoreRate) > 1 ? true : false} on_click={() => setScoreRate(2)}/>
+                <Svgs name={'star'} styling={Math.round(scoreRate) > 2 ? true : false} on_click={() => setScoreRate(3)}/>
+                <Svgs name={'star'} styling={Math.round(scoreRate) > 3 ? true : false} on_click={() => setScoreRate(4)}/>
+                <Svgs name={'star'} styling={Math.round(scoreRate) > 4 ? true : false} on_click={() => setScoreRate(5)}/>
+              </div>
+
+              <textarea onChange={(e) => setReviewText(e.target.value)} placeholder={getReviewTextHolder()}/>
+              <button onClick={writeReview}>{sendingReview ? <LoadingCircle /> : 'Publish'}</button>
+              <p style={{ color: sendReviewError.length > 0 && 'var(--softRed)' }}>
+                {sendReviewError.length > 0 ? sendReviewError : sendReviewSuccess}
+              </p>
+
+            </div>
             <ul>
               {item.reviews.slice(0, reviewsNumber).map((rv) => (
                 <ReviewCard isEnglish item={rv} setReportDiv={setReportDiv} setWriterId={setWriterId}
@@ -995,10 +1194,10 @@ const page = () => {
           <div className='nightsDiv' onClick={() => setIsReservationType(!isReservationType)}>
             <h3 id='res-type'>Select Type of reservation {'(daily, weekly, yearly ...etc)'}</h3>
             <h3 style={{ color: 'var(--secondColorDark)' }}>{getPrice()}<span style={{ marginLeft: 8 }}> {currencyCode(true, true)} / {reservationType()?.find(i => i.id === resType?.id)?.oneEn}</span></h3>
-            <h3 style={{ color: '#777' }}><span>Number of {reservationType()?.find(i => i.id === resType?.id)?.oneEn + 's'}</span> {resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)}</h3>
-            <HeaderPopup type={'custom'} isCustom={isReservationType} selectedCustom={resType}
+            <h3 style={{ color: '#777' }}><span style={{ marginRight: 8 }}>Number of {reservationType()?.find(i => i.id === resType?.id)?.oneEn + 's'}</span> {resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)}</h3>
+            {isReservationType && !isCheckout && <HeaderPopup type={'custom'} isCustom={isReservationType} selectedCustom={resType}
             setSelectedCustom={setResType} setIsCustom={setIsReservationType}
-            customArray={reservationType()}/>
+            customArray={reservationType(true)} isEnglish myStyle={{ maxWidth: 360 }} />}
           </div>
 
           <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
@@ -1063,9 +1262,9 @@ const page = () => {
         <h3 id='res-type'>Select Type of reservation {'(daily, weekly, yearly ...etc)'}</h3>
           <h3 style={{ color: 'var(--secondColorDark)' }}>{getPrice()}<span> {currencyCode(true, true)} / {reservationType()?.find(i => i.id === resType?.id)?.oneEn}</span></h3>
           <h3 style={{ color: '#777' }}><span>Number of {reservationType()?.find(i => i.id === resType?.id)?.oneEn + 's'}</span> {resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)}</h3>
-          <HeaderPopup type={'custom'} isCustom={isReservationType} selectedCustom={resType}
+          {isReservationType && isCheckout && <HeaderPopup type={'custom'} isCustom={isReservationType} selectedCustom={resType}
           setSelectedCustom={setResType} setIsCustom={setIsReservationType}
-          customArray={reservationType()} isEnglish/>
+          customArray={reservationType()} isEnglish/>}
         </div>
 
         <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>

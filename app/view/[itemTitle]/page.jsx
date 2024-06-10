@@ -102,8 +102,6 @@ const page = () => {
   const [isFeatures, setIsFeatures] = useState(false);
   const [isFacilities, setIsFacilities] = useState(false);
   const [isPool, setIsPool] = useState(false);
-  const [isVehicleSpecs, setIsVehicleSpecs] = useState(false);
-  const [isVehicleAddons, setIsVehicleAddons] = useState(false);
   const [isCheckout, setIsCheckout] = useState(false);
 
   const [isReservationType, setIsReservationType] = useState(false);
@@ -613,7 +611,7 @@ const page = () => {
 
     const str = `
       ${getNames('one', false, false, objType) + ' ' + ((index + 1) || '')}
-      ${obj?.room_type ? obj?.room_type : ''} 
+      ${obj?.room_type ? (roomTypesArray().includes(obj?.room_type) ? obj?.room_type : roomTypesArray()[roomTypesArray(true).indexOf(obj?.room_type)]) : ''} 
       ${obj?.capacity ? 'بسعة ' + obj?.capacity + ' شخص' : ''} 
       ${obj?.dim ? 'بعرض ' + obj?.dim?.y + ' متر و بطول ' + obj?.dim?.x + ' متر ' : ''} 
       ${obj?.single_beds ? ', ' + obj?.single_beds + ' سرير مفرد ' : ''} 
@@ -708,37 +706,6 @@ const page = () => {
 
   const RightIconSpan = () => {
     return <span id='righticonspan'/>
-  }
-
-  const getSpecificationItemName = (idName) => {
-    switch(idName){
-      case 'bedrooms':
-        return 'غرف نوم';
-      case 'double beds':
-        return 'سرير مزدوج';
-      case 'single beds':
-        return 'سرير منفرد';
-      case 'kitchen':
-        return 'المطبخ';
-      case 'pool':
-        return 'المسبح';
-      case 'bathrooms':
-        return 'دورات المياه';
-      default:
-        return '';  
-    }
-  }
-
-  const SpecificationListItemNum = ({ content, idName }) => {
-    return content > 0 ? <li>
-      {content.toString()} {idName === 'pool' ? 'مسبح' : getSpecificationItemName(idName)}
-    </li> : <></>
-  };
-
-  const SpecificationListItemDimensions = ({ content, idName }) => {
-    return (content?.x > 0 || content?.y > 0) ? <li>
-      أبعاد {getSpecificationItemName(idName)} {content.x} متر طوليا في {content.y} متر عرضيا
-    </li> : <></>
   };
 
   if(!item){
@@ -973,7 +940,7 @@ const page = () => {
               {item.customer_type && <li><Svgs name={'customers'}/><h3>الفئة المسموحة {item?.customer_type}</h3></li>}
               {item.capacity > 0 && <li><Svgs name={'guests'}/><h3>{`أقصى عدد للنزلاء ${item.capacity} نزيل`}</h3></li>}
               {(item.specific_catagory === 'apartment' && item.floor?.length > 0) && <li><Svgs name={'steps'}/><h3>{`الطابق ${item.floor}`}</h3></li>}
-              {item.area > 0 && <li><Svgs name={'area'}/><h3>{`مساحة العقار ${item.area}`}</h3></li>}
+              {item.area > 0 && <li><Svgs name={'area'}/><h3>{`مساحة العقار ${item.area} متر مربع`}</h3></li>}
               {(item.specific_catagory === 'farm' && item.landArea?.length > 0) && <li><Svgs name={'area'}/><h3>{`مساحة الأرض ${item.landArea}`}</h3></li>}
               
               {item.details?.guest_rooms?.length > 0 && <li onClick={() => setIsGuestRooms(!isGuestRooms)}>
@@ -1111,7 +1078,7 @@ const page = () => {
                 </div>
 
                 <textarea onChange={(e) => setReviewText(e.target.value)} placeholder={getReviewTextHolder()}/>
-                <button onClick={writeReview}>{sendingReview ? 'جاري الارسال...' : 'نشر'}</button>
+                <button onClick={writeReview}>{sendingReview ? <LoadingCircle /> : 'نشر'}</button>
                 <p style={{ color: sendReviewError.length > 0 && 'var(--softRed)' }}>
                   {sendReviewError.length > 0 ? sendReviewError : sendReviewSuccess}
                 </p>

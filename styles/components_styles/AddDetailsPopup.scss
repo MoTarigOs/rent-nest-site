@@ -44,6 +44,11 @@
         padding-bottom: 16px;
         margin-bottom: 32px;
 
+        &:dir(ltr){
+            margin-left: 0;
+            margin-right: auto;
+        }
+
         h2{
             width: fit-content;
             margin-left: auto;
@@ -157,15 +162,15 @@
 
     .selections-dtl{
         width: 100%;
-
-        .cityPopup{
+        padding: 0;
+        .cityPopup, .addCity{
             border: 1px solid rgba(0, 0, 0, 0.144);
             padding: 0 12px;
             padding-bottom: 12px;
         }
     }
 
-    .cityPopup{
+    .cityPopup, .addCity{
         position: static;
         width: 100%;
         margin-bottom: 64px;

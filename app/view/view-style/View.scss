@@ -1304,10 +1304,13 @@
 
             h3{
                 font-weight: 500;
-                font-size: 1.2rem;
+                font-size: 1.1rem;
                 margin-bottom: 4px;
                 display: flex;
                 align-items: center;
+
+                &:dir(ltr){
+                }
 
                 span{
                     color: grey;
