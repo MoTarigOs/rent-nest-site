@@ -655,6 +655,7 @@
         padding: 8px 12px;
         border: 2px solid rgba(0, 0, 0, 0.129);
         border-radius: 8px;
+        background: var(--darkWhite);
         cursor: pointer;
 
         svg{
@@ -681,6 +682,10 @@
 
     #p-info-error{
         color: var(--softRed);
+    }
+
+    button{
+        font-family: inherit;
     }
 }
 

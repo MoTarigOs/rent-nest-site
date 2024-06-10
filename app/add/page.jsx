@@ -869,11 +869,11 @@ const page = () => {
         return <span id='righticonspan'/>
     }
 
-    if(!userId?.length > 0 || !isVerified || userAccountType !== 'host'){
-        return (
-            fetching ? <MySkeleton isMobileHeader={true}/> : <NotFound navToVerify={!isVerified} type={'not allowed'}/>
-        )
-    }
+    // if(!userId?.length > 0 || !isVerified || userAccountType !== 'host'){
+    //     return (
+    //         fetching ? <MySkeleton isMobileHeader={true}/> : <NotFound navToVerify={!isVerified} type={'not allowed'}/>
+    //     )
+    // }
 
   return (
     <div className='add'>
