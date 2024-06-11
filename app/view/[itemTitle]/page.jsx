@@ -256,7 +256,7 @@ const page = () => {
     const text = !isSimple
       ? `${(notLogined || !userId?.length > 0) ? '** تحذير: هذا المستخدم ليس مسجل بالمنصة ** \n\n• ' : ''}أنا صاحب الحساب "${userUsername || 'لا يوجد اسم'}" معرف: "${userId || 'لا يوجد معرف'}" \n\n• أريد أن احجز هذا العرض\n\n• عنوان العرض: "${item.title}" \n\n• كود الوحدة (معرف العرض): "${item.unit_code}"\n\n• نوع الحجز: ${resType?.arabicName} \n\n• بدءا من التاريخ: "${getReadableDate(calendarDoubleValue?.at(0), true)}" \n\n• وحتى التاريخ: "${getReadableDate(calendarDoubleValue?.at(1), true)}"\n\n• مدة الحجز: ${resTypeNum} ${reservationType(false, resTypeNum, true).find(i=>i.id === resType?.id)?.multipleAr}\n\n• السعر الظاهر لي: ${(((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice()) - (item.discount?.percentage ? ((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice() * item.discount.percentage / 100) : 0)).toFixed(2)} ${currencyCode(false, false)}`
       : `${(notLogined || !userId?.length > 0) ? '** تحذير: هذا المستخدم ليس مسجل بالمنصة ** \n\n• ' : ''}أنا صاحب الحساب "${userUsername || 'لا يوجد اسم'}" معرف: "${userId || 'لا يوجد معرف'}" \n\n• أريد أن أتواصل معك بخصوص هذا العرض\n\n• عنوان العرض: "${item.title}" \n\n• كود الوحدة (معرف العرض): "${item.unit_code}`;
-    console.log('url: ', encodeURIComponent(text));
+    // console.log('url: ', encodeURIComponent(text));
     return encodeURIComponent(text);
   };
 
@@ -271,16 +271,21 @@ const page = () => {
         let whatsapp = item?.contacts?.find(i => i.platform === 'whatsapp');
         if(whatsapp && !isNaN(Number(whatsapp.val))) {
           if(whatsapp.val?.at(0) === '0' && whatsapp.val?.at(1) === '0') 
-            whatsapp = whatsapp.val?.replace('00', '+');
+            whatsapp.val = whatsapp.val?.replace('00', '+');
           return window.open(`${whatsappBaseUrl}/${whatsapp.val}?text=${generateWhatsappText(true)}`, '_blank');
-        }
-        if(whatsapp && isValidContactURL(whatsapp))
+        } else if(whatsapp && isValidContactURL(whatsapp))
           return window.open(`${whatsapp.val}?text=${generateWhatsappText(true)}`, '_blank');
-        setBookSuccess('تواصل مع مقدم الخدمة من قسم الشروط و التواصل');
+        setBookSuccess('تواصل مع المعلن من قسم الشروط و التواصل');
         return;
       }
 
       const isAlreadyBooked = booksIds.find(i => i.property_id === id);
+
+      if(!isAlreadyBooked) {
+        let whatsapp = item?.contacts?.find(i => i.platform === 'whatsapp');
+        if(isValidContactURL(whatsapp))
+          openContactURL(whatsapp);
+      };
 
       if(!booksIds.find(i => i.property_id === id) 
       && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1)))
@@ -298,28 +303,6 @@ const page = () => {
         setBooksIds(res.dt);
       }
 
-      setAddingToBooks(false);
-
-      const navigateToContact = () => {
-        let whatsapp = item?.contacts?.find(i => i.platform === 'whatsapp');
-
-        if(whatsapp && !isNaN(Number(whatsapp.val))) {
-          if(whatsapp.val?.at(0) === '0' && whatsapp.val?.at(1) === '0') 
-            whatsapp = whatsapp.val?.replace('00', '+');
-          return window.open(`${whatsappBaseUrl}/${whatsapp.val}?text=${generateWhatsappText()}`, '_blank');
-        }
-  
-        if(whatsapp && isValidContactURL(whatsapp))
-          return window.open(`${whatsapp.val}?text=${generateWhatsappText()}`, '_blank');
-  
-        let telegram = item?.contacts?.find(i => i.platform === 'telegram');
-  
-        if(telegram && isValidContactURL(telegram))
-          return window.open(telegram.val, '_blank');
-      };
-
-      if(!isAlreadyBooked) navigateToContact();
-
       if(res.success === true && !booksIds.find(i => i.property_id === id)){
         setIsSpecifics(false); 
         setIsReviews(false); 
@@ -329,6 +312,8 @@ const page = () => {
       } else {
         setBookSuccess('');
       }
+      
+      setAddingToBooks(false);
 
     } catch (err) {
       console.log(err.message);
@@ -548,36 +533,43 @@ const page = () => {
     } catch (err) {}
   };
 
-  const getDesiredContact = (returnObj, isPhone) => {
+  const getDesiredContact = (returnObj, isPhone, navigate) => {
     if(!item.contacts || item.contacts.length <= 0) return null;
     for (let i = 0; i < item.contacts.length; i++) {
       if(item.contacts?.at(i)?.platform === 'whatsapp'){
-        if(returnObj) return item.contacts[i];
-        if(!isValidContactURL(item.contacts[i])) return null;
-        if(isValidNumber(item.contacts[i]?.val)) 
-          return `${whatsappBaseUrl}/${item.contacts[i].val}`;
-        return item.contacts[i]?.val;
+        let whatsapp = item.contacts[i];
+        if(returnObj) return whatsapp;
+        else if(navigate && isValidNumber(Number(whatsapp?.val))) {
+            if(whatsapp.val?.at(0) === '0' && whatsapp.val?.at(1) === '0') 
+              whatsapp.val = whatsapp.val?.replace('00', '+');
+            return window.open(`${whatsappBaseUrl}/${whatsapp.val}?text=${generateWhatsappText(!userId, true)}`, '_blamk');
+        } else if(navigate && isValidContactURL(whatsapp)) { 
+            return window.open(`${whatsapp?.val}?text=${generateWhatsappText(!userId, true)}`, '_blank');
+        }
+        return null;
       }
     }
-    if(isValidContactURL(item.contacts[0]) && !isPhone)
+    if(isValidContactURL(item.contacts[0]) && returnObj)
       return item.contacts[0];
+    else if(isValidContactURL(item.contacts[0]) && navigate)
+      return window.open(item.contacts[0]?.val, '_blank');
+
     return null;    
   };
 
   const openContactURL = (myContact) => {
-    console.log(myContact, isValidContactURL(myContact));
+    console.log('myContact: ', myContact, isValidContactURL(myContact));
     if(!myContact?.platform) return '';
     if(myContact.platform === 'whatsapp'){
-      if(myContact && isValidNumber(myContact.val)) {
+      if(myContact && isValidNumber(Number(myContact.val))) {
         if(myContact.val?.at(0) === '0' && myContact.val?.at(1) === '0') 
-          myContact = myContact.val?.replace('00', '+');
-        return window.open(`${whatsappBaseUrl}/${whatsapp.val}?text=${generateWhatsappText(null, true)}`, '_blank');
-      }
-      if(myContact && isValidContactURL(myContact))
-        return window.open(`${myContact.val}?text=${generateWhatsappText(null, true)}`, '_blank');
-      return;
+          myContact.val = myContact.val?.replace('00', '+');
+        return window.open(`${whatsappBaseUrl}/${myContact.val}?text=${generateWhatsappText(null, true)}`, '_blank');
+      } else if(myContact){
+          return window.open(`${myContact.val}?text=${generateWhatsappText(null, true)}`, '_blank');
+      } else return;
     }
-    if(isValidContactURL(myContact)) return window.open(myContact.val, '_blank');
+    return window.open(myContact.val, '_blank');
   };
 
   const getReasonForNotBook = () => {
@@ -862,7 +854,7 @@ const page = () => {
         <Image src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${imageFullScreen}`} fill={true} alt='صورة بوضع الشاشة الكامل عن العرض' />
       </div>}
 
-      {item.isRejected && <div className='rejection-div'>
+      {(item.isRejected && item.owner_id === userId) && <div className='rejection-div'>
         <div className='status'>العرض <span>مرفوض</span></div>
         <h2>أسباب رفض العرض</h2>
         <ul>
@@ -883,7 +875,7 @@ const page = () => {
             <li><Svgs name={'star'}/> {Number(item.ratings?.val).toFixed(2)} ({item.ratings?.no} تقييم)</li>
             <li><Svgs name={item.type_is_vehicle ? 'loc vehicle' : 'location'}/> {JordanCities.find(i => i.value === item.city)?.arabicName}, {item.neighbourhood}</li>
             {(!item.type_is_vehicle || item.area > 0) && <li><Svgs name={'area'}/> المساحة {item.area} م2</li>}
-            {getDesiredContact(null, true) && <li><Svgs name={getDesiredContact(true, true)?.platform}/> <Link href={getDesiredContact(null, true)}>{getDesiredContact(true, true)?.val}</Link></li>}
+            {getDesiredContact(true, true) && <li onClick={() => getDesiredContact(null, null, true)}><Svgs name={getDesiredContact(true, true)?.platform}/>{getDesiredContact(true, true)?.val}</li>}
             <li id='giveThisMarginRight' onClick={handleFav}><Svgs name={`wishlist${favouritesIds.includes(id) ? ' filled' : ''}`}/> {addingToFavs ? 'جاري الاضافة...' : (favouritesIds.includes(id) ? 'أزل من المفضلة' : 'اضف الى المفضلة')}</li>
             <li style={{ marginLeft: 0 }} onClick={() => setShareDiv(!shareDiv)}><Svgs name={'share'}/> مشاركة</li>
           </ul>

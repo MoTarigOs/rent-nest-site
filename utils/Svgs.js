@@ -1,6 +1,6 @@
 const Svgs = ({ name, on_click, styling }) => {
 
-    name = name.toLowerCase();
+    name = name?.toLowerCase();
 
     return (
         <>

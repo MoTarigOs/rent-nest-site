@@ -1,4 +1,5 @@
 import '@styles/components_styles/ReviewCard.scss';
+import { ratingsSections } from '@utils/Data';
 import { getReadableDate } from '@utils/Logic';
 import Svgs from '@utils/Svgs';
 
@@ -9,10 +10,8 @@ const ReviewCard = ({
 }) => {
 
   const getRatingText = (score) => {
-    if(score <= 2.5) return isEnglish ? 'Bad' : 'سيئ';
-    if(score > 2.5 && score <= 3.5) return isEnglish ? 'Good' : 'جيد';
-    if(score > 3.5 && score < 4.5) return isEnglish ? 'Nice' : 'رائع';
-    if(score >= 4.5) return isEnglish ? 'Excellent' : 'ممتاز';
+    const obj = ratingsSections.find(i=>i.value === Math.round(score));
+    return (isEnglish ? obj.value : obj.arabicName) + ' ' + obj?.emoji;
   };
 
   return (

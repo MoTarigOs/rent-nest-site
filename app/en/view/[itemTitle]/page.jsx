@@ -102,8 +102,7 @@ const page = () => {
   const [isPlaces, setIsPlaces] = useState(false);
   const [isFacilities, setIsFacilities] = useState(false);
   const [isPool, setIsPool] = useState(false);
-  const [isVehicleSpecs, setIsVehicleSpecs] = useState(false);
-  const [isVehicleAddons, setIsVehicleAddons] = useState(false);
+  const [isFeatures, setIsFeatures] = useState(false);
   const [isCheckout, setIsCheckout] = useState(false);
 
   const [isReservationType, setIsReservationType] = useState(false);
@@ -275,6 +274,12 @@ const page = () => {
       }
 
       const isAlreadyBooked = booksIds.find(i => i.property_id === id);
+
+      if(!isAlreadyBooked) {
+        let whatsapp = item?.contacts?.find(i => i.platform === 'whatsapp');
+        if(isValidContactURL(whatsapp))
+          openContactURL(whatsapp);
+      };
 
       if(!booksIds.find(i => i.property_id === id) 
       && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1)))
@@ -542,36 +547,43 @@ const page = () => {
     } catch (err) {}
   };
 
-  const getDesiredContact = (returnObj, isPhone) => {
+  const getDesiredContact = (returnObj, isPhone, navigate) => {
     if(!item.contacts || item.contacts.length <= 0) return null;
     for (let i = 0; i < item.contacts.length; i++) {
       if(item.contacts?.at(i)?.platform === 'whatsapp'){
-        if(returnObj) return item.contacts[i];
-        if(!isValidContactURL(item.contacts[i])) return null;
-        if(isValidNumber(item.contacts[i]?.val)) 
-          return `${whatsappBaseUrl}/${item.contacts[i].val}`;
-        return item.contacts[i]?.val;
+        let whatsapp = item.contacts[i];
+        if(returnObj) return whatsapp;
+        else if(navigate && isValidNumber(Number(whatsapp?.val))) {
+            if(whatsapp.val?.at(0) === '0' && whatsapp.val?.at(1) === '0') 
+              whatsapp.val = whatsapp.val?.replace('00', '+');
+            return window.open(`${whatsappBaseUrl}/${whatsapp.val}?text=${generateWhatsappText(!userId, true)}`, '_blamk');
+        } else if(navigate && isValidContactURL(whatsapp)) { 
+            return window.open(`${whatsapp?.val}?text=${generateWhatsappText(!userId, true)}`, '_blank');
+        }
+        return null;
       }
     }
-    if(isValidContactURL(item.contacts[0]) && !isPhone)
+    if(isValidContactURL(item.contacts[0]) && returnObj)
       return item.contacts[0];
+    else if(isValidContactURL(item.contacts[0]) && navigate)
+      return window.open(item.contacts[0]?.val, '_blank');
+
     return null;    
   };
 
   const openContactURL = (myContact) => {
-    console.log(myContact, isValidContactURL(myContact));
+    console.log('myContact: ', myContact, isValidContactURL(myContact));
     if(!myContact?.platform) return '';
     if(myContact.platform === 'whatsapp'){
-      if(myContact && isValidNumber(myContact.val)) {
+      if(myContact && isValidNumber(Number(myContact.val))) {
         if(myContact.val?.at(0) === '0' && myContact.val?.at(1) === '0') 
-          myContact = myContact.val?.replace('00', '+');
-        return window.open(`${whatsappBaseUrl}/${whatsapp.val}?text=${generateWhatsappText(null, true)}`, '_blank');
-      }
-      if(myContact && isValidContactURL(myContact))
-        return window.open(`${myContact.val}?text=${generateWhatsappText(null, true)}`, '_blank');
-      return;
+          myContact.val = myContact.val?.replace('00', '+');
+        return window.open(`${whatsappBaseUrl}/${myContact.val}?text=${generateWhatsappText(null, true)}`, '_blank');
+      } else if(myContact){
+          return window.open(`${myContact.val}?text=${generateWhatsappText(null, true)}`, '_blank');
+      } else return;
     }
-    if(isValidContactURL(myContact)) return window.open(myContact.val, '_blank');
+    return window.open(myContact.val, '_blank');
   };
 
   const getReasonForNotBook = () => {
@@ -882,7 +894,7 @@ const page = () => {
         <Image src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${imageFullScreen}`} fill={true} alt='Image in full screen mode for display' />
       </div>}
 
-      {item.isRejected && <div className='rejection-div'>
+      {(item.isRejected && item.owner_id === userId) && <div className='rejection-div'>
         <div className='status'>Offer <span>is Rejected</span></div>
         <h2>Reasons for rejecting the offer</h2>
         <ul>
@@ -903,7 +915,7 @@ const page = () => {
             <li><Svgs name={'star'}/> {Number(item.ratings?.val).toFixed(2)} ({item.ratings?.no} evaluation)</li>
             <li><Svgs name={item.type_is_vehicle ? 'loc vehicle' : 'location'}/> {JordanCities.find(i => i.value === item.city)?.value}, {item.en_data?.neighbourEN || item.neighbourhood}</li>
             {!(item.type_is_vehicle && item.area > 0) && <li><Svgs name={'area'}/> Area {item.area} square meters</li>}
-            {getDesiredContact(null, true) && <li><Svgs name={getDesiredContact(true, true)?.platform}/> <Link href={getDesiredContact(null, true)}>{getDesiredContact(true, true)?.val}</Link></li>}
+            {getDesiredContact(true, true) && <li onClick={() => getDesiredContact(false, false, true)}><Svgs name={getDesiredContact(true, true)?.platform}/>{getDesiredContact(true, true)?.val}</li>}
             <li id='giveThisMarginRight' onClick={handleFav}><Svgs name={`wishlist${favouritesIds.includes(id) ? ' filled' : ''}`}/> {addingToFavs ? 'Adding...' : (favouritesIds.includes(id) ? 'Remove from favorites' : 'Add to favourites')}</li>
             <li onClick={() => setShareDiv(!shareDiv)}><Svgs name={'share'}/> Share</li>
           </ul>

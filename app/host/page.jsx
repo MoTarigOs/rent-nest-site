@@ -170,7 +170,7 @@ const Page = () => {
   return (
     <div className='host'>
         
-        <span id='background-host-image'><Image height={360} width={1200} src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${properitiesArray?.at(4)?.images?.at(0)}`}/></span>
+        <span id='background-host-image'><Image height={360} width={1200} src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${properitiesArray?.at(0)?.images?.at(0)}`}/></span>
 
         <div className='host-intro'>
             <div className='image-span'><span className='disable-text-copy'>{hostObj?.username?.at(0)}</span></div>

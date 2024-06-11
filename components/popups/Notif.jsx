@@ -203,7 +203,7 @@ const Notif = ({ isEnglish, setIsShow }) => {
             </ul>
 
             <div className='btns'>
-                {notifsArray?.length > 2 && <button className='editDiv' onClick={() => setIsNotif(true)}>{isEnglish ? 'Show All Notifications' : 'تحميل كل الاشعارات'}</button>}
+                <button className='editDiv' onClick={() => setIsNotif(true)}>{isEnglish ? 'Show All Notifications' : 'تحميل كل الاشعارات'}</button>
                 <button className='editDiv' onClick={() => setIsShow(false)}>{isEnglish ? 'Hide' : 'اخفاء'}</button>
             </div>
 
@@ -228,8 +228,8 @@ const Notif = ({ isEnglish, setIsShow }) => {
         {isCloseNotif && <div className='close-notifs'>
             <div>
                 <p>{isEnglish ? 'Are you sure to delete? All notifications will be deleted' : 'هل أنت متأكد من الحذف, سيتم حذف جميع الاشعارات!'}</p>
-                <button className='btnbackscndclr' onClick={closeNotif}>{deleting ? <LoadingCircle /> : (isEnglish ? 'Yes' : 'نعم')}</button>
-                <button className='btnbackscndclr last-btn' onClick={() => setIsCloseNotif(false)}>{isEnglish ? 'No' : 'لا'}</button>
+                <button style={{ width: 'fit-content', padding: '12px 32px'}} className='btnbackscndclr' onClick={closeNotif}>{deleting ? <LoadingCircle /> : (isEnglish ? 'Yes' : 'نعم')}</button>
+                <button style={{ width: 'fit-content', padding: '12px 32px'}} className='btnbackscndclr last-btn' onClick={() => setIsCloseNotif(false)}>{isEnglish ? 'No' : 'لا'}</button>
             </div>
         </div>}
 
