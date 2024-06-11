@@ -24,7 +24,7 @@ const page = () => {
       selectedTab, setSelectedTab, userUsernameEN, userAddressEN,
       setUserAddress, setUserAddressEN, setUserPhone, userFirstName, userLastName,
       userAccountType, userFirstNameEN, userLastNameEN, setUserFirstName, setUserLastName,
-      setUserFirstNameEN, setUserLastNameEN, setIsModalOpened
+      setUserFirstNameEN, setUserLastNameEN, setIsModalOpened, waitingToBeHost
     } = useContext(Context);
 
     const [isProfileDetails, setIsProfileDetails] = useState(true);
@@ -552,7 +552,7 @@ const page = () => {
     return (
       <div className='profile'>
 
-          {userAccountType !== 'host' && <div className='convert-to-host-div disable-text-copy' style={{ display: !isConvertDiv ? 'none' : undefined }}>
+          {(userAccountType !== 'host' && !waitingToBeHost) && <div className='convert-to-host-div disable-text-copy' style={{ display: !isConvertDiv ? 'none' : undefined }}>
             <span id='close-span' onClick={() => setIsConvertDiv(false)}/>
             <div className='convertDiv'>
               <h3>طلب تحويل من حساب نزيل الى حساب معلن {'(حيث يصبح بامكانك اضافة عقار على المنصة)'}</h3>
@@ -605,10 +605,10 @@ const page = () => {
 
                 <InfoDiv title={'نوع الحساب'} value={userAccountType === 'host' ? 'حساب معلن' : 'حساب نزيل'}/>
 
-                {userAccountType !== 'host' && <button style={{ marginTop: 32 }} className='editDiv' 
+                {userAccountType !== 'host' && (waitingToBeHost === false ? <button style={{ marginTop: 32 }} className='editDiv' 
                     onClick={() => setIsConvertDiv(true)}>
                     تحويل الى حساب معلن
-                </button>}
+                </button> : <h3 id='waitingToBeHost'>{waitingToBeHost === true && 'لقد استلمنا طلب التحويل الى معلن و سيتم التواصل معك في أقرب وقت'}</h3>)}
 
                 <hr />
 

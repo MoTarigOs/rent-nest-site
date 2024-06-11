@@ -59,7 +59,7 @@ export const getUserInfo = async(
     setUserUsernameEN, setNotifications,
     setUserLastName, setUserFirstName,
     setUserAccountType, setUserFirstNameEN,
-    setUserLastNameEN
+    setUserLastNameEN, setWaitingToBeHost
 ) => {
 
     try {
@@ -87,6 +87,7 @@ export const getUserInfo = async(
         if(res.data.lastName) setUserLastName(res.data.lastName);
         if(res.data.lastNameEN) setUserLastNameEN(res.data.lastNameEN);
         if(res.data.accountType) setUserAccountType(res.data.accountType);
+        setWaitingToBeHost(res.data.waitingToBeHost || false);
         setLoading(false);
         return { success: true, dt: res.data };
     } catch (err) {

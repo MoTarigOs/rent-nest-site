@@ -66,7 +66,7 @@ const Notif = ({ isEnglish, setIsShow }) => {
 
             console.log('final props: ', notifs);
 
-            setNotifArray(notifs);
+            setNotifArray(notifs?.reverse());
 
         } catch (err) {
             console.log(err);

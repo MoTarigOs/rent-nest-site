@@ -25,7 +25,7 @@ const page = () => {
     selectedTab, setSelectedTab, userUsernameEN, userAddressEN,
     setUserAddress, setUserAddressEN, setUserPhone, userFirstName, userLastName,
     userAccountType, userFirstNameEN, userLastNameEN, setUserFirstName, setUserLastName,
-    setUserFirstNameEN, setUserLastNameEN
+    setUserFirstNameEN, setUserLastNameEN, waitingToBeHost
   } = useContext(Context);
 
     const [isProfileDetails, setIsProfileDetails] = useState(true);
@@ -547,7 +547,7 @@ const page = () => {
     return (
       <div className='profile' dir='ltr'>
 
-          {userAccountType !== 'host' && <div className='convert-to-host-div disable-text-copy' style={{ display: !isConvertDiv ? 'none' : undefined }}>
+          {(userAccountType !== 'host' && !waitingToBeHost) && <div className='convert-to-host-div disable-text-copy' style={{ display: !isConvertDiv ? 'none' : undefined }}>
             <span id='close-span' onClick={() => setIsConvertDiv(false)}/>
             <div className='convertDiv'>
               <h3>Request converting from Guest Account to Host Acccount {'(Where you can add a property to the platform)'}</h3>
@@ -600,10 +600,10 @@ const page = () => {
 
                 <InfoDiv title={'Account Type'} value={userAccountType === 'host' ? 'Host Account' : 'Guest Account'}/>
 
-                {userAccountType !== 'host' && <button style={{ marginTop: 32 }} className='editDiv' 
+                {userAccountType !== 'host' && (waitingToBeHost === false ? <button style={{ marginTop: 32 }} className='editDiv' 
                     onClick={() => setIsConvertDiv(true)}>
                     Convert to Host Account
-                </button>}
+                </button> : <h3 id='waitingToBeHost'>{waitingToBeHost === true && 'We have received your request to convert to an advertiser and we will contact you as soon as possible'}</h3>)}
 
                 <hr />
 

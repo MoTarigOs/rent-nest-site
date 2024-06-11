@@ -54,7 +54,8 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       isFilter, setIsFilter, setUserAccountType,
       isArrange, setIsArrange, setUserLastName, setUserFirstName,
       setUserLastNameEN, setUserFirstNameEN, userFirstName,
-      userLastName, userFirstNameEN, triggerUserInfo, storageKey
+      userLastName, userFirstNameEN, triggerUserInfo, storageKey,
+      setWaitingToBeHost
     } = useContext(Context);
 
     const settingMobile = () => {
@@ -170,7 +171,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
         setLoadingUserInfo, setStorageKey, setUserAddressEN, 
         null, setNotifications, setUserLastName, 
         setUserFirstName, setUserAccountType, setUserFirstNameEN,
-        setUserLastNameEN
+        setUserLastNameEN, setWaitingToBeHost
       );
 
       if(!infoRes?.success || infoRes.success !== true) return;
@@ -201,7 +202,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
     useEffect(() => {
 
-      triggerServers();
+      // triggerServers();
       
       settingMobile();
 

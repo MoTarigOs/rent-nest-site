@@ -52,6 +52,7 @@ function DataContext({ children }) {
     const [isFilter, setIsFilter] = useState(false);    
     const [isArrange, setIsArrange] = useState(false);
     const [mapType, setMapType] = useState('');
+    const [waitingToBeHost, setWaitingToBeHost] = useState(null);
     const [mapArray, setMapArray] = useState([]);
     const [longitude, setLongitude] = useState(JordanCities[0].long);
     const [latitude, setLatitude] = useState(JordanCities[1].lat);
@@ -118,6 +119,7 @@ function DataContext({ children }) {
             mapType, setMapType,
             mapArray, setMapArray,
             isMap, setIsMap,
+            waitingToBeHost, setWaitingToBeHost,
             isFilter, setIsFilter,
             isArrange, setIsArrange,
             longitude, setLongitude,
