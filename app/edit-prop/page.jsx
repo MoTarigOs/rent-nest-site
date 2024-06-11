@@ -291,9 +291,12 @@ const Page = () => {
 
             if(compareTwoValuesIsNotEqual(conditionsAndTerms, item.terms_and_conditions, 'array')) return false;
             if(compareTwoValuesIsNotEqual(conditionsAndTermsEN?.map(o=>o.enName), getEnglishDetailsArray('terms'), 'array')) return false;
+            
             if(compareTwoValuesIsNotEqual(vehicleFeatures, item.details?.features, 'array')) return false;
-            if(compareTwoValuesIsNotEqual(vehicleFeaturesEN?.map(o=>o.enName), getEnglishDetailsArray('vehicle features'), 'array')) return false;
+            
+            if(compareTwoValuesIsNotEqual(vehicleFeaturesEN?.map(o=>o.enName), getEnglishDetailsArray('features'), 'array')) return false;
             console.log(1);
+            console.log(0.34);
 
             if(item.type_is_vehicle && compareTwoValuesIsNotEqual(withDriver, item.details?.vehicle_specifications?.driver)) return false;
             if(item.type_is_vehicle && compareTwoValuesIsNotEqual(vehicleRentTypesArray(true)[vehicleRentTypesArray().indexOf(vehicleRentType)], item.details?.vehicle_specifications?.rent_type)) return false;
@@ -943,6 +946,8 @@ const Page = () => {
 
         setSectionError('');
 
+        console.log('is changed: ', isSomethingChanged());
+
         if(!isSomethingChanged()) return true;
 
         const testSec1 = () => {
@@ -1193,11 +1198,11 @@ const Page = () => {
 
         if(all){
             let isAllError = false;
-            if(!testSec1()) isAllError = true;
-            if(!testSec2()) isAllError = true;
-            if(!testSec3()) isAllError = true;
-            if(!testSec4()) isAllError = true;
-            if(!testSec5()) isAllError = true;
+            if(!testSec1()) {isAllError = true; console.log('submit error here 1');};
+            if(!testSec2()) {isAllError = true; console.log('submit error here 2');};
+            if(!testSec3()) {isAllError = true; console.log('submit error here 3');};
+            if(!testSec4()) {isAllError = true; console.log('submit error here 4');};
+            if(!testSec5()) {isAllError = true; console.log('submit error here 5');};
             return !isAllError;
         }
         
@@ -1335,10 +1340,6 @@ const Page = () => {
         if(!loadingUserInfo && userId?.length > 0) setFetchingUserInfo(false);
     }, [fetchingUserInfo]);
 
-    const RightIconSpan = () => {
-        return <span id='righticonspan'/>
-    }
-
     if(!item || !userId?.length > 0 || !isVerified){
         return (
             (fetchingOnce || fetchingUserInfo) ? <MySkeleton isMobileHeader/> : <NotFound navToVerify={!isVerified} type={!isVerified ? 'not allowed' : undefined}/>
@@ -1380,7 +1381,7 @@ const Page = () => {
                     <span>الحالة <h4>{item.visible ? 'مرئي' : 'مخفي'}</h4></span>
                     <p><Svgs name={'info'}/> اخفاء أو اظهار العرض للعامة, للعلم تستطيع تغيير الظهور في أي وقت.</p>
                     <p style={{ display: (visibiltyError.length <= 0 && visibiltySuccess.length <= 0) && 'none', color: visibiltyError.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{visibiltyError.length > 0 ? visibiltyError : visibiltySuccess}</p>
-                    <button onClick={handleVisible} className='btnbackscndclr'>{(item.visible ? (visiblityIsLoading ? 'جاري اخفاء العرض...' : 'اخفاء العرض') : (visiblityIsLoading ? 'جاري اظهار العرض...' : 'اظهار العرض'))}</button>
+                    <button onClick={handleVisible} className='btnbackscndclr'>{(item.visible ? (visiblityIsLoading ? 'جاري اخفاء العرض...' : 'اخفاء العرض') : (visiblityIsLoading ? <LoadingCircle /> : 'اظهار العرض'))}</button>
                 </div>
 
                 <hr />
@@ -1391,7 +1392,7 @@ const Page = () => {
                     <span>الحالة <h4>{item.is_able_to_book ? 'يقبل الحجوزات' : 'لا يقبل الحجوزات'}</h4></span>
                     <p><Svgs name={'info'}/>تغيير حالة العرض من حيث قبول الحجوزات الجديدة أو عدم قبولها.</p>
                     <p style={{ display: (bookableError.length <= 0 && bookableSuccess.length <= 0) && 'none', color: bookableError.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{bookableError.length > 0 ? bookableError : bookableSuccess}</p>
-                    <button onClick={handleBookable} className='btnbackscndclr'>{(item.is_able_to_book ? (bookableIsLoading ? 'جاري قفل الحجوزات...' : 'قفل الحجوزات') : (bookableIsLoading ? 'جاري فتح الحجوزات...' : 'فتح الحجز'))}</button>
+                    <button onClick={handleBookable} className='btnbackscndclr'>{(item.is_able_to_book ? (bookableIsLoading ? 'جاري قفل الحجوزات...' : 'قفل الحجوزات') : (bookableIsLoading ? <LoadingCircle /> : 'فتح الحجز'))}</button>
                 </div>
 
                 <hr />
@@ -1412,7 +1413,7 @@ const Page = () => {
                     </div>
 
                     <p style={{ display: (bookDaysError?.length <= 0 && bookDaysSuccess.length <= 0) && 'none', color: bookDaysError?.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{bookDaysError?.length > 0 ? bookDaysError : bookDaysSuccess}</p>
-                    <button id={isOkayNewBookedDays() ? '' : 'disable-button'} onClick={handleNewBookedDays} className='btnbackscndclr'>{bookDaysIsLoading ? 'جاري تحديث الأيام...' : 'تحديث قائمة الأيام'}</button>
+                    <button id={isOkayNewBookedDays() ? '' : 'disable-button'} onClick={handleNewBookedDays} className='btnbackscndclr'>{bookDaysIsLoading ? <LoadingCircle /> : 'تحديث قائمة الأيام'}</button>
 
                 </div>
 
@@ -1423,7 +1424,7 @@ const Page = () => {
                 <div className='hide-show-prop' style={{ display: !isDeleteProp && 'none' }}>
                     <p><Svgs name={'info'}/>سيتم حذف هذا العرض نهائيا.</p>
                     <p style={{ display: (deleteError?.length <= 0 && deleteSuccess.length <= 0) && 'none', color: deleteError?.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{deleteError?.length > 0 ? deleteError : deleteSuccess}</p>
-                    <button onClick={handleDeleteProp} className='btnbackscndclr'>{isDeletingProp ? 'جاري الحذف...' : 'حذف'}</button>
+                    <button onClick={handleDeleteProp} className='btnbackscndclr'>{isDeletingProp ? <LoadingCircle /> : 'حذف'}</button>
                 </div>
 
                 <hr />

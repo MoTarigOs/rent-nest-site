@@ -294,24 +294,60 @@ const page = () => {
             /*  create property or vehicle instance then 
                 upload images with the id of the created instance  */
 
+            const getEnglishAccompany = (array, type) => {
+                let arr = [];
+                switch(type){
+                    case 'bathrooms':
+                        array.forEach(element => {
+                            arr.push(bathroomFacilities(true)[bathroomFacilities().indexOf(element)])
+                        });
+                        return arr;
+                    case 'pool':
+                        array.forEach(element => {
+                            arr.push(poolType(true)[poolType().indexOf(element)])
+                        });
+                        return arr;
+                    case 'kitchen':
+                        array.forEach(element => {
+                            arr.push(kitchenFacilities(true)[kitchenFacilities().indexOf(element)])
+                        });
+                        return arr;
+                    case 'nearPlaces':
+                        array.forEach(element => {
+                            arr.push(nearPlacesNames(true)[nearPlacesNames().indexOf(element)])
+                        });
+                        return arr;
+                    case 'facilities':
+                        array.forEach(element => {
+                            arr.push(facilities(true)[facilities().indexOf(element)])
+                        });
+                        return arr;
+                    default:
+                        return arr;
+                }
+            }
+
             const xDetails = selectedCatagories === '0' ? {
                 insurance:  requireInsurance, 
                 vehicle_specifications: {
-                    driver: withDriver, rent_type: vehicleRentType,
+                    driver: withDriver, 
+                    rent_type: vehicleRentTypesArray(true).find(i=>i === vehicleRentType) || vehicleRentTypesArray(true)[vehicleRentTypesArray().indexOf(vehicleRentType)],
+                    gearbox: carGearboxes(true).find(i=>i === carGearbox) || carGearboxes(true)[carGearboxes().indexOf(carGearbox)],
+                    fuel_type: carFuelTypesArray(true).find(i=>i === carFuelType) || carFuelTypesArray(true)[carFuelTypesArray().indexOf(carFuelType)],
                     company: carCompany, model: carModel, color: carColor,
-                    year: carYear, gearbox: carGearbox, fuel_type: carFuelType
+                    year: carYear
                 },
                 features: vehicleFeatures,
                 near_places: nearPlaces
             } : {
                 insurance:  requireInsurance, 
                 guest_rooms: guestRoomsDetailArray, 
-                bathrooms: { array: bathroomsDetailArray, companians: bathroomsAccompany }, 
-                kitchen: { array: kitchenDetailArray, companians: kitchenAccompany }, 
+                bathrooms: { array: bathroomsDetailArray, companians: getEnglishAccompany(bathroomsAccompany, 'bathrooms') }, 
+                kitchen: { array: kitchenDetailArray, companians: getEnglishAccompany(kitchenAccompany, 'kitchen') }, 
                 rooms: roomsDetailArray,
-                pool: { array: poolsDetailArray, companians: poolAccompany },
-                near_places: nearPlaces,
-                facilities: companionsDetailArray, 
+                pool: { array: poolsDetailArray, companians: getEnglishAccompany(poolAccompany, 'pool') },
+                near_places: getEnglishAccompany(nearPlaces, 'nearPlaces'),
+                facilities: getEnglishAccompany(companionsDetailArray, 'facilities'), 
                 features: vehicleFeatures
             };
 
@@ -354,7 +390,7 @@ const page = () => {
                 itemCity.value, itemNeighbour, [itemLong, itemLat], itemPrice, 
                 xDetails, conditionsAndTerms, area > 0 ? area : null,
                 tempContacts?.length > 0 ? tempContacts : null, null, token, 
-                capacity, customersTypesArray()[customersTypesArray(true).indexOf(customerType)], enObj, cancellationsArray().indexOf(cancellation),
+                capacity, customersTypesArray().find(i=>i === customerType) || customersTypesArray()[customersTypesArray(true).indexOf(customerType)], enObj, cancellationsArray().indexOf(cancellation),
                 VehiclesTypes.find(i => i.value === vehicleType)?.id,
                 itemPrices, landArea, floor);
 

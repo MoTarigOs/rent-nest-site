@@ -287,32 +287,35 @@ const Page = () => {
 
             if(compareTwoValuesIsNotEqual(conditionsAndTerms, item.terms_and_conditions, 'array')) return false;
             if(compareTwoValuesIsNotEqual(conditionsAndTermsEN?.map(o=>o.enName), getEnglishDetailsArray('terms'), 'array')) return false;
+            
             if(compareTwoValuesIsNotEqual(vehicleFeatures, item.details?.features, 'array')) return false;
-            if(compareTwoValuesIsNotEqual(vehicleFeaturesEN?.map(o=>o.enName), getEnglishDetailsArray('vehicle features'), 'array')) return false;
+            
+            if(compareTwoValuesIsNotEqual(vehicleFeaturesEN?.map(o=>o.enName), getEnglishDetailsArray('features'), 'array')) return false;
             console.log(1);
 
+
             if(item.type_is_vehicle && compareTwoValuesIsNotEqual(withDriver, item.details?.vehicle_specifications?.driver)) return false;
-            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(vehicleRentTypesArray(true)[vehicleRentTypesArray().indexOf(vehicleRentType)], item.details?.vehicle_specifications?.rent_type)) return false;
-            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(carGearboxes(true)[carGearboxes().indexOf(carGearbox)], item.details?.vehicle_specifications?.gearbox)) return false;
-            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(carFuelTypesArray(true)[carFuelTypesArray().indexOf(carFuelType)], item.details?.vehicle_specifications?.fuel_type)) return false;
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(vehicleRentTypesArray(true)?.find(i=>i === vehicleRentType) || vehicleRentTypesArray(true)[vehicleRentTypesArray().indexOf(vehicleRentType)], item.details?.vehicle_specifications?.rent_type)) return false;
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(carGearboxes(true).find(i=>i === carGearbox) || carGearboxes(true)[carGearboxes().indexOf(carGearbox)], item.details?.vehicle_specifications?.gearbox)) return false;
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(carFuelTypesArray(true)?.find(i=> i === carFuelType) || carFuelTypesArray(true)[carFuelTypesArray().indexOf(carFuelType)], item.details?.vehicle_specifications?.fuel_type)) return false;
             if(item.type_is_vehicle && compareTwoValuesIsNotEqual(itemNeighbour, item.neighbourhood)) return false;
             if(item.type_is_vehicle && compareTwoValuesIsNotEqual(itemNeighbourEN, item.en_data?.neighbourEN)) return false;
             if(item.type_is_vehicle && compareTwoValuesIsNotEqual(itemCity?.value, item.city)) return false;
-        
+
             if(item.type_is_vehicle && compareTwoValuesIsNotEqual(longitude, item.map_coordinates?.at(0))) return false;
             if(item.type_is_vehicle && compareTwoValuesIsNotEqual(latitude, item.map_coordinates?.at(1))) return false;
-            
+
+            if(compareTwoValuesIsNotEqual(cancellationsArray(true).indexOf(cancellation), item.cancellation)) return false;
 
             if(item.type_is_vehicle) return true;
-
-            if(compareTwoValuesIsNotEqual(cancellationsArray().indexOf(cancellation), item.cancellation)) return false;
+            
             if(compareTwoValuesIsNotEqual(capacity, item.capacity)) return false;
             if(compareTwoValuesIsNotEqual(area, item.area)) return false;
             if(compareTwoValuesIsNotEqual(landArea, item.landArea)) return false;
             if(compareTwoValuesIsNotEqual(floor, item.floor)) return false;
-            if(compareTwoValuesIsNotEqual(capacity, item.capacity)) return false;
             if(compareTwoValuesIsNotEqual(customerType, item.customer_type)) return false;
 
+            console.log(0.34);
             console.log(2);
 
             if(compareTwoValuesIsNotEqual(guestRoomsDetailArray?.map(o=>o.capacity), item.details?.guest_rooms?.map(o=>o.capacity), 'array')) return false;
@@ -1266,9 +1269,9 @@ const Page = () => {
             if(item.contacts) setContacts(item.contacts);
             setDiscountNights(item.discount?.num_of_days_for_discount);
             setDiscountPer(item.discount?.percentage);
-            setCancellation(cancellationsArray()[item.cancellation]);
+            setCancellation(cancellationsArray(true)[item.cancellation]);
             setCapacity(item.capacity);
-            setCustomerType(item.customer_type);
+            setCustomerType(customersTypesArray(true, specificCatagory === 'students').find(i=>i === item.customer_type) || customersTypesArray(true, specificCatagory === 'students')[customersTypesArray(false, specificCatagory === 'students').indexOf(item.customer_type)]);
             setArea(item.area);
             setLandArea(item.landArea);
             setFloor(item.floor);
@@ -1340,10 +1343,6 @@ const Page = () => {
         if(!loadingUserInfo && userId?.length > 0) setFetchingUserInfo(false);
     }, [fetchingUserInfo]);
 
-    const RightIconSpan = () => {
-        return <div id='righticonspan'><span /></div>
-    }
-
     if(!item || !userId?.length > 0 || !isVerified){
         return (
             (fetchingOnce || fetchingUserInfo) ? <MySkeleton isMobileHeader/> : <NotFound navToVerify={!isVerified} isEnglish type={!isVerified ? 'not allowed' : undefined}/>
@@ -1381,7 +1380,7 @@ const Page = () => {
                     <span>Status <h4>{item.visible ? 'Visible' : 'hidden'}</h4></span>
                     <p><Svgs name={'info'}/>Hide or show the offer to the public. For your information, you can change the display at any time.</p>
                     <p style={{ display: (visibiltyError.length <= 0 && visibiltySuccess.length <= 0) && 'none', color: visibiltyError.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{visibiltyError.length > 0 ? visibiltyError : visibiltySuccess}</p>
-                    <button onClick={handleVisible} className='btnbackscndclr'>{(item.visible ? (visiblityIsLoading ? 'Hiding the offer...' : 'Hide the display') : (visiblityIsLoading ? 'Showing offer...' : 'Show offer'))}</button>
+                    <button onClick={handleVisible} className='btnbackscndclr'>{(item.visible ? (visiblityIsLoading ? 'Hiding the offer...' : 'Hide the display') : (visiblityIsLoading ? <LoadingCircle /> : 'Show offer'))}</button>
                 </div>
 
                 <hr />
@@ -1392,7 +1391,7 @@ const Page = () => {
                     <span>Status <h4>{item.is_able_to_book ? 'Accepts reservations' : 'No reservations accept'}</h4></span>
                     <p><Svgs name={'info'}/>Change the offer status in terms of accepting or not accepting new reservations.</p>
                     <p style={{ display: (bookableError.length <= 0 && bookableSuccess.length <= 0) && 'none', color: bookableError.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{bookableError.length > 0 ? bookableError : bookableSuccess}</p>
-                    <button onClick={handleBookable} className='btnbackscndclr'>{(item.is_able_to_book ? (bookableIsLoading ? 'Closing Reservations...' : 'Prevent new reservations') : (bookableIsLoading ? 'Reservations are opening...' : 'Open Reservations'))}</button>
+                    <button onClick={handleBookable} className='btnbackscndclr'>{(item.is_able_to_book ? (bookableIsLoading ? 'Closing Reservations...' : 'Prevent new reservations') : (bookableIsLoading ? <LoadingCircle /> : 'Open Reservations'))}</button>
                 </div>
 
                 <hr />
@@ -1413,7 +1412,7 @@ const Page = () => {
                     </div>
 
                     <p style={{ display: (bookDaysError?.length <= 0 && bookDaysSuccess.length <= 0) && 'none', color: bookDaysError?.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{bookDaysError?.length > 0 ? bookDaysError : bookDaysSuccess}</p>
-                    <button id={isOkayNewBookedDays() ? '' : 'disable-button'} onClick={handleNewBookedDays} className='btnbackscndclr'>{bookDaysIsLoading ? 'Updating days...' : 'Update the list of days'}</button>
+                    <button id={isOkayNewBookedDays() ? '' : 'disable-button'} onClick={handleNewBookedDays} className='btnbackscndclr'>{bookDaysIsLoading ? <LoadingCircle /> : 'Update the list of days'}</button>
 
                 </div>
 
@@ -1424,7 +1423,7 @@ const Page = () => {
                 <div className='hide-show-prop' style={{ display: !isDeleteProp && 'none' }}>
                     <p><Svgs name={'info'}/>This offer will be permanently deleted.</p>
                     <p style={{ display: (deleteError.length <= 0 && deleteSuccess.length <= 0) && 'none', color: deleteError.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{deleteError.length > 0 ? deleteError : deleteSuccess}</p>
-                    <button onClick={handleDeleteProp} className='btnbackscndclr'>{isDeletingProp ? 'Deleting...' : 'Delete'}</button>
+                    <button onClick={handleDeleteProp} className='btnbackscndclr'>{isDeletingProp ? <LoadingCircle /> : 'Delete'}</button>
                 </div>
 
                 <hr />

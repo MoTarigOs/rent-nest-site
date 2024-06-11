@@ -131,7 +131,7 @@ const page = () => {
 
           <Link href={'/forget-password'} id='forget-password'>نسيت كلمة السر</Link>
 
-          <label id='error' style={{ padding: error.length <= 0 && 0, margin: error.length <= 0 && 0 }}>{error}</label>
+          <label id='error' style={{ padding: error?.length <= 0 && 0, margin: error?.length <= 0 && 0 }}>{error}</label>
 
           <label id='success' style={{ padding: !successLogin && 0, margin: !successLogin && 0 }}>{successLogin && 'تم تسجيل الدخول بنجاح'} <Link href={isVerified ? `/profile?id=${userId}` : '/verify-account'} style={{ display: !successLogin && 'none' }}>الذهاب الى الملف الشخصي</Link></label>
 
