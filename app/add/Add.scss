@@ -1157,10 +1157,6 @@
     }
 
     #righticonspan{
-        width: 8px;
-        height: 20px;
-        border-right: 2px solid var(--secondColorDark);
-        border-bottom: 2px solid var(--secondColorDark);
         transform: rotate(45deg);
     }
 
@@ -1180,6 +1176,10 @@
             height: 18px;
             margin-right: 8px;
         }
+    }
+
+    button{
+        font-family: inherit;
     }
 }
 

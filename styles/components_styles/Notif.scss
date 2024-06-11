@@ -1,13 +1,163 @@
 .notif-container{
     width: 100%;
     margin-bottom: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.close-notifs{
+    position: fixed;
+    top: 40%;
+    background: white;
+    padding: 16px;
+    border-radius: 4px;
+    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.234);
+    z-index: 26;
+
+    p{
+        margin-bottom: 16px;
+    }
+
+    .btnbackscndclr{
+        width: fit-content;
+        padding: 12px 32px;
+    }
+
+    .last-btn{
+        margin-right: 16px;
+
+        &:dir(ltr){
+            margin-right: unset;
+            margin-left: 16px;
+        }
+    }
+}
+
+
+.notif-main{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: 734px;
+    height: 100dvh;
+    max-height: 100dvh;
+    min-height: 320px;
+    background: white;
+    overflow: hidden;
+    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.236);
+    z-index: 25;
+
+    .notif-header{
+        width: 100%;
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.17);
+
+        h3{
+            margin-left: auto;
+            font-size: 1.3rem;
+
+            &:dir(ltr){
+                margin-left: unset;
+                margin-right: auto;
+            }
+        }
+
+        .editDiv{
+            margin: 0 12px;
+        }
+        svg{
+            background: var(--darkWhite);
+            border-radius: 50px;
+            padding: 4px;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+        }
+    }
+
+    .notif-ul{
+        overflow-y: scroll;
+        height: calc(100% - 64px);
+        align-items: center;
+        padding: 12px;
+        max-height: 100%;
+    }
+
+    .prop-related{
+        border: 1px solid rgba(0, 0, 0, 0.182);
+    }
+
+    .host-request{
+        border: 1px solid rgba(0, 0, 0, 0.188);
+    }
+}
+
+.prop-related{
+    width: 320px;
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    margin: 12px;
+
+    p{
+        margin-bottom: 16px;
+        font-weight: 600;
+        color: var(--secondColorDark);
+    }
+
+    .card{
+
+    }
+
+    .card:hover{
+        scale: 1;
+    }
+}
+
+.notif-show{
+    width: 100%;
+    padding: 16px;
+    background: var(--secondColor);
+    border-radius: 12px;
+    
+    h3{
+        width: 100%;
+        color: white;
+        margin-bottom: 16px;
+        font-size: 1.3rem;
+    }
+
+    .editDiv{
+        margin-top: 16px;
+        background: white;
+
+        &:hover{
+            background: var(--darkWhite);
+        }
+    }
+
+    .btns{
+        display: flex;
+        margin: 12px -8px 8px -8px;
+        button{
+            margin: 0 8px;
+        }
+    }
 }
 
 .host-request{
+    width: fit-content;
+    height: fit-content;
     padding: 16px;
-    background: var(--darkWhite);
-    width: 100%;
+    background: white;
     border-radius: 12px;
+    margin: 12px;
 
     a{
         display: block;
@@ -25,5 +175,46 @@
     a:hover{
         background: var(--secondColorHover);
         transition: all 0.2s ease-in;
+    }
+}
+
+.notif-ul{
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -12px;
+
+    &:dir(ltr){
+        margin-right: 0;
+        margin-left: -12px;
+    }
+}
+
+#close-span{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100dvh;
+    background: rgba(0, 0, 0, 0.236);
+    display: block;
+    z-index: 24;
+}
+
+@media screen and (min-width: 734px){
+    .notif-main{
+        top: 5%;
+        left: unset;
+        max-height: 90%;
+    }
+}
+
+@media screen and (max-width: 680px){
+    .notif-show .notif-ul{
+        flex-direction: column;
+        align-items: center;
+    }
+    .notif-main .notif-ul{
+        flex-direction: row;
+        justify-content: center;
     }
 }

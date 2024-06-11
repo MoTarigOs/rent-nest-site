@@ -9,24 +9,28 @@ import { useSearchParams } from 'next/navigation';
 import Svgs from '@utils/Svgs';
 import { Context } from '@utils/Context';
 import Link from 'next/link';
+import GoogleMapImage from '@assets/images/google-map-image.jpg';
 import { getBookDateFormat, getOptimizedAttachedFiles, isValidContactURL, isValidNumber, isValidText } from '@utils/Logic';
 import MyCalendar from '@components/MyCalendar';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
-import { cancellationsArray, contactsPlatforms, currencyCode, reservationType } from '@utils/Data';
+import { JordanCities, cancellationsArray, carFuelTypesArray, carGearboxes, contactsPlatforms, currencyCode, getContactPlaceHolder, getNames, isInsideJordan, reservationType, vehicleRentTypesArray } from '@utils/Data';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import CustomInputDivWithEN from '@components/CustomInputDivWithEN';
 import InfoDiv from '@components/InfoDiv';
-import HeaderPopup from '@components/popups/HeaderPopup';
-import { bathroomFacilities, customersTypesArray, facilities, kitchenFacilities, poolType } from '@utils/Facilities';
+import { bathroomFacilities, customersTypesArray, facilities, kitchenFacilities, nearPlacesNames, poolType } from '@utils/Facilities';
 import LoadingCircle from '@components/LoadingCircle';
+import AddDetailsPopup from '@components/popups/AddDetailsPopup';
+import { getUserLocation } from '@utils/ServerComponents';
 
 const Page = () => {
 
     const id = useSearchParams().get('id');
 
     const {
-        userId, storageKey, userEmail, loadingUserInfo, isVerified
+        userId, storageKey, userEmail, loadingUserInfo, isVerified,
+        arabicFont, setLatitude, setLongitude, setIsMap, setMapType,
+        latitude, longitude
     } = useContext(Context);
 
     const [fetchingOnce, setFetchingOnce] = useState(true);
@@ -42,11 +46,24 @@ const Page = () => {
     const [contacts, setContacts] = useState([]);
     const [contactsError, setContactsError] = useState('');
 
+    const [detailsError, setDetailsError] = useState('');
     const [error, setError] = useState('');
     const [cityPopup, setCityPopup] = useState(false);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     
+    const [section, setSection] = useState(0);
+    const [sectionError, setSectionError] = useState('');
+    const [sectionTitle, setSectionTitle] = useState('');
+    const sectionsArray = [
+        { id: 0, name: 'Edit Main Info' },
+        item?.type_is_vehicle ? { id: 1, name: 'Edit Location' } : null,
+        { id: 2, name: 'Edit Prices & Discount' },
+        { id: 3, name: 'Edit Images & Videos Files' },
+        { id: 4, name: 'Edit Details' },
+        { id: 5, name: 'Submit' }
+    ];
+
     const [visiblityIsLoading, setVisiblityIsLoading] = useState(false);
     const [isVisibilty, setIsVisibilty] = useState(false);
     const [visibiltyError, setIsVisibiltyError] = useState('');
@@ -64,7 +81,7 @@ const Page = () => {
 
     const [expandPrices, setExpandPrices] = useState(false);
     const [pricesError, setPricesError] = useState([]);
-
+    const [mapUsed, setMapUsed] = useState(false);
     const [selectBookedDays, setSelectBookedDays] = useState([]);
     const [triggerCalendarRender, setTriggerCalendarRender] = useState(true);
     const [calendarSelect, setCalenderSelect] = useState(null);
@@ -80,17 +97,38 @@ const Page = () => {
     const [itemDescEN, setItemDescEN] = useState('');
     const [itemPrice, setItemPrice] = useState(0);
     const [itemPrices, setItemPrices] = useState(null);
+    const [itemCity, setItemCity] = useState(null);
+    const [itemNeighbour, setItemNeighbour] = useState('');
+    const [itemNeighbourEN, setItemNeighbourEN] = useState('');
+    const [specificCatagory, setSpecificCatagory] = useState('');
+    const [area, setArea] = useState(0);
+    const [landArea, setLandArea] = useState('');
+    const [floor, setFloor] = useState('');
+    const [withDriver, setWithDriver] = useState(false);
+    const [vehicleRentType, setVehicleRentType] = useState('');
+    const [carGearbox, setCarGearBox] = useState(false);
+    const [carFuelType, setCarFuelType] = useState(false);
     const [requireInsurance, setRequireInsurance] = useState(false);
     const [uploadedFiles, setUploadedFiles] = useState([]);
     const [attachedFilesUrls, setAttachedFilesUrls] = useState([]);
     const [discountPer, setDiscountPer] = useState(0);
     const [discountNights, setDiscountNights] = useState(0);
 
+    const [locObj, setLocObj] = useState(null);
+    const [fetchingLocation, setFetchingLocation] = useState(false);
+    const [isUserLoc, setIsUserLoc] = useState('');
+    const [isManualLocSet, setIsManualLocSet] = useState(true);
+    const [itemLong, setItemLong] = useState(null);
+    const [itemLat, setItemLat] = useState(null);
+
     const [cancellation, setCancellation] = useState('');
     const [isCancellation, setIsCancellation] = useState('');
     const [capacity, setCapacity] = useState(0);
     const [customerType, setCustomerType] = useState('');
     const [isCustomerType, setIsCustomerType] = useState(false);
+    const [isVehicleRentType, setIsVehicleRentType] = useState(false);
+    const [isCarFuelTypeShow, setIsCarFuelTypeShow] = useState(false);
+    const [isCarGearboxShow, setIsCarGearboxShow ] = useState(false);
 
     const [guestRoomsDetailArray, setGuestRoomsDetailArray] = useState([]);
     const [companionsDetailArray, setCompanionsDetailArray] = useState([]);
@@ -106,6 +144,7 @@ const Page = () => {
     const [poolNum, setPoolNum] = useState(0);
     
     const [filesToDelete, setFilesToDelete] = useState([]);
+    const [isAddDetails, setIsAddDetails] = useState(false);
 
     const { executeRecaptcha } = useGoogleReCaptcha();
 
@@ -115,32 +154,37 @@ const Page = () => {
       return gReCaptchaToken;
     };
 
+    const [bathroomsAccompany, setBathroomsAccompany] = useState([]);
+    const [kitchenAccompany, setKitchenAccompany] = useState([]);
+    const [poolAccompany, setPoolAccompany] = useState([]);
+    
+    const [roomsDetailArray, setRoomsDetailArray] = useState([]);
     const [conditionsAndTermsEN, setConditionsAndTermsEN] = useState([]);
-    const [guestRoomsDetailArrayEN, setGuestRoomsDetailArrayEN] = useState([]);
     const [nearPlacesEN, setNearPlacesEN] = useState([]);
-    const [vehicleSpecificationsEN, setVehicleSpecificationsEN] = useState([]);
     const [vehicleFeaturesEN, setVehicleFeaturesEN] = useState([]);
     const [companiansShow, setCompaniansShow] = useState(false);
     const [bathroomsShow, setBathroomsShow] = useState(false);
     const [kitchenShow, setKitchenShow] = useState(false);
     const [poolsShow, setPoolsShow] = useState(false);   
+    const [guestRoomsShow, setGuestRoomsShow] = useState(false);
+    const [bedroomsShow, setBedroomsShow] = useState(false);
+    const [nearPlacesShow, setNearPlacesShow] = useState(false);
 
     const details = [
-        {idName: 'guest_rooms', name: 'Guest rooms', isWithEN: true, detailsEN: guestRoomsDetailArrayEN, setDetailsEN: setGuestRoomsDetailArrayEN, array: guestRoomsDetailArray, setArray: setGuestRoomsDetailArray},
-        {idName: 'bathrooms', isNum: true, name: 'Bathrooms', isSelections: true, isShow: bathroomsShow, setIsShow: setBathroomsShow, selectArray: bathroomFacilities(), array: bathroomsDetailArray, setArray: setBathroomsDetailArray},
-        {idName: 'kitchen', name: 'Kitchen', isDimension: true, isSelections: true, selectArray: kitchenFacilities(), isShow: kitchenShow, setIsShow: setKitchenShow, array: kitchenDetailArray, setArray: setKitchenDetailArray},
-        {idName: 'rooms', name: 'Bedrooms', isSelections: true, isNum: true},
-        {idName: '', name: 'Near places', isWithEN: true, detailsEN: nearPlacesEN, setDetailsEN: setNearPlacesEN, array: nearPlaces, setArray: setNearPlaces},
-        {idName: 'pool', isNum: true, name: 'Pool', isSelections: true, isShow: poolsShow, setIsShow: setPoolsShow, selectArray: poolType(), array: poolsDetailArray, setArray: setPoolsDetailArray},
-        {idName: '', name: 'Facilities', isSelections: true, isShow: companiansShow, setIsShow: setCompaniansShow, selectArray: facilities(), array: companionsDetailArray, setArray: setCompanionsDetailArray},
-        {idName: '', name: 'Terms', isWithEN: true, detailsEN: conditionsAndTermsEN, setDetailsEN: setConditionsAndTermsEN, array: conditionsAndTerms, setArray: setConditionsAndTerms},
+        {idName: 'guest_rooms', notAllowedCategories: ['students'], isNum: true, name: 'Living rooms',  isSelections: true, array: guestRoomsDetailArray, setArray: setGuestRoomsDetailArray, baseArr: [], isShow: guestRoomsShow, setIsShow: setGuestRoomsShow},
+        {idName: 'bathrooms', notAllowedCategories: ['students'], name: 'Bathrooms', isNum: true, isDimension: true, isSelections: true, isShow: bathroomsShow, setIsShow: setBathroomsShow, selectArray: bathroomFacilities(true), array: bathroomsDetailArray, setArray: setBathroomsDetailArray, accompany: bathroomsAccompany, setAccompany: setBathroomsAccompany },
+        {idName: 'kitchen', notAllowedCategories: ['students'], name: 'Kitchens', isNum: true, isDimension: true, isSelections: true, selectArray: kitchenFacilities(true), isShow: kitchenShow, setIsShow: setKitchenShow, array: kitchenDetailArray, setArray: setKitchenDetailArray, accompany: kitchenAccompany, setAccompany: setKitchenAccompany},
+        {idName: 'rooms', name: 'Bedrooms', isNum: true, isSelections: true, isShow: bedroomsShow, setIsShow: setBedroomsShow, array: roomsDetailArray, setArray: setRoomsDetailArray},
+        {idName: 'pool', notAllowedCategories: ['students'], name: 'Swimming Pools', isDepth: true, isNum: true, isDimension: true, isSelections: true, isShow: poolsShow, setIsShow: setPoolsShow, selectArray: poolType(true), array: poolsDetailArray, setArray: setPoolsDetailArray, accompany: poolAccompany, setAccompany: setPoolAccompany},
+        {idName: 'near_places', name: 'Near places', isSelections: true, selectArray: nearPlacesNames(true), isShow: nearPlacesShow, setIsShow: setNearPlacesShow, accompany: nearPlaces, setAccompany: setNearPlaces},
+        {idName: 'facilities', name: 'Facilities', isSelections: true, isShow: companiansShow, setIsShow: setCompaniansShow, selectArray: facilities(true, specificCatagory === 'students'), accompany: companionsDetailArray, setAccompany: setCompanionsDetailArray},
+        {idName: 'features', name: 'Features', isWithEN: true, detailsEN: vehicleFeaturesEN, setDetailsEN: setVehicleFeaturesEN, array: vehicleFeatures, setArray: setVehicleFeatures},
+        {idName: 'terms', name: 'Terms & Conditions', isWithEN: true, detailsEN: conditionsAndTermsEN, setDetailsEN: setConditionsAndTermsEN, array: conditionsAndTerms, setArray: setConditionsAndTerms},
     ];
 
     const vehiclesDetails = [
-        {name: 'Vehicle specifications', isWithEN: true, detailsEN: vehicleSpecificationsEN, setDetailsEN: setVehicleSpecificationsEN, array: vehicleSpecifications, setArray: setVehicleSpecifications},
-        {name: 'Vehicle features', isWithEN: true, detailsEN: vehicleFeaturesEN, setDetailsEN: setVehicleFeaturesEN, array: vehicleFeatures, setArray: setVehicleFeatures},
-        {name: 'Near places', isWithEN: true, detailsEN: nearPlacesEN, setDetailsEN: setNearPlacesEN, array: nearPlaces, setArray: setNearPlaces},
-        {name: 'Terms', isWithEN: true, detailsEN: conditionsAndTermsEN, setDetailsEN: setConditionsAndTermsEN,  array: conditionsAndTerms, setArray: setConditionsAndTerms},
+        {idName: 'features', name: 'Features', isWithEN: true, detailsEN: vehicleFeaturesEN, setDetailsEN: setVehicleFeaturesEN, array: vehicleFeatures, setArray: setVehicleFeatures},
+        {idName: 'terms', name: 'Terms & Conditions', isWithEN: true, detailsEN: conditionsAndTermsEN, setDetailsEN: setConditionsAndTermsEN,  array: conditionsAndTerms, setArray: setConditionsAndTerms},
     ];
 
     const getDetails = () => {
@@ -163,16 +207,12 @@ const Page = () => {
 
         const getBaseEnglishdtlsArr = () => {
             switch(type){
-                case 'rooms':
-                    return item.details?.guest_rooms;
                 case 'places':
                     return item.details?.near_places;
                 case 'terms':
                     return item.terms_and_conditions;
-                case 'vehicle specs':
-                    return item.details?.vehicle_specifications;
-                case 'vehcile features':
-                    return item.details?.vehicle_addons;
+                case 'features':
+                    return item.details?.features;
                 default:
                     return null;
             }
@@ -186,7 +226,8 @@ const Page = () => {
                 if(dtl?.arName === baseArray[i]) arr.push(isEnDtlArray ? dtl : dtl.enName);
             });
         }
-        // if(isEnDtlArray && arr?.length !== baseArray?.length){
+
+        // if(arr?.length !== baseArray?.length){
         //     for (let i = 0; i < baseArray.length - arr?.length - 1; i++) {
         //         arr.push({ arName: baseArray[i], enName: '' });
         //     }
@@ -195,29 +236,23 @@ const Page = () => {
 
     };
 
-    const isSomethingChanged = () => {
+    const isSomethingChanged = (withoutStorage) => {
 
         let tempContacts = [], tempItemContacts = [];
 
-        contacts.forEach((item) => {
+        contacts.forEach((cnt) => {
             tempContacts.push({
-                platform: item.platform, val: item.val
+                platform: cnt.platform, val: cnt.val
             });
         });
 
-        item.contacts?.forEach((item) => {
+        item.contacts?.forEach((cnt) => {
             tempItemContacts.push({
-                platform: item.platform, val: item.val
+                platform: cnt.platform, val: cnt.val
             });
         });
 
         const compareTwoValuesIsNotEqual = (a, b, type) => {
-
-            // if(type === 'array'){
-            //     console.log('a array: ', a);
-            //     console.log('b array: ', b);
-            //     console.log(JSON.stringify(a) === JSON.stringify(b));
-            // }
 
             if(type === 'array' && JSON.stringify(a) === JSON.stringify(b)) return false;
 
@@ -230,6 +265,9 @@ const Page = () => {
         };
 
         const compareAllValues = () => {
+
+            if(!withoutStorage && attachedFilesUrls?.length > 0) return false;
+            if(!withoutStorage && filesToDelete?.length > 0) return false;
 
             if(compareTwoValuesIsNotEqual(itemTitle, item.title)) return false;
             if(compareTwoValuesIsNotEqual(itemTitleEN, item.en_data?.titleEN)) return false;
@@ -249,31 +287,55 @@ const Page = () => {
 
             if(compareTwoValuesIsNotEqual(conditionsAndTerms, item.terms_and_conditions, 'array')) return false;
             if(compareTwoValuesIsNotEqual(conditionsAndTermsEN?.map(o=>o.enName), getEnglishDetailsArray('terms'), 'array')) return false;
-            if(compareTwoValuesIsNotEqual(nearPlaces, item.details?.near_places, 'array')) return false;
-            if(compareTwoValuesIsNotEqual(nearPlacesEN?.map(o=>o.enName), getEnglishDetailsArray('places'), 'array')) return false;
+            if(compareTwoValuesIsNotEqual(vehicleFeatures, item.details?.features, 'array')) return false;
+            if(compareTwoValuesIsNotEqual(vehicleFeaturesEN?.map(o=>o.enName), getEnglishDetailsArray('vehicle features'), 'array')) return false;
+            console.log(1);
 
-            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(vehicleSpecifications, item.details?.vehicle_specifications, 'array')) return false;
-            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(vehicleSpecificationsEN?.map(o=>o.enName), getEnglishDetailsArray('vehicle specs'), 'array')) return false;
-            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(vehicleFeatures, item.details?.vehicle_addons, 'array')) return false;
-            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(vehicleFeaturesEN?.map(o=>o.enName), getEnglishDetailsArray('vehicle features'), 'array')) return false;
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(withDriver, item.details?.vehicle_specifications?.driver)) return false;
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(vehicleRentTypesArray(true)[vehicleRentTypesArray().indexOf(vehicleRentType)], item.details?.vehicle_specifications?.rent_type)) return false;
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(carGearboxes(true)[carGearboxes().indexOf(carGearbox)], item.details?.vehicle_specifications?.gearbox)) return false;
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(carFuelTypesArray(true)[carFuelTypesArray().indexOf(carFuelType)], item.details?.vehicle_specifications?.fuel_type)) return false;
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(itemNeighbour, item.neighbourhood)) return false;
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(itemNeighbourEN, item.en_data?.neighbourEN)) return false;
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(itemCity?.value, item.city)) return false;
+        
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(longitude, item.map_coordinates?.at(0))) return false;
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(latitude, item.map_coordinates?.at(1))) return false;
+            
+
             if(item.type_is_vehicle) return true;
 
             if(compareTwoValuesIsNotEqual(cancellationsArray().indexOf(cancellation), item.cancellation)) return false;
             if(compareTwoValuesIsNotEqual(capacity, item.capacity)) return false;
+            if(compareTwoValuesIsNotEqual(area, item.area)) return false;
+            if(compareTwoValuesIsNotEqual(landArea, item.landArea)) return false;
+            if(compareTwoValuesIsNotEqual(floor, item.floor)) return false;
+            if(compareTwoValuesIsNotEqual(capacity, item.capacity)) return false;
             if(compareTwoValuesIsNotEqual(customerType, item.customer_type)) return false;
 
-            if(compareTwoValuesIsNotEqual(guestRoomsDetailArray, item.details?.guest_rooms, 'array')) return false;
-            if(compareTwoValuesIsNotEqual(guestRoomsDetailArrayEN?.map(o=>o.enName), getEnglishDetailsArray('rooms'), 'array')) return false;
-            if(compareTwoValuesIsNotEqual(companionsDetailArray, item.details?.facilities, 'array')) return false;
-            if(compareTwoValuesIsNotEqual(bathroomsNum, item.details?.bathrooms?.num)) return false;
-            if(compareTwoValuesIsNotEqual(bathroomsDetailArray, item.details?.bathrooms?.companians, 'array')) return false;
-            if(compareTwoValuesIsNotEqual(kitchenDetailArray, item.details?.kitchen?.companians, 'array')) return false;
-            if(compareTwoValuesIsNotEqual(poolsDetailArray, item.details?.pool?.companians, 'array')) return false;
+            console.log(2);
 
-            if(compareTwoValuesIsNotEqual(roomObj?.num, item.details?.rooms?.num)) return false;
-            if(compareTwoValuesIsNotEqual(roomObj?.single_beds, item.details?.rooms?.single_beds)) return false;
-            if(compareTwoValuesIsNotEqual(roomObj?.double_beds, item.details?.rooms?.double_beds)) return false;
-            if(compareTwoValuesIsNotEqual(poolNum, item.details?.pool?.num)) return false;
+            if(compareTwoValuesIsNotEqual(guestRoomsDetailArray?.map(o=>o.capacity), item.details?.guest_rooms?.map(o=>o.capacity), 'array')) return false;
+            if(compareTwoValuesIsNotEqual(bathroomsDetailArray?.map(o=>o.dim), item.details?.bathrooms?.array?.map(o=>o.dim), 'array')) return false;
+            if(compareTwoValuesIsNotEqual(bathroomsAccompany, item.details?.bathrooms?.companians, 'array')) return false;
+            if(compareTwoValuesIsNotEqual(kitchenDetailArray?.map(o=>o.dim), item.details?.kitchen?.array?.map(o=>o.dim), 'array')) return false;
+            if(compareTwoValuesIsNotEqual(kitchenAccompany, item.details?.kitchen?.companians, 'array')) return false;
+            
+
+            if(compareTwoValuesIsNotEqual(roomsDetailArray?.map(o=>o.capacity), item.details?.rooms?.map(o=>o.capacity), 'array')) return false;
+            if(compareTwoValuesIsNotEqual(roomsDetailArray?.map(o=>o.single_beds), item.details?.rooms?.map(o=>o.single_beds), 'array')) return false;
+            if(compareTwoValuesIsNotEqual(roomsDetailArray?.map(o=>o.double_beds), item.details?.rooms?.map(o=>o.double_beds), 'array')) return false;
+            
+            if(compareTwoValuesIsNotEqual(poolsDetailArray?.map(o=>o.dim), item.details?.pool?.array?.map(o=>o.dim), 'array')) return false;
+            if(compareTwoValuesIsNotEqual(poolsDetailArray?.map(o=>o.depth), item.details?.pool?.array?.map(o=>o.depth), 'array')) return false;
+            if(compareTwoValuesIsNotEqual(poolAccompany, item.details?.pool?.companians, 'array')) return false;
+            
+            if(compareTwoValuesIsNotEqual(companionsDetailArray, item.details?.facilities, 'array')) return false;
+            if(compareTwoValuesIsNotEqual(nearPlaces, item.details?.near_places, 'array')) return false;
+            if(compareTwoValuesIsNotEqual(nearPlacesEN?.map(o=>o.enName), getEnglishDetailsArray('places'), 'array')) return false;
+
+            
+            console.log(3);
 
             return true;
 
@@ -369,17 +431,13 @@ const Page = () => {
 
     const handleSubmit = async() => {
 
-        let tempContacts = [], tempItemContacts = [];
+        if(!isTestSection(null, true)) return;
 
-        contacts.forEach((item) => {
+        let tempContacts = [];
+
+        contacts.forEach((cnt) => {
             tempContacts.push({
-                platform: item.platform, val: item.val
-            });
-        });
-
-        item.contacts?.forEach((item) => {
-            tempItemContacts.push({
-                platform: item.platform, val: item.val
+                platform: cnt.platform, val: cnt.val
             });
         });
 
@@ -389,104 +447,7 @@ const Page = () => {
             return;
         }
 
-        let attahcedFilesError = false;
         let errorEncountered = false;
-        let newItem = null;
-
-        if((itemTitle && !isValidText(itemTitle)) || (itemTitleEN && !isValidText(itemTitleEN))){
-            setItemTitle('-1');
-            errorEncountered = true;
-        }
-
-        if((itemDesc && !isValidText(itemDesc)) || (itemDescEN && !isValidText(itemDescEN))){
-            setItemDesc('-1');
-            errorEncountered = true;
-        }
-        
-        if(!isValidPrices()) errorEncountered = true;
-
-        if(errorEncountered === true){
-            window.scrollTo({
-                top: 320, behavior: 'smooth'
-            });
-            setError('There is an error in one of the fields.');
-            setSuccess(false);
-            return;
-        }
-
-        if(!contacts || !contacts?.length > 0){
-            setContactsError('Please write at least one contact method.');
-            errorEncountered = true;
-        } else {
-            for (let i = 0; i < contacts.length; i++) {
-                if(!isValidContactURL(contacts[i])) {
-                    setContactsError('There is an invalid link. Please choose a platform and enter a valid link.');
-                    errorEncountered = true;
-                }
-            }
-        }
-
-        if(discountNights > 0 && (typeof discountNights !== 'number' || discountNights < 0 || discountNights > 2000)){
-            setDiscountNights(-1);
-            errorEncountered = true;
-        }
-
-        if(discountPer > 0 && (typeof discountPer !== 'number' || discountPer < 0 || discountPer > 100)){
-            setDiscountPer(-1);
-            errorEncountered = true;
-        }
-
-        if(typeof requireInsurance !== 'boolean') errorEncountered = true;
-
-        if(cancellation && cancellationsArray().indexOf(cancellation) === -1) { setCancellation(-1); errorEncountered = true; }
-        
-        if(capacity && !isValidNumber(capacity)) { setCapacity(-1); errorEncountered = true; }
-
-        if(customerType && !customersTypesArray().includes(customerType)) { setCustomerType('-1'); errorEncountered = true; }
-        
-        if(errorEncountered === true){
-            setError('There is an error in one of the fields.' + contactsError);
-            setSuccess(false);
-            return;
-        }
-
-        const testAllDetails = () => {
-
-            const testValidDetailArray = (dtlsArray) => {
-                if(!dtlsArray) return false;
-                if(dtlsArray.length <= 0) return true;
-                dtlsArray.forEach(element => {
-                    if(!isValidText(element)) return false; 
-                });
-                return true;
-            }
-
-            let errMsg = '';
-            
-            if(!testValidDetailArray(guestRoomsDetailArray)) return errMsg += ', ' + 'خطأ في تفصيلة غرف الضيوف';
-            if(!testValidDetailArray(guestRoomsDetailArrayEN)) return errMsg += ', ' + 'خطأ في تفصيلة غرف الضيوف بالانجليزي';
-            if(!testValidDetailArray(nearPlaces)) return errMsg += ', ' + 'خطأ في تفصيلة الأماكن القريبة';
-            if(!testValidDetailArray(nearPlacesEN)) return errMsg += ', ' + 'خطأ في تفصيلة الأماكن القريبة بالانجليزي';
-            if(!testValidDetailArray(conditionsAndTerms)) return errMsg += ', ' + 'خطأ في تفصيلة الشروط و الأحكام';
-            if(!testValidDetailArray(conditionsAndTermsEN)) return errMsg += ', ' + 'خطأ في تفصيلة الشروط و الأحكام بالانجليزي';
-            if(!testValidDetailArray(vehicleSpecifications)) return errMsg += ', ' + 'خطأ في تفصيلة مواصفات السيارة';
-            if(!testValidDetailArray(vehicleSpecificationsEN)) return errMsg += ', ' + 'خطأ في تفصيلة مواصفات السيارة بالانجليزي';
-            if(!testValidDetailArray(vehicleFeatures)) return errMsg += ', ' + 'خطأ في تفصيلة مميزات السيارة';
-            if(!testValidDetailArray(vehicleFeaturesEN)) return errMsg += ', ' + 'خطأ في تفصيلة مميزات السيارة بالانجليزي';
-
-            return errMsg;
-
-        }
-
-        if(testAllDetails()?.length > 0) errorEncountered = true;
-
-        if(errorEncountered === true){
-            setError(testAllDetails());
-            setSuccess(false);
-            return;
-        }
-
-        setContactsError('');
 
         const xDiscount = () => {
             if(discountPer <= 0) return null;
@@ -500,151 +461,180 @@ const Page = () => {
 
             setLoading(true);
 
-            const optimizedFiles = await getOptimizedAttachedFiles(attachedFilesUrls);
-
-            setAttachedFilesUrls(optimizedFiles.optArr);
-
-            //attached and uploaded files, atleast one exist
-            if(optimizedFiles.optArr.length <= 0 && uploadedFiles.length <= 0){
-                attahcedFilesError = true;
-                errorEncountered = true;
-            }
-
-            if(errorEncountered === true) {
-                setSuccess(false);
-                setLoading(false);
-                return;
-            };
-
-            const xDetails = item.type_is_vehicle ? {
-                vehicle_specifications: vehicleSpecifications,
-                vehicle_addons: vehicleFeatures,
-                near_places: nearPlaces
-            } : {
-                insurance:  requireInsurance, 
-                guest_rooms: guestRoomsDetailArray,
-                bathrooms: { num: bathroomsNum, companians: bathroomsDetailArray},
-                kitchen: { companians: kitchenDetailArray },   
-                rooms: { num: roomObj?.num, single_beds: roomObj?.single_beds, double_beds: roomObj?.double_beds },
-                near_places: nearPlaces,
-                pool: { num: poolNum, companians: poolsDetailArray },
-                facilities: companionsDetailArray, 
-            };
-
-            const getEnObj = () => {
-
-                let enObj = {
-                    english_details: []
-                };
-    
-                const getEnglishBaseArray = () => {
-                    if(item.type_is_vehicle){
-                        return [vehiclesDetails[0], vehiclesDetails[1]];
-                    } else {
-                        return [...details]
-                    }
-                }
-    
-                getEnglishBaseArray().forEach(element => {
-                    if(element.detailsEN?.length > 0){
-                        enObj.english_details.push(...element.detailsEN);
-                    }
-                });
-    
-                if(itemTitleEN?.length > 0) enObj.titleEN = itemTitleEN;
-                if(itemDescEN?.length > 0) enObj.descEN = itemDescEN;
-                if(customersTypesArray().includes(customerType)){
-                    let cst = '';
-                    customersTypesArray().forEach((element, index) => {
-                        if(customerType === element){
-                            cst = customersTypesArray(true)[index];
+            const editMainInfo = async() => {
+                try {
+                    const xDetails = item.type_is_vehicle ? {
+                        insurance:  requireInsurance, 
+                        vehicle_specifications: {
+                            driver: withDriver, 
+                            rent_type: vehicleRentType,
+                            gearbox: carGearbox, 
+                            fuel_type: carFuelType
+                        },
+                        features: vehicleFeatures,
+                        near_places: nearPlaces
+                    } : {
+                        insurance:  requireInsurance, 
+                        guest_rooms: guestRoomsDetailArray, 
+                        bathrooms: { array: bathroomsDetailArray, companians: bathroomsAccompany }, 
+                        kitchen: { array: kitchenDetailArray, companians: kitchenAccompany }, 
+                        rooms: roomsDetailArray,
+                        pool: { array: poolsDetailArray, companians: poolAccompany },
+                        near_places: nearPlaces,
+                        facilities: companionsDetailArray, 
+                        features: vehicleFeatures
+                    };
+        
+                    const getEnObj = () => {
+        
+                        let enObj = {
+                            english_details: []
+                        };
+            
+                        const getEnglishBaseArray = () => {
+                            if(item.type_is_vehicle){
+                                return [vehiclesDetails[0], vehiclesDetails[1]];
+                            } else {
+                                return [...details]
+                            }
                         }
-                    });
-                    if(cst?.length > 0) enObj.customerTypeEN = cst;
+            
+                        getEnglishBaseArray().forEach(element => {
+                            if(element.detailsEN?.length > 0){
+                                enObj.english_details.push(...element.detailsEN);
+                            }
+                        });
+            
+                        if(itemTitleEN?.length > 0) enObj.titleEN = itemTitleEN;
+                        if(itemDescEN?.length > 0) enObj.descEN = itemDescEN;
+                        if(itemNeighbourEN?.length > 0) enObj.neighbourEN = itemNeighbourEN;
+                        if(customersTypesArray(true).includes(customerType))
+                            enObj.customerTypeEN = customerType;
+        
+                        return enObj;
+        
+                    };
+        
+                    const enObj = getEnObj();
+        
+                    const token = await getRecaptchaToken();
+        
+                    const res = await editProperty(
+                        id, itemTitle, itemDesc, itemPrice, xDetails, conditionsAndTerms, 
+                        tempContacts?.length > 0 ? tempContacts : null, xDiscount(), true,
+                        token, enObj, cancellationsArray().indexOf(cancellation), capacity, 
+                        customersTypesArray(false, specificCatagory === 'students')[customersTypesArray(true, specificCatagory === 'students').indexOf(customerType)], itemPrices, landArea, floor, 
+                        itemCity.value, itemNeighbour, [itemLong, itemLat], item.type_is_vehicle 
+                    );
+        
+                    console.log('res: ', res);    
+        
+                    if(res.success !== true){
+                        setError(res.dt.toString());
+                        return { success: false };
+                    } else if(res.success === true && res.dt.message !== 'no details to add') {
+                        return res;
+                    }
+                } catch (err) {
+                    console.log(err);
+                    return { success: false };
                 }
-
-                return enObj;
-
             };
 
-            const enObj = getEnObj();
+            const editUploadFiles = async() => {
+                try {
+                    const optimizedFiles = await getOptimizedAttachedFiles(attachedFilesUrls);
 
-            const token = await getRecaptchaToken();
+                    setAttachedFilesUrls(optimizedFiles.optArr);
+
+                    //attached and uploaded files, atleast one exist
+                    if(optimizedFiles.optArr.length <= 0 && uploadedFiles.length <= 0){
+                        attahcedFilesError = true;
+                        errorEncountered = true;
+                    }
+
+                    if(errorEncountered === true)
+                        return { success: false };
+
+                    //upload files to storage server
+
+                    let uploadFilesRes = { success: true, dt: 'no files to upload' };
+                    
+                    if(optimizedFiles.optArr.length > 0) 
+                        uploadFilesRes = await uploadFiles(
+                            optimizedFiles.optArr, id, storageKey, userEmail, true
+                        );
+
+                    console.log('upload res: ', uploadFilesRes);
+
+                    if(uploadFilesRes.success !== true){
+                        setError(uploadFilesRes.dt.toString());
+                        return { success: false };
+                    } else if(uploadFilesRes.success === true && attachedFilesUrls.length > 0) {
+                        return uploadFilesRes;
+                    };
+                } catch (err) {
+                    console.log(err);
+                    return { success: false };
+                }
+            };
+
+            const editDeleteFiles = async() => {
+                try {
+                    const deleteFilesRes = await deleteFiles(
+                        id, filesToDelete, storageKey, userEmail, true
+                    );
+                    if(deleteFilesRes.success !== true){
+                        setError(res.dt.toString());
+                        return { success: false };
+                    } else {
+                        return deleteFilesRes;
+                    }
+                } catch (err) {
+                    console.log(err);
+                    return { success: false };
+                }
+            };
 
             let res = null;
+            if(isSomethingChanged(true)) 
+                res = await editMainInfo();
 
-            isSomethingChanged() ? res = await editProperty(
-                id, itemTitle, itemDesc, null, xDetails, conditionsAndTerms, 
-                tempContacts?.length > 0 ? tempContacts : null, xDiscount(), null,
-                token, enObj, cancellationsArray().indexOf(cancellation), 
-                capacity, customerType, itemPrices
-            ) : res = { success: true, dt: { message: 'no details to add' } };
-
-            console.log('res: ', res);    
-
-            if(res.success !== true){
-                setError(res.dt.toString());
+            if(res && res.success === false){
                 setSuccess(false);
                 setLoading(false);
                 return;
-            } else if(res.success === true && res.dt.message !== 'no details to add') {
-                newItem = res.dt;
             }
 
-            //upload files to storage server
+            let uploadRes = null;
+            if(attachedFilesUrls?.length > 0)
+                uploadRes = await editUploadFiles();
 
-            let uploadFilesRes = { success: true, dt: 'no files to upload' };
+            if(uploadRes && uploadRes.success === false){
+                if(res?.success === true) setItem(res.dt);
+                setSuccess(false);
+                setLoading(false);
+                return;
+            }
             
-            if(optimizedFiles.optArr.length > 0) 
-                uploadFilesRes = await uploadFiles(
-                    optimizedFiles.optArr, id, storageKey, userEmail
-                );
-
-            console.log('upload res: ', uploadFilesRes);
-
-            if(uploadFilesRes.success !== true){
-                setError(uploadFilesRes.dt.toString());
+            let deleteRes = null;
+            if(filesToDelete?.length > 0)
+                deleteRes = await editDeleteFiles();
+            
+            if(deleteRes && deleteRes.success === false){
+                if(uploadRes?.success === true) setItem(uploadRes?.dt);
                 setSuccess(false);
-                if(newItem?._id) setItem(newItem);
-                setLoading(false);
-                return;
-            } else if(uploadFilesRes.success === true && attachedFilesUrls.length > 0) {
-                newItem = uploadFilesRes.dt;
-            };
-
-
-            //delete files from storage server
-
-            if(filesToDelete.length <= 0){
-                setError('');
-                if(newItem?._id) setItem(newItem);
-                setSuccess(true);
                 setLoading(false);
                 return;
             }
 
-            console.log('files to delete: ', filesToDelete);
-
-            const deleteFilesRes = await deleteFiles(
-                id, filesToDelete, storageKey, userEmail
-            );
-
-            if(deleteFilesRes.success !== true){
-                setError(res.dt.toString());
-                setSuccess(false);
-                if(newItem?._id) setItem(newItem);
-                setLoading(false);
-                return;
-            } else {
-                newItem = deleteFilesRes.dt;
-            }
-
-            console.log('new item: ', newItem);
-
-            if(newItem && newItem._id) setItem(newItem);
-            setSuccess(true);
             setError('');
+            if(deleteRes?.success === true) setItem(deleteRes?.dt);
+            else if(uploadRes?.success === true) setItem(uploadRes?.dt);
+            else if(res?.success === true) setItem(res?.dt);
+            setSuccess(true);
             setLoading(false);
+            return;
             
         } catch (err) {
             setError(err.message);
@@ -825,30 +815,6 @@ const Page = () => {
         return true;    
     };
 
-    const contactsIsChanged = () => {
-
-        let tempContacts = [], tempItemContacts = [];
-
-        contacts.forEach((item) => {
-            tempContacts.push({
-                platform: item.platform, val: item.val
-            });
-        });
-
-        item.contacts?.forEach((item) => {
-            tempItemContacts.push({
-                platform: item.platform, val: item.val
-            });
-        });
-
-        if(JSON.stringify(tempContacts) !== JSON.stringify(tempItemContacts) 
-            || (tempContacts.length > 0 && (item.contacts === null || item.contacts === undefined)) )
-            return true;
-
-        return false;
-
-    };
-
     const getPriceValue = (reservationType) => {
         switch(reservationType){
             case 'Daily':
@@ -912,6 +878,363 @@ const Page = () => {
         };
     };
 
+    const setAutomaticLocation = async() => {
+        try {
+
+            setIsManualLocSet(false);
+            setFetchingLocation(true);
+            navigator.geolocation.getCurrentPosition((geoPos) => {
+                setLocObj({
+                    lat: geoPos?.coords?.latitude,
+                    long: geoPos?.coords?.longitude,
+                    // ...reverseGeoCode(geoPos?.coords?.latitude, geoPos?.coords?.longitude)
+                });
+                setLatitude(geoPos?.coords?.latitude);
+                setLongitude(geoPos?.coords?.longitude);
+                setIsUserLoc('true');
+                setIsManualLocSet(true);
+                setFetchingLocation(false);
+            }, async() => {
+                const res = await getUserLocation();
+                console.log(res);
+                if(res.ok !== true) return setFetchingLocation(false);
+                setLocObj(res);
+                setFetchingLocation(false);
+            });
+        } catch (err) {
+            console.log(err);
+            setLocObj(null);
+            setFetchingLocation(false);
+        }
+    };
+
+    const showMap = () => {      
+        setMapUsed(true);
+        setMapType('select-point');
+        setIsMap(true);
+    };
+
+    const getFloorText = () => {
+        switch(floor){
+            case '0':
+                return 'Ground Floor';
+            case '1':
+                return 'First Floor';
+            case '2':
+                return 'Second Floor';
+            case '3':
+                return 'Third Floor';
+            default:
+                return floor + 'th Floor';
+        }
+    };
+
+    const getDtlItemSections = (idName) => {
+        let str = '';
+        const obj = getDetails()?.find(i => i.idName === idName);
+        if(!obj) return str;
+        if(idName !== 'rooms' && idName !== 'guest_rooms') str += 'selections ';
+        if(obj?.isNum) str += 'num ';
+        if(obj?.isDimension) str += 'dim ';
+        if(obj?.isDepth) str += 'depth ';
+        if(idName === 'rooms' || idName === 'guest_rooms') str += 'capacity ';
+        if(idName === 'rooms' && specificCatagory === 'students') str += 'roomType ';
+        console.log('str: ', str);
+        return str;
+    };
+
+    const isTestSection = (testAllUntilThis, all) => {
+
+        setSectionError('');
+
+        if(!isSomethingChanged()) return true;
+
+        const testSec1 = () => {
+
+            console.log('test1');
+
+            let errorEncountered = false;
+
+            if(itemTitle === '-1' || !isValidText(itemTitle) || (itemTitleEN && !isValidText(itemTitleEN))){
+                setItemTitle('-1');
+                errorEncountered = true;
+            }
+    
+            if(itemDesc === '-1' || !isValidText(itemDesc) || (itemDescEN && !isValidText(itemDescEN))){
+                setItemDesc('-1');
+                errorEncountered = true;
+            }
+
+            if(!itemCity || !JordanCities.find(i=>i.city_id === itemCity?.city_id)){
+                setItemCity({ city_id: -1 });
+                errorEncountered = true;
+            }
+    
+            if((itemNeighbour && !isValidText(itemNeighbour)) || (itemNeighbourEN && !isValidText(itemNeighbourEN))){
+                setItemNeighbour('-1');
+                setItemNeighbourEN('');
+                errorEncountered = true;
+            }
+
+            if(errorEncountered){
+                setSectionError('Please complete the basic information and correct errors in the fields.');
+            } else {
+                setSectionError('');
+            }
+
+            return !errorEncountered;
+
+        };
+
+        const testSec2 = () => {
+
+            console.log('test2: ', item.map_coordinates, longitude, latitude);
+
+            if(!item.type_is_vehicle || !item.map_coordinates?.at(0) || !item.map_coordinates?.at(1)) return true;
+
+            if(latitude === itemCity?.lat && longitude === itemCity?.long) {
+                setSectionError('You have not specified a geographical location for the property, apply anyway?');
+                return false;
+            } else if(!isInsideJordan(longitude, latitude)){
+                setSectionError('Location outside Jordan, please select a valid location on the map');
+                return false;
+            };
+            setSectionError('');
+            return true;
+        };
+
+        const testSec3 = () => {
+            
+            console.log('test3');
+
+            let errorEncountered = false;
+            let errMsg = '';
+
+            if(!isValidPrices()) {
+                msg = 'Determine prices for the unit';
+                errorEncountered = true;
+            } 
+
+            if(discountNights > 0 && (typeof discountNights !== 'number' || discountNights < 0 || discountNights > 2000)){
+                setDiscountNights(-1);
+                errMsg += ', Invalid number of days, must be between (0 - 2000) days';
+                errorEncountered = true;
+            }
+    
+            if(discountPer > 0 && (typeof discountPer !== 'number' || discountPer < 0 || discountPer > 100)){
+                setDiscountPer(-1);
+                errMsg += 'Invalid discount number, must be between (0 - 100)%.';
+                errorEncountered = true;
+            }
+
+            setSectionError(errMsg);
+            return !errorEncountered;
+
+        };
+
+        const testSec4 = () => {
+
+            console.log('test4');
+
+            if(item.images?.length - filesToDelete?.length <= 0){
+                setSectionError('The last image cannot be deleted, please add more images & submit then delete this image');
+                return false;
+            } else {
+                setSectionError('');
+                return true;
+            }
+
+        };
+
+        const testSec5 = () => {
+
+            console.log('test5');
+
+            let errorEncountered = false;
+            let detailsErrorMsg = '';
+            setDetailsError('');
+
+            if(typeof requireInsurance !== 'boolean'){
+                detailsErrorMsg = detailsErrorMsg + ' insurance ';
+                errorEncountered = true;
+            }
+
+            if(cancellation?.length > 0 && !cancellationsArray(true).includes(cancellation)){
+                detailsErrorMsg = detailsErrorMsg + ' cancellation ';
+                errorEncountered = true;
+            }
+
+            if(!contacts || !contacts?.length > 0){
+                detailsErrorMsg = detailsErrorMsg + 'contacts ';
+                setContactsError('Please write at least one contact method.');
+                errorEncountered = true;
+            } else {
+                for (let i = 0; i < contacts.length; i++) {
+                    if(!isValidContactURL(contacts[i])) {
+                        detailsErrorMsg = detailsErrorMsg + 'contacts ';
+                        setContactsError('There is an invalid link. Please choose a platform and enter a valid link.');
+                        errorEncountered = true;
+                        break;
+                    }
+                }
+            }
+            
+            if(area && !isValidNumber(area)){
+                detailsErrorMsg = detailsErrorMsg + ' area ';
+                errorEncountered = true;
+            }
+    
+            if(capacity && !isValidNumber(capacity)){
+                detailsErrorMsg = detailsErrorMsg + ' capacity ';
+                errorEncountered = true;
+            }
+
+            if(landArea && !isValidText(landArea)){
+                detailsErrorMsg = detailsErrorMsg + ' landArea ';
+                errorEncountered = true;
+            }
+    
+            if(floor && !isValidText(floor)){
+                detailsErrorMsg = detailsErrorMsg + ' floor ';
+                errorEncountered = true;
+            }
+
+            if(customerType?.length > 0 && !customersTypesArray(true, specificCatagory === 'students').includes(customerType)){
+                detailsErrorMsg = detailsErrorMsg + ' customerType ';
+                detailsErrorMsg = detailsErrorMsg + ' customerType ';
+                errorEncountered = true;
+            }
+    
+            console.log('withDriver: ', withDriver);
+
+            if(item.type_is_vehicle && typeof withDriver !== 'boolean'){
+                detailsErrorMsg = detailsErrorMsg + ' withDriver ';
+                errorEncountered = true;
+            }
+
+            if(item.type_is_vehicle && vehicleRentType && (!isValidText(vehicleRentType) || !vehicleRentTypesArray(true).includes(vehicleRentType))) {
+                detailsErrorMsg = detailsErrorMsg + ' rentType ';
+                errorEncountered = true;
+            }
+
+            if(item.type_is_vehicle && carGearbox && (!isValidText(carGearbox) || !carGearboxes(true).includes(carGearbox))) {
+                detailsErrorMsg = detailsErrorMsg + ' carGearbox ';
+                errorEncountered = true;
+            }
+
+            if(item.type_is_vehicle && carFuelType && (!isValidText(carFuelType) || !carFuelTypesArray(true).includes(carFuelType))) {
+                detailsErrorMsg = detailsErrorMsg + ' carFuelType ';
+                errorEncountered = true;
+            }
+
+            const validDetails = isValidDetails();
+            if(!validDetails?.ok){
+                detailsErrorMsg = detailsErrorMsg + validDetails.msg;
+                errorEncountered = true;
+            }
+
+            console.log('detailsError: ', detailsErrorMsg);
+
+            setDetailsError(detailsErrorMsg);
+
+            if(errorEncountered) setSectionError('There are errors in some fields, please review and correct them');
+            else setSectionError('');
+
+            return !errorEncountered;
+
+        };
+        
+        const isValidDetails = () => {
+            const arr = getDetails();
+            let msg = '';
+            for (let i = 0; i < arr.length; i++) {
+                const element = arr[i];
+                
+                if(element?.isWithEN){
+                    for (let j = 0; j < element?.array?.length; j++) {
+                        const elem = element.array[j];
+                        if(!elem && !element.detailsEN?.find(i=>i.arName === elem)?.enName)
+                            msg = msg + ` ${element.idName}.${j} `;
+                        else if(!isValidText(elem || 'pass') || !isValidText(element.detailsEN?.find(i=>i.arName === elem)?.enName || 'pass')) 
+                            msg = msg + ` ${element.idName}.${j} `;
+                    }
+                } 
+                
+                if(!element.isWithEN && element?.array?.length > 0) {
+                    for (let k = 0; k < element?.array.length; k++) {
+                        const elem = element?.array[k];
+                        if(!isValidNumber(elem?.capacity || 200)) msg = msg + ` ${element.idName}.${k} `;
+                        else if(!isValidNumber(elem?.single_beds || 200)) msg = msg + ` ${element.idName}.${k} `;
+                        else if(!isValidNumber(elem?.double_beds || 200)) msg = msg + ` ${element.idName}.${k} `;
+                        else if(!isValidText(elem?.room_type || 'pass')) msg = msg + ` ${element.idName}.${k} `;
+                        else if(!isValidNumber(elem?.depth || 200)) msg = msg + ` ${element.idName}.${k} `;
+                        else if(!isValidNumber(elem?.dim?.x || 200)) msg = msg + ` ${element.idName}.${k} `;
+                        else if(!isValidNumber(elem?.dim?.y || 200)) msg = msg + ` ${element.idName}.${k} `;
+                    }
+                }
+
+                if(!element.isWithEN && element?.accompany?.length > 0){
+                    if(!Array.isArray(element.accompany)){
+                        if(!isValidText(elem || 'pass')) 
+                            msg = msg + ` ${element.idName}.accompany `;
+                    }
+                    for (let n = 0; n < element?.accompany.length; n++) {
+                        const elem = element?.accompany[n];
+                        if(!isValidText(elem || 'pass')) {
+                            msg = msg + ` ${element.idName}.accompany `;
+                            break;
+                        }
+                    }
+                }
+
+            }
+
+            return { ok: !msg?.length > 0, msg };
+
+        };
+
+        console.log('testAllUntilThis: ', testAllUntilThis);
+
+        if(all){
+            let isAllError = false;
+            if(!testSec1()) isAllError = true;
+            if(!testSec2()) isAllError = true;
+            if(!testSec3()) isAllError = true;
+            if(!testSec4()) isAllError = true;
+            if(!testSec5()) isAllError = true;
+            return !isAllError;
+        }
+        
+        if(testAllUntilThis >= 0){
+            if(testAllUntilThis <= section) return true;
+            let errorEncounteredIndex = -1;
+            for (let i = section; i < testAllUntilThis; i++) {
+                console.log('i is: ', i);
+                if(i === 0) 
+                    if(!testSec1()) errorEncounteredIndex = i;
+                // if(i === 1) 
+                //     if(!testSec2()) errorEncounteredIndex = i;
+                if(i === 2) 
+                    if(!testSec3()) errorEncounteredIndex = i;
+                if(i === 3) 
+                    if(!testSec4()) errorEncounteredIndex = i;
+                if(i === 4) 
+                    if(!testSec5()) errorEncounteredIndex = i;
+            }
+            if(errorEncounteredIndex !== -1) setSectionError('It is not possible to navigate by section number due to an error in section number ' + errorEncounteredIndex + ' "' + sectionsArray?.find(i => i.id === errorEncounteredIndex)?.name + '"');
+            return errorEncounteredIndex === -1;
+        } else {
+            if(section === 0) return testSec1();
+            if(section === 1) return testSec2();
+            if(section === 2) return testSec3();
+            if(section === 3) return testSec4();
+            if(section === 4) return testSec5();
+        }
+
+        return true;
+
+    };
+
     useEffect(() => {
         setRunOnce(true);
         //location.href = '/edit-prop?id=' + id;
@@ -928,11 +1251,14 @@ const Page = () => {
 
             setAttachedFilesUrls([]);
             setFilesToDelete([]);
-
             setItemTitle(item.title);
             setItemTitleEN(item.en_data?.titleEN);
             setItemDesc(item.description);
             setItemDescEN(item.en_data?.descEN);
+            setItemCity(JordanCities.find(i=>i.value === item.city));
+            setItemNeighbour(item.neighbourhood);
+            setItemNeighbourEN(item.en_data?.neighbourEN);
+            setSpecificCatagory(item.specific_catagory);
             setItemPrices(item.prices);
             setUploadedFiles([...item.images, ...item.videos]);
             setRequireInsurance(item.details?.insurance);
@@ -943,32 +1269,37 @@ const Page = () => {
             setCancellation(cancellationsArray()[item.cancellation]);
             setCapacity(item.capacity);
             setCustomerType(item.customer_type);
+            setArea(item.area);
+            setLandArea(item.landArea);
+            setFloor(item.floor);
+            setWithDriver(item.details?.vehicle_specifications?.driver);
+            setVehicleRentType(vehicleRentTypesArray(true)?.find(i=>i === item.details?.vehicle_specifications?.rent_type) || vehicleRentTypesArray(true)[vehicleRentTypesArray().indexOf(item.details?.vehicle_specifications?.rent_type)]);
+            setCarGearBox(carGearboxes(true)?.find(i=>i === item.details?.vehicle_specifications?.gearbox) || carGearboxes(true)[carGearboxes().indexOf(item.details?.vehicle_specifications?.gearbox)]);
+            setCarFuelType(carFuelTypesArray(true)?.find(i=>i === item.details?.vehicle_specifications?.fuel_type) || carFuelTypesArray(true)[carFuelTypesArray().indexOf(item.details?.vehicle_specifications?.fuel_type)]);
+            if(item.type_is_vehicle && item.map_coordinates?.at(0)) setLongitude(item.map_coordinates[0]);
+            if(item.type_is_vehicle && item.map_coordinates?.at(1)) setLatitude(item.map_coordinates[1]);
 
             if(item.type_is_vehicle){
-                setVehicleSpecifications(item.details?.vehicle_specifications);
-                setVehicleFeatures(item.details?.vehicle_addons);
-                setNearPlaces(item.details?.near_places);
-
-                setVehicleSpecificationsEN(getEnglishDetailsArray('vehicle specs', null, true));
-                setVehicleFeaturesEN(getEnglishDetailsArray('vehicle features', null, true));
-                setNearPlacesEN(getEnglishDetailsArray('places', null, true));
+                setVehicleFeatures(item.details?.features);
+                setVehicleFeaturesEN(getEnglishDetailsArray('features', null, true));
             } else {
                 setGuestRoomsDetailArray(item.details?.guest_rooms);
-                setBathroomsDetailArray(item.details?.bathrooms?.companians);
-                setBathroomsNum(item.details?.bathrooms?.num);
-                setKitchenDetailArray(item.details?.kitchen?.companians);
-                setRoomObj(item.details?.rooms);
-                setNearPlaces(item.details?.near_places);
-                setPoolNum(item.details?.pool.num);
-                setPoolsDetailArray(item.details?.pool.companians);
+                setBathroomsDetailArray(item.details?.bathrooms?.array);
+                setBathroomsAccompany(item.details?.bathrooms?.companians);
+                setKitchenDetailArray(item.details?.kitchen?.array);
+                setKitchenAccompany(item.details?.kitchen?.companians);
+                setRoomsDetailArray(item.details?.rooms);
+                setPoolsDetailArray(item.details?.pool.array);
+                setPoolAccompany(item.details?.pool.companians);
                 setCompanionsDetailArray(item.details?.facilities);
-
-                setGuestRoomsDetailArrayEN(getEnglishDetailsArray('rooms', null, true));
+                setVehicleFeatures(item.details?.features);
+                setNearPlaces(item.details?.near_places);
                 setNearPlacesEN(getEnglishDetailsArray('places', null, true));
-                setConditionsAndTermsEN(getEnglishDetailsArray('terms', null, true));
+                setVehicleFeaturesEN(getEnglishDetailsArray('features', null, true));
             }
             
             setConditionsAndTerms(item.terms_and_conditions);
+            setConditionsAndTermsEN(getEnglishDetailsArray('terms', null, true));
 
         }
     }, [item]);
@@ -989,11 +1320,28 @@ const Page = () => {
     }, [calendarSelect]);
 
     useEffect(() => {
+        setSuccess(false);
+        setError('');
+        setSectionTitle(sectionsArray.find(i => i?.id === section)?.name);
+    }, [section]);
+
+    useEffect(() => {
+        if(mapUsed === true){
+            setItemLong(longitude);
+            setItemLat(latitude);
+        }
+    }, [longitude, latitude]);
+
+    useEffect(() => {
+        setContactsError('');
+    }, [contacts]);
+
+    useEffect(() => {
         if(!loadingUserInfo && userId?.length > 0) setFetchingUserInfo(false);
     }, [fetchingUserInfo]);
 
     const RightIconSpan = () => {
-        return <span id='righticonspan'/>
+        return <div id='righticonspan'><span /></div>
     }
 
     if(!item || !userId?.length > 0 || !isVerified){
@@ -1010,413 +1358,632 @@ const Page = () => {
 
         <div className='wrapper editProp'>
 
-            {item.isRejected ? <div className='rejection-div'>
-                <div className='status'>Offer <span>is rejected</span></div>
-                <h2>Reasons for rejecting the offer</h2>
-                <ul>
-                {item?.reject_reasons?.map((reason, index) => (
-                    <li key={index}>{reason}</li>
-                ))}
-                </ul>
-                <p><Svgs name={'info'}/>Edit the offer and send it again</p>
-            </div> : <div className='rejection-div' style={{ 
-                background: !item.checked ? 'var(--softYellow)' : 'var(--softGreen)'
-             }}>
-                <div style={{ margin: 0 }} className='status'>Offer status <span>{!item.checked ? 'under revision' : 'accepted'}</span></div>
-            </div>}
+            <div className='functionality'>
 
-            <button onClick={() => setIsVisibilty(!isVisibilty)} className={!isVisibilty ? 'editDiv' : 'editDiv chngpassbtn'}>Offer visibility<Svgs name={'dropdown arrow'}/></button>
+                {item.isRejected ? <div className='rejection-div'>
+                    <div className='status'>Offer <span>is rejected</span></div>
+                    <h2>Reasons for rejecting the offer</h2>
+                    <ul>
+                    {item?.reject_reasons?.map((reason, index) => (
+                        <li key={index}>{reason}</li>
+                    ))}
+                    </ul>
+                    <p><Svgs name={'info'}/>Edit the offer and send it again</p>
+                </div> : <div className='rejection-div' style={{ 
+                    background: !item.checked ? 'var(--softYellow)' : 'var(--softGreen)'
+                }}>
+                    <div style={{ margin: 0 }} className='status'>Offer status <span>{!item.checked ? 'under revision' : 'accepted'}</span></div>
+                </div>}
 
-            <div className='hide-show-prop' style={{ display: !isVisibilty && 'none' }}>
-                <span>Status <h4>{item.visible ? 'Visible' : 'hidden'}</h4></span>
-                <p><Svgs name={'info'}/>Hide or show the offer to the public. For your information, you can change the display at any time.</p>
-                <p style={{ display: (visibiltyError.length <= 0 && visibiltySuccess.length <= 0) && 'none', color: visibiltyError.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{visibiltyError.length > 0 ? visibiltyError : visibiltySuccess}</p>
-                <button onClick={handleVisible} className='btnbackscndclr'>{(item.visible ? (visiblityIsLoading ? 'Hiding the offer...' : 'Hide the display') : (visiblityIsLoading ? 'Showing offer...' : 'Show offer'))}</button>
-            </div>
+                <button onClick={() => setIsVisibilty(!isVisibilty)} className={!isVisibilty ? 'editDiv' : 'editDiv chngpassbtn'}>Offer visibility<Svgs name={'dropdown arrow'}/></button>
 
-            <hr />
-
-            <button onClick={() => setIsBookable(!isBookable)} className={!isBookable ? 'editDiv' : 'editDiv chngpassbtn'}>Enable Booking<Svgs name={'dropdown arrow'}/></button>
-
-            <div className='hide-show-prop' style={{ display: !isBookable ? 'none' : null }}>
-                <span>Status <h4>{item.is_able_to_book ? 'Accepts reservations' : 'No reservations accept'}</h4></span>
-                <p><Svgs name={'info'}/>Change the offer status in terms of accepting or not accepting new reservations.</p>
-                <p style={{ display: (bookableError.length <= 0 && bookableSuccess.length <= 0) && 'none', color: bookableError.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{bookableError.length > 0 ? bookableError : bookableSuccess}</p>
-                <button onClick={handleBookable} className='btnbackscndclr'>{(item.is_able_to_book ? (bookableIsLoading ? 'Closing Reservations...' : 'Prevent new reservations') : (bookableIsLoading ? 'Reservations are opening...' : 'Open Reservations'))}</button>
-            </div>
-
-            <hr />
-
-            <button onClick={() => setIsBookDays(!isBookDays)} className={!isBookDays ? 'editDiv' : 'editDiv chngpassbtn'}>Determine non-booking days<Svgs name={'dropdown arrow'}/></button>
-
-            <div className='hide-show-prop calendar-edit-prop' style={{ display: !isBookDays ? 'none' : null }}>
-                <p><Svgs name={'info'}/>Specify days on which reservations cannot be made. You can change these days at any time.</p>
-                
-                <h3 style={{ marginBottom: 20 }}>Days currently booked</h3>
-
-                <p style={{ marginBottom: 8 }} id='detailed-by-color'>Marked by colour <span />,</p> 
-                <p style={{ marginBottom: 24 }} id='detailed-by-color'>Click on the day to add or delete it from the list of days.</p>
-
-                <div id='calendar-div'>
-                    {triggerCalendarRender && <MyCalendar setCalender={setCalenderSelect} 
-                    type={'edit-prop'} days={selectBookedDays}/>}
+                <div className='hide-show-prop' style={{ display: !isVisibilty && 'none' }}>
+                    <span>Status <h4>{item.visible ? 'Visible' : 'hidden'}</h4></span>
+                    <p><Svgs name={'info'}/>Hide or show the offer to the public. For your information, you can change the display at any time.</p>
+                    <p style={{ display: (visibiltyError.length <= 0 && visibiltySuccess.length <= 0) && 'none', color: visibiltyError.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{visibiltyError.length > 0 ? visibiltyError : visibiltySuccess}</p>
+                    <button onClick={handleVisible} className='btnbackscndclr'>{(item.visible ? (visiblityIsLoading ? 'Hiding the offer...' : 'Hide the display') : (visiblityIsLoading ? 'Showing offer...' : 'Show offer'))}</button>
                 </div>
 
-                <p style={{ display: (bookDaysError?.length <= 0 && bookDaysSuccess.length <= 0) && 'none', color: bookDaysError?.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{bookDaysError?.length > 0 ? bookDaysError : bookDaysSuccess}</p>
-                <button id={isOkayNewBookedDays() ? '' : 'disable-button'} onClick={handleNewBookedDays} className='btnbackscndclr'>{bookDaysIsLoading ? 'Updating days...' : 'Update the list of days'}</button>
+                <hr />
 
-            </div>
+                <button onClick={() => setIsBookable(!isBookable)} className={!isBookable ? 'editDiv' : 'editDiv chngpassbtn'}>Enable Booking<Svgs name={'dropdown arrow'}/></button>
 
-            <hr />
+                <div className='hide-show-prop' style={{ display: !isBookable ? 'none' : null }}>
+                    <span>Status <h4>{item.is_able_to_book ? 'Accepts reservations' : 'No reservations accept'}</h4></span>
+                    <p><Svgs name={'info'}/>Change the offer status in terms of accepting or not accepting new reservations.</p>
+                    <p style={{ display: (bookableError.length <= 0 && bookableSuccess.length <= 0) && 'none', color: bookableError.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{bookableError.length > 0 ? bookableError : bookableSuccess}</p>
+                    <button onClick={handleBookable} className='btnbackscndclr'>{(item.is_able_to_book ? (bookableIsLoading ? 'Closing Reservations...' : 'Prevent new reservations') : (bookableIsLoading ? 'Reservations are opening...' : 'Open Reservations'))}</button>
+                </div>
 
-            <button onClick={() => setIsDeleteProp(!isDeleteProp)} className={!isDeleteProp ? 'editDiv' : 'editDiv chngpassbtn'}>Delete offer<Svgs name={'dropdown arrow'}/></button>
+                <hr />
 
-            <div className='hide-show-prop' style={{ display: !isDeleteProp && 'none' }}>
-                <p><Svgs name={'info'}/>This offer will be permanently deleted.</p>
-                <p style={{ display: (deleteError.length <= 0 && deleteSuccess.length <= 0) && 'none', color: deleteError.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{deleteError.length > 0 ? deleteError : deleteSuccess}</p>
-                <button onClick={handleDeleteProp} className='btnbackscndclr'>{isDeletingProp ? 'Deleting...' : 'Delete'}</button>
-            </div>
+                <button onClick={() => setIsBookDays(!isBookDays)} className={!isBookDays ? 'editDiv' : 'editDiv chngpassbtn'}>Determine non-booking days<Svgs name={'dropdown arrow'}/></button>
 
-            <hr />
+                <div className='hide-show-prop calendar-edit-prop' style={{ display: !isBookDays ? 'none' : null }}>
+                    <p><Svgs name={'info'}/>Specify days on which reservations cannot be made. You can change these days at any time.</p>
+                    
+                    <h3 style={{ marginBottom: 20 }}>Days currently booked</h3>
 
-            <Link href={`/en/view/item?id=${id}`} className='editDiv'>See the offer as a customer<Svgs name={'show password'}/></Link>
+                    <p style={{ marginBottom: 8 }} id='detailed-by-color'>Marked by colour <span />,</p> 
+                    <p style={{ marginBottom: 24 }} id='detailed-by-color'>Click on the day to add or delete it from the list of days.</p>
 
-            <hr />
-
-            <h2>Modify the Offer</h2>
-
-            <CustomInputDivWithEN isError={itemTitle === '-1' && true} errorText={'Please write a title of five letters or more.'} title={'Title in English & Arabic'} value={itemTitle} enValue={itemTitleEN} placholderValue={'Title in Arabic here'} enPlacholderValue={'Title in English here'} listener={(e) => setItemTitle(e.target.value)} isEnglish enListener={(e) => setItemTitleEN(e.target.value)}/>
-
-            <CustomInputDivWithEN isError={itemDesc === '-1' && true} errorText={'Please write a clear description of what you want to display, in no less than 10 words.'} title={'Write Description in English & Arabic'} isTextArea={true} placholderValue={'Description in Arabic here'} enPlacholderValue={'Description in English here'} isEnglish listener={(e) => setItemDesc(e.target.value)} enListener={(e) => setItemDescEN(e.target.value)} type={'text'} value={itemDesc} enValue={itemDescEN}/>
-
-            <div className='prices'>
-                
-                <h3>Price </h3>
-
-                <p>Set a price for each booking period {'(Daily, weekly, monthly, seasonly and yearly)'}</p>
-
-                {(expandPrices ? reservationType() : [reservationType()[0]]).map((item) => (
-                    <div className='priceDiv' style={{ marginBottom: 16 }}>
-                        <CustomInputDiv isError={pricesError.includes(item.enName?.toLowerCase())} 
-                        errorText={'Set a price for the ' + item.oneEn} 
-                        title={`Price in ${currencyCode(true, true)}`} 
-                        listener={(e) => handlePriceChange(e, item.enName)} 
-                        min={0} value={getPriceValue(item.enName)}
-                        type={'number'} myStyle={{ marginBottom: 16 }}/>
-                        <strong>/</strong>
-                        <h4>{item.oneEn}</h4>
+                    <div id='calendar-div'>
+                        {triggerCalendarRender && <MyCalendar setCalender={setCalenderSelect} 
+                        type={'edit-prop'} days={selectBookedDays}/>}
                     </div>
-                ))}
 
-                <button className='editDiv' onClick={() => setExpandPrices(!expandPrices)}>{expandPrices ? 'Less' : 'Expand'}</button>
+                    <p style={{ display: (bookDaysError?.length <= 0 && bookDaysSuccess.length <= 0) && 'none', color: bookDaysError?.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{bookDaysError?.length > 0 ? bookDaysError : bookDaysSuccess}</p>
+                    <button id={isOkayNewBookedDays() ? '' : 'disable-button'} onClick={handleNewBookedDays} className='btnbackscndclr'>{bookDaysIsLoading ? 'Updating days...' : 'Update the list of days'}</button>
 
-            </div>
-
-            <div className='set-discount'>
-                <h3>Discount</h3>
-                <div><CustomInputDiv type={'number'} value={discountPer > 0 ? discountPer : null}
-                    placholderValue={'Select a ratio'} 
-                    listener={(e) => setDiscountPer(Number(e.target.value))} 
-                    min={0} max={100} isError={discountPer === -1}/> %</div>
-                <h3>In case of reservation of</h3>
-                <div><CustomInputDiv type={'number'} value={discountNights > 0 ? discountNights : null} 
-                    placholderValue={'Number of nights'}
-                    listener={(e) => setDiscountNights(Number(e.target.value))} 
-                    min={1} max={2000}/>nights or more</div>
-            </div>
-
-            <hr />
-
-            <div className='attachFiles' ref={attachImagesDivRef}>
-
-                <button onClick={() => inputFilesRef.current.click()}>Add file</button>
-
-                <ul style={{ gridTemplateColumns: attachedFilesUrls.length <= 0 && '1fr' }}>
-                    {uploadedFiles.map((myUrl) => (
-                        <li className='uploaded-file-li' onClick={() => {
-
-                        }}>
-                            {(myUrl.split("").reverse().join("").split('.')[0] === 'gpj' || myUrl.split("").reverse().join("").split('.')[0] === 'gnp')
-                            ? <Image src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${myUrl}`} width={1200} height={1200}/>
-                            : <video autoPlay loop src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${myUrl}`} />
-                            }
-                            <span style={{ 
-                                display: !filesToDelete.includes(myUrl) && 'none'
-                            }}><Svgs name={'cross'}/></span>
-                            <Svgs name={filesToDelete.includes(myUrl) ? 'cross' : 'delete'} on_click={() => {
-                                if(filesToDelete.includes(myUrl)){
-                                    setFilesToDelete(filesToDelete.filter(i => i !== myUrl));
-                                } else {
-                                    setFilesToDelete([...filesToDelete, myUrl]);
-                                }
-                            }}/>
-                        </li>
-                    ))}
-                    {attachedFilesUrls.map((attachedFile) => (
-                        <li onClick={() => {
-                            setAttachedFilesUrls(attachedFilesUrls.filter(f => f !== attachedFile))
-                        }}>
-                            {attachedFile.type.split('/')[0] === 'image'
-                            ? <Image src={URL.createObjectURL(attachedFile)} width={100} height={100}/>
-                            : <video autoPlay loop src={URL.createObjectURL(attachedFile)}/>
-                            }
-                        </li>
-                    ))}
-                    <li id='chooseFileLastLi'
-                        onClick={() => inputFilesRef.current.click()}
-                    >{attachedFilesUrls.length > 0 ? 'Add more' : 'Add files'}<p>(File type must be PNG, JPG, MP4, or AVI)</p></li>
-                </ul>
-
-                <input ref={inputFilesRef} multiple accept='.png, .jpg, .mp4, .avi' type='file' onChange={(e) => {
-                    const files = e.target.files;
-                    let arr = [];
-                    for (let i = 0; i < files.length; i++) {
-                        if(files[i] && allowedMimeTypes.includes(files[i].type) 
-                        && !attachedFilesUrls.find(f => f.name === files[i].name)){
-                            arr.push(files[i]);
-                        }
-                    }
-                    setAttachedFilesUrls([...attachedFilesUrls, ...arr]);
-                }}/>
-
-            </div>
-
-            <div className='detailsAboutItem'>
-
-                <h2>Add details about the{item.type_is_vehicle ? 'Vehicle' : 'Real estate'}</h2>
-
-                <div className='insuranceDetail'>
-                    <h3>Does rent require insurance?</h3>
-                    <input type='radio' name='insurance_group' checked={item.details?.insurance} onChange={() => setRequireInsurance(true)}/><label>Yes</label>
-                    <input checked={item.details?.insurance} type='radio' name='insurance_group' onChange={() => setRequireInsurance(false)}/><label>No</label>
                 </div>
 
-                <div className='detailItem contacts-div'>
-                    <h3>Modify communication methods</h3>
-                    <p style={{ marginBottom: contactsError?.length > 0 ? null : 0 }} id='error'>{contactsError}</p>
-                    <ul className='detailItem-ul'>
-                    {contacts?.map((c, index) => (
-                        <li key={index}>
-                            <CustomInputDiv isError={contactsError?.length > 0 && !isValidContactURL(c)} errorText={'رابط غير صالح'} value={c.val?.length > 0 ? c.val : null}
-                            deletable handleDelete={() => {
-                                let arr = [];
-                                for (let i = 0; i < contacts.length; i++) {
-                                    if(i !== index){
-                                        arr.push(contacts[i]);
-                                    }
+                <hr />
+
+                <button onClick={() => setIsDeleteProp(!isDeleteProp)} className={!isDeleteProp ? 'editDiv' : 'editDiv chngpassbtn'}>Delete offer<Svgs name={'dropdown arrow'}/></button>
+
+                <div className='hide-show-prop' style={{ display: !isDeleteProp && 'none' }}>
+                    <p><Svgs name={'info'}/>This offer will be permanently deleted.</p>
+                    <p style={{ display: (deleteError.length <= 0 && deleteSuccess.length <= 0) && 'none', color: deleteError.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{deleteError.length > 0 ? deleteError : deleteSuccess}</p>
+                    <button onClick={handleDeleteProp} className='btnbackscndclr'>{isDeletingProp ? 'Deleting...' : 'Delete'}</button>
+                </div>
+
+                <hr />
+
+                <Link href={`/en/view/item?id=${id}`} className='editDiv'>See the offer as a customer<Svgs name={'show password'}/></Link>
+
+                <hr />
+            </div>
+
+            <div className='sections'>
+
+                <div className='sections-show'>
+                    <ul>
+                        {sectionsArray.map((sec) => (
+                            sec && <li className={section >= sec.id ? 'section-selected disable-text-copy' : undefined}>
+                                <strong 
+                                onClick={() => {
+                                    if(sec.id < section) setSection(sec.id);
+                                    else if(isTestSection(sec.id)) setSection(sec.id);
+                                }} className='disable-text-copy'>
+                                    {sec.id + 1 - ((!item.type_is_vehicle && sec.id > 1) ? 1 : 0)}
+                                </strong>
+                                {sec.id < 5 && <span style={{ background: section > sec.id ? undefined : 'var(--darkWhite)' }}/>}
+                            </li>
+                        ))}
+                    </ul>
+                    <p>{sectionTitle}</p>
+                </div>
+
+                {section === 0 && <>
+
+                    <CustomInputDivWithEN value={itemTitle === '-1' ? null : itemTitle} 
+                    enValue={itemTitleEN}
+                    isError={itemTitle === '-1'} 
+                    errorText={'Please write a valid address, without using invalid characters such as <, &, "...etc'} 
+                    title={'Enter Title in Arabic & English'} placholderValue={'Write Title in Arabic here'} 
+                    enPlacholderValue={'Write Title in English here'} 
+                    listener={(e) => { setItemTitle(e.target.value); }} isEnglish
+                    enListener={(e) => setItemTitleEN(e.target.value)} isProfileDetails/>
+
+                    <CustomInputDivWithEN isError={itemDesc === '-1'} 
+                    errorText={'الرجاء كتابة وصف واضح عن ما تريد عرضه, مع عدم استخدام حروف غير صالحة مثل <, &, " ...الخ.'} 
+                    title={'Enter Description in Arabic & English'} isTextArea={true} 
+                    placholderValue={'Write Description in Arabic here'} isEnglish
+                    value={itemDesc === '-1' ? null : itemDesc} enValue={itemDescEN} 
+                    enPlacholderValue={'Write Description in English here'} 
+                    listener={(e) => { setItemDesc(e.target.value); }} isProfileDetails
+                    enListener={(e) => setItemDescEN(e.target.value)} type={'text'}/>
+
+                    {item.type_is_vehicle && <div className='address' style={{ zIndex: cityPopup ? 11 : 0 }}>
+                        <div className='popup-wrapper'>
+                            <CustomInputDivWithEN settingFocused={() => setCityPopup(true)} 
+                            isCity={true} isError={itemCity?.city_id === -1} 
+                            errorText={'Select the city where the rental is available'} 
+                            title={'City'} value={itemCity?.arabicName} type={'text'} 
+                            enValue={itemCity?.value} isEnglish
+                            placholderValue={'Choose city'} enPlacholderValue={'Choose city'}/>
+                            {cityPopup && <AddDetailsPopup array={itemCity} setArray={setItemCity} 
+                            type={'add-city'} sections={'selections'} isSingleSelect 
+                            setIsShow={setCityPopup} isEnglish />}
+                        </div>
+                        <CustomInputDivWithEN title={'الحي'} isError={itemNeighbour === '-1'} 
+                        errorText={'Please do not use invalid characters such as <, &, " ...etc'} 
+                        listener={(e) => setItemNeighbour(e.target.value)} isEnglish
+                        placholderValue={'Write Neighbourhood in Arabic here'} value={itemNeighbour === '-1' ? null : itemNeighbour}
+                        enPlacholderValue={'Write Neighbourhood in English here'} isProfileDetails enValue={itemNeighbourEN}
+                        enListener={(e) => setItemNeighbourEN(e.target.value)} type={'text'}/>
+                    </div>}</>}
+
+                {(section === 1 && item.type_is_vehicle) && <div className='location-div disable-text-copy'>
+                    
+                    <h3>Determine Location</h3>
+                    
+                    <button className='editDiv' onClick={setAutomaticLocation}>{fetchingLocation ? <LoadingCircle isLightBg/> : 'Automatic'}</button>
+
+                    {locObj && <div className='automatic-location'>
+                        {locObj?.city && 
+                        <><h4>Does the location at {locObj?.city}, {locObj?.principalSubdivision}, {locObj?.locality} ?</h4>
+                        <button style={isUserLoc?.length > 0 ? {
+                            background: 'white', color: 'black', fontWeight: 400,
+                            cursor: 'default'
+                        } : undefined} className={'btnbackscndclr ' + arabicFont} onClick={() => { 
+                            setLatitude(locObj?.lat);
+                            setLongitude(locObj?.long);
+                            setIsUserLoc('true'); 
+                            setIsManualLocSet(true); 
+                        }}>Yes</button>
+                        <button style={isUserLoc?.length > 0 ? {
+                            background: 'white', color: 'black', fontWeight: 400,
+                            cursor: 'default'
+                        } : undefined} className={'btnbackscndclr' + arabicFont} onClick={() => { 
+                            if(isUserLoc?.length > 0) return;
+                            setIsUserLoc('false');
+                            setIsManualLocSet(true);
+                            setLatitude(itemCity?.lat || JordanCities[0]?.lat);
+                            setLongitude(itemCity?.long || JordanCities[0]?.long);
+                        }}>No</button></>}
+                        <p style={isUserLoc === '' ? { display: 'none', margin: 0 } : undefined}>{isUserLoc === 'false' ? 'Please stop the VPN if you are using it and try again, or specify the location manually.' : (isUserLoc === 'true' ? 'Verify the location using the map' : '')}</p>
+                    </div>}
+
+                    <button style={{ margin: '24px 0' }} onClick={() => {
+                        if(isUserLoc !== 'true'){
+                            setLatitude(itemCity?.lat || JordanCities[0]?.lat);
+                            setLongitude(itemCity?.long || JordanCities[0]?.long);
+                        };             
+                        setIsManualLocSet(true); 
+                        setIsUserLoc(''); 
+                        setLocObj(null);
+                    }} className='editDiv'>Manual</button>
+
+                    {isManualLocSet && <div className='googleMapDiv' onClick={showMap}>
+                        <span>{isUserLoc === 'true' ? 'Check the site and modify it.' : 'Locate using map'}</span>
+                        <Image src={GoogleMapImage}/>
+                    </div>}
+
+                </div>}
+
+                {section === 2 && <><div className='prices'>
+                    
+                    <h3>Specify Price </h3>
+
+                    <p>Set a price for each booking period {'(Daily, weekly, monthly, seasonly and yearly)'}</p>
+
+                    {(expandPrices ? reservationType(true) : [reservationType(true)[0]]).map((rsvType) => (
+                        <div className='priceDiv'>
+                            <CustomInputDiv isError={pricesError.includes(rsvType.enName?.toLowerCase())} 
+                            errorText={'Determine Price ' + rsvType.oneEn}
+                            title={`Price in ${currencyCode(true, true)}`} 
+                            listener={(e) => handlePriceChange(e, rsvType.enName)} 
+                            min={0} value={getPriceValue(rsvType.enName)}
+                            type={'number'}/>
+                            <strong>/</strong>
+                            <h4>{rsvType.oneEn}</h4>
+                        </div>
+                    ))}
+
+                    <button className='editDiv' onClick={() => setExpandPrices(!expandPrices)}>{expandPrices ? 'Less' : 'Expand'}</button>
+
+                </div>
+
+                <hr />
+
+                <div className='set-discount'>
+                    <h3>Discount</h3>
+                    <div><CustomInputDiv type={'number'} value={discountPer > 0 ? discountPer : null}
+                        placholderValue={'Determine Percentage'} 
+                        listener={(e) => setDiscountPer(Number(e.target.value))} 
+                        min={0} max={100} isError={discountPer === -1}/> %</div>
+                    <h3>In case of booking </h3>
+                    <div><CustomInputDiv type={'number'} value={discountNights > 0 ? discountNights : null} 
+                        placholderValue={'Number of days'}
+                        listener={(e) => setDiscountNights(Number(e.target.value))} 
+                        min={1} max={2000}/> Days or More</div>
+                </div></>}
+
+                {section === 3 && <div className='attachFiles' ref={attachImagesDivRef}>
+
+                    <button onClick={() => inputFilesRef.current.click()}>Add File</button>
+
+                    <ul style={{ gridTemplateColumns: attachedFilesUrls.length <= 0 && '1fr' }}>
+                        {uploadedFiles.map((myUrl) => (
+                            <li className='uploaded-file-li' onClick={() => {
+
+                            }}>
+                                {(myUrl.split("").reverse().join("").split('.')[0] === 'gpj' || myUrl.split("").reverse().join("").split('.')[0] === 'gnp')
+                                ? <Image src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${myUrl}`} width={1200} height={1200}/>
+                                : <video autoPlay loop src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${myUrl}`} />
                                 }
-                                setContacts(arr);
-                            }}
-                            listener={(e) => {
-                                let arr = [...contacts];
-                                arr[index] = { platform: arr[index].platform, val: e.target.value, isPlatforms: arr[index].isPlatforms };
-                                setContacts(arr);
-                            }}/>
-                            <div className='choose-platform' id={contactsError?.length > 0 && !isValidContactURL(c) && !c.platform?.length > 0 ? 'choose-platform-error' : ''}>
-                                <button className={c.isPlatforms ? 'editDiv rotate-edit-div' : 'editDiv'} onClick={() => {
-                                    let arr = [...contacts];
-                                    arr[index] = { platform: arr[index].platform, val: arr[index].val, isPlatforms: !arr[index].isPlatforms };
+                                <span style={{ 
+                                    display: !filesToDelete.includes(myUrl) && 'none'
+                                }}><Svgs name={'cross'}/></span>
+                                <Svgs name={filesToDelete.includes(myUrl) ? 'cross' : 'delete'} on_click={() => {
+                                    if(filesToDelete.includes(myUrl)){
+                                        setFilesToDelete(filesToDelete.filter(i => i !== myUrl));
+                                    } else {
+                                        setFilesToDelete([...filesToDelete, myUrl]);
+                                    }
+                                }}/>
+                            </li>
+                        ))}
+                        {attachedFilesUrls.map((attachedFile) => (
+                            <li onClick={() => {
+                                setAttachedFilesUrls(attachedFilesUrls.filter(f => f !== attachedFile))
+                            }}>
+                                {attachedFile.type.split('/')[0] === 'image'
+                                ? <Image src={URL.createObjectURL(attachedFile)} width={100} height={100}/>
+                                : <video autoPlay loop src={URL.createObjectURL(attachedFile)}/>
+                                }
+                            </li>
+                        ))}
+                        <li id='chooseFileLastLi'
+                            onClick={() => inputFilesRef.current.click()}
+                        >{attachedFilesUrls.length > 0 ? 'Add more' : 'Add Files'}<p>(File type must be PNG, JPG, MP4 or AVI)</p></li>
+                    </ul>
+
+                    <p style={{ marginTop: 12, display: !attachedFilesUrls?.length > 0 ? 'none' : undefined }}>Click on the file to delete</p>
+
+                    <input ref={inputFilesRef} multiple accept='.png, .jpg, .mp4, .avi' type='file' onChange={(e) => {
+                        const files = e.target.files;
+                        let arr = [];
+                        for (let i = 0; i < files.length; i++) {
+                            if(files[i] && allowedMimeTypes.includes(files[i].type) 
+                            && !attachedFilesUrls.find(f => f.name === files[i].name)){
+                                arr.push(files[i]);
+                            }
+                        }
+                        setAttachedFilesUrls([...attachedFilesUrls, ...arr]);
+                    }}/>
+
+                </div>}
+
+                {section === 4 && <div className='detailsAboutItem'>
+
+                    <h2>Add details about the {item.type_is_vehicle ? 'Vehicle' : 'Property'}</h2>
+
+                    <div className='insuranceDetail'>
+                        <h3>Does the rental requires insurance ?</h3>
+                        <input type='radio' checked={requireInsurance} name='insurance_group' onChange={() => setRequireInsurance(true)}/><label onClick={() => setRequireInsurance(true)}>Yes</label>
+                        <input checked={!requireInsurance} type='radio' name='insurance_group' onChange={() => setRequireInsurance(false)}/><label onClick={() => setRequireInsurance(false)}>No</label>
+                        {detailsError.includes('insurance') && <p className='error'>ادخال غير صالح الرجاء الاختيار من نعم أو لا</p>}
+                    </div>
+
+                    <div className='detailItem area-div disable-text-copy' onClick={() => {
+                        if(!isCancellation) setIsCancellation(true);
+                    }} style={{ cursor: isCancellation ? 'default' : undefined }}>
+                        <h3>Select the possibility of canceling the reservation</h3>
+                        <InfoDiv title={'Cancellation'} value={cancellation === '' ? 'غير محدد' : cancellation}/>
+                        {isCancellation && <AddDetailsPopup array={cancellation} setArray={setCancellation} 
+                        type={'cancellation'} sections={'selections'} isSingleSelect setIsShow={setIsCancellation} 
+                        baseArr={cancellationsArray(true)} isNotFacilities isEnglish />}
+                    </div>
+
+                    <div className='detailItem contacts-div'>
+                        <h3>Modify communication methods</h3>
+                        <p style={{ marginBottom: contactsError?.length > 0 ? null : 0 }} id='error'>{contactsError}</p>
+                        <ul className='detailItem-ul'>
+                        {contacts?.map((c, index) => (
+                            <li key={index}>
+                                <CustomInputDiv isError={contactsError?.length > 0 && !isValidContactURL(c)} 
+                                errorText={'Invalid Contact url'} value={c.val?.length > 0 ? c.val : null}
+                                deletable handleDelete={() => {
+                                    let arr = [];
                                     for (let i = 0; i < contacts.length; i++) {
                                         if(i !== index){
-                                            arr[i] =  { platform: arr[i].platform, val: arr[i].val, isPlatforms: false };
+                                            arr.push(contacts[i]);
                                         }
                                     }
                                     setContacts(arr);
-                                }}>
-                                    {c?.platform?.length > 0 ? c.platform : 'Choose platform'} <Svgs name={'dropdown arrow'}/>
-                                </button>
-                                <ul style={{ display: c.isPlatforms ? null : 'none' }}>
-                                    {contactsPlatforms.map((p) => (
-                                        <li onClick={() => {
-                                            let arr = [...contacts];
-                                            arr[index] = { platform: p, val: arr[index].val, isPlatforms: false };
-                                            setContacts(arr);
-                                        }}>{p} {p === c.platform && <RightIconSpan />}</li>
+                                }}
+                                listener={(e) => {
+                                    let arr = [...contacts];
+                                    arr[index] = { platform: arr[index].platform, val: e.target.value, isPlatforms: arr[index].isPlatforms };
+                                    setContacts(arr);
+                                }}/>
+                                <div className='choose-platform' id={contactsError?.length > 0 && !isValidContactURL(c) && !c.platform?.length > 0 ? 'choose-platform-error' : ''}>
+                                    <button className={c.isPlatforms ? 'editDiv rotate-edit-div' : 'editDiv'} onClick={() => {
+                                        let arr = [...contacts];
+                                        arr[index] = { platform: arr[index].platform, val: arr[index].val, isPlatforms: !arr[index].isPlatforms };
+                                        for (let i = 0; i < contacts.length; i++) {
+                                            if(i !== index){
+                                                arr[i] =  { platform: arr[i].platform, val: arr[i].val, isPlatforms: false };
+                                            }
+                                        }
+                                        setContacts(arr);
+                                    }}>
+                                        {c?.platform?.length > 0 ? c.platform : 'Choose platform'} <Svgs name={'dropdown arrow'}/>
+                                    </button>
+                                    <ul style={{ display: c.isPlatforms ? null : 'none' }}>
+                                        {contactsPlatforms.map((p) => (
+                                            <li onClick={() => {
+                                                let arr = [...contacts];
+                                                arr[index] = { platform: p, val: arr[index].val, isPlatforms: false };
+                                                setContacts(arr);
+                                            }}>{p}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </li>
+                        ))}
+                        </ul>
+                        <button className='btnbackscndclr' onClick={() => setContacts([...contacts, { platform: '', val: '', isPlatforms: false }])}>Add more</button>
+                    </div>
+
+                    {!item.type_is_vehicle && <div className='detailItem area-div' style={{ display: item.type_is_vehicle ? 'none' : null}}>
+                        <h3>Enter the maximum capacity or number of guests allowed to be at the property</h3>
+                        <CustomInputDiv title={capacity > 0 ? `${capacity} guests` : ''} 
+                        max={150000} min={-1} myStyle={{ marginBottom: 0 }} 
+                        placholderValue={'How many guests are allowed in the property?'} type={'number'} 
+                        isError={detailsError?.includes('capacity')} 
+                        errorText={'Please enter a number from zero to 150,000'} listener={(e) => {
+                            if(Number(e.target.value)) {
+                                setCapacity(Number(e.target.value))
+                            } else {
+                                setCapacity(0);
+                            };
+                        }} value={capacity}/>
+                    </div>}
+
+                    {(!item.type_is_vehicle && specificCatagory !== 'students') && <div className='detailItem area-div' style={{ display: (item.type_is_vehicle) ? 'none' : null}}>
+                        <h3 style={{ cursor: 'text' }}>Enter property Area in meters</h3>
+                        <CustomInputDiv title={area > 0 ? `${area} square meters` : ''} 
+                        max={1000000} min={0} myStyle={{ marginBottom: 0 }} 
+                        placholderValue={'Undefined'} type={'number'} 
+                        isError={detailsError.includes('area')} errorText={'Enter valid area'} 
+                        listener={(e) => {
+                            if(Number(e.target.value)) {
+                                setArea(Number(e.target.value))
+                            } else {
+                                setArea(0);
+                            };
+                        }} value={area}/>
+                    </div>}
+
+                    {(!item.type_is_vehicle && specificCatagory === 'farm') && <div className='detailItem area-div'>
+                        <h3>Enter land area of the property</h3>
+                        <CustomInputDiv title={landArea || 'Land Area'} 
+                        max={1000000} min={0} myStyle={{ marginBottom: 0 }} 
+                        placholderValue={'Ex: 10 acres or 500 meters'} 
+                        isError={detailsError.includes('landArea')} 
+                        errorText={'Enter valid land area'} 
+                        listener={(e) => setLandArea(e.target.value)}
+                        value={landArea}/>
+                    </div>}
+
+                    {(!item.type_is_vehicle && specificCatagory === 'apartment') && <div className='detailItem area-div' style={{ display: (item.type_is_vehicle) ? 'none' : null}}>
+                        <h3>Enter apartment floor number</h3>
+                        <CustomInputDiv title={getFloorText()} myStyle={{ marginBottom: 0 }} 
+                        placholderValue={'Ex: 8 or 9'}  isError={detailsError.includes('floor')} 
+                        errorText={'Enter valid floor number'} 
+                        listener={(e) => setFloor(e.target.value)} value={floor}/>
+                    </div>}
+                    
+                    {!item.type_is_vehicle &&<div className='detailItem area-div' style={{ display: item.type_is_vehicle ? 'none' : null}}>
+                        <h3>Select the allowed guest category (optional)</h3>
+                        <InfoDiv title={'Allowed category'} divClick={() => setIsCustomerType(!isCustomerType)} value={customerType === '' ? 'Undefined' : customerType}/>
+                        {isCustomerType && <AddDetailsPopup array={customerType} setArray={setCustomerType} type={'customerType'} sections={'selections'} 
+                        isNotFacilities isSingleSelect setIsShow={setIsCustomerType} baseArr={specificCatagory === 'students' ? studentsTypesArray(true) : customersTypesArray(true)} isEnglish/>}
+                    </div>}
+
+                    {item.type_is_vehicle && <div className='insuranceDetail'>
+                        <h3>Is the rent with or without a driver?</h3>
+                        <input type='radio' checked={withDriver} name='driver_group' onChange={() => setWithDriver(true)}/><label onClick={() => setWithDriver(true)}>With a Driver</label>
+                        <input checked={!withDriver} type='radio' name='driver_group' onChange={() => setWithDriver(false)}/><label onClick={() => setWithDriver(false)}>Without Driver</label>
+                        {detailsError.includes('withDriver') && <p className='error2'>Invalid entry. Please choose from yes or no</p>}
+                    </div>}
+
+                    {item.type_is_vehicle && <div className='detailItem area-div disable-text-copy' onClick={() => {
+                        if(!isVehicleRentType) setIsVehicleRentType(true);
+                    }} style={{ cursor: isVehicleRentType ? 'default' : undefined}}>
+                        <h3>Specify the type of rental or the nature of use of the vehicle</h3>
+                        <InfoDiv title={'Rent type'} value={vehicleRentType === '' ? 'غير محدد' : vehicleRentType}/>
+                        {isVehicleRentType && <AddDetailsPopup array={vehicleRentType} setArray={setVehicleRentType} type={'carRentType'} sections={'selections'} 
+                        isNotFacilities isSingleSelect setIsShow={setIsVehicleRentType} baseArr={vehicleRentTypesArray(true)} isEnglish/>}
+                        {detailsError.includes('rentType') && <p className='error2'>Invalid entry, please choose from one of the options</p>}
+                    </div>}
+
+                    {item.type_is_vehicle && <div className='detailItem vehicle-specs'>
+
+                        <h2>Determine vehicle specifications</h2>
+
+                        <div className='selection-div disable-text-copy' onClick={() => {
+                            if(!isCarGearboxShow) setIsCarGearboxShow(true);
+                        }} style={{ cursor: isCarGearboxShow ? 'default' : undefined}}>
+                            <h3>Select the type of Transmission</h3>
+                            <InfoDiv title={'Transmission type'} 
+                            value={carGearbox === '' ? 'Undefined' : carGearbox}/>
+                            {isCarGearboxShow && <AddDetailsPopup array={carGearbox} setArray={setCarGearBox} type={'carGearBox'} sections={'selections'} 
+                            isNotFacilities isSingleSelect setIsShow={setIsCarGearboxShow} baseArr={carGearboxes(true)} isEnglish/>}
+                            {detailsError.includes('carGearbox') && <p className='error2'>Invalid entry, please choose from one of the options</p>}
+                        </div>
+
+                        <div className='selection-div disable-text-copy' onClick={() => {
+                            if(!isCarFuelTypeShow) setIsCarFuelTypeShow(true);
+                        }} style={{ cursor: isCarFuelTypeShow ? 'default' : undefined}}> 
+                            <h3>Select Fuel type </h3>
+                            <InfoDiv title={'Fuel type'} divClick={() => setIsCarFuelTypeShow(!isCarFuelTypeShow)} 
+                            value={carFuelType === '' ? 'Undefined' : carFuelType}/>
+                            {isCarFuelTypeShow && <AddDetailsPopup array={carFuelType} setArray={setCarFuelType} type={'carFuelType'} sections={'selections'} 
+                            isNotFacilities isSingleSelect setIsShow={setIsCarFuelTypeShow} baseArr={carFuelTypesArray(true)} isEnglish />}
+                            {detailsError.includes('carFuelType') && <p className='error2'>Invalid entry, please choose from one of the options</p>}
+                        </div>
+
+                    </div>}
+
+                    {getDetails().map((dtlObj) => (
+                        !dtlObj.notAllowedCategories?.includes(specificCatagory) 
+                        && <>{!dtlObj.isSelections ? 
+                            <div className='detailItem'>
+                                <h3>{dtlObj.name}</h3>
+                                <ul className='detailItem-ul'>
+                                    {dtlObj.array.map((obj, myIndex) => (
+                                        <li key={myIndex}>
+                                            {!dtlObj.isWithEN ? <CustomInputDiv placholderValue={obj} value={obj} deletable handleDelete={() => {
+                                                let arr = [];
+                                                for (let i = 0; i < dtlObj.array.length; i++) {
+                                                    if(i !== myIndex){
+                                                        arr.push(dtlObj.array[i]);
+                                                    }
+                                                }
+                                                dtlObj.setArray(arr);
+                                            }} 
+                                            listener={(e) => {
+                                                let arr = [...dtlObj.array];
+                                                arr[myIndex] = e.target.value;
+                                                dtlObj.setArray(arr);
+                                            }}/> : <CustomInputDivWithEN placholderValue={'Add detail in Arabic'} 
+                                            enPlacholderValue={'Add detail in English'}  deletable 
+                                            handleDelete={() => {
+                                                let arr = [];
+                                                for (let i = 0; i < dtlObj.array.length; i++) {
+                                                    if(i !== myIndex){
+                                                        arr.push(dtlObj.array[i]);
+                                                    }
+                                                }
+                                                dtlObj.setArray(arr);
+
+                                                let enArr = [];
+                                                for (let i = 0; i < dtlObj.detailsEN.length; i++) {
+                                                    if(i !== myIndex){
+                                                        enArr.push(dtlObj.detailsEN[i]);
+                                                    }
+                                                }
+                                                dtlObj.setDetailsEN(enArr);
+                                            }} 
+                                            listener={(e) => {
+
+                                                let arr = [...dtlObj.array];
+                                                arr[myIndex] = e.target.value;
+                                                dtlObj.setArray(arr);
+                                                
+                                                let enArr = dtlObj.detailsEN;
+                                                enArr[myIndex] = { enName: enArr[myIndex]?.enName, arName: e.target.value };
+                                                dtlObj.setDetailsEN(enArr);
+
+                                            }} enListener={(e) => {
+                                                let arr = dtlObj.detailsEN;
+                                                arr[myIndex] = { enName: e.target.value, arName: arr[myIndex]?.arName};
+                                                dtlObj.setDetailsEN(arr);
+                                            }} isError={detailsError.includes(`${dtlObj.idName}.${myIndex}`)}
+                                            errorText={'Please write in detail, without using invalid characters such as >, &, "...etc'}
+                                            value={obj} enValue={dtlObj.detailsEN?.find(i=>i.arName === obj)?.enName}
+                                            isProfileDetails isEnglish />}
+                                        </li>
                                     ))}
                                 </ul>
-                            </div>
-                        </li>
+                                <button style={{ marginTop: dtlObj.array.length <= 0 ? 'unset' : undefined }} onClick={
+                                    () => {
+                                        dtlObj.setArray([...dtlObj.array, '']);
+                                        if(dtlObj.isWithEN) dtlObj.setDetailsEN([...dtlObj.detailsEN, { enName: '', arName: '' }]);
+                                    }
+                                } className={arabicFont}>{'Add detail'}</button>
+                            </div> : <div className='detailItem area-div dtl-sels-div disable-text-copy' onClick={() => {
+                                if(!dtlObj.isShow) {
+                                    dtlObj.setIsShow(true);
+                                    setIsAddDetails(true);
+                                };
+                            }} style={{ cursor: dtlObj.isShow ? 'text' : 'pointer' }}>
+
+                                {dtlObj.isShow && <AddDetailsPopup setIsShow={dtlObj.setIsShow} 
+                                setArray={dtlObj.setArray} array={dtlObj.array}
+                                accompany={dtlObj.accompany} setAccompany={dtlObj.setAccompany}
+                                sections={getDtlItemSections(dtlObj.idName)} isEnglish
+                                setIsAddDetails={setIsAddDetails} detailsError={detailsError}
+                                type={dtlObj.idName} baseArr={dtlObj.selectArray || []} isVehicles={dtlObj.type_is_vehicle}/>}
+
+                                <h3>{dtlObj.name}</h3>
+
+                                {dtlObj.isNum && (dtlObj.array?.length > 0 ? dtlObj.array?.map((obj, index) => (
+                                    <p className='dtl-array-p'>
+                                        {`
+                                            ${getNames('one', false, true, item.idName) + ' ' + ((index + 1) || '')}
+                                            ${obj?.room_type ? (roomTypesArray(true).includes(obj?.room_type) ? obj?.room_type : roomTypesArray(true)[roomTypesArray().indexOf(obj?.room_type)]) : ''} 
+                                            ${obj?.capacity ? 'with capacity of ' + obj?.capacity + ' people' : ''} 
+                                            ${obj?.dim ? ' its dimension is width ' + obj?.dim?.y + 'm & length ' + obj?.dim?.x + 'm ' : ''} 
+                                            ${obj?.single_beds ? ', ' + obj?.single_beds + ' single beds ' : ''} 
+                                            ${obj?.double_beds ? ', ' + obj?.double_beds + ' master beds ' : ''} 
+                                            ${obj?.depth ? ', & depth of ' + obj?.depth + ' meter ' : ''}
+                                        `}
+                                    </p>
+                                )) : <p className='dtl-array-p'>No {getNames('one', false, true, dtlObj.idName)} Added yet</p>)}
+
+                                {(dtlObj.idName !== 'rooms' && dtlObj.idName !== 'guest_rooms') && <InfoDiv 
+                                title={`${getNames('one', true, true, dtlObj.idName)} ${dtlObj.idName === 'near_places' ? '' : 'Facilities'}`} myStyle={{ cursor: 'pointer' }}
+                                divClick={() => dtlObj.setIsShow(!dtlObj.isShow)} 
+                                value={dtlObj.accompany?.length <= 0 
+                                    ? 'No facility added' 
+                                    : dtlObj.accompany?.toString()?.replaceAll(',', ', ')}/>}
+                                
+                                {detailsError.includes(` ${dtlObj.idName}`) && <p id='error'>Please write in detail, without using invalid characters such as {'>'}, &, "...etc</p>}
+                            
+                            </div>}</>
                     ))}
-                    </ul>
-                    <button className='btnbackscndclr' onClick={() => setContacts([...contacts, { platform: '', val: '', isPlatforms: false }])}>أضف المزيد</button>
-                </div>
 
-                
-                <div className='detailItem area-div' style={{ display: item.type_is_vehicle ? 'none' : null }}>
-                    <h3>Select the possibility of canceling your reservation</h3>
-                    <InfoDiv title={'Cancellation'} divClick={() => setIsCancellation(!isCancellation)} value={cancellation === '' ? 'Undefined' : cancellationsArray(true)[cancellationsArray().indexOf(cancellation)]}/>
-                    {cancellation === '-1' && <p id='error2'>Error</p>}
-                    <HeaderPopup type={'customers'} customArray={cancellationsArray()} selectedCustom={cancellation}
-                    setSelectedCustom={setCancellation} isCustom={isCancellation} setIsCustom={setIsCancellation}/>
-                </div>
+                </div>}
 
-                <div className='detailItem area-div' style={{ display: item.type_is_vehicle ? 'none' : null}}>
-                    <h3>Type the maximum capacity or number of guests available at the property</h3>
-                    <CustomInputDiv title={capacity > 0 ? `${capacity} guest` : ''} max={150000} min={-1} myStyle={{ marginBottom: 0 }} 
-                    placholderValue={'How many guests are allowed in the property?'} type={'number'} isError={capacity === -1} errorText={'Please enter a number from zero to 150,000'} listener={(e) => {
-                        if(Number(e.target.value)) {
-                            setCapacity(Number(e.target.value))
-                        } else {
-                            setCapacity(0);
-                        };
-                    }}/>
-                </div>
-                
-                {getDetails().map((item) => (
-                    !item.isSelections ? <div className='detailItem'>
-                        <h3>{item.name}</h3>
-                        <ul className='detailItem-ul'>
-                            {item.array.map((obj, myIndex) => (
-                                <li key={myIndex}>
-                                    {!item.isWithEN ? <CustomInputDiv placholderValue={obj} value={obj} deletable handleDelete={() => {
-                                        let arr = [];
-                                        for (let i = 0; i < item.array.length; i++) {
-                                            if(i !== myIndex){
-                                                arr.push(item.array[i]);
-                                            }
-                                        }
-                                        item.setArray(arr);
-                                    }} 
-                                    listener={(e) => {
-                                        let arr = [...item.array];
-                                        arr[myIndex] = e.target.value;
-                                        item.setArray(arr);
-                                    }}/> : <CustomInputDivWithEN placholderValue={'أضف تفصيلة بالعربي'} deletable 
-                                    handleDelete={() => {
-                                        let arr = [];
-                                        for (let i = 0; i < item.array.length; i++) {
-                                            if(i !== myIndex){
-                                                arr.push(item.array[i]);
-                                            }
-                                        }
-                                        item.setArray(arr);
+                {section === 5 && <div className='submitItem submit-edit'>
 
-                                        let enArr = [];
-                                        for (let i = 0; i < item.detailsEN.length; i++) {
-                                            if(i !== myIndex){
-                                                enArr.push(item.detailsEN[i]);
-                                            }
-                                        }
-                                        item.setDetailsEN(enArr);
-                                    }}  isProfileDetails enPlacholderValue={item.detailsEN.find(i => i?.arName === obj)?.enName || 'أضف ترجمة التفصيلة بالانجليزي'}
-                                    value={obj} isEnglish
-                                    listener={(e) => {
-
-                                        let arr = [...item.array];
-                                        arr[myIndex] = e.target.value;
-                                        item.setArray(arr);
-                                        
-                                        let enArr = item.detailsEN;
-                                        enArr[myIndex] = { enName: enArr[myIndex]?.enName, arName: e.target.value };
-                                        item.setDetailsEN(enArr);
-
-                                    }} enListener={(e) => {
-                                        let arr = item.detailsEN;
-                                        arr[myIndex] = { enName: e.target.value, arName: arr[myIndex]?.arName};
-                                        item.setDetailsEN(arr);
-                                    }}/>}
+                    <div className='imagesToDelete' style={{ display: filesToDelete.length <= 0 && 'none' }}>
+                        <label><Svgs name={'info'}/>These files will be permanently deleted. To deselect, return to the files box.</label>
+                        <ul>
+                            {filesToDelete.map((file) => (
+                                <li>
+                                    {(file.split("").reverse().join("").split('.')[0] === 'gpj' || file.split("").reverse().join("").split('.')[0] === 'gnp')
+                                    ? <Image src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${file}`} width={1200} height={1200}/>
+                                    : <video autoPlay loop src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${file}`} />
+                                    }
                                 </li>
                             ))}
                         </ul>
-                        <button style={{ marginTop: item.array.length <= 0 && 'unset' }} onClick={
-                            () => {
-                                item.setArray([...item.array, '']);
-                                if(item.isWithEN) item.setDetailsEN([...item.detailsEN, { enName: '', arName: '' }]);
-                            }
-                        }>{'أضف تفصيلة'}</button>
-                    </div> : <div className='detailItem area-div'>
-
-                        <h3>{item.name}</h3>
-
-                        {item.isNum && <>
-
-                            {item.idName === 'pool' && <div className='priceDiv'>
-                                <CustomInputDiv title={'عدد المسابح'}  value={poolNum} listener={(e) => {
-                                    setPoolNum(Number(e.target.value));
-                                }} type={'number'} min={0} max={100000}/>
-                            </div>}
-                        
-                            {item.idName === 'bathrooms' && <div className='priceDiv'>
-                                <CustomInputDiv title={'عدد دورات المياه الكلي'}  value={bathroomsNum} listener={(e) => {
-                                    setBathroomsNum(Number(e.target.value));
-                                }} type={'number'} min={0} max={100000}/>
-                            </div>}
-
-                            {item.idName === 'rooms' && <div style={{ marginTop: 16 }} className='priceDiv'>
-                                <CustomInputDiv title={'عدد غرف النوم الكلي'} value={roomObj?.num} listener={(e) => {
-                                    setRoomObj({ num: Number(e.target.value), single_beds: roomObj?.single_beds, double_beds: roomObj?.double_beds });
-                                }} type={'number'} min={0} max={100000}/>
-                            </div>}
-
-                            {item.idName === 'rooms' && <div style={{ marginTop: 16 }} className='priceDiv'>
-                                <CustomInputDiv title={'عدد ' + 'الأسرة المفردة' + ' الكلي'} value={roomObj?.single_beds} listener={(e) => {
-                                    setRoomObj({ single_beds: Number(e.target.value), num: roomObj?.num, double_beds: roomObj?.double_beds });
-                                }} type={'number'} min={0} max={100000}/>
-                            </div>}
-
-                            {item.idName === 'rooms' && <div style={{ marginTop: 16 }} className='priceDiv'>
-                                <CustomInputDiv title={'عدد الأسرة المزدوجة الكلي'} value={roomObj?.double_beds} listener={(e) => {
-                                    setRoomObj({ double_beds: Number(e.target.value), single_beds: roomObj?.single_beds, num: roomObj?.num });
-                                }} type={'number'} min={0} max={100000}/>
-                            </div>}
-
-                        </>}
-
-                        {item.idName !== 'rooms' && <><InfoDiv title={'أضف مرافق'} divClick={() => item.setIsShow(!item.isShow)} value={item.array?.length <= 0 ? 'لم تتم اضافة أي مرفق' : item.array?.toString()?.replaceAll(',', ', ')}/>
-                        <HeaderPopup type={'selections'} customArray={item.selectArray} selectedCustom={item.array}
-                        setSelectedCustom={item.setArray} isCustom={item.isShow} setIsCustom={item.setIsShow}/></>}
-                        
                     </div>
-                ))}
 
-            </div>
-            
-            <div className='submitItem submit-edit'>
+                    <div className='imagesToDelete' style={{ display: attachedFilesUrls.length <= 0 && 'none' }}>
+                        <label><Svgs name={'info'}/>These files will be added to the display.</label>
+                        <ul>
+                            {attachedFilesUrls.map((attachedFile) => (
+                                <li>
+                                    {attachedFile.type.split('/')[0] === 'image'
+                                    ? <Image src={URL.createObjectURL(attachedFile)} width={1200} height={1200}/>
+                                    : <video autoPlay loop src={URL.createObjectURL(attachedFile)} />
+                                    }
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
 
-                <div className='imagesToDelete' style={{ display: filesToDelete.length <= 0 && 'none' }}>
-                    <label><Svgs name={'info'}/>These files will be permanently deleted. To deselect, return to the files box.</label>
-                    <ul>
-                        {filesToDelete.map((file) => (
-                            <li>
-                                {(file.split("").reverse().join("").split('.')[0] === 'gpj' || file.split("").reverse().join("").split('.')[0] === 'gnp')
-                                ? <Image src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${file}`} width={1200} height={1200}/>
-                                : <video autoPlay loop src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${file}`} />
-                                }
-                            </li>
-                        ))}
-                    </ul>
+                    <div className='edits-info' style={{ display: !isSomethingChanged() ? 'none' : undefined }}>
+                        Some data will be modified
+                    </div>
+
+                    <label id='error2' style={{ padding: error.length <= 0 && 0, margin: error.length <= 0 && 0 }}>{error}</label>
+
+                    <label id='success' style={{ padding: !success && 0, margin: !success && 0 }}>{success && 'Modified successfully'}</label>
+
+                    <button className='submit-btn' onClick={handleSubmit}>{loading ? <LoadingCircle /> : 'Edit'}</button>
+
+                </div>}
+
+                <div className='section-div'>
+                    <p style={!sectionError?.length > 0 ? {
+                        display: 'none', padding: 0, margin: 0
+                    } : undefined}>{sectionError} {(section === 1 && !sectionError.includes('خارج الأردن')) 
+                        ? <button className={arabicFont} onClick={() => {
+                            setSectionError('');
+                            setSection(section >= 5 ? 5 : section + 1); 
+                        }}>yes</button>
+                        : null}</p>
+                    <button style={{ display: section <= 0 ? 'none' : undefined }}
+                    className={'editDiv disable-text-copy ' + arabicFont} onClick={() => {
+                        setSectionError('');
+                        setSection(section > 0 ? section - (!item.type_is_vehicle && section === 2 ? 2 : 1) : 0);
+                    }}>Back</button>
+                    <button style={{ 
+                        display: section >= 5 ? 'none' : undefined
+                    }} className={'btnbackscndclr disable-text-copy ' + arabicFont} onClick={() => {
+                        if(isTestSection()) 
+                            setSection(section >= 5 ? 5 : section + (!item.type_is_vehicle && section === 0 ? 2 : 1));
+                    }}>Continue</button>
                 </div>
 
-                <div className='imagesToDelete' style={{ display: attachedFilesUrls.length <= 0 && 'none' }}>
-                    <label><Svgs name={'info'}/>These files will be added to the display.</label>
-                    <ul>
-                        {attachedFilesUrls.map((attachedFile) => (
-                            <li>
-                                {attachedFile.type.split('/')[0] === 'image'
-                                ? <Image src={URL.createObjectURL(attachedFile)} width={1200} height={1200}/>
-                                : <video autoPlay loop src={URL.createObjectURL(attachedFile)} />
-                                }
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-
-                <div className='edits-info' style={{ display: !isSomethingChanged() ? 'none' : undefined }}>
-                    Some data will be modified
-                    {/* {itemTitle !== item.title && <h4 style={{ marginTop: 24}}>Title: {itemTitle}</h4>}
-                    {itemDesc !== item.description && <h4> Description: {itemDesc}</h4>}
-                    {itemPrice !== item.price && <h4>Price: {itemPrice}</h4>}
-                    {conditionsAndTerms !== item.terms_and_conditions && <h4>Terms & Conditions: {conditionsAndTerms.toString()}</h4>}
-                    {contactsIsChanged() && <h4>Communications methods</h4>} */}
-               
-                </div>
-
-                <label id='error2' style={{ padding: error.length <= 0 && 0, margin: error.length <= 0 && 0 }}>{error}</label>
-                
-                <label id='success' style={{ padding: !success && 0, margin: !success && 0 }}>{success && 'Modified successfully'}</label>
-                
-                <button className='submit-btn' onClick={handleSubmit}>{loading ? <LoadingCircle /> : 'Edit'}</button>
-                
             </div>
 
         </div>

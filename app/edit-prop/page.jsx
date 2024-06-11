@@ -18,7 +18,6 @@ import { JordanCities, cancellationsArray, carFuelTypesArray, carGearboxes, cont
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import CustomInputDivWithEN from '@components/CustomInputDivWithEN';
 import InfoDiv from '@components/InfoDiv';
-import HeaderPopup from '@components/popups/HeaderPopup';
 import { bathroomFacilities, customersTypesArray, facilities, kitchenFacilities, nearPlacesNames, poolType } from '@utils/Facilities';
 import LoadingCircle from '@components/LoadingCircle';
 import AddDetailsPopup from '@components/popups/AddDetailsPopup';
@@ -59,7 +58,6 @@ const Page = () => {
 
     const [section, setSection] = useState(0);
     const [sectionError, setSectionError] = useState('');
-    const [freeSection, setFreeSection] = useState(false);
     const [sectionTitle, setSectionTitle] = useState('');
     const sectionsArray = [
         { id: 0, name: 'تعديل المعلومات الأساسية' },
@@ -138,15 +136,11 @@ const Page = () => {
     const [companionsDetailArray, setCompanionsDetailArray] = useState([]);
     const [bathroomsDetailArray, setBathroomsDetailArray] = useState([]);
     const [roomsDetailArray, setRoomsDetailArray] = useState([]);
-    const [bathroomsNum, setBathroomsNum] = useState(0);
     const [kitchenDetailArray, setKitchenDetailArray] = useState([]);
-    const [roomObj, setRoomObj] = useState([]);
     const [conditionsAndTerms, setConditionsAndTerms] = useState([]);
-    const [vehicleSpecifications, setVehicleSpecifications] = useState([]);
     const [vehicleFeatures, setVehicleFeatures] = useState([]);
     const [nearPlaces, setNearPlaces] = useState([]);
     const [poolsDetailArray, setPoolsDetailArray] = useState([]);
-    const [poolNum, setPoolNum] = useState(0);
     
     const [filesToDelete, setFilesToDelete] = useState([]);
     const [isAddDetails, setIsAddDetails] = useState(false);
@@ -838,43 +832,6 @@ const Page = () => {
         return true;    
     };
 
-    const getInputPlaceHolder = (pl) => {
-        switch(pl){
-            case 'youtube':
-                return 'ادخل رابط يوتيوب';
-            case 'facebook':
-                return 'ادخل رابط فيسبوك';
-            case 'linkedin':
-                return 'ادخل رابط لينكدان';
-            default:
-                return 'ادخل رابط حسابك';    
-        }
-    };
-
-    const contactsIsChanged = () => {
-
-        let tempContacts = [], tempItemContacts = [];
-
-        contacts.forEach((item) => {
-            tempContacts.push({
-                platform: item.platform, val: item.val
-            });
-        });
-
-        item.contacts?.forEach((item) => {
-            tempItemContacts.push({
-                platform: item.platform, val: item.val
-            });
-        });
-
-        if(JSON.stringify(tempContacts) !== JSON.stringify(tempItemContacts) 
-            || (tempContacts.length > 0 && (item.contacts === null || item.contacts === undefined)) )
-            return true;
-
-        return false;
-
-    };
-
     const getPriceValue = (reservationType) => {
         switch(reservationType){
             case 'Daily':
@@ -1075,7 +1032,7 @@ const Page = () => {
 
             console.log('test4');
 
-            if(item.images?.length <= 1 && filesToDelete?.length > 0){
+            if(item.images?.length - filesToDelete?.length <= 0){
                 setSectionError('لا يمكن حذف آخر صورة تعبر عن ' + (item.type_is_vehicle ? 'السيارة' : 'العقار'));
                 return false;
             } else {
@@ -1361,7 +1318,6 @@ const Page = () => {
         setSuccess(false);
         setError('');
         setSectionTitle(sectionsArray.find(i => i?.id === section)?.name);
-        if(section === 6) setFreeSection(true);
     }, [section]);
 
     useEffect(() => {
@@ -1741,7 +1697,7 @@ const Page = () => {
                                                 arr[index] = { platform: p, val: arr[index].val, isPlatforms: false };
                                                 setContacts(arr);
                                                 setContactsError('');
-                                            }}>{p} {p === c.platform && <RightIconSpan />}</li>
+                                            }}>{p}</li>
                                         ))}
                                     </ul>
                                 </div>
@@ -2005,18 +1961,20 @@ const Page = () => {
                     } : undefined}>{sectionError} {(section === 1 && !sectionError.includes('خارج الأردن')) 
                         ? <button className={arabicFont} onClick={() => {
                             setSectionError('');
-                            setSection(section >= 5 ? 5 : section + 1); 
+                            setSection(section >= 5 ? 5 : section + (!item.type_is_vehicle && section === 0 ? 2 : 1));
                         }}>نعم</button>
                         : null}</p>
                     <button style={{ display: section <= 0 ? 'none' : undefined }}
                     className={'editDiv disable-text-copy ' + arabicFont} onClick={() => {
                         setSectionError('');
-                        setSection(section > 0 ? section - 1 : 0);
+                        setSection(section > 0 ? section - (!item.type_is_vehicle && section === 2 ? 2 : 1) : 0);
                     }}>رجوع</button>
                     <button style={{ 
                         display: section >= 5 ? 'none' : undefined
                     }} className={'btnbackscndclr disable-text-copy ' + arabicFont} onClick={() => {
-                        if(isTestSection()) setSection(section >= 5 ? 5 : section + 1);
+                        if(isTestSection()) 
+                            setSection(section >= 5 ? 5 : section + (!item.type_is_vehicle && section === 0 ? 2 : 1));
+                        
                     }}>تقدم</button>
                 </div>
 

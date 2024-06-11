@@ -36,6 +36,8 @@ const page = () => {
 
     const [fetchingUserInfo, setFetchingUserInfo] = useState(true);
 
+    const [isNotifShow, setIsNotifShow] = useState(true);
+    
     const [loadingItems, setLoadingItems] = useState(false);
     const [loadingGuests, setLoadingGuests] = useState(false);
     const [confirmingGuest, setConfirmingGuest] = useState(-1);
@@ -557,7 +559,7 @@ const page = () => {
             </div>
           </div>}
 
-          <Notif isEnglish/>
+          {isNotifShow && <Notif setIsShow={setIsNotifShow} isEnglish />}
 
           <div className="details">
             

@@ -155,6 +155,10 @@
         }
     }
 
+    input{
+        font-family: inherit;
+    }
+    
     #error, #success{
         width: 100%;
         color: rgb(255, 74, 96);

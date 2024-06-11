@@ -201,7 +201,8 @@ export const facilities = (isEnglish, isStudents) => {
 
 
 // تصنيفات العقار من حيث طبيعة الضيوف مثل عوائل أو افراد
-export const customersTypesArray = (isEnglish) => {
+export const customersTypesArray = (isEnglish, isStudents) => {
+    if(isStudents) return studentsTypesArray(isEnglish);
     return isEnglish ? [
         'Events',
         'Pairs',
