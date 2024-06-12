@@ -1,8 +1,14 @@
+'use client';
+
 import '@styles/components_styles/NotFound.scss';
+import { Context } from '@utils/Context';
 import Svgs from '@utils/Svgs';
 import Link from 'next/link';
+import { useContext } from 'react';
 
 const NotFound = ({ type, isEnglish, navToVerify }) => {
+
+  const { userId } = useContext(Context);
 
   const getText = () => {
     switch(type){
@@ -21,7 +27,7 @@ const NotFound = ({ type, isEnglish, navToVerify }) => {
         {getText()}
         <Svgs name={'not found'}/>
       </div>
-      {navToVerify && <Link style={{margin: 0}} href={isEnglish ? '/en/verify-account' : '/verify-account'}>
+      {(navToVerify && userId?.length > 10) && <Link style={{margin: 0}} href={isEnglish ? '/en/verify-account' : '/verify-account'}>
         {isEnglish ? 'Verify account from here' : 'قم بتوثيق حسابك من هنا'}
       </Link>}
     </div>

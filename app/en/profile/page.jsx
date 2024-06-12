@@ -406,7 +406,7 @@ const page = () => {
       try {
           if(convertSuccess?.length > 0) return;
           if(!userPhone) return setConvertError('You must add your own phone number before transferring to an advertiser, where you will be contacted to prove your ownership of the number.');
-          if(!userAddress) return setConvertError('Please specify your own geographical address before converting to an advertiser on the platform.');
+          if(!userAddress && !userAddressEN) return setConvertError('Please specify your own geographical address before converting to an advertiser on the platform.');
           setConvertingToHost(true);
           const res = await askToBeHost();
           if(!res || res.ok !== true) {

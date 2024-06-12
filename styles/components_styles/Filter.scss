@@ -280,7 +280,7 @@
             margin-right: 8px;
 
             span{
-                transform: translate(8px, 4px);        
+                transform: translate(8px, 4px) rotate(45deg);        
             }
         }
 
@@ -290,7 +290,7 @@
             height: 14px;
             border-right: 2px solid var(--secondColorDark);
             border-bottom: 2px solid var(--secondColorDark);
-            transform: translate(-9px, 4px);            
+            transform: translate(-9px, 4px) rotate(45deg);            
         }
     }
     

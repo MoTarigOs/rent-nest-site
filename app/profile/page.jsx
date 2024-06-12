@@ -3,7 +3,7 @@
 import './Profile.scss';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Context } from '@utils/Context';
-import { askToBeHost, checkUsername, deleteMyAccount, editUser, getGuests, removeGuest, sendCode, signOut, verifyGuest, verifyMyEmail } from '@utils/api';
+import { askToBeHost, changeMyPass, checkUsername, deleteMyAccount, editUser, getGuests, removeGuest, sendCode, signOut, verifyGuest, verifyMyEmail } from '@utils/api';
 import InfoDiv from '@components/InfoDiv';
 import CustomInputDiv from '@components/CustomInputDiv';
 import Svgs from '@utils/Svgs';
@@ -406,7 +406,7 @@ const page = () => {
         try {
             if(convertSuccess?.length > 0) return;
             if(!userPhone) return setConvertError('يجب عليك اضافة رقم هاتف خاص بك قبل التحويل الى معلن, سيتم التواصل معك فيه لاثبات ملكيتك للرقم.');
-            if(!userAddress) return setConvertError('الرجاء تحديد عنوان جغرافي خاص بك قبل التحويل الى معلن على المنصة.');
+            if(!userAddress && !userAddressEN) return setConvertError('الرجاء تحديد عنوان جغرافي خاص بك قبل التحويل الى معلن على المنصة.');
             setConvertingToHost(true);
             const res = await askToBeHost();
             if(!res || res.ok !== true) {

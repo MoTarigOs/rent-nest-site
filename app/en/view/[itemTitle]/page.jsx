@@ -489,7 +489,7 @@ const page = () => {
 
     setIsMap(true);  
     
-    const obj = JordanCities.find(i => i.city_id === item?.city_id);
+    const obj = JordanCities.find(i => i.value === item?.city);
 
     if(item?.map_coordinates?.at(1)){
       setLatitude(item.map_coordinates[1]);

@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { Context } from '@utils/Context';
 import NotFound from '@components/NotFound';
 import MySkeleton from '@components/MySkeleton';
+import LoadingCircle from '@components/LoadingCircle';
 
 const page = () => {
 
@@ -125,14 +126,14 @@ const page = () => {
 
             <h1>Verify Account</h1>
 
-            <button type='button' className='btnbackscndclr' style={{ margin: '-32px 0 24px 0' }} onClick={sendCodeToEmail}>{sendingCode ? 'Sending...' : 'Send code to your email'}</button>
+            <button type='button' className='btnbackscndclr' style={{ margin: '-32px 0 24px 0' }} onClick={sendCodeToEmail}>{sendingCode ? <LoadingCircle /> : 'Send code to your email'}</button>
             <p id={sendCodeError.length > 0 ? 'p-info-error' : 'p-info'} style={{ marginTop: -20, marginBottom: 24 }}>{sendCodeError?.length > 0 ? sendCodeError : sendCodeSuccess}</p>
 
             <CustomInputDiv title={'Enter Code'}  isError={code === '-1'} errorText={'Enter valid code.'} listener={(e) => setCode(e.target.value)}/>
 
             <label id='success' style={!operationSuccess ? { marginTop: -44, padding: 0 } : { marginTop: -24 }}>{operationSuccess && 'Account verified successfully'} <Link href={`/en/profile?id=${userId}`} style={{ display: !operationSuccess && 'none' }}>Go to profile</Link></label>
 
-            <button type='submit' className='btnbackscndclr' onClick={verifyAccount} style={{ marginTop: 0 }}>{verifing ? 'Verifing...' : 'Verify'}</button>
+            <button type='submit' className='btnbackscndclr' onClick={verifyAccount} style={{ marginTop: 0 }}>{verifing ? <LoadingCircle /> : 'Verify'}</button>
 
             <p id='p-info-error'>{verifyError?.length > 0 ? verifyError : ''}</p>
         

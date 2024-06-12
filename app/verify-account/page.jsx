@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { Context } from '@utils/Context';
 import NotFound from '@components/NotFound';
 import MySkeleton from '@components/MySkeleton';
+import LoadingCircle from '@components/LoadingCircle';
 
 const page = () => {
 
@@ -159,14 +160,14 @@ const page = () => {
 
             <h1>اثبات ملكية الحساب</h1>
 
-            <button type='button' className='btnbackscndclr' style={{ margin: '-32px 0 24px 0' }} onClick={sendCodeToEmail}>{sendingCode ? 'جاري الارسال...' : 'ارسال رمز الى بريدك الالكتروني'}</button>
+            <button type='button' className='btnbackscndclr' style={{ margin: '-32px 0 24px 0' }} onClick={sendCodeToEmail}>{sendingCode ? <LoadingCircle /> : 'ارسال رمز الى بريدك الالكتروني'}</button>
             <p id={sendCodeError.length > 0 ? 'p-info-error' : 'p-info'} style={{ marginTop: -20, marginBottom: 24 }}>{sendCodeError?.length > 0 ? sendCodeError : sendCodeSuccess}</p>
 
             <CustomInputDiv title={'ادخل الرمز'}  isError={code === '-1'} errorText={'الرجاء ادخال رمز صالح.'} listener={(e) => setCode(e.target.value)}/>
 
             <label id='success' style={!operationSuccess ? { marginTop: -44, padding: 0 } : { marginTop: -24 }}>{operationSuccess && 'تم اثبات الملكية بنجاح'} <Link href={`/profile?id=${userId}`} style={{ display: !operationSuccess && 'none' }}>الذهاب الى الملف الشخصي</Link></label>
 
-            <button type='submit' className='btnbackscndclr' onClick={verifyAccount} style={{ marginTop: 0 }}>{verifing ? 'جاري اثبات الملكية...' : 'اثبات الملكية'}</button>
+            <button type='submit' className='btnbackscndclr' onClick={verifyAccount} style={{ marginTop: 0 }}>{verifing ? <LoadingCircle /> : 'اثبات الملكية'}</button>
 
             <p id='p-info-error'>{verifyError?.length > 0 ? verifyError : ''}</p>
         
@@ -174,7 +175,7 @@ const page = () => {
 
         <strong>أو</strong>
 
-        <p id='navigate-to-sign' onClick={logout}>{signingOut ? 'جاري تسجيل الخروج...' : 'تسجيل خروج'}</p>
+        <p id='navigate-to-sign' onClick={logout}>{signingOut ? <LoadingCircle /> : 'تسجيل خروج'}</p>
 
       </div>
 

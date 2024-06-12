@@ -472,10 +472,8 @@ const page = () => {
   };
 
   const showMap = () => {
-
-    setIsMap(true);  
     
-    const obj = JordanCities.find(i => i.city_id === item?.city_id);
+    const obj = JordanCities.find(i => i.value === item?.city);
 
     if(item?.map_coordinates?.at(1)){
       setLatitude(item.map_coordinates[1]);
@@ -488,6 +486,8 @@ const page = () => {
     } else {
       setLongitude(obj?.long ? obj.long : null);
     }
+
+    setIsMap(true);  
 
     setMapType('view');
 
@@ -711,7 +711,7 @@ const page = () => {
 
       {reportDiv && <div className='reportDiv'>
 
-        {userId?.length > 0 
+        {!userId?.length > 0 
         ? <h2>قم بالتسجيل أولاً للإبلاغ عن العروض والمراجعات</h2>
         : <>
           <h2>إِبلاغ عن {writerId?.length > 0 ? 'هذه المراجعة' : 'هذا العرض'} <Svgs name={'cross'} on_click={() => { setReportDiv(false); setWriterId(''); }}/></h2>
