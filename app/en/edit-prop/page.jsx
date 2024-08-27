@@ -1566,7 +1566,7 @@ const Page = () => {
                     enListener={(e) => setItemTitleEN(e.target.value)} isProfileDetails/>
 
                     <CustomInputDivWithEN isError={itemDesc === '-1'} 
-                    errorText={'الرجاء كتابة وصف واضح عن ما تريد عرضه, مع عدم استخدام حروف غير صالحة مثل <, &, " ...الخ.'} 
+                    errorText={'Please do not use invalid characters such as <, &, " ...etc'} 
                     title={'Enter Description in Arabic & English'} isTextArea={true} 
                     placholderValue={'Write Description in Arabic here'} isEnglish
                     value={itemDesc === '-1' ? null : itemDesc} enValue={itemDescEN} 
@@ -1586,7 +1586,7 @@ const Page = () => {
                             type={'add-city'} sections={'selections'} isSingleSelect 
                             setIsShow={setCityPopup} isEnglish />}
                         </div>
-                        <CustomInputDivWithEN title={'الحي'} isError={itemNeighbour === '-1'} 
+                        <CustomInputDivWithEN title={'Neighbourhood'} isError={itemNeighbour === '-1'} 
                         errorText={'Please do not use invalid characters such as <, &, " ...etc'} 
                         listener={(e) => setItemNeighbour(e.target.value)} isEnglish
                         placholderValue={'Write Neighbourhood in Arabic here'} value={itemNeighbour === '-1' ? null : itemNeighbour}

@@ -1,6 +1,6 @@
 'use client';
 
-import '../add/Add.scss';
+import '../../add/Add.scss';
 import { Suspense, useContext, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import CustomInputDiv from '@components/CustomInputDiv';
@@ -57,12 +57,12 @@ const Page = () => {
     const [sectionError, setSectionError] = useState('');
     const [sectionTitle, setSectionTitle] = useState('');
     const sectionsArray = [
-        { id: 0, name: 'تعديل المعلومات الأساسية' },
-        item?.type_is_vehicle ? { id: 1, name: 'تعديل الموقع الجغرافي' } : null,
-        { id: 2, name: 'تعديل السعر و التخفيض' },
-        { id: 3, name: 'تعديل الصور و الفيديوهات' },
-        { id: 4, name: 'تعديل التفاصيل الدقيقة' },
-        { id: 5, name: 'الارسال' }
+        { id: 0, name: 'Edit Main Info' },
+        item?.type_is_vehicle ? { id: 1, name: 'Edit Location' } : null,
+        { id: 2, name: 'Edit Prices & Discount' },
+        { id: 3, name: 'Edit Images & Videos Files' },
+        { id: 4, name: 'Edit Details' },
+        { id: 5, name: 'Submit' }
     ];
 
     const [expandPrices, setExpandPrices] = useState(false);
@@ -181,20 +181,20 @@ const Page = () => {
     const [nearPlacesShow, setNearPlacesShow] = useState(false);
 
     const details = [
-        {idName: 'guest_rooms', notAllowedCategories: ['students'], isNum: true, name: 'غرف الضيوف و المجالس',  isSelections: true, array: guestRoomsDetailArray, setArray: setGuestRoomsDetailArray, isShow: guestRoomsShow, setIsShow: setGuestRoomsShow},
-        {idName: 'bathrooms', notAllowedCategories: ['students'], name: 'دورات المياه', isNum: true, isDimension: true, isSelections: true, isShow: bathroomsShow, setIsShow: setBathroomsShow, selectArray: bathroomFacilities(), array: bathroomsDetailArray, setArray: setBathroomsDetailArray, accompany: bathroomsAccompany, setAccompany: setBathroomsAccompany },
-        {idName: 'kitchen', notAllowedCategories: ['students'], name: 'المطبخ', isNum: true, isDimension: true, isSelections: true, selectArray: kitchenFacilities(), isShow: kitchenShow, setIsShow: setKitchenShow, array: kitchenDetailArray, setArray: setKitchenDetailArray, accompany: kitchenAccompany, setAccompany: setKitchenAccompany},
-        {idName: 'rooms', name: 'غرف النوم و الأسرّة', isNum: true, isSelections: true, isShow: bedroomsShow, setIsShow: setBedroomsShow, array: roomsDetailArray, setArray: setRoomsDetailArray},
-        {idName: 'pool', notAllowedCategories: ['students'], name: 'المسبح', isDepth: true, isNum: true, isDimension: true, isSelections: true, isShow: poolsShow, setIsShow: setPoolsShow, selectArray: poolType(), array: poolsDetailArray, setArray: setPoolsDetailArray, accompany: poolAccompany, setAccompany: setPoolAccompany},
-        {idName: 'near_places', name: 'الأماكن القريبة', isSelections: true, selectArray: nearPlacesNames(), isShow: nearPlacesShow, setIsShow: setNearPlacesShow, accompany: nearPlaces, setAccompany: setNearPlaces},
-        {idName: 'facilities', name: 'المرافق', isSelections: true, isShow: companiansShow, setIsShow: setCompaniansShow, selectArray: facilities(false, specificCatagory === 'students'), accompany: companionsDetailArray, setAccompany: setCompanionsDetailArray},
-        {idName: 'features', name: 'المزايا الاضافية', isWithEN: true, detailsEN: vehicleFeaturesEN, setDetailsEN: setVehicleFeaturesEN, array: vehicleFeatures, setArray: setVehicleFeatures},
-        {idName: 'terms', name: 'شروط و أحكام الحجز', isWithEN: true, detailsEN: conditionsAndTermsEN, setDetailsEN: setConditionsAndTermsEN, array: conditionsAndTerms, setArray: setConditionsAndTerms},
+        {idName: 'guest_rooms', notAllowedCategories: ['students'], isNum: true, name: 'Living rooms',  isSelections: true, array: guestRoomsDetailArray, setArray: setGuestRoomsDetailArray, baseArr: [], isShow: guestRoomsShow, setIsShow: setGuestRoomsShow},
+        {idName: 'bathrooms', notAllowedCategories: ['students'], name: 'Bathrooms', isNum: true, isDimension: true, isSelections: true, isShow: bathroomsShow, setIsShow: setBathroomsShow, selectArray: bathroomFacilities(true), array: bathroomsDetailArray, setArray: setBathroomsDetailArray, accompany: bathroomsAccompany, setAccompany: setBathroomsAccompany },
+        {idName: 'kitchen', notAllowedCategories: ['students'], name: 'Kitchens', isNum: true, isDimension: true, isSelections: true, selectArray: kitchenFacilities(true), isShow: kitchenShow, setIsShow: setKitchenShow, array: kitchenDetailArray, setArray: setKitchenDetailArray, accompany: kitchenAccompany, setAccompany: setKitchenAccompany},
+        {idName: 'rooms', name: 'Bedrooms', isNum: true, isSelections: true, isShow: bedroomsShow, setIsShow: setBedroomsShow, array: roomsDetailArray, setArray: setRoomsDetailArray},
+        {idName: 'pool', notAllowedCategories: ['students'], name: 'Swimming Pools', isDepth: true, isNum: true, isDimension: true, isSelections: true, isShow: poolsShow, setIsShow: setPoolsShow, selectArray: poolType(true), array: poolsDetailArray, setArray: setPoolsDetailArray, accompany: poolAccompany, setAccompany: setPoolAccompany},
+        {idName: 'near_places', name: 'Near places', isSelections: true, selectArray: nearPlacesNames(true), isShow: nearPlacesShow, setIsShow: setNearPlacesShow, accompany: nearPlaces, setAccompany: setNearPlaces},
+        {idName: 'facilities', name: 'Facilities', isSelections: true, isShow: companiansShow, setIsShow: setCompaniansShow, selectArray: facilities(true, specificCatagory === 'students'), accompany: companionsDetailArray, setAccompany: setCompanionsDetailArray},
+        {idName: 'features', name: 'Features', isWithEN: true, detailsEN: vehicleFeaturesEN, setDetailsEN: setVehicleFeaturesEN, array: vehicleFeatures, setArray: setVehicleFeatures},
+        {idName: 'terms', name: 'Terms & Conditions', isWithEN: true, detailsEN: conditionsAndTermsEN, setDetailsEN: setConditionsAndTermsEN, array: conditionsAndTerms, setArray: setConditionsAndTerms},
     ];
 
     const vehiclesDetails = [
-        {idName: 'features', name: 'المزايا الاضافية', isWithEN: true, detailsEN: vehicleFeaturesEN, setDetailsEN: setVehicleFeaturesEN, array: vehicleFeatures, setArray: setVehicleFeatures},
-        {idName: 'terms', name: 'شروط و أحكام الحجز', isWithEN: true, detailsEN: conditionsAndTermsEN, setDetailsEN: setConditionsAndTermsEN,  array: conditionsAndTerms, setArray: setConditionsAndTerms},
+        {idName: 'features', name: 'Features', isWithEN: true, detailsEN: vehicleFeaturesEN, setDetailsEN: setVehicleFeaturesEN, array: vehicleFeatures, setArray: setVehicleFeatures},
+        {idName: 'terms', name: 'Terms & Conditions', isWithEN: true, detailsEN: conditionsAndTermsEN, setDetailsEN: setConditionsAndTermsEN,  array: conditionsAndTerms, setArray: setConditionsAndTerms},
     ];
 
     const getDetails = () => {
@@ -264,12 +264,6 @@ const Page = () => {
 
         const compareTwoValuesIsNotEqual = (a, b, type) => {
 
-            // if(type === 'array'){
-            //     console.log('a array: ', a);
-            //     console.log('b array: ', b);
-            //     console.log(JSON.stringify(a) === JSON.stringify(b));
-            // }
-
             if(type === 'array' && JSON.stringify(a) === JSON.stringify(b)) return false;
 
             if(type === 'array' && a?.length <= 0 && (b === null || b === undefined)) return false;
@@ -312,30 +306,30 @@ const Page = () => {
             
             if(compareTwoValuesIsNotEqual(vehicleFeaturesEN?.map(o=>o.enName), getEnglishDetailsArray('features'), 'array')) return false;
             console.log(1);
-            console.log(0.34);
+
 
             if(item.type_is_vehicle && compareTwoValuesIsNotEqual(withDriver, item.details?.vehicle_specifications?.driver)) return false;
-            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(vehicleRentTypesArray(true)[vehicleRentTypesArray().indexOf(vehicleRentType)], item.details?.vehicle_specifications?.rent_type)) return false;
-            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(carGearboxes(true)[carGearboxes().indexOf(carGearbox)], item.details?.vehicle_specifications?.gearbox)) return false;
-            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(carFuelTypesArray(true)[carFuelTypesArray().indexOf(carFuelType)], item.details?.vehicle_specifications?.fuel_type)) return false;
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(vehicleRentTypesArray(true)?.find(i=>i === vehicleRentType) || vehicleRentTypesArray(true)[vehicleRentTypesArray().indexOf(vehicleRentType)], item.details?.vehicle_specifications?.rent_type)) return false;
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(carGearboxes(true).find(i=>i === carGearbox) || carGearboxes(true)[carGearboxes().indexOf(carGearbox)], item.details?.vehicle_specifications?.gearbox)) return false;
+            if(item.type_is_vehicle && compareTwoValuesIsNotEqual(carFuelTypesArray(true)?.find(i=> i === carFuelType) || carFuelTypesArray(true)[carFuelTypesArray().indexOf(carFuelType)], item.details?.vehicle_specifications?.fuel_type)) return false;
             if(item.type_is_vehicle && compareTwoValuesIsNotEqual(itemNeighbour, item.neighbourhood)) return false;
             if(item.type_is_vehicle && compareTwoValuesIsNotEqual(itemNeighbourEN, item.en_data?.neighbourEN)) return false;
             if(item.type_is_vehicle && compareTwoValuesIsNotEqual(itemCity?.value, item.city)) return false;
-        
+
             if(item.type_is_vehicle && compareTwoValuesIsNotEqual(longitude, item.map_coordinates?.at(0))) return false;
             if(item.type_is_vehicle && compareTwoValuesIsNotEqual(latitude, item.map_coordinates?.at(1))) return false;
-            
+
+            if(compareTwoValuesIsNotEqual(cancellationsArray(true).indexOf(cancellation), item.cancellation)) return false;
 
             if(item.type_is_vehicle) return true;
-
-            if(compareTwoValuesIsNotEqual(cancellationsArray().indexOf(cancellation), item.cancellation)) return false;
+            
             if(compareTwoValuesIsNotEqual(capacity, item.capacity)) return false;
             if(compareTwoValuesIsNotEqual(area, item.area)) return false;
             if(compareTwoValuesIsNotEqual(landArea, item.landArea)) return false;
             if(compareTwoValuesIsNotEqual(floor, item.floor)) return false;
-            if(compareTwoValuesIsNotEqual(capacity, item.capacity)) return false;
-            if(compareTwoValuesIsNotEqual(customerType?.toString(), item.customer_type?.toString())) return false;
+            if(compareTwoValuesIsNotEqual(customerType, item.customer_type)) return false;
 
+            console.log(0.34);
             console.log(2);
 
             if(compareTwoValuesIsNotEqual(guestRoomsDetailArray?.map(o=>o.capacity), item.details?.guest_rooms?.map(o=>o.capacity), 'array')) return false;
@@ -716,7 +710,11 @@ const Page = () => {
 
             setBookableIsLoading(true);
 
-            const res = await setBookableAdmin(id, item.is_able_to_book ? 'prevent-book' : 'able-to-book');
+            const res = await setBookableAdmin(
+                id, 
+                item.is_able_to_book ? 'prevent-book' : 'able-to-book',
+                true
+            );
 
             if(res.success !==true){
                 setBookableError(res.dt);
@@ -726,13 +724,13 @@ const Page = () => {
             };
 
             setBookableError('');
-            setBookableSuccess('تم تحديث امكانية الحجز بنجاح.');
+            setBookableSuccess('The reservation facility has been updated successfully.');
             setItem(res.dt);
             setBookableIsLoading(false);
             
         } catch (err) {
             console.log(err.message);
-            setBookableError('حدث خطأ ما');
+            setBookableError('Something went wrong');
             setBookableSuccess('');
             setBookableIsLoading(false);
         }
@@ -747,7 +745,7 @@ const Page = () => {
 
             setBookDaysIsLoading(true);
 
-            const res = await setNewBookedDaysAdmin(id, selectBookedDays);
+            const res = await setNewBookedDaysAdmin(id, selectBookedDays, true);
             
             if(res.success !== true){
                 setBookDaysError(res.dt);
@@ -757,13 +755,13 @@ const Page = () => {
             }
             
             setBookDaysError('');
-            setBookDaysSuccess('تم تحديث القائمة بنجاح.');
+            setBookDaysSuccess('The list has been updated successfully.');
             setItem(res.dt);
             setBookDaysIsLoading(false);
 
         } catch (err) {
             console.log(err.message);
-            setBookDaysError('خطأ غير معروف');
+            setBookDaysError('Something went wrong');
             setBookDaysSuccess('');
             setBookDaysIsLoading(false);
         }
@@ -968,8 +966,6 @@ const Page = () => {
 
         setSectionError('');
 
-        console.log('is changed: ', isSomethingChanged());
-
         if(!isSomethingChanged()) return true;
 
         const testSec1 = () => {
@@ -1000,7 +996,7 @@ const Page = () => {
             }
 
             if(errorEncountered){
-                setSectionError('الرجاء اكمال المعلومات الأساسية و تصحيح الأخطاء بالحقول.');
+                setSectionError('Please complete the basic information and correct errors in the fields.');
             } else {
                 setSectionError('');
             }
@@ -1016,10 +1012,10 @@ const Page = () => {
             if(!item.type_is_vehicle || !item.map_coordinates?.at(0) || !item.map_coordinates?.at(1)) return true;
 
             if(latitude === itemCity?.lat && longitude === itemCity?.long) {
-                setSectionError('لم تقم بتحديد موقع جغرافي للعقار, التقدم على أي حال ؟');
+                setSectionError('You have not specified a geographical location for the property, apply anyway?');
                 return false;
             } else if(!isInsideJordan(longitude, latitude)){
-                setSectionError('الموقع خارج الأردن, الرجاء تحديد موقع صالح على الخريطة');
+                setSectionError('Location outside Jordan, please select a valid location on the map');
                 return false;
             };
             setSectionError('');
@@ -1034,19 +1030,19 @@ const Page = () => {
             let errMsg = '';
 
             if(!isValidPrices()) {
-                errMsg = 'حدد اسعار للعقار';
+                errMsg = 'Determine prices for the unit';
                 errorEncountered = true;
             } 
 
             if(discountNights > 0 && (typeof discountNights !== 'number' || discountNights < 0 || discountNights > 2000)){
                 setDiscountNights(-1);
-                errMsg += ', عدد أيام غير صالح يجب أن يكون بين (0 - 2000) يوم';
+                errMsg += ', Invalid number of days, must be between (0 - 2000) days';
                 errorEncountered = true;
             }
     
             if(discountPer > 0 && (typeof discountPer !== 'number' || discountPer < 0 || discountPer > 100)){
                 setDiscountPer(-1);
-                errMsg += ', رقم تخفيض غير صالح يجب أن يكون بين (0 - 100)%';
+                errMsg += 'Invalid discount number, must be between (0 - 100)%.';
                 errorEncountered = true;
             }
 
@@ -1060,7 +1056,7 @@ const Page = () => {
             console.log('test4');
 
             if(item.images?.length - filesToDelete?.length <= 0){
-                setSectionError('لا يمكن حذف آخر صورة تعبر عن ' + (item.type_is_vehicle ? 'السيارة' : 'العقار'));
+                setSectionError('The last image cannot be deleted, please add more images & submit then delete this image');
                 return false;
             } else {
                 setSectionError('');
@@ -1082,20 +1078,20 @@ const Page = () => {
                 errorEncountered = true;
             }
 
-            if(cancellation?.length > 0 && !cancellationsArray().includes(cancellation)){
+            if(cancellation?.length > 0 && !cancellationsArray(true).includes(cancellation)){
                 detailsErrorMsg = detailsErrorMsg + ' cancellation ';
                 errorEncountered = true;
             }
 
             if(!contacts || !contacts?.length > 0){
                 detailsErrorMsg = detailsErrorMsg + 'contacts ';
-                setContactsError('الرجاء كتابة طريقة تواصل واحدة على الأقل.');
+                setContactsError('Please write at least one contact method.');
                 errorEncountered = true;
             } else {
                 for (let i = 0; i < contacts.length; i++) {
                     if(!isValidContactURL(contacts[i])) {
                         detailsErrorMsg = detailsErrorMsg + 'contacts ';
-                        setContactsError('هنالك رابط غير صالح, الرجاء اختيار منصة و ادخال رابط صالح.');
+                        setContactsError('There is an invalid link. Please choose a platform and enter a valid link.');
                         errorEncountered = true;
                         break;
                     }
@@ -1124,7 +1120,7 @@ const Page = () => {
 
             if(customerType?.length > 0){
                 for (let i = 0; i < customerType.length; i++) {
-                    if(!(specificCatagory === 'students' ? studentsTypesArray() : customersTypesArray()).includes(customerType[i])) {
+                    if(!customersTypesArray(true, specificCatagory === 'students').includes(customerType[i])) {
                         setCustomerType('-1');
                         detailsErrorMsg = detailsErrorMsg + ' customerType ';
                         errorEncountered = true;
@@ -1139,17 +1135,17 @@ const Page = () => {
                 errorEncountered = true;
             }
 
-            if(item.type_is_vehicle && vehicleRentType && (!isValidText(vehicleRentType) || !vehicleRentTypesArray().includes(vehicleRentType))) {
+            if(item.type_is_vehicle && vehicleRentType && (!isValidText(vehicleRentType) || !vehicleRentTypesArray(true).includes(vehicleRentType))) {
                 detailsErrorMsg = detailsErrorMsg + ' rentType ';
                 errorEncountered = true;
             }
 
-            if(item.type_is_vehicle && carGearbox && (!isValidText(carGearbox) || !carGearboxes().includes(carGearbox))) {
+            if(item.type_is_vehicle && carGearbox && (!isValidText(carGearbox) || !carGearboxes(true).includes(carGearbox))) {
                 detailsErrorMsg = detailsErrorMsg + ' carGearbox ';
                 errorEncountered = true;
             }
 
-            if(item.type_is_vehicle && carFuelType && (!isValidText(carFuelType) || !carFuelTypesArray().includes(carFuelType))) {
+            if(item.type_is_vehicle && carFuelType && (!isValidText(carFuelType) || !carFuelTypesArray(true).includes(carFuelType))) {
                 detailsErrorMsg = detailsErrorMsg + ' carFuelType ';
                 errorEncountered = true;
             }
@@ -1164,7 +1160,7 @@ const Page = () => {
 
             setDetailsError(detailsErrorMsg);
 
-            if(errorEncountered) setSectionError('هنالك أخطاء في بعض الحقول الرجاء مراجعتها و تصحيحها');
+            if(errorEncountered) setSectionError('There are errors in some fields, please review and correct them');
             else setSectionError('');
 
             return !errorEncountered;
@@ -1224,11 +1220,11 @@ const Page = () => {
 
         if(all){
             let isAllError = false;
-            if(!testSec1()) {isAllError = true; console.log('submit error here 1');};
-            if(!testSec2()) {isAllError = true; console.log('submit error here 2');};
-            if(!testSec3()) {isAllError = true; console.log('submit error here 3');};
-            if(!testSec4()) {isAllError = true; console.log('submit error here 4');};
-            if(!testSec5()) {isAllError = true; console.log('submit error here 5');};
+            if(!testSec1()) isAllError = true;
+            if(!testSec2()) isAllError = true;
+            if(!testSec3()) isAllError = true;
+            if(!testSec4()) isAllError = true;
+            if(!testSec5()) isAllError = true;
             return !isAllError;
         }
         
@@ -1248,7 +1244,7 @@ const Page = () => {
                 if(i === 4) 
                     if(!testSec5()) errorEncounteredIndex = i;
             }
-            if(errorEncounteredIndex !== -1) setSectionError('لا يمكن التنقل عن طريق رقم القسم نسبة لوجود خطأ في قسم رقم ' + errorEncounteredIndex + ' "' + sectionsArray.find(i => i?.id === errorEncounteredIndex)?.name + '"');
+            if(errorEncounteredIndex !== -1) setSectionError('It is not possible to navigate by section number due to an error in section number ' + errorEncounteredIndex + ' "' + sectionsArray?.find(i => i.id === errorEncounteredIndex)?.name + '"');
             return errorEncounteredIndex === -1;
         } else {
             if(section === 0) return testSec1();
@@ -1272,7 +1268,7 @@ const Page = () => {
           if(adminType === 'hide-property' && !item.visible) return;
           if(adminType === 'pass-property' && item.checked) return;
           if(adminType === 'reject-property' && (item.isRejected || !isValidArrayOfStrings(rejectReasons))) {
-            setRejectError('الرجاء كتابة اسباب لرفض العرض');
+            setRejectError('Write reasons for Rejecting the Unit');
             return;
           }
           setRejectError('');
@@ -1281,7 +1277,7 @@ const Page = () => {
           setAdminSending(true);
     
           if(adminType === 'delete-property'){
-            const deleteFilesRes = await deletePropFilesAdmin(id, storageKey, userEmail);
+            const deleteFilesRes = await deletePropFilesAdmin(id, storageKey, userEmail, true);
             if (deleteFilesRes.success !== true) {
               setAdminError(deleteFilesRes.dt);
               setAdminSuccess('');
@@ -1293,7 +1289,7 @@ const Page = () => {
             setAdminSuccess('');
           };
           
-          const res = await handlePropAdmin(id, adminType, rejectReasons);
+          const res = await handlePropAdmin(id, adminType, rejectReasons, true);
     
           if(res.success !== true) {
             setAdminError(res.dt);
@@ -1303,7 +1299,7 @@ const Page = () => {
           }
     
           setAdminError('');
-          setAdminSuccess('تم التحديث بنجاح');
+          setAdminSuccess('Modified Successfully');
     
           if(adminType === 'pass-property') setItem(res.dt);
     
@@ -1327,7 +1323,7 @@ const Page = () => {
           
         } catch (err) {
           console.log(err.message);
-          setAdminError('حدث خطأ ما');
+          setAdminError('Error occured');
           setAdminSuccess('');
           setAdminSending(false);
         }
@@ -1374,7 +1370,7 @@ const Page = () => {
     
           setDeletingRevs(true);
     
-          const res = await deleteReviewsAdmin(id, revsToDeleteAdmin);
+          const res = await deleteReviewsAdmin(id, revsToDeleteAdmin, true);
     
           if(res.success !== true) {
             setDeleteRevsError(res.dt);
@@ -1384,13 +1380,13 @@ const Page = () => {
           }
     
           setDeleteRevsError('');
-          setDeleteRevsSuccess('تم الحذف بنجاح');
+          setDeleteRevsSuccess('Deleted Successfully');
           setItem(res.dt);
           setDeletingRevs(false);
           
         } catch (err) {
           console.log(err.message);
-          setDeleteRevsError('حدث خطأ');
+          setDeleteRevsError('Error Occured');
           setDeleteRevsSuccess('');
           setDeletingRevs(false);
         }
@@ -1437,19 +1433,19 @@ const Page = () => {
             if(item.contacts) setContacts(item.contacts);
             setDiscountNights(item.discount?.num_of_days_for_discount);
             setDiscountPer(item.discount?.percentage);
-            setCancellation(cancellationsArray()[item.cancellation]);
+            setCancellation(cancellationsArray(true)[item.cancellation]);
             setCapacity(item.capacity);
-            setCustomerType(item.customer_type);
+            setCustomerType(item.en_data?.customerTypeEN);
             setArea(item.area);
             setLandArea(item.landArea);
             setFloor(item.floor);
             setWithDriver(item.details?.vehicle_specifications?.driver);
-            setVehicleRentType(vehicleRentTypesArray()[vehicleRentTypesArray(true).indexOf(item.details?.vehicle_specifications?.rent_type)]);
-            setCarGearBox(carGearboxes()[carGearboxes(true).indexOf(item.details?.vehicle_specifications?.gearbox)]);
-            setCarFuelType(carFuelTypesArray()[carFuelTypesArray(true).indexOf(item.details?.vehicle_specifications?.fuel_type)]);
+            setVehicleRentType(vehicleRentTypesArray(true)?.find(i=>i === item.details?.vehicle_specifications?.rent_type) || vehicleRentTypesArray(true)[vehicleRentTypesArray().indexOf(item.details?.vehicle_specifications?.rent_type)]);
+            setCarGearBox(carGearboxes(true)?.find(i=>i === item.details?.vehicle_specifications?.gearbox) || carGearboxes(true)[carGearboxes().indexOf(item.details?.vehicle_specifications?.gearbox)]);
+            setCarFuelType(carFuelTypesArray(true)?.find(i=>i === item.details?.vehicle_specifications?.fuel_type) || carFuelTypesArray(true)[carFuelTypesArray().indexOf(item.details?.vehicle_specifications?.fuel_type)]);
             setLongitude(item.map_coordinates[0] || JordanCities.find(i=>i.value === item.city)?.long);
             setLatitude(item.map_coordinates[1] || JordanCities.find(i=>i.value === item.city)?.lat);
-
+            
             if(item.type_is_vehicle){
                 setVehicleFeatures(item.details?.features);
                 setVehicleFeaturesEN(getEnglishDetailsArray('features', null, true));
@@ -1513,13 +1509,13 @@ const Page = () => {
 
     if(!item || !userId?.length > 0 || !isVerified || (userRole !== 'admin' && userRole !== 'owner')){
         return (
-            (fetchingOnce || fetchingUserInfo) ? <MySkeleton isMobileHeader/> : <NotFound navToVerify={!isVerified} type={!isVerified ? 'not allowed' : undefined}/>
+            (fetchingOnce || fetchingUserInfo) ? <MySkeleton isMobileHeader/> : <NotFound navToVerify={!isVerified} type={!isVerified ? 'not allowed' : undefined} isEnglish/>
         )
     }
 
   return (
 
-    <div className='add'>
+    <div className='add' dir='ltr'>
 
         <span id='closePopups' onClick={() => {
             setCityPopup(false); setIsCustomerType(false); setCompaniansShow(false); setBathroomsShow(false); setKitchenShow(false);
@@ -1531,55 +1527,55 @@ const Page = () => {
 
             <div className='functionality'>
 
-                <h1 className='fun-h1'>هذه صفحة تعديل للإِعلان خاصة بالمسؤول {'(الأدمن)'} تتيح لك:</h1>
+                <h1 className='fun-h1'>This is Unit edit page for the admin Allows you to:</h1>
 
                 <ul className='fun-ul'>
-                    <li>الموافقة على الاعلان أو رفضه</li>
-                    <li>إِخفاء الاعلان أو إِظهاره</li>
-                    <li>إِزالة مراجعات {'(تعليقات)'}</li>
-                    <li>إِيقاف الحجوزات</li>
-                    <li>تحديد و تعديل الأيام المحجوزة</li>
-                    <li>تعديل كل معلومات الإِعلان مثل العنوان و الوصف و غيره</li>
+                    <li>Approval or rejection of the Unit</li>
+                    <li>Hide or show the Unit</li>
+                    <li>Remove Comments Reviews</li>
+                    <li>Stop reservations</li>
+                    <li>Select and modify reserved days</li>
+                    <li>Modify all Unit information such as title, description, etc.</li>
                 </ul>
 
                 <hr />
 
                 {item.isRejected ? <div className='rejection-div'>
-                    <div className='status'>العرض <span>مرفوض</span></div>
-                    <h2>أسباب رفض العرض</h2>
+                    <div className='status'>Unit is <span>Rejected</span></div>
+                    <h2>Reject Reasons</h2>
                     <ul>
                     {item?.reject_reasons?.map((reason, index) => (
                         <li key={index}>{reason}</li>
                     ))}
                     </ul>
-                    <p><Svgs name={'info'}/>قم بتعديل العرض و ارساله مجددا</p>
+                    <p><Svgs name={'info'}/>Edit the Unit & Submit again</p>
                 </div> : <div className='rejection-div' style={{ 
                     background: !item.checked ? 'var(--softYellow)' : 'var(--softGreen)'
                 }}>
-                    <div style={{ margin: 0 }} className='status'>حالة العرض <span>{!item.checked ? 'تحت المراجعة' : 'مقبول'}</span></div>
+                    <div style={{ margin: 0 }} className='status'>Unit Status <span>{!item.checked ? 'Under Revision' : 'Approved'}</span></div>
                 </div>}
 
                 <hr />
 
                 <div className='view-admin-section'>
 
-                    <h2>تحكم بالاعلان</h2>
+                    <h2>Control the Unit Ad</h2>
 
-                    <div className='status'>حالة الاعلان <span>{item.visible ? 'مرئي' : 'مخفي'}</span> <span>{item.checked ? 'مقبول' : item.isRejected ? 'مرفوض' : 'غير مقبول'}</span></div>
+                    <div className='status'>Unit Status <span>{item.visible ? 'Visible' : 'Hidden'}</span> <span>{item.checked ? 'Approved' : item.isRejected ? 'Rejected' : 'Under revision'}</span></div>
 
-                    <h3>ماذا تريد الفعل بهذا الاعلان ؟</h3>
+                    <h3>What do you want to do with this Unit?</h3>
 
                     <ul>
-                        <li id={item.checked ? 'unactive-btn' : null} className={adminType === 'pass-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('pass-property')}>قبول العرض</li>
-                        <li id={(item.isRejected || item.checked) ? 'unactive-btn' : null} className={adminType === 'reject-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('reject-property')}>رفض العرض</li>
-                        <li className={adminType === 'delete-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('delete-property')}>حذف العرض</li>
-                        <li className={(adminType === 'hide-property' || adminType === 'show-property') ? 'selected-admin-type' : ''} onClick={() => setAdminType(item.visible ? 'hide-property' : 'show-property')}>{item.visible ? 'إِخفاء العرض' : 'إِظهار العرض'}</li>
+                        <li id={item.checked ? 'unactive-btn' : null} className={adminType === 'pass-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('pass-property')}>Approve Unit</li>
+                        <li id={(item.isRejected || item.checked) ? 'unactive-btn' : null} className={adminType === 'reject-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('reject-property')}>Reject Unit</li>
+                        <li className={adminType === 'delete-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('delete-property')}>Delete Unit</li>
+                        <li className={(adminType === 'hide-property' || adminType === 'show-property') ? 'selected-admin-type' : ''} onClick={() => setAdminType(item.visible ? 'hide-property' : 'show-property')}>{item.visible ? 'Hide Unit' : 'Show Unit'}</li>
                     </ul>
 
                     <div className='reject-reasons' style={{ display: adminType === 'reject-property' ? null : 'none' }}>
-                        <h2>أضف أسباب رفض العرض</h2>
+                        <h2>Add Reject Reasons</h2>
                         {rejectReasons.map((reason, index) => (
-                            <div key={index}><CustomInputDiv placholderValue={!reason?.length > 0 ? 'أضف سبب للرفض' : reason} value={reason} deletable handleDelete={() => {
+                            <div key={index}><CustomInputDiv placholderValue={!reason?.length > 0 ? 'Add a reason' : reason} value={reason} deletable handleDelete={() => {
                                 let arr = [];
                                 for (let i = 0; i < rejectReasons.length; i++) {
                                     if(i !== index){
@@ -1598,86 +1594,86 @@ const Page = () => {
                         <p id={rejectError?.length > 0 ? 'p-info-error' : ''}>{rejectError}</p>
                     </div>
 
-                    <button className='btnbackscndclr' onClick={sendAdmin}>{adminSending ? <LoadingCircle /> : 'تأكيد'}</button>
+                    <button className='btnbackscndclr' onClick={sendAdmin}>{adminSending ? <LoadingCircle /> : 'Confirm'}</button>
 
                     {(adminError || adminSuccess) && <p style={{ color: adminError?.length > 0 ? 'var(--softRed)' : null }}>{adminError?.length > 0 ? adminError : adminSuccess}</p>}
 
                     {isReportParam && <>
                     <hr />
-                    <button className={`editDiv ${isDeleteReport ? 'rotate-svg' : ''}`} onClick={() => setIsDeleteReport(!isDeleteReport)}>حذف الابلاغ عن هذا العرض <Svgs name={'dropdown arrow'}/></button>
-                    <span style={{ display: isDeleteReport ? 'block' : 'none', marginBottom: 16 }} id='info-span'>سيتم حذف الابلاغ عن هذا العرض أو اي ابلاغ عن مراجعة لهذا العرض</span>
+                    <button className={`editDiv ${isDeleteReport ? 'rotate-svg' : ''}`} onClick={() => setIsDeleteReport(!isDeleteReport)}>Delete report about this Unit <Svgs name={'dropdown arrow'}/></button>
+                    <span style={{ display: isDeleteReport ? 'block' : 'none', marginBottom: 16 }} id='info-span'>Reporting this Unit or any reporting review of this Unit will be deleted</span>
                     <button className='btnbackscndclr' style={{ display: isDeleteReport ? null : 'none' }} 
                     onClick={deleteReport}>
-                        {deletingReport ? <LoadingCircle /> : 'حذف الابلاغ'}
+                        {deletingReport ? <LoadingCircle /> : 'Delete report'}
                     </button></>}
 
                 </div>
 
                 <hr />
 
-                <button className={`editDiv ${isDeleteRevs ? 'rotate-svg' : ''}`} onClick={() => setIsDeleteRevs(!isDeleteRevs)}>ازالة مراجعات <Svgs name={'dropdown arrow'}/></button>
+                <button className={`editDiv ${isDeleteRevs ? 'rotate-svg' : ''}`} onClick={() => setIsDeleteRevs(!isDeleteRevs)}>Reviews Deletion <Svgs name={'dropdown arrow'}/></button>
 
                 {item?.reviews?.length > 0 ? <div className='reviews-del-container' style={{ display: !isDeleteRevs ? 'none' : null }}>
                     
                     {revsToDeleteAdmin?.length > 0 && <div className='files-to-delete revs-to-delete'>
                          <span id='info-span'>
                             <Svgs name={'info'}/>
-                            سيتم حذف هذه المراجعات, لالغاء التحديد اضغط على المراجعة
+                            These reviews will be deleted. To deselect, click on the review
                         </span>
                         <ul className='revs-ul'>
                             {revsToDeleteAdmin.map((rv, index) => (
-                                <ReviewCard key={index} isAdmin={isAdmin()} item={rv} 
+                                <ReviewCard isEnglish key={index} isAdmin={isAdmin()} item={rv} 
                                 on_click={() => setRevsToDeleteAdmin(
                                     revsToDeleteAdmin.filter(i => i.writer_id !== rv?.writer_id)
                                 )}/>
                             ))}
                         </ul>
-                        <button className='btnbackscndclr' onClick={handleDeleteRevsAdmin}>{deletingRevs ? <LoadingCircle /> : 'الحذف'}</button>
+                        <button className='btnbackscndclr' onClick={handleDeleteRevsAdmin}>{deletingRevs ? <LoadingCircle /> : 'Delete'}</button>
                         <p style={{ color: deleteRevsError?.length > 0 ? 'var(--softRed)' : null }}>{deleteRevsError.length > 0 ? deleteRevsError : deleteRevsSuccess}</p>
                     </div>}
 
                     {revsToDeleteAdmin?.length > 0  && <hr />}
 
-                    <span id='choose-files-span'>اختر مراجعات لحذفها {'(عن طريق الضغط على أيقونة الحذف)'} </span>
+                    <span id='choose-files-span'>Select Reviews to delete {'(By clicking on the delete icon)'} </span>
 
                     <ul className='revs-ul'>
                         {item.reviews.slice(revsNum, revsNum + revsNumIndexSlide).map((rv) => (
-                            <ReviewCard item={rv}
+                            <ReviewCard item={rv} isEnglish
                             isAdmin={true} revsToDeleteAdmin={revsToDeleteAdmin} setRevsToDeleteAdmin={setRevsToDeleteAdmin}/>
                         ))}
                     </ul>
 
                     <div className='btns-rev'>
-                        <button className={'btnbackscndclr' + (revsNum <= 0 ? ' not-available' : '')} onClick={() => { if(revsNum > 0) setRevsNum(revsNum - revsNumIndexSlide) }}>السابق</button>
-                        <button className={'btnbackscndclr' + (revsNum >= item.reviews?.length - revsNumIndexSlide ? ' not-available' : '')} onClick={() => { if(revsNum < item.reviews?.length - revsNumIndexSlide) setRevsNum(revsNum + revsNumIndexSlide) }}>التالي</button>
+                        <button className={'btnbackscndclr' + (revsNum <= 0 ? ' not-available' : '')} onClick={() => { if(revsNum > 0) setRevsNum(revsNum - revsNumIndexSlide) }}>Previous</button>
+                        <button className={'btnbackscndclr' + (revsNum >= item.reviews?.length - revsNumIndexSlide ? ' not-available' : '')} onClick={() => { if(revsNum < item.reviews?.length - revsNumIndexSlide) setRevsNum(revsNum + revsNumIndexSlide) }}>Next</button>
                     </div>
 
                 </div> : <div  style={{ display: !isDeleteRevs ? 'none' : null, marginTop: 4 }}>
-                    لا يوجد مراجعات على هذا الاعلان
+                    No Reviews yet on this Unit
                 </div>}
 
                 <hr />
 
-                <button onClick={() => setIsBookable(!isBookable)} className={!isBookable ? 'editDiv' : 'editDiv chngpassbtn'}>امكانية حجز العرض<Svgs name={'dropdown arrow'}/></button>
+                <button onClick={() => setIsBookable(!isBookable)} className={!isBookable ? 'editDiv' : 'editDiv chngpassbtn'}>Enable Booking <Svgs name={'dropdown arrow'}/></button>
 
                 <div className='hide-show-prop' style={{ display: !isBookable ? 'none' : null }}>
-                    <span>الحالة <h4>{item.is_able_to_book ? 'يقبل الحجوزات' : 'لا يقبل الحجوزات'}</h4></span>
-                    <p><Svgs name={'info'}/>تغيير حالة العرض من حيث قبول الحجوزات الجديدة أو عدم قبولها.</p>
+                    <span>Status <h4>{item.is_able_to_book ? 'Accepts reservations' : 'No reservations accept'}</h4></span>
+                    <p><Svgs name={'info'}/>Change the offer status in terms of accepting or not accepting new reservations.</p>
                     <p style={{ display: (bookableError.length <= 0 && bookableSuccess.length <= 0) && 'none', color: bookableError.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{bookableError.length > 0 ? bookableError : bookableSuccess}</p>
-                    <button onClick={handleBookable} className='btnbackscndclr'>{(item.is_able_to_book ? (bookableIsLoading ? <LoadingCircle /> : 'قفل الحجوزات') : (bookableIsLoading ? <LoadingCircle /> : 'فتح الحجز'))}</button>
+                    <button onClick={handleBookable} className='btnbackscndclr'>{(item.is_able_to_book ? (bookableIsLoading ? <LoadingCircle /> : 'Prevent new reservations') : (bookableIsLoading ? <LoadingCircle /> : 'Open Reservations'))}</button>
                 </div>
 
                 <hr />
 
-                <button onClick={() => setIsBookDays(!isBookDays)} className={!isBookDays ? 'editDiv' : 'editDiv chngpassbtn'}>تحديد أيام عدم الحجز<Svgs name={'dropdown arrow'}/></button>
+                <button onClick={() => setIsBookDays(!isBookDays)} className={!isBookDays ? 'editDiv' : 'editDiv chngpassbtn'}>Determine non-booking days<Svgs name={'dropdown arrow'}/></button>
 
                 <div className='hide-show-prop calendar-edit-prop' style={{ display: !isBookDays ? 'none' : null }}>
-                    <p><Svgs name={'info'}/>حدد أيام لا يمكن الحجز فيها, تستطيع تغيير هذه الأيام في أي وقت.</p>
+                    <p><Svgs name={'info'}/>Specify days on which reservations cannot be made. You can change these days at any time.</p>
                     
-                    <h3 style={{ marginBottom: 20 }}>الأيام المحجوزة حاليا</h3>
+                    <h3 style={{ marginBottom: 20 }}>Days currently booked</h3>
 
-                    <p style={{ marginBottom: 8 }} id='detailed-by-color'>معلمة باللون <span />,</p> 
-                    <p style={{ marginBottom: 24 }} id='detailed-by-color'>اضغط على اليوم لاضافته أو حذفه من قائمة الأيام.</p>
+                    <p style={{ marginBottom: 8 }} id='detailed-by-color'>Marked by colour <span />,</p> 
+                    <p style={{ marginBottom: 24 }} id='detailed-by-color'>Click on the day to add or delete it from the list of days.</p>
 
                     <div id='calendar-div'>
                         {triggerCalendarRender && <MyCalendar setCalender={setCalenderSelect} 
@@ -1685,13 +1681,13 @@ const Page = () => {
                     </div>
 
                     {!(bookDaysError?.length <= 0 && bookDaysSuccess.length <= 0) && <p style={{ color: bookDaysError?.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{bookDaysError?.length > 0 ? bookDaysError : bookDaysSuccess}</p>}
-                    <button id={isOkayNewBookedDays() ? '' : 'disable-button'} onClick={handleNewBookedDays} className='btnbackscndclr'>{bookDaysIsLoading ? <LoadingCircle /> : 'تحديث قائمة الأيام'}</button>
+                    <button id={isOkayNewBookedDays() ? '' : 'disable-button'} onClick={handleNewBookedDays} className='btnbackscndclr'>{bookDaysIsLoading ? <LoadingCircle /> : 'Update the list of days'}</button>
 
                 </div>
 
                 <hr />
 
-                <Link href={`/view/item?id=${id}`} target="_blank" className='editDiv'>رؤية كما يظهر للآخرين<Svgs name={'show password'}/></Link>
+                <Link target="_blank" href={`/en/view/item?id=${id}`} className='editDiv'>See the offer as a customer<Svgs name={'show password'}/></Link>
 
                 <hr />
             
@@ -1722,18 +1718,18 @@ const Page = () => {
                     <CustomInputDivWithEN value={itemTitle === '-1' ? null : itemTitle} 
                     enValue={itemTitleEN}
                     isError={itemTitle === '-1'} 
-                    errorText={'الرجاء كتابة عنوان صالح, مع عدم استخدام حروف غير صالحة مثل <, &, " ...الخ'} 
-                    title={'العنوان بالعربية و الانجليزية'} placholderValue={'اكتب العنوان باللغة العربية هنا'} 
-                    enPlacholderValue={'اكتب العنوان باللغة الانجليزية هنا'} 
-                    listener={(e) => { setItemTitle(e.target.value); }} 
+                    errorText={'Please write a valid address, without using invalid characters such as <, &, "...etc'} 
+                    title={'Enter Title in Arabic & English'} placholderValue={'Write Title in Arabic here'} 
+                    enPlacholderValue={'Write Title in English here'} 
+                    listener={(e) => { setItemTitle(e.target.value); }} isEnglish
                     enListener={(e) => setItemTitleEN(e.target.value)} isProfileDetails/>
 
                     <CustomInputDivWithEN isError={itemDesc === '-1'} 
-                    errorText={'الرجاء كتابة وصف واضح عن ما تريد عرضه, مع عدم استخدام حروف غير صالحة مثل <, &, " ...الخ.'} 
-                    title={'ادخل الوصف بالعربية و الانجليزية'} isTextArea={true} 
-                    placholderValue={'اكتب الوصف باللغة العربية هنا'}
+                    errorText={'Please do not use invalid characters such as <, &, " ...etc'} 
+                    title={'Enter Description in Arabic & English'} isTextArea={true} 
+                    placholderValue={'Write Description in Arabic here'} isEnglish
                     value={itemDesc === '-1' ? null : itemDesc} enValue={itemDescEN} 
-                    enPlacholderValue={'اكتب الوصف باللغة الانجليزية هنا'} 
+                    enPlacholderValue={'Write Description in English here'} 
                     listener={(e) => { setItemDesc(e.target.value); }} isProfileDetails
                     enListener={(e) => setItemDescEN(e.target.value)} type={'text'}/>
 
@@ -1741,29 +1737,31 @@ const Page = () => {
                         <div className='popup-wrapper'>
                             <CustomInputDivWithEN settingFocused={() => setCityPopup(true)} 
                             isCity={true} isError={itemCity?.city_id === -1} 
-                            errorText={'حدد المدينة التي متاح فيها الإِيجار'} 
-                            title={'المدينة'} value={itemCity?.arabicName} type={'text'} 
-                            enValue={itemCity?.value} 
-                            placholderValue={'اختر مدينة'}/>
-                            {cityPopup && <AddDetailsPopup array={itemCity} setArray={setItemCity} type={'add-city'} sections={'selections'} isSingleSelect setIsShow={setCityPopup}/>}
+                            errorText={'Select the city where the rental is available'} 
+                            title={'City'} value={itemCity?.arabicName} type={'text'} 
+                            enValue={itemCity?.value} isEnglish
+                            placholderValue={'Choose city'} enPlacholderValue={'Choose city'}/>
+                            {cityPopup && <AddDetailsPopup array={itemCity} setArray={setItemCity} 
+                            type={'add-city'} sections={'selections'} isSingleSelect 
+                            setIsShow={setCityPopup} isEnglish />}
                         </div>
-                        <CustomInputDivWithEN title={'الحي'} isError={itemNeighbour === '-1'} 
-                        errorText={'الرجاء عدم استخدام حروف غير صالحة مثل <, &, " ...الخ'} 
-                        listener={(e) => setItemNeighbour(e.target.value)} 
-                        placholderValue={'اكتب اسم الحي بالعربية'} value={itemNeighbour === '-1' ? null : itemNeighbour}
-                        enPlacholderValue={'اكتب اسم الحي بالانجليزية'} isProfileDetails enValue={itemNeighbourEN}
+                        <CustomInputDivWithEN title={'Neighbourhood'} isError={itemNeighbour === '-1'} 
+                        errorText={'Please do not use invalid characters such as <, &, " ...etc'} 
+                        listener={(e) => setItemNeighbour(e.target.value)} isEnglish
+                        placholderValue={'Write Neighbourhood in Arabic here'} value={itemNeighbour === '-1' ? null : itemNeighbour}
+                        enPlacholderValue={'Write Neighbourhood in English here'} isProfileDetails enValue={itemNeighbourEN}
                         enListener={(e) => setItemNeighbourEN(e.target.value)} type={'text'}/>
                     </div>}</>}
 
                 {(section === 1 && item.type_is_vehicle) && <div className='location-div disable-text-copy'>
                     
-                    <h3>تحديد موقع جغرافي للعقار</h3>
+                    <h3>Determine Location</h3>
                     
-                    <button className='editDiv' onClick={setAutomaticLocation}>{fetchingLocation ? <LoadingCircle isLightBg/> : 'تحديد تلقائي'}</button>
+                    <button className='editDiv' onClick={setAutomaticLocation}>{fetchingLocation ? <LoadingCircle isLightBg/> : 'Automatic'}</button>
 
                     {locObj && <div className='automatic-location'>
                         {locObj?.city && 
-                        <><h4>هل موقع العقار في مدينة {locObj?.city}, {locObj?.principalSubdivision}, {locObj?.locality} ؟</h4>
+                        <><h4>Does the location at {locObj?.city}, {locObj?.principalSubdivision}, {locObj?.locality} ?</h4>
                         <button style={isUserLoc?.length > 0 ? {
                             background: 'white', color: 'black', fontWeight: 400,
                             cursor: 'default'
@@ -1772,7 +1770,7 @@ const Page = () => {
                             setLongitude(locObj?.long);
                             setIsUserLoc('true'); 
                             setIsManualLocSet(true); 
-                        }}>نعم</button>
+                        }}>Yes</button>
                         <button style={isUserLoc?.length > 0 ? {
                             background: 'white', color: 'black', fontWeight: 400,
                             cursor: 'default'
@@ -1782,8 +1780,8 @@ const Page = () => {
                             setIsManualLocSet(true);
                             setLatitude(itemCity?.lat || JordanCities[0]?.lat);
                             setLongitude(itemCity?.long || JordanCities[0]?.long);
-                        }}>لا</button></>}
-                        <p style={isUserLoc === '' ? { display: 'none', margin: 0 } : undefined}>{isUserLoc === 'false' ? 'الرجاء ايقاف VPN ان كنت تستعمله و جرب مرة اخرى, أو قم بتحديد الموقع يدويا.' : (isUserLoc === 'true' ? 'قم بالتأكد من الموقع عن طريق الخريطة' : '')}</p>
+                        }}>No</button></>}
+                        <p style={isUserLoc === '' ? { display: 'none', margin: 0 } : undefined}>{isUserLoc === 'false' ? 'Please stop the VPN if you are using it and try again, or specify the location manually.' : (isUserLoc === 'true' ? 'Verify the location using the map' : '')}</p>
                     </div>}
 
                     <button style={{ margin: '24px 0' }} onClick={() => {
@@ -1794,10 +1792,10 @@ const Page = () => {
                         setIsManualLocSet(true); 
                         setIsUserLoc(''); 
                         setLocObj(null);
-                    }} className='editDiv'>تحديد يدوي</button>
+                    }} className='editDiv'>Manual</button>
 
                     {isManualLocSet && <div className='googleMapDiv' onClick={showMap}>
-                        <span>{isUserLoc === 'true' ? 'تأكد من الموقع و قم بتعديله.' : 'تحديد الموقع باستخدام الخريطة'}</span>
+                        <span>{isUserLoc === 'true' ? 'Check the site and modify it.' : 'Locate using map'}</span>
                         <Image src={GoogleMapImage}/>
                     </div>}
 
@@ -1805,85 +1803,85 @@ const Page = () => {
 
                 {section === 2 && <><div className='prices'>
                     
-                    <h3>تحديد السعر </h3>
+                    <h3>Specify Price </h3>
 
-                    <p>قم بتحديد سعر لكل مدة حجز {'(يومي, اسبوعي, شهري, فصلي و سنوي)'}</p>
+                    <p>Set a price for each booking period {'(Daily, weekly, monthly, seasonly and yearly)'}</p>
 
-                    {(expandPrices ? reservationType() : [reservationType()[0]]).map((item) => (
-                            <div className='priceDiv'>
+                    {(expandPrices ? reservationType(true) : [reservationType(true)[0]]).map((item) => (
+                        <div className='priceDiv'>
                             {item?.id !== 3 ? <><CustomInputDiv isError={pricesError.includes(item.enName?.toLowerCase())} 
-                                errorText={'حدد سعر'} 
-                                title={`السعر بال${currencyCode(false, true)}`} 
+                                errorText={'Determine Price'}
+                                title={`Price in ${currencyCode(true, true)}`} 
                                 listener={(e) => handlePriceChange(e, item.enName)} min={0} value={getPriceValue(item.enName)}
-                                type={'number'}/>
+                                type={'number'} myStyle={{ marginBottom: 12 }}/>
                             <strong>/</strong>
-                            <h4>{item.oneAr}</h4></>
+                            <h4>{item.oneEn}</h4></>
                             : specificCatagory === 'students' && <><CustomInputDiv isError={pricesError.includes(item.enName?.toLowerCase())} 
-                                errorText={'حدد سعر'} 
-                                title={`السعر بال${currencyCode(false, true)}`} 
+                                errorText={'Determine Price'}
+                                title={`Price in ${currencyCode(true, true)}`} 
                                 listener={(e) => handlePriceChange(e, item.enName)} min={0} value={getPriceValue(item.enName)}
-                                type={'number'}/>
+                                type={'number'} myStyle={{ marginBottom: 12 }}/>
                             <strong>/</strong>
-                            <h4>{item.oneAr}</h4></>}
+                            <h4>{item.oneEn}</h4></>}
                         </div>
                     ))}
 
-                    <button className='editDiv' onClick={() => setExpandPrices(!expandPrices)}>{expandPrices ? 'أقل' : 'تمديد'}</button>
+                    <button className='editDiv' onClick={() => setExpandPrices(!expandPrices)}>{expandPrices ? 'Less' : 'Expand'}</button>
 
                     <hr />
                 
-                    <h3>تحديد سعر خاص بأيام العطل</h3>
+                    <h3>Determine a special price for holidays</h3>
 
-                    <p>قم بتحديد سعر خاص لكل يوم من أيام العطل {'(خميس, جمعة و سبت)'}</p>
+                    <p>Set a special price for each holiday {'(Thursday, Friday and Saturday)'}</p>
 
                     <div className='priceDiv'>
                         <CustomInputDiv isError={pricesError.includes('thursdayPrice')} 
-                        errorText={'سعر يوم الخميس'} 
-                        title={`السعر بال${currencyCode(false, true)}`} 
+                        errorText={'Thursday Price'} 
+                        title={`Price in ${currencyCode(true, true)}`} 
                         listener={(e) => handlePriceChange(e, 'thursdayPrice')} 
                         min={0} value={getPriceValue('thursdayPrice')}
-                        type={'number'}/>
+                        type={'number'} myStyle={{ marginBottom: 12 }}/>
                         <strong>/</strong>
-                        <h4>{'الخميس'}</h4>
+                        <h4>{'Thursday'}</h4>
                     </div>
 
                     <div className='priceDiv'>
                         <CustomInputDiv isError={pricesError.includes('fridayPrice')} 
-                        errorText={'سعر يوم الجمعة'} 
-                        title={`السعر بال${currencyCode(false, true)}`} 
+                        errorText={'Friday Price'} 
+                        title={`Price in ${currencyCode(true, true)}`} 
                         listener={(e) => handlePriceChange(e, 'fridayPrice')} 
                         min={0} value={getPriceValue('fridayPrice')}
-                        type={'number'}/>
+                        type={'number'} myStyle={{ marginBottom: 12 }}/>
                         <strong>/</strong>
-                        <h4>{'الجمعة'}</h4>
+                        <h4>{'Friday'}</h4>
                     </div>
 
                     <div className='priceDiv'>
                         <CustomInputDiv isError={pricesError.includes('saturdayPrice')} 
-                        errorText={'سعر يوم السبت'} 
-                        title={`السعر بال${currencyCode(false, true)}`} 
+                        errorText={'Saturday Price'} 
+                        title={`Price in ${currencyCode(true, true)}`} 
                         listener={(e) => handlePriceChange(e, 'saturdayPrice')} 
                         min={0} value={getPriceValue('saturdayPrice')}
-                        type={'number'}/>
+                        type={'number'} myStyle={{ marginBottom: 12 }}/>
                         <strong>/</strong>
-                        <h4>{'السبت'}</h4>
+                        <h4>{'Saturday'}</h4>
                     </div>
 
                     {specificCatagory === 'farm' && <><hr />
                     
-                        <h3>تحديد سعر مناسبات خاص</h3>
+                        <h3>Determine a special event price</h3>
 
-                        <p>قم بتحديد سعر للمناسبة الواحدة</p>
+                        <p>Set a price per occasion</p>
 
                         <div className='priceDiv'>
                             <CustomInputDiv isError={pricesError.includes('eventsPrice')} 
-                            errorText={'حدد سعر'} 
-                            title={`السعر بال${currencyCode(false, true)}`} 
+                            errorText={'set a price'} 
+                            title={`Price in ${currencyCode(true, true)}`} 
                             listener={(e) => handlePriceChange(e, 'eventsPrice')} 
                             min={0} value={getPriceValue('eventsPrice')}
                             type={'number'}/>
                             <strong>/</strong>
-                            <h4>{'المناسبة'}</h4>
+                            <h4>{'Event'}</h4>
                         </div>
 
                     </>}
@@ -1893,21 +1891,21 @@ const Page = () => {
                 <hr />
 
                 <div className='set-discount'>
-                    <h3>تخفيض</h3>
+                    <h3>Discount</h3>
                     <div><CustomInputDiv type={'number'} value={discountPer > 0 ? discountPer : null}
-                        placholderValue={'حدد نسبة'} 
+                        placholderValue={'Determine Percentage'} 
                         listener={(e) => setDiscountPer(Number(e.target.value))} 
                         min={0} max={100} isError={discountPer === -1}/> %</div>
-                    <h3>في حال حجز</h3>
+                    <h3>In case of booking </h3>
                     <div><CustomInputDiv type={'number'} value={discountNights > 0 ? discountNights : null} 
-                        placholderValue={'عدد الليالي'}
+                        placholderValue={'Number of days'}
                         listener={(e) => setDiscountNights(Number(e.target.value))} 
-                        min={1} max={2000}/> ليلة أو أكثر</div>
+                        min={1} max={2000}/> Days or More</div>
                 </div></>}
 
                 {section === 3 && <div className='attachFiles' ref={attachImagesDivRef}>
 
-                    <button onClick={() => inputFilesRef.current.click()}>اضافة ملف</button>
+                    <button onClick={() => inputFilesRef.current.click()}>Add File</button>
 
                     <ul style={{ gridTemplateColumns: attachedFilesUrls.length <= 0 && '1fr' }}>
                         {uploadedFiles.map((myUrl) => (
@@ -1942,10 +1940,10 @@ const Page = () => {
                         ))}
                         <li id='chooseFileLastLi'
                             onClick={() => inputFilesRef.current.click()}
-                        >{attachedFilesUrls.length > 0 ? 'أضف المزيد' : 'اضافة ملفات'}<p>(يجب أن يكون نوع الملف PNG أو JPG أو MP4 أو AVI)</p></li>
+                        >{attachedFilesUrls.length > 0 ? 'Add more' : 'Add Files'}<p>(File type must be PNG, JPG, MP4 or AVI)</p></li>
                     </ul>
 
-                    <p style={{ marginTop: 12, display: !attachedFilesUrls?.length > 0 ? 'none' : undefined }}>اضغط على الملف لحذفه</p>
+                    <p style={{ marginTop: 12, display: !attachedFilesUrls?.length > 0 ? 'none' : undefined }}>Click on the file to delete</p>
 
                     <input ref={inputFilesRef} multiple accept='.png, .jpg, .mp4, .avi' type='file' onChange={(e) => {
                         const files = e.target.files;
@@ -1963,33 +1961,34 @@ const Page = () => {
 
                 {section === 4 && <div className='detailsAboutItem'>
 
-                    <h2>أضف تفاصيل عن ال{item.type_is_vehicle ? 'سيارة' : 'عقار'}</h2>
+                    <h2>Add details about the {item.type_is_vehicle ? 'Vehicle' : 'Property'}</h2>
 
                     <div className='insuranceDetail'>
-                        <h3>هل الايجار يتطلب تأمين؟</h3>
-                        <input type='radio' checked={requireInsurance} name='insurance_group' onChange={() => setRequireInsurance(true)}/><label onClick={() => setRequireInsurance(true)}>نعم</label>
-                        <input checked={!requireInsurance} type='radio' name='insurance_group' onChange={() => setRequireInsurance(false)}/><label onClick={() => setRequireInsurance(false)}>لا</label>
+                        <h3>Does the rental requires insurance ?</h3>
+                        <input type='radio' checked={requireInsurance} name='insurance_group' onChange={() => setRequireInsurance(true)}/><label onClick={() => setRequireInsurance(true)}>Yes</label>
+                        <input checked={!requireInsurance} type='radio' name='insurance_group' onChange={() => setRequireInsurance(false)}/><label onClick={() => setRequireInsurance(false)}>No</label>
                         {detailsError.includes('insurance') && <p className='error'>ادخال غير صالح الرجاء الاختيار من نعم أو لا</p>}
                     </div>
 
                     <div className='detailItem area-div disable-text-copy' onClick={() => {
                         if(!isCancellation) setIsCancellation(true);
                     }} style={{ cursor: isCancellation ? 'default' : undefined }}>
-                        <h3>حدد امكانية الغاء الحجز</h3>
-                        <InfoDiv title={'الغاء الحجز'} value={cancellation === '' ? 'غير محدد' : cancellation}/>
+                        <h3>Select the possibility of canceling the reservation</h3>
+                        <InfoDiv title={'Cancellation'} value={cancellation === '' ? 'غير محدد' : cancellation}/>
                         {isCancellation && <AddDetailsPopup array={cancellation} setArray={setCancellation} 
                         type={'cancellation'} sections={'selections'} isSingleSelect setIsShow={setIsCancellation} 
-                        baseArr={cancellationsArray()} isNotFacilities/>}
+                        baseArr={cancellationsArray(true)} isNotFacilities isEnglish />}
                     </div>
 
                     <div className='detailItem contacts-div'>
-                        <h3>اضافة طرق تواصل</h3>
+                        <h3>Modify communication methods</h3>
                         <p style={{ marginBottom: contactsError?.length > 0 ? null : 0 }} id='error'>{contactsError}</p>
                         <ul className='detailItem-ul'>
-                        {contacts.map((c, index) => (
+                        {contacts?.map((c, index) => (
                             <li key={index}>
-                                <CustomInputDiv value={c.val} 
-                                deletable placholderValue={getContactPlaceHolder(c.platform)} handleDelete={() => {
+                                <CustomInputDiv isError={contactsError?.length > 0 && !isValidContactURL(c)} 
+                                errorText={'Invalid Contact url'} value={c.val?.length > 0 ? c.val : null}
+                                deletable handleDelete={() => {
                                     let arr = [];
                                     for (let i = 0; i < contacts.length; i++) {
                                         if(i !== index){
@@ -2002,9 +2001,8 @@ const Page = () => {
                                     let arr = [...contacts];
                                     arr[index] = { platform: arr[index].platform, val: e.target.value, isPlatforms: arr[index].isPlatforms };
                                     setContacts(arr);
-                                    setContactsError('');
                                 }}/>
-                                <div className='choose-platform'>
+                                <div className='choose-platform' id={contactsError?.length > 0 && !isValidContactURL(c) && !c.platform?.length > 0 ? 'choose-platform-error' : ''}>
                                     <button className={c.isPlatforms ? 'editDiv rotate-edit-div' : 'editDiv'} onClick={() => {
                                         let arr = [...contacts];
                                         arr[index] = { platform: arr[index].platform, val: arr[index].val, isPlatforms: !arr[index].isPlatforms };
@@ -2015,7 +2013,7 @@ const Page = () => {
                                         }
                                         setContacts(arr);
                                     }}>
-                                        {c?.platform?.length > 0 ? c.platform : 'اختر منصة'} <Svgs name={'dropdown arrow'}/>
+                                        {c?.platform?.length > 0 ? c.platform : 'Choose platform'} <Svgs name={'dropdown arrow'}/>
                                     </button>
                                     <ul style={{ display: c.isPlatforms ? null : 'none' }}>
                                         {contactsPlatforms.map((p) => (
@@ -2023,7 +2021,6 @@ const Page = () => {
                                                 let arr = [...contacts];
                                                 arr[index] = { platform: p, val: arr[index].val, isPlatforms: false };
                                                 setContacts(arr);
-                                                setContactsError('');
                                             }}>{p}</li>
                                         ))}
                                     </ul>
@@ -2031,15 +2028,16 @@ const Page = () => {
                             </li>
                         ))}
                         </ul>
-                        <button className='btnbackscndclr' onClick={() => setContacts([...contacts, { platform: '', val: '', isPlatforms: false }])}>أضف المزيد</button>
+                        <button className='btnbackscndclr' onClick={() => setContacts([...contacts, { platform: '', val: '', isPlatforms: false }])}>Add more</button>
                     </div>
 
                     {!item.type_is_vehicle && <div className='detailItem area-div' style={{ display: item.type_is_vehicle ? 'none' : null}}>
-                        <h3>اكتب أقصى سعة أو عدد نزلاء متاح بالعقار</h3>
-                        <CustomInputDiv title={capacity > 0 ? `${capacity} نزيل` : ''} max={150000} min={-1} myStyle={{ marginBottom: 0 }} 
-                        placholderValue={'كم نزيل مسموح بالعقار؟'} type={'number'} 
+                        <h3>Enter the maximum capacity or number of guests allowed to be at the property</h3>
+                        <CustomInputDiv title={capacity > 0 ? `${capacity} guests` : ''} 
+                        max={150000} min={-1} myStyle={{ marginBottom: 0 }} 
+                        placholderValue={'How many guests are allowed in the property?'} type={'number'} 
                         isError={detailsError?.includes('capacity')} 
-                        errorText={'الرجاء ادخال عدد من صفر الى 150000'} listener={(e) => {
+                        errorText={'Please enter a number from zero to 150,000'} listener={(e) => {
                             if(Number(e.target.value)) {
                                 setCapacity(Number(e.target.value))
                             } else {
@@ -2049,9 +2047,12 @@ const Page = () => {
                     </div>}
 
                     {(!item.type_is_vehicle && specificCatagory !== 'students') && <div className='detailItem area-div' style={{ display: (item.type_is_vehicle) ? 'none' : null}}>
-                        <h3 style={{ cursor: 'text' }}>اكتب مساحة العقار بالأمتار</h3>
-                        <CustomInputDiv title={area > 0 ? `${area} متر مربع` : ''} max={1000000} min={0} myStyle={{ marginBottom: 0 }} placholderValue={'غير محدد'} type={'number'} 
-                        isError={detailsError.includes('area')} errorText={'الرجاء ادخال مساحة صالحة'} listener={(e) => {
+                        <h3 style={{ cursor: 'text' }}>Enter property Area in meters</h3>
+                        <CustomInputDiv title={area > 0 ? `${area} square meters` : ''} 
+                        max={1000000} min={0} myStyle={{ marginBottom: 0 }} 
+                        placholderValue={'Undefined'} type={'number'} 
+                        isError={detailsError.includes('area')} errorText={'Enter valid area'} 
+                        listener={(e) => {
                             if(Number(e.target.value)) {
                                 setArea(Number(e.target.value))
                             } else {
@@ -2061,76 +2062,78 @@ const Page = () => {
                     </div>}
 
                     {(!item.type_is_vehicle && specificCatagory === 'farm') && <div className='detailItem area-div'>
-                        <h3>اكتب مساحة أرض المزرعة أو الشاليه</h3>
-                        <CustomInputDiv title={landArea || 'مساحة الأرض'} 
+                        <h3>Enter land area of the property</h3>
+                        <CustomInputDiv title={landArea || 'Land Area'} 
                         max={1000000} min={0} myStyle={{ marginBottom: 0 }} 
-                        placholderValue={'مثال: 2 فدان أو 500 متر'} 
+                        placholderValue={'Ex: 10 acres or 500 meters'} 
                         isError={detailsError.includes('landArea')} 
-                        errorText={'الرجاء ادخال مساحة صالحة'} 
+                        errorText={'Enter valid land area'} 
                         listener={(e) => setLandArea(e.target.value)}
                         value={landArea}/>
                     </div>}
 
                     {(!item.type_is_vehicle && specificCatagory === 'apartment') && <div className='detailItem area-div' style={{ display: (item.type_is_vehicle) ? 'none' : null}}>
-                        <h3>اكتب رقم أو اسم الطابق</h3>
-                        <CustomInputDiv title={'الطابق ' + floor} max={1000000} min={0} myStyle={{ marginBottom: 0 }} 
-                        placholderValue={'مثل: الثامن أو 8'}  isError={detailsError.includes('floor')} 
-                        errorText={'الرجاء ادخال اسم صالح'} 
+                        <h3>Enter apartment floor number</h3>
+                        <CustomInputDiv title={getFloorText()} myStyle={{ marginBottom: 0 }} 
+                        placholderValue={'Ex: 8 or 9'}  isError={detailsError.includes('floor')} 
+                        errorText={'Enter valid floor number'} 
                         listener={(e) => setFloor(e.target.value)} value={floor}/>
                     </div>}
                     
-                    {!item.type_is_vehicle && <div className='detailItem area-div disable-text-copy' onClick={() => {
-                        if(!isCustomerType) setIsCustomerType(true);
-                    }}>
+                    {!item.type_is_vehicle &&<div className='detailItem area-div' style={{ display: item.type_is_vehicle ? 'none' : null}}>
+                        
+                        <h3>Select the allowed guest category (optional)</h3>
 
-                        <InfoDiv title={'الفئة المسموحة'} divClick={() => setIsCustomerType(!isCustomerType)} value={customerType?.length <= 0 ? 'غير محدد' : customerType?.toString()?.replaceAll(',', ', ')}/>
+                        <InfoDiv title={'Allowed categories'} divClick={() => setIsCustomerType(!isCustomerType)} value={customerType?.length <= 0 ? 'Undefinded' : customerType?.toString()?.replaceAll(',', ', ')}/>
+
                         {isCustomerType && <AddDetailsPopup accompany={customerType} setAccompany={setCustomerType} type={'customerType'} sections={'selections'} isUndefinedElement
-                        isNotFacilities setIsShow={setIsCustomerType} baseArr={specificCatagory === 'students' ? studentsTypesArray() : customersTypesArray(false)}/>}
-                        {detailsError.includes('customerType') && <p className='error2'>ادخال غير صالح, الرجاء الاختيار من أحد خيارات فئة النزلاء</p>}
+                        isNotFacilities isEnglish setIsShow={setIsCustomerType} baseArr={customersTypesArray(true, specificCatagory === 'students')}/>}
 
+                        {detailsError.includes('customerType') && <p className='error2'>Invalid entry, please select from one of the guest category options</p>}
+                        
                     </div>}
 
                     {item.type_is_vehicle && <div className='insuranceDetail'>
-                        <h3>هل الايجار مع سائق أو بدون؟</h3>
-                        <input type='radio' checked={withDriver} name='driver_group' onChange={() => setWithDriver(true)}/><label onClick={() => setWithDriver(true)}>مع سائق</label>
-                        <input checked={!withDriver} type='radio' name='driver_group' onChange={() => setWithDriver(false)}/><label onClick={() => setWithDriver(false)}>بدون سائق</label>
-                        {detailsError.includes('withDriver') && <p className='error2'>ادخال غير صالح الرجاء الاختيار من نعم أو لا</p>}
+                        <h3>Is the rent with or without a driver?</h3>
+                        <input type='radio' checked={withDriver} name='driver_group' onChange={() => setWithDriver(true)}/><label onClick={() => setWithDriver(true)}>With a Driver</label>
+                        <input checked={!withDriver} type='radio' name='driver_group' onChange={() => setWithDriver(false)}/><label onClick={() => setWithDriver(false)}>Without Driver</label>
+                        {detailsError.includes('withDriver') && <p className='error2'>Invalid entry. Please choose from yes or no</p>}
                     </div>}
 
                     {item.type_is_vehicle && <div className='detailItem area-div disable-text-copy' onClick={() => {
                         if(!isVehicleRentType) setIsVehicleRentType(true);
                     }} style={{ cursor: isVehicleRentType ? 'default' : undefined}}>
-                        <h3>حدد نوع الايجار أو طبيعة استعمال المركبة</h3>
-                        <InfoDiv title={'نوع الايجار'} value={vehicleRentType === '' ? 'غير محدد' : vehicleRentType}/>
+                        <h3>Specify the type of rental or the nature of use of the vehicle</h3>
+                        <InfoDiv title={'Rent type'} value={vehicleRentType === '' ? 'Undefined' : vehicleRentType}/>
                         {isVehicleRentType && <AddDetailsPopup array={vehicleRentType} setArray={setVehicleRentType} type={'carRentType'} sections={'selections'} 
-                        isNotFacilities isSingleSelect setIsShow={setIsVehicleRentType} baseArr={vehicleRentTypesArray()}/>}
-                        {detailsError.includes('rentType') && <p className='error2'>ادخال غير صالح, الرجاء الاختيار من أحد الخيارات</p>}
+                        isNotFacilities isSingleSelect setIsShow={setIsVehicleRentType} baseArr={vehicleRentTypesArray(true)} isEnglish/>}
+                        {detailsError.includes('rentType') && <p className='error2'>Invalid entry, please choose from one of the options</p>}
                     </div>}
 
                     {item.type_is_vehicle && <div className='detailItem vehicle-specs'>
 
-                        <h2>حدد مواصفات السيارة</h2>
+                        <h2>Determine vehicle specifications</h2>
 
                         <div className='selection-div disable-text-copy' onClick={() => {
                             if(!isCarGearboxShow) setIsCarGearboxShow(true);
                         }} style={{ cursor: isCarGearboxShow ? 'default' : undefined}}>
-                            <h3>حدد نوع ناقل الحركة Gearbox</h3>
-                            <InfoDiv title={'نوع ناقل الحركة'} 
-                            value={carGearbox === '' ? 'غير محدد' : carGearbox}/>
+                            <h3>Select the type of Transmission</h3>
+                            <InfoDiv title={'Transmission type'} 
+                            value={carGearbox === '' ? 'Undefined' : carGearbox}/>
                             {isCarGearboxShow && <AddDetailsPopup array={carGearbox} setArray={setCarGearBox} type={'carGearBox'} sections={'selections'} 
-                            isNotFacilities isSingleSelect setIsShow={setIsCarGearboxShow} baseArr={carGearboxes()}/>}
-                            {detailsError.includes('carGearbox') && <p className='error2'>ادخال غير صالح الرجاء الاختيار من قائمة الخيارات</p>}
+                            isNotFacilities isSingleSelect setIsShow={setIsCarGearboxShow} baseArr={carGearboxes(true)} isEnglish/>}
+                            {detailsError.includes('carGearbox') && <p className='error2'>Invalid entry, please choose from one of the options</p>}
                         </div>
 
                         <div className='selection-div disable-text-copy' onClick={() => {
                             if(!isCarFuelTypeShow) setIsCarFuelTypeShow(true);
                         }} style={{ cursor: isCarFuelTypeShow ? 'default' : undefined}}> 
-                            <h3>حدد نوع الوقود </h3>
-                            <InfoDiv title={'نوع الوقود'} divClick={() => setIsCarFuelTypeShow(!isCarFuelTypeShow)} 
-                            value={carFuelType === '' ? 'غير محدد' : carFuelType}/>
+                            <h3>Select Fuel type </h3>
+                            <InfoDiv title={'Fuel type'} divClick={() => setIsCarFuelTypeShow(!isCarFuelTypeShow)} 
+                            value={carFuelType === '' ? 'Undefined' : carFuelType}/>
                             {isCarFuelTypeShow && <AddDetailsPopup array={carFuelType} setArray={setCarFuelType} type={'carFuelType'} sections={'selections'} 
-                            isNotFacilities isSingleSelect setIsShow={setIsCarFuelTypeShow} baseArr={carFuelTypesArray()}/>}
-                            {detailsError.includes('carFuelType') && <p className='error2'>ادخال غير صالح الرجاء الاختيار من قائمة الخيارات</p>}
+                            isNotFacilities isSingleSelect setIsShow={setIsCarFuelTypeShow} baseArr={carFuelTypesArray(true)} isEnglish />}
+                            {detailsError.includes('carFuelType') && <p className='error2'>Invalid entry, please choose from one of the options</p>}
                         </div>
 
                     </div>}
@@ -2156,8 +2159,8 @@ const Page = () => {
                                                 let arr = [...dtlObj.array];
                                                 arr[myIndex] = e.target.value;
                                                 dtlObj.setArray(arr);
-                                            }}/> : <CustomInputDivWithEN placholderValue={'أضف تفصيلة بالعربي'} 
-                                            enPlacholderValue={'أضف ترجمة التفصيلة بالانجليزي'}  deletable 
+                                            }}/> : <CustomInputDivWithEN placholderValue={'Add detail in Arabic'} 
+                                            enPlacholderValue={'Add detail in English'}  deletable 
                                             handleDelete={() => {
                                                 let arr = [];
                                                 for (let i = 0; i < dtlObj.array.length; i++) {
@@ -2190,9 +2193,9 @@ const Page = () => {
                                                 arr[myIndex] = { enName: e.target.value, arName: arr[myIndex]?.arName};
                                                 dtlObj.setDetailsEN(arr);
                                             }} isError={detailsError.includes(`${dtlObj.idName}.${myIndex}`)}
-                                            errorText={'الرجاء كتابة تفصيلة, مع عدم استخدتم حروف غير صالحة مثل >, &, " ...الخ'}
+                                            errorText={'Please write in detail, without using invalid characters such as >, &, "...etc'}
                                             value={obj} enValue={dtlObj.detailsEN?.find(i=>i.arName === obj)?.enName}
-                                            isProfileDetails />}
+                                            isProfileDetails isEnglish />}
                                         </li>
                                     ))}
                                 </ul>
@@ -2201,7 +2204,7 @@ const Page = () => {
                                         dtlObj.setArray([...dtlObj.array, '']);
                                         if(dtlObj.isWithEN) dtlObj.setDetailsEN([...dtlObj.detailsEN, { enName: '', arName: '' }]);
                                     }
-                                } className={arabicFont}>{'أضف تفصيلة'}</button>
+                                } className={arabicFont}>{'Add detail'}</button>
                             </div> : <div className='detailItem area-div dtl-sels-div disable-text-copy' onClick={() => {
                                 if(!dtlObj.isShow) {
                                     dtlObj.setIsShow(true);
@@ -2212,24 +2215,34 @@ const Page = () => {
                                 {dtlObj.isShow && <AddDetailsPopup setIsShow={dtlObj.setIsShow} 
                                 setArray={dtlObj.setArray} array={dtlObj.array}
                                 accompany={dtlObj.accompany} setAccompany={dtlObj.setAccompany}
-                                sections={getDtlItemSections(dtlObj.idName)} 
+                                sections={getDtlItemSections(dtlObj.idName)} isEnglish
                                 setIsAddDetails={setIsAddDetails} detailsError={detailsError}
                                 type={dtlObj.idName} baseArr={dtlObj.selectArray || []} isVehicles={dtlObj.type_is_vehicle}/>}
 
                                 <h3>{dtlObj.name}</h3>
 
-                                {dtlObj.isNum && (dtlObj.array?.length > 0 ? dtlObj.array?.map((obj) => (
-                                    <p className='dtl-array-p'>{getNames('one', false, false, dtlObj.idName)} {obj?.room_type} {obj?.capacity ? 'بسعة ' + obj?.capacity + ' شخص' : ''} {obj?.dim ? 'بعرض ' + obj?.dim?.y + ' متر و بطول ' + obj?.dim?.x + ' متر ' : ''} {obj?.single_beds ? ', ' + obj?.single_beds + ' سرير مفرد ' : ''} {obj?.double_beds ? ', ' + obj?.double_beds + ' سرير ماستر ' : ''} {obj?.depth ? ', و بعمق ' + obj?.depth + ' متر ' : ''}</p>
-                                )) : <p className='dtl-array-p'>لم يتم اضافة {getNames('one', false, false, dtlObj.idName)} بعد</p>)}
+                                {dtlObj.isNum && (dtlObj.array?.length > 0 ? dtlObj.array?.map((obj, index) => (
+                                    <p className='dtl-array-p'>
+                                        {`
+                                            ${getNames('one', false, true, item.idName) + ' ' + ((index + 1) || '')}
+                                            ${obj?.room_type ? (roomTypesArray(true).includes(obj?.room_type) ? obj?.room_type : roomTypesArray(true)[roomTypesArray().indexOf(obj?.room_type)]) : ''} 
+                                            ${obj?.capacity ? 'with capacity of ' + obj?.capacity + ' people' : ''} 
+                                            ${obj?.dim ? ' its dimension is width ' + obj?.dim?.y + 'm & length ' + obj?.dim?.x + 'm ' : ''} 
+                                            ${obj?.single_beds ? ', ' + obj?.single_beds + ' single beds ' : ''} 
+                                            ${obj?.double_beds ? ', ' + obj?.double_beds + ' master beds ' : ''} 
+                                            ${obj?.depth ? ', & depth of ' + obj?.depth + ' meter ' : ''}
+                                        `}
+                                    </p>
+                                )) : <p className='dtl-array-p'>No {getNames('one', false, true, dtlObj.idName)} Added yet</p>)}
 
                                 {(dtlObj.idName !== 'rooms' && dtlObj.idName !== 'guest_rooms') && <InfoDiv 
-                                title={`${dtlObj.idName === 'near_places' ? '' : 'مرافق'} ${getNames('one', true, false, dtlObj.idName)}`} myStyle={{ cursor: 'pointer' }}
+                                title={`${getNames('one', true, true, dtlObj.idName)} ${dtlObj.idName === 'near_places' ? '' : 'Facilities'}`} myStyle={{ cursor: 'pointer' }}
                                 divClick={() => dtlObj.setIsShow(!dtlObj.isShow)} 
                                 value={dtlObj.accompany?.length <= 0 
-                                    ? 'لم تتم اضافة أي مرفق' 
+                                    ? 'No facility added' 
                                     : dtlObj.accompany?.toString()?.replaceAll(',', ', ')}/>}
                                 
-                                {detailsError.includes(` ${dtlObj.idName}`) && <p id='error'>يوجد خطأ بأحد البيانات , لا تستخدم حروف غير صالحة مثل &, {'>'}, " ...الخ</p>}
+                                {detailsError.includes(` ${dtlObj.idName}`) && <p id='error'>Please write in detail, without using invalid characters such as {'>'}, &, "...etc</p>}
                             
                             </div>}</>
                     ))}
@@ -2239,7 +2252,7 @@ const Page = () => {
                 {section === 5 && <div className='submitItem submit-edit'>
 
                     <div className='imagesToDelete' style={{ display: filesToDelete.length <= 0 && 'none' }}>
-                        <label><Svgs name={'info'}/> سيتم حذف هذه الملفات نهائيا, لالغاء التحديد ارجع الى خانة الملفات.</label>
+                        <label><Svgs name={'info'}/>These files will be permanently deleted. To deselect, return to the files box.</label>
                         <ul>
                             {filesToDelete.map((file) => (
                                 <li>
@@ -2253,7 +2266,7 @@ const Page = () => {
                     </div>
 
                     <div className='imagesToDelete' style={{ display: attachedFilesUrls.length <= 0 && 'none' }}>
-                        <label><Svgs name={'info'}/> سيتم اضافة هذه الملفات الى العرض.</label>
+                        <label><Svgs name={'info'}/>These files will be added to the display.</label>
                         <ul>
                             {attachedFilesUrls.map((attachedFile) => (
                                 <li>
@@ -2267,20 +2280,15 @@ const Page = () => {
                     </div>
 
                     <div className='edits-info' style={{ display: !isSomethingChanged() ? 'none' : undefined }}>
-                        سيتم تعديل بعض بيانات الوحدة
-                        {/* {itemTitle !== item.title && <h4 style={{ marginTop: 24}}> العنوان: {itemTitle}</h4>}
-                        {itemDesc !== item.description && <h4> الوصف: {itemDesc}</h4>}
-                        {itemPrice !== item.price && <h4>السعر: {itemPrice}</h4>}
-                        {conditionsAndTerms !== item.terms_and_conditions && <h4>الشروط و الأحكام: {conditionsAndTerms.toString()}</h4>}
-                        {contactsIsChanged() && <h4>طرق التواصل</h4>} */}
+                        Some data will be modified
                     </div>
 
                     <label id='error2' style={{ padding: error.length <= 0 && 0, margin: error.length <= 0 && 0 }}>{error}</label>
-                    
-                    <label id='success' style={{ padding: !success && 0, margin: !success && 0 }}>{success && 'تم التعديل بنجاح'}</label>
-                    
-                    <button className='submit-btn' onClick={handleSubmit}>{loading ? <LoadingCircle /> : 'تعديل'}</button>
-                    
+
+                    <label id='success' style={{ padding: !success && 0, margin: !success && 0 }}>{success && 'Modified successfully'}</label>
+
+                    <button className='submit-btn' onClick={handleSubmit}>{loading ? <LoadingCircle /> : 'Edit'}</button>
+
                 </div>}
 
                 <div className='section-div'>
@@ -2289,21 +2297,20 @@ const Page = () => {
                     } : undefined}>{sectionError} {(section === 1 && !sectionError.includes('خارج الأردن')) 
                         ? <button className={arabicFont} onClick={() => {
                             setSectionError('');
-                            setSection(section >= 5 ? 5 : section + (!item.type_is_vehicle && section === 0 ? 2 : 1));
-                        }}>نعم</button>
+                            setSection(section >= 5 ? 5 : section + 1); 
+                        }}>yes</button>
                         : null}</p>
                     <button style={{ display: section <= 0 ? 'none' : undefined }}
                     className={'editDiv disable-text-copy ' + arabicFont} onClick={() => {
                         setSectionError('');
                         setSection(section > 0 ? section - (!item.type_is_vehicle && section === 2 ? 2 : 1) : 0);
-                    }}>رجوع</button>
+                    }}>Back</button>
                     <button style={{ 
                         display: section >= 5 ? 'none' : undefined
                     }} className={'btnbackscndclr disable-text-copy ' + arabicFont} onClick={() => {
                         if(isTestSection()) 
                             setSection(section >= 5 ? 5 : section + (!item.type_is_vehicle && section === 0 ? 2 : 1));
-                        
-                    }}>تقدم</button>
+                    }}>Continue</button>
                 </div>
 
             </div>

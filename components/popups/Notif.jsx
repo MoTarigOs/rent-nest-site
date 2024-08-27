@@ -170,7 +170,7 @@ const Notif = ({
         return(
             <div className='prop-related'>
                 <p className='main-p'>{text}</p>
-                {item && <Card item={item} isEnglish={isEnglish} type={'myProp'} />}
+                {item && <Card isAdmin={isAdmin} item={item} isEnglish={isEnglish} type={'myProp'} />}
             </div>
         )
     };
