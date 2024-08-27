@@ -13,7 +13,8 @@ const ImagesShow = dynamic(() => import('./ImagesShow'), { ssr: false });
 const Card = ({ 
   item, type, isVertical, isEnglish, 
   handleWishList, setCalenderDoubleValue,
-  bookDatesValues, isAdmin, isReported
+  bookDatesValues, isAdmin, isReported,
+  useHooks
 }) => {
 
     const { resType } = useContext(Context);
@@ -74,7 +75,7 @@ const Card = ({
     <div dir={isEnglish ? 'ltr' : undefined} className={`card disable-text-copy ${isVertical ? 'vertical-view' : undefined}`} style={{ width: '100%' }}>
 
         {!isVertical 
-          ? <ImagesShow type={'card'} isEnglish={isEnglish} images={item.images} itemId={item._id} handleWishList={handleWishList} isVertical={isVertical} isAdmin={isAdmin}/>
+          ? <ImagesShow useHooks={useHooks} type={'card'} isEnglish={isEnglish} images={item.images} itemId={item._id} handleWishList={handleWishList} isVertical={isVertical} isAdmin={isAdmin}/>
           : <div className='vertical-img' style={{ padding: 0 }}><Image src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${item?.images[0]}`} width={200} height={162}/></div>}
 
         <div className='card-content' style={{ margin: 0 }}>

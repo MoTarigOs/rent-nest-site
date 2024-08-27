@@ -18,7 +18,6 @@ const ImagesShow = ({
     setImageFullScreenm, useHooks
 }) => {
 
-    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     let [intervalId, setIntervalId] = useState(null);
     let swiper = null;
     const scrollDivRef = useRef(null);
@@ -26,38 +25,8 @@ const ImagesShow = ({
     const nextButtonRef = useRef(null);
     const prevButtonVideoRef = useRef(null);
     const nextButtonVideoRef = useRef(null);
-    let cardImages = [];
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-    if(type === 'card' && !isAdmin && useHooks){
-        images.forEach((_, i) => {
-            cardImages.push({ ref: useRef(null), url: images[i] });
-        });
-    }
-
-    const getImagesArray = () => {
-        if(type === 'card' && !isAdmin && useHooks){
-            return cardImages;
-        } else {
-            return images;
-        }
-    }
-
-    if(type === 'landing'){
-        for (let i = 0; i < images.length; i++) {
-            [images[i].state, images[i].setState] = useState(false); 
-        }
-    }
-
-    const handleChange = (p) => {
-        
-        const index = p?.activeIndex;
-
-        setSelectedImageIndex(index);
-
-    };
-
-    const stopAutoScroll = () => { clearInterval(intervalId); setIntervalId(null); };
-    
     if(!isAdmin && useHooks){
         
         useEffect(() => {
@@ -129,13 +98,45 @@ const ImagesShow = ({
         
     }
 
+    let cardImages = [];
+
+    if(type === 'card' && !isAdmin && useHooks){
+        images.forEach((_, i) => {
+            cardImages.push({ ref: useRef(null), url: images[i] });
+        });
+    }
+
+    const getImagesArray = () => {
+        if(type === 'card' && !isAdmin && useHooks){
+            return cardImages;
+        } else {
+            return images;
+        }
+    }
+
+    if(type === 'landing'){
+        for (let i = 0; i < images.length; i++) {
+            [images[i].state, images[i].setState] = useState(false); 
+        }
+    }
+
+    const handleChange = (p) => {
+        
+        const index = p?.activeIndex;
+
+        setSelectedImageIndex(index);
+
+    };
+
+    const stopAutoScroll = () => { clearInterval(intervalId); setIntervalId(null); };
+
   return (
     <div className='imagesDiv' dir={isEnglish ? 'ltr' : null} style={{ borderRadius: type === 'landing' ? 0 : undefined }}>
 
         <div className='swiper-images-show'>
 
             <div className={`swiper-wrapper ${type === 'card' ? 'cards-images-container' : undefined}`} ref={scrollDivRef}>
-            {!type_is_video ? <> {getImagesArray()?.length ? <>{getImagesArray().map((img, index) => (
+            {!type_is_video ? <> {getImagesArray()?.length > 0 ? <>{getImagesArray().map((img, index) => (
                     <motion.div key={index} className={`swiper-slide ${type === 'landing' && index === selectedImageIndex ? 'animate-show-landing-page' : 'animate-hide-landing-page'}`} 
                         ref={img.ref}
                         initial={type === 'landing' ? {

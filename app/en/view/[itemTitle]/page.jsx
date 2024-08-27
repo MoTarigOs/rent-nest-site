@@ -764,7 +764,7 @@ const page = () => {
 
           <h1>{item.en_data?.titleEN || item.title} 
             <span id='mobile-unit-span'>{'(' + item.unit_code + ')'}</span>               
-            {item.discount?.percentage > 0 && <DiscountSticker disNum={45}/>}
+            {item.discount?.percentage > 0 && <DiscountSticker disNum={item.discount?.percentage}/>}
             <h4 onClick={() => { setReportDiv(true); setWriterId(''); }}>Report <Svgs name={'report'}/></h4><span id='desktop-unit-span'>Unit ID {'(' + item.unit_code + ')'}</span>
           </h1>
 
@@ -844,7 +844,7 @@ const page = () => {
                 {(item.specific_catagory === 'farm' && item.landArea?.length > 0 && Number(item.landArea) !== 0) && <li><Svgs name={'area'}/>{`Land Area ${item.landArea}`}</li>}
               </ul>
 
-              {item.discount?.percentage > 0 && <DiscountSticker disNum={45}/>}
+              {item.discount?.percentage > 0 && <DiscountSticker disNum={item.discount?.percentage}/>}
 
             </div>
             

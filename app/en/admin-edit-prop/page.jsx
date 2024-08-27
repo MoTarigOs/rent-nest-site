@@ -1118,15 +1118,15 @@ const Page = () => {
                 errorEncountered = true;
             }
 
-            if(customerType?.length > 0){
-                for (let i = 0; i < customerType.length; i++) {
-                    if(!customersTypesArray(true, specificCatagory === 'students').includes(customerType[i])) {
-                        setCustomerType('-1');
-                        detailsErrorMsg = detailsErrorMsg + ' customerType ';
-                        errorEncountered = true;
-                    }
-                }
-            }
+            // if(customerType?.length > 0){
+            //     for (let i = 0; i < customerType.length; i++) {
+            //         if(!customersTypesArray(true, specificCatagory === 'students').includes(customerType[i])) {
+            //             setCustomerType('-1');
+            //             detailsErrorMsg = detailsErrorMsg + ' customerType ';
+            //             errorEncountered = true;
+            //         }
+            //     }
+            // }
     
             console.log('withDriver: ', withDriver);
 

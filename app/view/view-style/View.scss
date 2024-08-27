@@ -471,6 +471,16 @@
         padding-top: 16px;
         border: 4px solid var(--secondColorHover);
 
+        &:dir(ltr){
+            right: 286px;
+            left: unset;
+    
+            #main-num{
+                margin-top: -2px;
+                margin-bottom: -16px;
+            }
+        }
+
         span{
             text-align: center;
             font-size: 0.7rem;
@@ -1784,6 +1794,10 @@
         }
         
         .dicount-sticker{
+            &:dir(ltr){
+                left: unset;
+                right: 24px;
+            }
             top: 48px;
             left: 24px;
         }

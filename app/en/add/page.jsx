@@ -50,7 +50,7 @@ const page = () => {
     const [mapUsed, setMapUsed] = useState(false);
     const [triggerSectionError, setTriggerSectionError] = useState(false);
 
-    const [section, setSection] = useState(3);
+    const [section, setSection] = useState(0);
     const [sectionError, setSectionError] = useState('');
     const [freeSection, setFreeSection] = useState(false);
 
