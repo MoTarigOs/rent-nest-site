@@ -166,7 +166,7 @@ const page = () => {
 
             <CustomInputDiv title={'Enter Your Email'} isError={email === '-1'} errorText={'Invalid email.'} listener={(e) => setEmail(e.target.value)}/>
             <button type='button' className='btnbackscndclr' style={{ margin: '-24px 0 0 0' }} onClick={sendCodeToEmail}>{sendingCode ? <LoadingCircle /> : 'Send a code to your email'}</button>
-            <p id={sendCodeError.length > 0 ? 'p-info-error' : 'p-info'}>{sendCodeError?.length > 0 ? sendCodeError : sendCodeSuccess}</p>
+            <p id={sendCodeError?.length > 0 ? 'p-info-error' : 'p-info'}>{sendCodeError?.length > 0 ? sendCodeError : sendCodeSuccess}</p>
 
             <hr/>
 
