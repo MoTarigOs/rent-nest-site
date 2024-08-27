@@ -1,6 +1,7 @@
 .reviewCard{
     width: 100%;
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
     padding: 16px;
     border-radius: 8px;
@@ -21,16 +22,12 @@
                 }
             }
         }
-        .delete-file{
-            margin-right: unset;
-            margin-left: 16px;
-        }
         p{
             margin-top: 12px;
         }
         h4{
-            margin-right: 0;
             margin-left: auto;
+            margin-right: 4px;
         }
     }
 
@@ -89,39 +86,51 @@
 
     h3{
         font-size: 1rem;
+        padding: 0;
     }
 
     h4{
-        padding: 8px 12px;
-        font-size: 1rem;
-        border: 2px solid rgba(0, 0, 0, 0.149);
-        border-radius: 4px;
+        padding: 0;
+        height: fit-content;
         margin-right: auto;
+        margin-left: 4px;
         cursor: pointer;
-        display: flex;
-        align-items: center;
-        color: grey;
         transition: all 0.2s ease-out;
 
         svg{
-            fill: grey;
-            margin-right: 6px;
+            fill: rgb(183, 183, 183);
+            transition: all 0.2s ease-out;
         }
     }
 
     h4:hover{
-        background: var(--darkWhite);
-        transition: all 0.2s ease-in;
+        svg{
+            fill: rgb(162, 162, 162);
+            transition: all 0.2s ease-in;
+        }
     }
 
     .delete-file{
         position: static;
-        font-size: 1rem;
-        margin-right: 16px;
+        background: transparent;
+        margin: 0;
 
         svg{
             width: 16px;
             height: 16px;
+            margin: 0;
+            path{
+                fill: var(--softRed);
+                transition: all 0.2s ease-out;
+            }
+        }
+
+        &:hover{
+            background: transparent;
+            svg path{
+                fill: red;
+                transition: all 0.2s ease-in;
+            }
         }
     }
 }

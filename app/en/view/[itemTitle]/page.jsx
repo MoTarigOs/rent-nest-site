@@ -11,31 +11,33 @@ import { useContext, useEffect, useState } from 'react';
 import ReviewCard from '@components/ReviewCard';
 import HeaderPopup from '@components/popups/HeaderPopup';
 import { useSearchParams } from 'next/navigation';
-import { deletePropFilesAdmin, deleteReportOnProp, deleteReviewsAdmin, deleteSpecificPropFilesAdmin, fetchPropertyDetails, getHost, getPropIdByUnitCode, handleBooksAddRemove, handleFavourite, handlePropAdmin, makeReport, sendReview } from '@utils/api';
+import { fetchPropertyDetails, getHost, getPropIdByUnitCode, handleBooksAddRemove, handleFavourite, makeReport, sendReview } from '@utils/api';
 import CustomInputDiv from '@components/CustomInputDiv';
 import { Context } from '@utils/Context';
-import { getNameByLang, getNumOfBookDays, getReadableDate, isOkayBookDays, isValidArrayOfStrings, isValidContactURL, isValidNumber } from '@utils/Logic';
+import { getDetailedResTypeNum, getNameByLang, getNumOfBookDays, getReadableDate, isOkayBookDays, isValidContactURL, isValidNumber } from '@utils/Logic';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
 import Link from 'next/link';
 import { bathroomFacilities, facilities, kitchenFacilities, nearPlacesNames, poolType } from '@utils/Facilities';
 import LoadingCircle from '@components/LoadingCircle';
+import ItemImagesLoader from '@components/ItemImagesLoader';
 
 const page = () => {
 
   const { 
     favouritesIds, setFavouritesIds, booksIds, 
-    setBooksIds, userId, userRole, setIsMap, 
+    setBooksIds, userId, setIsMap, 
     setMapType, setLatitude, setLongitude,
     calendarDoubleValue, setCalendarDoubleValue,
-    storageKey, userEmail, isMobile, isVerified,
-    setIsModalOpened, userUsername
+    isMobile, isVerified,
+    setIsModalOpened, userUsername, resType, setResType,
+    resTypeNum, setResTypeNum, isMobile960, isMap
   } = useContext(Context);
   
-  const id = useSearchParams().get('id');
+  let id = useSearchParams().get('id');
   const unitCode = useSearchParams().get('unit');
   const isReportParam = useSearchParams().get('isReport');
-
+  
   const [bookSuccess, setBookSuccess] = useState(false);
 
   const [loading, setLoading] = useState(false);
@@ -49,32 +51,12 @@ const page = () => {
   const [shareDiv, setShareDiv] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const [adminSending, setAdminSending] = useState(false);
-  const [adminType, setAdminType] = useState('pass-property');
-  const [adminError, setAdminError] = useState('');
-  const [adminSuccess, setAdminSuccess] = useState('');
-
-  const [rejectReasons, setRejectReasons] = useState(['']);
-  const [rejectError, setRejectError] = useState('');
-  
-  const [filesToDeleteAdmin, setFilesToDeleteAdmin] = useState([]);
-  const [deletingFiles, setDeletingFiles] = useState(false);
-  const [isDeleteFiles, setIsDeleteFiles] = useState(false);
-  const [deleteFilesError, setDeleteFilesError] = useState('');
-  const [deleteFilesSuccess, setDeleteFilesSuccess] = useState('');
-
-  const [revsToDeleteAdmin, setRevsToDeleteAdmin] = useState([]);
-  const [deletingRevs, setDeletingRevs] = useState(false);
-  const [isDeleteRevs, setIsDeleteRevs] = useState(false);
-  const [deleteRevsError, setDeleteRevsError] = useState('');
-  const [deleteRevsSuccess, setDeleteRevsSuccess] = useState('');
-
   const [reviewsNumber, setReviewsNumber] = useState(6);
   const [isCalendar, setIsCalendar] = useState(false);
   const [bookDate, setBookDate] = useState(calendarDoubleValue);
   const [isSpecifics, setIsSpecifics] = useState(true);
   const [isReviews, setIsReviews] = useState(false);
-  const [isMap, setIsMapDiv] = useState(false);
+  const [isMapDiv, setIsMapDiv] = useState(false);
   const [isTerms, setIsTerms] = useState(false);
 
   const [sendingReview, setSendingReview] = useState(false);
@@ -88,12 +70,10 @@ const page = () => {
   const [reviewsNum, setReviewsNum] = useState(null);
   const [reportText, setReportText] = useState('');
   const [reporting, setReporting] = useState(false);
+  const [reportSuccess, setReportSuccess] = useState('');
 
   const [addingToFavs, setAddingToFavs] = useState(false);
   const [addingToBooks, setAddingToBooks] = useState(false);
-
-  const [deletingReport, setDeletingReport] = useState(false);
-  const [isDeleteReport, setIsDeleteReport] = useState(false);
 
   const [isGuestRooms, setIsGuestRooms] = useState(false);
   const [isKitchen, setIsKitchen] = useState(false);
@@ -104,16 +84,19 @@ const page = () => {
   const [isPool, setIsPool] = useState(false);
   const [isFeatures, setIsFeatures] = useState(false);
   const [isCheckout, setIsCheckout] = useState(false);
+  
+  const [isImagesLoader, setIsImageLoader] = useState(false);
 
   const [isReservationType, setIsReservationType] = useState(false);
-  const [resType, setResType] = useState(reservationType()[0]);
-  const [resTypeNum, setResTypeNum] = useState(1);
+  const [popupResTypeChange, setPopupResTypeChange] = useState(false);
 
   const whatsappBaseUrl = 'https://wa.me/';
 
-  async function fetchItemDetails () {
+  async function fetchItemDetails (fetId) {
 
     try {
+
+      if(!id) id = fetId;
 
       if(!id || id.length < 10 || loading) return;
 
@@ -141,8 +124,9 @@ const page = () => {
     try {
       setLoading(true);
       const res = await getPropIdByUnitCode(unitCode);
+      console.log(res);
       if(!res?.ok === true) return setLoading(false);
-      location.href = `/en/view/item?id=${res.dt.id}`;
+      fetchItemDetails(res.dt.id);
     } catch (err) {
       console.log(err);
       setLoading(false);
@@ -211,9 +195,12 @@ const page = () => {
       setReporting(true);
 
       const res = await makeReport(
-        reportText, id, writerId
+        reportText, id, writerId, true
       );
 
+      if(res?.success === true) setReportSuccess('true');
+      else setReportSuccess(res?.dt || 'Error reporting');
+      
       setReporting(false);
       
     } catch (err) {
@@ -247,9 +234,8 @@ const page = () => {
 
   const generateWhatsappText = (notLogined, isSimple) => {
     const text = !isSimple
-      ? `${(notLogined || !userId?.length > 0) ? '** Warning: This user is not registered on the platform ** \n\n• ' : ''}I am the account holder: "${userUsername || 'Name not exist!'}" User ID: "${userId || 'ID not exist!'}" \n\n• I want to book this show\n\n• Title: "${item.en_data?.titleEN || item.title}" \n\n• Unit Code (unit id): "${item.unit_code}"\n\n• Reservation type: ${resType?.value} \n\n• Starting from date: "${getReadableDate(calendarDoubleValue?.at(0), true, true)}" \n\n• To date: "${getReadableDate(calendarDoubleValue?.at(1), true, true)}"\n\n• Duration: ${resTypeNum} ${reservationType(true, resTypeNum, true).find(i=>i.id === resType?.id)?.oneEn + 's'}\n\n• The price shown to me: ${(((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice()) - (item.discount?.percentage ? ((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice() * item.discount.percentage / 100) : 0)).toFixed(2)} ${currencyCode(true, false)}\n\n• ** بالعربية **\n\n${(notLogined || !userId?.length > 0) ? '** تحذير: هذا المستخدم ليس مسجل بالمنصة ** \n\n• ' : ''}أنا صاحب الحساب "${userUsername || 'لا يوجد اسم'}" معرف: "${userId || 'لا يوجد معرف'}" \n\n• أريد أن احجز هذا العرض\n\n• عنوان العرض: "${item.title}" \n\n• كود الوحدة (معرف العرض): "${item.unit_code}"\n\n• نوع الحجز: ${resType?.arabicName} \n\n• بدءا من التاريخ: "${getReadableDate(calendarDoubleValue?.at(0), true)}" \n\n• وحتى التاريخ: "${getReadableDate(calendarDoubleValue?.at(1), true)}"\n\n• مدة الحجز: ${resTypeNum} ${reservationType(false, resTypeNum, true).find(i=>i.id === resType?.id)?.multipleAr}\n\n• السعر الظاهر لي: ${(((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice()) - (item.discount?.percentage ? ((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice() * item.discount.percentage / 100) : 0)).toFixed(2)} ${currencyCode(false, false)}`
-      : `${(notLogined || !userId?.length > 0) ? '** Warning: This user is not registered on the platform ** \n\n• ' : ''}I am the account holder: "${userUsername || 'name not exist!'}" User ID: "${userId || 'Id not exist!'}" \n\n• I would like to contact you about this unit \n\n• Title: "${item.title}" \n\n• Unit Code (unit id): "${item.unit_code}\n\n• ** بالعربية **\n\n${(notLogined || !userId?.length > 0) ? '** تحذير: هذا المستخدم ليس مسجل بالمنصة ** \n\n• ' : ''}أنا صاحب الحساب "${userUsername || 'لا يوجد اسم'}" معرف: "${userId || 'لا يوجد معرف'}" \n\n• أريد أن أتواصل معك بخصوص هذا العرض\n\n• عنوان العرض: "${item.title}" \n\n• كود الوحدة (معرف العرض): "${item.unit_code}`;
-    console.log('url: ', encodeURIComponent(text));
+      ? `${(notLogined || !userId?.length > 0) ? '** Warning: This user is not registered on the platform ** \n\n• ' : ''}I am the account holder: "${userUsername || 'Name not exist!'}" User ID: "${userId || 'ID not exist!'}" \n\n• I want to book this show\n\n• Title: "${item.en_data?.titleEN || item.title}" \n\n• Unit Code (unit id): "${item.unit_code}"\n\n• Reservation type: ${resType?.value} \n\n• Starting from date: "${getReadableDate(calendarDoubleValue?.at(0), true, true)}" \n\n• To date: "${getReadableDate(calendarDoubleValue?.at(1), true, true)}"\n\n• Duration: ${getDetailedResTypeNum(true, resType, resTypeNum, true)}\n\n• The price shown to me: ${(getPrice('cost price') - (item.discount?.percentage > 0 ? (getPrice('cost price') * item.discount.percentage / 100) : 0)).toFixed(2)} ${currencyCode(true, false)} ${getHoildays(true) ? '\n\n• Note: Special prices have been applied to holidays (Thursday, Friday and Saturday)' : ''} \n\n• ** بالعربية **\n\n${(notLogined || !userId?.length > 0) ? '** تحذير: هذا المستخدم ليس مسجل بالمنصة ** \n\n• ' : ''}أنا صاحب الحساب "${userUsername || 'لا يوجد اسم'}" معرف: "${userId || 'لا يوجد معرف'}" \n\n• أريد أن احجز هذا العرض\n\n• عنوان العرض: "${item.title}" \n\n• كود الوحدة (معرف العرض): "${item.unit_code}"\n\n• نوع الحجز: ${resType?.arabicName} \n\n• بدءا من التاريخ: "${getReadableDate(calendarDoubleValue?.at(0), true)}" \n\n• وحتى التاريخ: "${getReadableDate(calendarDoubleValue?.at(1), true)}"\n\n• مدة الحجز: ${getDetailedResTypeNum(true, resType, resTypeNum, true)}\n\n• السعر الظاهر لي: ${(getPrice('cost price') - (item.discount?.percentage > 0 ? (getPrice('cost price') * item.discount.percentage / 100) : 0)).toFixed(2)} ${currencyCode(false, false)} ${getHoildays(true) ? '\n\n• ملاحظة: تم تطبيق أسعار خاصة بأيام العطل (الخميس و الجمعة و السبت)' : ''}`
+      : `${(notLogined || !userId?.length > 0) ? '** Warning: This user is not registered on the platform ** \n\n• ' : ''}I am the account holder: "${userUsername || 'name not exist!'}" User ID: "${userId || 'Id not exist!'}" \n\n• I would like to contact you about this unit \n\n• Title: "${item.title}" \n\n• Unit Code (unit id): "${item.unit_code}\n\n• Starting from date: "${getReadableDate(calendarDoubleValue?.at(0), true, true)}" \n\n• To date: "${getReadableDate(calendarDoubleValue?.at(1), true, true)}"\n\n• Duration: ${getDetailedResTypeNum(true, resType, resTypeNum, true)}\n\n• The price shown to me: ${(getPrice('cost price') - (item.discount?.percentage > 0 ? (getPrice('cost price') * item.discount.percentage / 100) : 0)).toFixed(2)} $${currencyCode(true, false)} ${getHoildays(true) ? '\n\n• Note: Special prices have been applied to holidays (Thursday, Friday and Saturday)': ''} \n\n• ** بالعربية **\n\n${(notLogined || !userId?.length > 0) ? '** تحذير: هذا المستخدم ليس مسجل بالمنصة ** \n\n• ' : ''}أنا صاحب الحساب "${userUsername || 'لا يوجد اسم'}" معرف: "${userId || 'لا يوجد معرف'}" \n\n• أريد أن أتواصل معك بخصوص هذا العرض\n\n• عنوان العرض: "${item.title}" \n\n• كود الوحدة (معرف العرض): "${item.unit_code}\n\n• بدءا من التاريخ: "${getReadableDate(calendarDoubleValue?.at(0), true)}" \n\n• وحتى التاريخ: "${getReadableDate(calendarDoubleValue?.at(1), true)}"\n\n• مدة الحجز: ${getDetailedResTypeNum(true, resType, resTypeNum, true)}\n\n• السعر الظاهر لي: ${(getPrice('cost price') - (item.discount?.percentage > 0 ? (getPrice('cost price') * item.discount.percentage / 100) : 0)).toFixed(2)} ${currencyCode(false, false)} ${getHoildays(true) ? '\n\n• ملاحظة: تم تطبيق أسعار خاصة بأيام العطل (الخميس و الجمعة و السبت)' : ''}`;
     return encodeURIComponent(text);
   };
 
@@ -338,151 +324,8 @@ const page = () => {
   };
 
   const getShareUrl = () => {
-    return window.location.origin.toString() + 
-    (item.unit_code ? '/en/view/item?unit=' + item.unit_code : '/en/view/item?id=' + id);
-  };
-
-  const sendAdmin = async() => {
-
-    try {
-
-      if(adminSending) return;
-
-      if(adminType === 'show-property' && item.visible) return;
-      if(adminType === 'hide-property' && !item.visible) return;
-      if(adminType === 'pass-property' && item.checked) return;
-      if(adminType === 'reject-property' && (item.isRejected || !isValidArrayOfStrings(rejectReasons))) {
-        setRejectError('Please write reasons for rejecting the offer');
-        return;
-      }
-      setRejectError('');
-      if(adminType === 'delete-property' && !item) return;
-
-      setAdminSending(true);
-
-      if(adminType === 'delete-property'){
-        const deleteFilesRes = await deletePropFilesAdmin(id, storageKey, userEmail, true);
-        if (deleteFilesRes.success !== true) {
-          setAdminError(deleteFilesRes.dt);
-          setAdminSuccess('');
-          setAdminSending(false);
-          return;
-        }
-      } else {
-        setAdminError('');
-        setAdminSuccess('');
-      };
-      
-      const res = await handlePropAdmin(id, adminType, rejectReasons, true);
-
-      if(res.success !== true) {
-        setAdminError(res.dt);
-        setAdminSuccess('');
-        setAdminSending(false);
-        return;
-      }
-
-      setAdminError('');
-      setAdminSuccess('Updated successfully');
-
-      if(adminType === 'pass-property') setItem(res.dt);
-
-      if(adminType === 'reject-property') {
-        setItem(res.dt);
-        setAdminType('pass-property');
-      };
-
-      if(adminType === 'hide-property') {
-        setItem(res.dt);
-        setAdminType('show-property');
-      };
-
-      if(adminType === 'show-property') {
-        setItem(res.dt);
-        setAdminType('hide-property');
-      };
-
-      if(adminType === 'delete-property') setTimeout(() => { setItem(null) }, [2000]);
-      setAdminSending(false);
-      
-    } catch (err) {
-      console.log(err.message);
-      setAdminError('Something went wrong');
-      setAdminSuccess('');
-      setAdminSending(false);
-    }
-
-  };
-
-  const handleDeleteFilesAdmin = async() => {
-
-    try {
-
-      if(deletingFiles) return;
-
-      setDeletingFiles(true);
-
-      const res = await deleteSpecificPropFilesAdmin(
-        id, filesToDeleteAdmin, storageKey, userEmail, true
-      );
-
-      if(res.success !== true) {
-        setDeleteFilesError(res.dt);
-        setDeleteFilesSuccess('');
-        setDeletingFiles(false);
-        return;
-      }
-
-      setDeleteFilesError('');
-      setDeleteFilesSuccess('Deleted Successfully');
-      setDeletingFiles(false);
-      
-    } catch (err) {
-      console.log(err.message);
-      setDeleteFilesError('Something went wrong');
-      setDeleteFilesSuccess('');
-      setDeletingFiles(false);
-    }
-
-  };
-
-  const handleDeleteRevsAdmin = async() => {
-
-    try {
-
-      if(deletingRevs) return;
-
-      setDeletingRevs(true);
-
-      const res = await deleteReviewsAdmin(id, revsToDeleteAdmin, true);
-
-      if(res.success !== true) {
-        setDeleteRevsError(res.dt);
-        setDeleteRevsSuccess('');
-        setDeletingRevs(false);
-        return;
-      }
-
-      setDeleteRevsError('');
-      setDeleteRevsSuccess('Deleted Successfully');
-      setItem(res.dt);
-      setDeletingRevs(false);
-      
-    } catch (err) {
-      console.log(err.message);
-      setDeleteRevsError('Something went wrong');
-      setDeleteRevsSuccess('');
-      setDeletingRevs(false);
-    }
-
-  };
-
-  const isAdmin = () => {
-    if(userRole === 'admin' || userRole === 'owner'){
-      return true;
-    } else {
-      return false;
-    }
+    return window.location.origin.toString() 
+    + `/en/view/unit${item.unit_code}?unit=${item.unit_code}`;
   };
 
   const showMap = () => {
@@ -512,31 +355,8 @@ const page = () => {
     if(!isOkayBookDays(calendarDoubleValue, item.booked_days)) return false;
     if(!userId?.length > 10) return false;
     if(userId?.length > 10 && !isVerified) return false;
+    if(isNaN(getPrice('cost price'))) return false;
     return true;
-  };
-
-  const deleteReport = async() => {
-
-    if(deletingReport) return;
-
-    try {
-
-      setDeletingReport(true);
-
-      const res = await deleteReportOnProp(id);
-
-      if(!res.success !== true){
-        setDeletingReport(false);
-        return;
-      }
-
-      setItem(res.dt);
-      setDeletingReport(false);
-      
-    } catch (err) {
-      console.log(err);
-      setDeletingReport(false);
-    }
   };
 
   const copyUrl = async() => {
@@ -593,6 +413,8 @@ const page = () => {
     if(userId?.length > 10 && !isVerified) return 'Verify account ownership';
     if(!booksIds.find(i => i.property_id === id) 
     && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1))) return 'Specify book days';
+    if(isNaN(getPrice('cost price'))) return 'Invalid reservation type';
+    return 'Reservation is not available';
   };
 
   const getPriceReservationType = () => {
@@ -604,13 +426,39 @@ const page = () => {
     return null;
   };
 
-  const getPrice = () => {
-    if(resType?.value?.toLowerCase() === 'daily') return item.prices?.daily || '';
-    else if(resType?.value?.toLowerCase() === 'weekly') return item.prices?.weekly || 'Undefined price';
-    else if(resType?.value?.toLowerCase() === 'monthly') return item.prices?.monthly || 'Undefined price';
-    else if(resType?.value?.toLowerCase() === 'seasonly') return item.prices?.seasonly || 'Undefined price';
-    else if(resType?.value?.toLowerCase() === 'yearly') return item.prices?.yearly || 'Undefined price';
-    return 'Undefined price';
+  const getPrice = (priceType) => {
+
+    switch(priceType){
+
+      case 'main price':
+        if(resType?.value?.toLowerCase() === 'daily') return item.prices?.daily || 'Undefined Price';
+        else if(resType?.value?.toLowerCase() === 'weekly') return item.prices?.weekly || 7 * item.prices?.daily || 'Undefined Price';
+        else if(resType?.value?.toLowerCase() === 'monthly') return item.prices?.monthly || Math.round(4.285714285 * item.prices?.weekly) || 30 * item.prices?.daily || 'Undefined Price';
+        else if(resType?.value?.toLowerCase() === 'seasonly') return item.prices?.seasonly || 'Undefined Price';
+        else if(resType?.value?.toLowerCase() === 'yearly') return item.prices?.yearly || Math.round(12.16666666 * item.prices?.monthly) || Math.round(52.1428571 * item.prices?.weekly) || 365 * item.prices?.daily || 'Undefined Price';
+        else if(resType?.value?.toLowerCase() === 'events') return item.prices?.eventsPrice || 'Undefined Price';
+        else return 'Undefined Price';
+
+      case 'cost price':
+        if(resType?.value?.toLowerCase() === 'daily') return getHoildays();
+        else if(resType?.value?.toLowerCase() === 'weekly') return resTypeNum * item.prices?.weekly || resTypeNum * 7 * item.prices?.daily || 'Undefined Price';
+        else if(resType?.value?.toLowerCase() === 'monthly') return resTypeNum * item.prices?.monthly || resTypeNum * Math.round(4.285714285 * item.prices?.weekly) || resTypeNum * 30 * item.prices?.daily || 'Undefined Price';
+        else if(resType?.value?.toLowerCase() === 'seasonly') return resTypeNum * item.prices?.seasonly || 'Undefined Price';
+        else if(resType?.value?.toLowerCase() === 'yearly') return resTypeNum * item.prices?.yearly || resTypeNum * Math.round(12.16666666 * item.prices?.monthly) || resTypeNum * Math.round(52.1428571 * item.prices?.weekly) || resTypeNum * 365 * item.prices?.daily || 'Undefined Price';
+        else if(resType?.value?.toLowerCase() === 'events') return resTypeNum * item.prices?.eventsPrice || 'Undefined Price';
+        else return 'Undefined Price';
+
+      case 'test res type existence':
+        if(resType?.value?.toLowerCase() === 'daily' && item.prices?.daily > 0) return true;
+        else if(resType?.value?.toLowerCase() === 'weekly' && item.prices?.weekly > 0) return true;
+        else if(resType?.value?.toLowerCase() === 'monthly' && item.prices?.monthly > 0) return true;
+        else if(resType?.value?.toLowerCase() === 'seasonly' && item.prices?.seasonly > 0) return true;
+        else if(resType?.value?.toLowerCase() === 'yearly' && item.prices?.yearly > 0) return true;
+        else if(resType?.value?.toLowerCase() === 'events' && item.prices?.eventsPrice > 0) return true;
+        else return false;
+
+    }
+
   };
 
   const getDetailText = (obj, objType, index) => {
@@ -686,9 +534,100 @@ const page = () => {
     }
   };
 
+  const handleDays = (isPopupChange) => {
+
+    const daysBooked = getNumOfBookDays(calendarDoubleValue);
+
+    const setDayBook = () => {
+      setResType(reservationType()?.find(i=>i.id===0));
+      setResTypeNum(daysBooked);
+    };
+
+    const setWeekBook = () => {
+      setResType(reservationType()?.find(i=>i.id===1));
+      setResTypeNum(daysBooked / 7);
+    };
+
+    const setMonthBook = () => {
+      setResType(reservationType()?.find(i=>i.id===2));
+      setResTypeNum(daysBooked / 30);
+    };
+
+    const setYearBook = () => {
+      setResType(reservationType()?.find(i=>i.id===4));
+      setResTypeNum(daysBooked / 365);
+    };
+
+    const setResTypeFromDaysBooked = () => {
+      if(daysBooked < 7) return setDayBook();
+      if(daysBooked < 30) return setWeekBook();
+      if(daysBooked < 365) return setMonthBook();
+      return setYearBook();
+      // if(daysBooked < 7) return setSesBook();
+    }
+    
+    if(!isPopupChange) setResTypeFromDaysBooked();
+    else if(resType?.id === 0) { 
+      setCalendarDoubleValue([
+        new Date(calendarDoubleValue?.at(0) || Date.now()), 
+        new Date((calendarDoubleValue?.at(0) || Date.now()) + 86400000)
+      ]); 
+      setResTypeNum(1); 
+    }
+    else setResTypeNum(1);
+
+    const setSeasonBook = () => {};
+
+    setCanBook(isAbleToBook());
+
+  };
+
+  const getHoildays = (isExist) => {
+    let isThursday = false;
+    let isFriday = false;
+    let isSaturday = false;
+    console.log('calenderDoubleValue: ', calendarDoubleValue);
+    for (let i = calendarDoubleValue?.at(0)?.getTime() + 86400000; i <= calendarDoubleValue?.at(1)?.getTime(); i += 86400000) {
+        const dayNum = (new Date(i)).getDay();
+        if(dayNum === 4 && item.prices?.thursdayPrice > 0) isThursday = true;
+        if(dayNum === 5 && item.prices?.fridayPrice > 0) isFriday = true;
+        if(dayNum === 6 && item.prices?.saturdayPrice > 0) isSaturday = true;
+    }
+    if(isExist) return isThursday || isFriday || isSaturday || false;
+    if(!item.prices?.daily) return 'سعر غير محدد';
+    let pp = resTypeNum * item.prices?.daily;
+    if(isThursday) pp = pp - item.prices?.daily + item.prices?.thursdayPrice;
+    if(isFriday) pp = pp - item.prices?.daily + item.prices?.fridayPrice;
+    if(isSaturday) pp = pp - item.prices?.daily + item.prices?.saturdayPrice;
+    return pp;
+  };
+
+  const showAllSpecs = () => {
+    const xxx = !isAtleastOneSpecShowed();
+    setIsGuestRooms(xxx);
+    setIsKitchen(xxx);
+    setIsRooms(xxx);
+    setIsBathrooms(xxx);
+    setIsPlaces(xxx);
+    setIsFeatures(xxx);
+    setIsFacilities(xxx);
+    setIsPool(xxx);
+  };
+
+  const isAtleastOneSpecShowed = () => {
+    if(isGuestRooms
+      || isKitchen
+      || isRooms
+      || isBathrooms
+      || isPlaces
+      || isFeatures
+      || isFacilities
+      || isPool) return true;
+    else return false;
+  };
+
   useEffect(() => {
     setRunOnce(true);
-    setAdminSending(false);
     setCanBook(isAbleToBook());
   }, []);
 
@@ -724,8 +663,14 @@ const page = () => {
   }, [bookDate]);
 
   useEffect(() => {
-    setCanBook(isAbleToBook());
+    handleDays();
   }, [calendarDoubleValue]);
+
+  useEffect(() => {
+    if(!popupResTypeChange) return;
+    if(popupResTypeChange) handleDays(true);
+    setPopupResTypeChange(false);
+  }, [popupResTypeChange]);
 
   useEffect(() => {
     if(!loading && item) setFetching(false);
@@ -736,18 +681,43 @@ const page = () => {
     setIsModalOpened(false);
   }, [isCheckout]);
 
+  useEffect(() => {
+    setReportSuccess('');
+  }, [reportDiv]);
+
+  useEffect(() => {
+    if(isCheckout || isImagesLoader) return setIsModalOpened(true);
+    setIsModalOpened(false);
+  }, [isCheckout, isImagesLoader]);
+
+  useEffect(() => {
+    setIsImageLoader(false);
+    setIsCheckout(false);
+  }, [isMobile960]);
+
   const RightIconSpan = () => {
-    return <div id='righticonspan'><span /></div>
+    return <span id='righticonspann'/>
+  };
+
+  const DiscountSticker = ({ disNum }) => {
+    return <div className='dicount-sticker'>
+        <span style={{ color: 'white' }}>Limited Offer</span>
+        <span style={{ color: 'white' }} id='main-num'>{disNum}%</span>
+        <span style={{ fontSize: '0.9rem', color: 'white' }}>Discount</span>
+    </div>
   };
 
   if(!item){
     return (
-        (fetching || loading) ? <MySkeleton isMobileHeader={true}/> : <NotFound />
+      (fetching || loading) ? <MySkeleton isMobileHeader={true}/> : <NotFound />
     )
   };
 
   return (
-    <div className="view" style={{ overflow: 'hidden' }} dir='ltr'>
+    <div className="view" style={{ 
+      overflow: 'hidden', 
+      zIndex: isMap ? 1 : undefined
+    }} dir='ltr'>
 
       {reportDiv && <div className='reportDiv'>
 
@@ -764,7 +734,9 @@ const page = () => {
             } else {
               report(null);
             }
-          }}>{reporting ? 'Reporting...' : 'Report'}</button>
+          }}>{reporting ? <LoadingCircle /> : 'Report'}</button>
+
+          {reportSuccess?.length > 0 && <p style={{ marginTop: 12 }} id={reportSuccess === 'true' ? 'success' : 'error'}>{reportSuccess === 'true' ? 'Reported successfully' : reportSuccess}</p>}
         </>}
 
       </div>}
@@ -781,143 +753,28 @@ const page = () => {
         </button>
       </div>}
 
-      {isAdmin() && <div className='view-admin-section'>
-
-        <h2>Admin section to control the Offer</h2>
-        
-        <div className='status'>Offer status <span>{item.visible ? 'Visible' : 'Hidden'}</span> <span>{item.checked ? 'Approved' : item.isRejected ? 'Rejected' : 'Under revision'}</span></div>
-
-        <h3>What do you want to do with this offer?</h3>
-
-        <ul>
-          <li id={item.checked ? 'unactive-btn' : null} className={adminType === 'pass-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('pass-property')}>Approve offer</li>
-          <li id={(item.isRejected || item.checked) ? 'unactive-btn' : null} className={adminType === 'reject-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('reject-property')}>Reject offer</li>
-          <li className={adminType === 'delete-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('delete-property')}>Delete offer</li>
-          <li className={(adminType === 'hide-property' || adminType === 'show-property') ? 'selected-admin-type' : ''} onClick={() => setAdminType(item.visible ? 'hide-property' : 'show-property')}>{item.visible ? 'Hide offer' : 'Show offer'}</li>
-        </ul>
-
-        <div className='reject-reasons' style={{ display: adminType === 'reject-property' ? null : 'none' }}>
-          <h2>Add reasons for rejecting the offer</h2>
-          {rejectReasons.map((reason, index) => (
-          <div key={index}><CustomInputDiv placholderValue={!reason?.length > 0 ? 'Add a reason for rejection' : reason} value={reason} deletable handleDelete={() => {
-            let arr = [];
-            for (let i = 0; i < rejectReasons.length; i++) {
-                if(i !== index){
-                    arr.push(rejectReasons[i]);
-                }
-            }
-            setRejectReasons(arr);
-          }} 
-          listener={(e) => {
-            let arr = [...rejectReasons];
-            arr[index] = e.target.value;
-            setRejectReasons(arr);
-          }}/></div>
-          ))}
-          <button className='btnbackscndclr' onClick={() => setRejectReasons([...rejectReasons, ''])}>Add</button>
-          <p id={rejectError?.length > 0 ? 'p-info-error' : ''}>{rejectError}</p>
-        </div>
-
-        <button className='btnbackscndclr' onClick={sendAdmin}>{adminSending ? 'Updating offer status...' : 'Confirm'}</button>
-        
-        <p style={{ color: adminError?.length > 0 ? 'var(--softRed)' : null }}>{adminError?.length > 0 ? adminError : adminSuccess}</p>
-
-        <hr />
-
-        <button className={`editDiv ${isDeleteFiles ? 'rotate-svg' : ''}`} onClick={() => setIsDeleteFiles(!isDeleteFiles)}>Delete photos and files <Svgs name={'dropdown arrow'}/></button>
-
-        <div className='files-to-delete' style={{ display: !isDeleteFiles ? 'none' : null }}>
-
-          {filesToDeleteAdmin?.length > 0 
-          ? <><span id='info-span'>
-            <Svgs name={'info'}/>
-            These files will be deleted from the display. The display will not be completely affected. Click on the file to delete it
-          </span>
-          <ul>
-            {filesToDeleteAdmin.map((file, index) => (
-              <li onClick={() => {console.log('file: ', file); setFilesToDeleteAdmin(
-                filesToDeleteAdmin.filter(i => i !== file)
-              )}} 
-              key={index}>
-                {(file?.split('.')?.at(1) === 'png' || file?.split('.')?.at(1) === 'jpg')
-                ? <Image width={120} height={120} src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${file}`} alt='صور العرض'/>
-                : ((file?.split('.')?.at(1) === 'mp4' || file?.split('.')?.at(1) === 'avi') && <video src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${file}`}/>)}
-              </li>
-            ))}
-          </ul>
-          <button className='btnbackscndclr' onClick={handleDeleteFilesAdmin}>{deletingFiles? 'Deleting...' : 'Delete'}</button>
-          <p style={{ color: deleteFilesError?.length > 0 ? 'var(--softRed)' : null }}>{deleteFilesError?.length > 0 ? deleteFilesError : deleteFilesSuccess}</p>
-          </>
-          : <span id='choose-files-span'>Select files from view to delete</span>}
-
-        </div>
-
-        <hr />
-
-        <button className={`editDiv ${isDeleteRevs ? 'rotate-svg' : ''}`} onClick={() => setIsDeleteRevs(!isDeleteRevs)}>Remove reviews <Svgs name={'dropdown arrow'}/></button>
-
-        <div className='files-to-delete revs-to-delete' style={{ display: !isDeleteRevs ? 'none' : null }}>
-
-          {revsToDeleteAdmin?.length > 0 
-          ? <><span id='info-span'>
-            <Svgs name={'info'}/>
-            These reviews will be deleted. To deselect, click on the review
-          </span>
-          <ul>
-            {revsToDeleteAdmin.map((rv, index) => (
-                <ReviewCard key={index} isEnglish isAdmin={isAdmin()} item={rv} 
-                  on_click={() => setRevsToDeleteAdmin(
-                    revsToDeleteAdmin.filter(i => i.writer_id !== rv?.writer_id)
-                  )}/>
-            ))}
-          </ul>
-          <button className='btnbackscndclr' onClick={handleDeleteRevsAdmin}>{deletingRevs ? 'Deleting...' : 'Delete'}</button>
-          <p style={{ color: deleteRevsError?.length > 0 ? 'var(--softRed)' : null }}>{deleteRevsError.length > 0 ? deleteRevsError : deleteRevsSuccess}</p>
-          </>
-          : <span id='choose-files-span'>Select reviews to delete </span>}
-
-        </div>
-
-        {isReportParam && <>
-        <hr />
-        <button className={`editDiv ${isDeleteReport ? 'rotate-svg' : ''}`} onClick={() => setIsDeleteReport(!isDeleteReport)}>Delete Report this offer <Svgs name={'dropdown arrow'}/></button>
-        <span style={{ display: isDeleteReport ? 'block' : 'none', marginBottom: 16 }} id='info-span'>Reporting this offer or any reporting review of this offer will be deleted</span>
-        <button className='btnbackscndclr' style={{ display: isDeleteReport ? null : 'none' }} 
-          onClick={deleteReport}>
-            {deletingReport ? 'Delete...' : 'Delete'}
-        </button></>}
-
-      </div>}
-
       {imageFullScreen !== '-1' && <div className='full-screen'>
         <Svgs name={'full screen down'} on_click={() => setImageFullScreen('-1')}/>
         <Image src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${imageFullScreen}`} fill={true} alt='Image in full screen mode for display' />
       </div>}
 
-      {(item.isRejected && item.owner_id === userId) && <div className='rejection-div'>
-        <div className='status'>Offer <span>is Rejected</span></div>
-        <h2>Reasons for rejecting the offer</h2>
-        <ul>
-          {item?.reject_reasons?.map((reason, index) => (
-            <li key={index}>{reason}</li>
-          ))}
-        </ul>
-        <p><Svgs name={'info'}/> Edit the offer and send it again from <Link href={`/edit-prop?id=${id}`}>Here</Link></p>
-      </div>}
-
       <div className='intro'>
 
-        <div className='itemIntro'>
+        <div className='itemIntro desktopIntro'>
 
-          <h1>{item.en_data?.titleEN || item.title}<span id='mobile-unit-span'>{'(' + item.unit_code + ')'}</span><h4 onClick={() => { setReportDiv(true); setWriterId(''); }}>Report <Svgs name={'report'}/></h4><span id='desktop-unit-span'>Unit ID {'(' + item.unit_code + ')'}</span></h1>
+          <h1>{item.en_data?.titleEN || item.title} 
+            <span id='mobile-unit-span'>{'(' + item.unit_code + ')'}</span>               
+            {item.discount?.percentage > 0 && <DiscountSticker disNum={45}/>}
+            <h4 onClick={() => { setReportDiv(true); setWriterId(''); }}>Report <Svgs name={'report'}/></h4><span id='desktop-unit-span'>Unit ID {'(' + item.unit_code + ')'}</span>
+          </h1>
 
           <ul>
-            <li><Svgs name={'star'}/> {Number(item.ratings?.val).toFixed(2)} ({item.ratings?.no} evaluation)</li>
+            <li><Svgs name={'star'}/> {Number(item.ratings?.val).toFixed(2)} ({item.ratings?.no} reviews)</li>
             <li><Svgs name={item.type_is_vehicle ? 'loc vehicle' : 'location'}/> {JordanCities.find(i => i.value === item.city)?.value}, {item.en_data?.neighbourEN || item.neighbourhood}</li>
-            {!(item.type_is_vehicle && item.area > 0) && <li><Svgs name={'area'}/> Area {item.area} square meters</li>}
-            {getDesiredContact(true, true) && <li onClick={() => getDesiredContact(false, false, true)}><Svgs name={getDesiredContact(true, true)?.platform}/>{getDesiredContact(true, true)?.val}</li>}
-            <li id='giveThisMarginRight' onClick={handleFav}><Svgs name={`wishlist${favouritesIds.includes(id) ? ' filled' : ''}`}/> {addingToFavs ? 'Adding...' : (favouritesIds.includes(id) ? 'Remove from favorites' : 'Add to favourites')}</li>
-            <li onClick={() => setShareDiv(!shareDiv)}><Svgs name={'share'}/> Share</li>
+            {(!item.type_is_vehicle && item.area > 0) && <li><Svgs name={'area'}/> Area {item.area} m²</li>}
+            {getDesiredContact(true, true) && <li onClick={() => getDesiredContact(null, null, true)}><Svgs name={getDesiredContact(true, true)?.platform}/>{getDesiredContact(true, true)?.val}</li>}
+            <li style={{ cursor: 'pointer' }} id='giveThisMarginRight' onClick={handleFav}><Svgs name={`wishlist${favouritesIds.includes(id) ? ' filled' : ''}`}/> {addingToFavs ? <LoadingCircle /> : (favouritesIds.includes(id) ? 'Remove from favorites' : 'Add to favourites')}</li>
+            <li style={{ marginLeft: 0, cursor: 'pointer' }} onClick={() => setShareDiv(!shareDiv)}><Svgs name={'share'}/> Share</li>
           </ul>
 
         </div>
@@ -927,11 +784,24 @@ const page = () => {
             <button onClick={() => setIsVideosFiles(false)} className={!isVideosFiles && 'selectedFileType'}>Photos</button>
             <button onClick={() => setIsVideosFiles(true)} className={isVideosFiles && 'selectedFileType'}>Videos</button>
           </div>
-          <ImagesShow images={item.images} type={'view'} isAdmin={isAdmin()} 
+          <ImagesShow images={item.images} type={'view'}
           setImageFullScreen={setImageFullScreen} videos={item.videos} 
-          type_is_video={isVideosFiles} filesToDeleteAdmin={filesToDeleteAdmin}
-          setFilesToDeleteAdmin={setFilesToDeleteAdmin} isEnglish/>
+          type_is_video={isVideosFiles}
+          isEnglish handleWishList={handleFav}/>
         </div>
+
+        <div id='wishlistDiv' style={{
+          zIndex: isImagesLoader ? -1 : undefined
+        }}>
+          <span id='return-arrow' onClick={() => history.back()}><Svgs name={'dropdown arrow'}/></span>
+          <Svgs name={favouritesIds?.includes(id) ? 'wishlist filled' : 'wishlist'} on_click={handleFav}/>
+          <Svgs name={'share'} on_click={() => setShareDiv(!shareDiv)}/>
+          <Svgs name={'report'} on_click={() => { setReportDiv(true); setWriterId(''); }}/>
+        </div>    
+
+        {isMobile960 && <span id='open-images-loader' onClick={() => {
+          setIsImageLoader(true);
+        }}/>}
 
       </div>
 
@@ -939,7 +809,7 @@ const page = () => {
 
         <div className="details">
           
-          <label>Description</label>
+          <div className='desktopIntro'><label>Description</label>
 
           <p>{item.en_data?.descEN || item.description}</p>
 
@@ -951,29 +821,62 @@ const page = () => {
               <h4><Svgs name={'star'}/> Evaluation {host?.rating || 0} {`(${host?.reviewsNum || 0} reviews)`}</h4>
             </div>
             <p>{host?.units || 0} Units</p>
-          </Link>}
+          </Link>}</div>
 
           <ul className='tabButtons'>
             <li className={isSpecifics && 'selectedTab'} onClick={() => {setIsSpecifics(true); setIsReviews(false); setIsMapDiv(false); setIsTerms(false)}}>Specifications</li>
             <li className={isReviews && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(true); setIsMapDiv(false); setIsTerms(false)}}>Reviews</li>
-            <li className={isMap && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(false); setIsMapDiv(true); setIsTerms(false)}}>Map</li>
-            <li className={isTerms && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(false); setIsMapDiv(false); setIsTerms(true)}}>Terms & Communication</li>
+            <li className={isMapDiv && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(false); setIsMapDiv(true); setIsTerms(false)}}>Map</li>
+            <li className={isTerms && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(false); setIsMapDiv(false); setIsTerms(true)}}>{isMobile ? 'Terms' : 'Terms & Conditions'}</li>
           </ul>
 
-          <h2>{isSpecifics ? 'Specifications' : isReviews ? 'Reviews' : isMap ? 'Map' : isTerms ? 'Terms and Communication' : ''}</h2>
+          {isSpecifics && <div className='mobileIntro'><div className='itemIntro mobileIntro'>
+
+              <h1>{item.en_data?.titleEN || item.title} <span id='mobile-unit-span'>{'(' + item.unit_code + ')'}</span><span id='desktop-unit-span'>Unit ID {'(' + item.unit_code + ')'}</span></h1>
+
+              <ul>
+                <li><Svgs name={'star'} pathStyle={{ fill: 'var(--secondColor)', stroke: 'var(--secondColor)' }}/> {Number(item.ratings?.val).toFixed(2)} ({item.ratings?.no} reviews)</li>
+                <li><Svgs name={item.type_is_vehicle ? 'loc vehicle' : 'location'}/> {JordanCities.find(i => i.value === item.city)?.value}, {item.neighbourhood}</li>
+                {(!item.type_is_vehicle && item.area > 0) && <li><Svgs name={'area'}/> Area {item.area} m²</li>}
+                {getDesiredContact(true, true) && <li onClick={() => getDesiredContact(null, null, true)}><Svgs name={getDesiredContact(true, true)?.platform}/>{getDesiredContact(true, true)?.val}</li>}
+                {typeof item?.details?.insurance === 'boolean' && <li><Svgs name={'insurance'}/>{item.details.insurance === true ? 'Require Insurance before reservation' : 'Does not require Insurance'}</li>}
+                {(item.en_data?.customerTypeEN?.toString()?.length > 0 || item.customer_type?.toString()?.length > 0) && <li><Svgs name={'customers'}/> Special for {item.en_data?.customerTypeEN?.toString()?.replaceAll(',', ', ') || item.customer_type?.toString()?.replaceAll(',', ', ')}</li>}
+                {(item.specific_catagory === 'farm' && item.landArea?.length > 0 && Number(item.landArea) !== 0) && <li><Svgs name={'area'}/>{`Land Area ${item.landArea}`}</li>}
+              </ul>
+
+              {item.discount?.percentage > 0 && <DiscountSticker disNum={45}/>}
+
+            </div>
+            
+            <label style={{ fontSize: '1rem', display: 'block', marginBottom: 4 }}>Description</label>
+
+            <p>{item.en_data?.descEN || item.description}</p>
+
+            {host && <Link href={`/en/host?id=${item.owner_id}`} className='the-host'>
+              <h3 className='header-host'>Advertisor <span className='disable-text-copy'>About him <Svgs name={'dropdown arrow'}/></span></h3>
+              <span id='image-span' className='disable-text-copy'>{host?.firstNameEN?.at(0) || host?.lastNameEN?.at(0) || host?.username?.at(0) || host?.firstName?.at(0)}</span>
+              <div>
+                <h3>{host?.firstNameEN || host?.lastNameEN || host?.username || host?.firstName}</h3>
+                <h4><Svgs name={'star'}/> Evaluation {host?.rating || 0} {`(${host?.reviewsNum || 0} reviews)`}</h4>
+              </div>
+              <p>{host?.units || 0} Units</p>
+            </Link>}
+          
+          </div>}
+
+          <h2>{isSpecifics ? <span>Specifications {isMobile960 && <button onClick={showAllSpecs}>{!isAtleastOneSpecShowed() ? 'Show All' : 'Hide All'}</button>}</span> : isReviews ? 'Reviews' : isMapDiv ? 'Map' : isTerms ? 'Terms and Communication' : ''}</h2>
 
           <ul className='specificationsUL disable-text-copy' style={{ display: !isSpecifics && 'none' }}>
             
-            {item?.details?.insurance && <li><Svgs name={'insurance'}/><h3>{item.details.insurance === true ? 'A deposit is required before booking' : 'No insurance required'}</h3></li>}
-            {(item.cancellation >= 0 && item.cancellation < cancellationsArray().length) && <li><Svgs name={'cancellation'}/><h3>{cancellationsArray(true)?.at(item.cancellation)}</h3></li>}
+            {!isMobile960 && item?.details?.insurance && <li><Svgs name={'insurance'}/><h3>{item.details.insurance === true ? 'A deposit is required before booking' : 'No insurance required'}</h3></li>}
+            {(!isMobile960 && item.cancellation >= 0 && item.cancellation < cancellationsArray().length) && <li><Svgs name={'cancellation'}/><h3>{cancellationsArray(true)?.at(item.cancellation)}</h3></li>}
 
             {!item.type_is_vehicle ? <>
 
-              {item.customer_type && <li><Svgs name={'customers'}/><h3>Guests category {item?.en_data?.customerTypeEN}</h3></li>}
+              {item.customer_type && !isMobile960 && <li><Svgs name={'customers'}/><h3>Guests category {item?.en_data?.customerTypeEN}</h3></li>}
               {item.capacity > 0 && <li><Svgs name={'guests'}/><h3>{`Maximum number of guests ${item.capacity} guests`}</h3></li>}
               {(item.specific_catagory === 'apartment' && item.floor?.length > 0) && <li><Svgs name={'steps'}/><h3>{`Floor ${item.floor}`}</h3></li>}
-              {item.area > 0 && <li><Svgs name={'area'}/><h3>{`Property Area ${item.area} square meters`}</h3></li>}
-              {(item.specific_catagory === 'farm' && item.landArea?.length > 0) && <li><Svgs name={'area'}/><h3>{`Land area ${item.landArea}`}</h3></li>}
+              {(item.specific_catagory === 'farm' && typeof (item.landArea) === 'number' && item.landArea > 0) && <li><Svgs name={'area'}/><h3>{`Land area ${item.landArea}`}</h3></li>}
               
               {item.details?.guest_rooms?.length > 0 && <li onClick={() => setIsGuestRooms(!isGuestRooms)}>
                 <Svgs name={'guest room'}/>
@@ -1104,7 +1007,7 @@ const page = () => {
 
             </div>
 
-            {(booksIds.find(i => i.property_id === id) && item.owner_id !== userId && isVerified) 
+            {(booksIds.find(i => i.property_id === id)?.verified_book && item.owner_id !== userId && isVerified) 
             && <div className='write-review'>
               
               <h3>Rate and describe your experience with this {item.type_is_vehicle ? 'Vehicle' : 'Property'}</h3>
@@ -1150,7 +1053,7 @@ const page = () => {
             <ul>
               {item.reviews.slice(0, reviewsNumber).map((rv) => (
                 <ReviewCard isEnglish item={rv} setReportDiv={setReportDiv} setWriterId={setWriterId}
-                  isAdmin={isAdmin()} revsToDeleteAdmin={revsToDeleteAdmin} setRevsToDeleteAdmin={setRevsToDeleteAdmin}/>
+                 />
               ))}
             </ul>
 
@@ -1158,27 +1061,27 @@ const page = () => {
 
           </div>
 
-          <div className='mapDiv' style={{ display: !isMap && 'none' }}>
+          <div className='mapDiv' style={{ display: !isMapDiv && 'none' }}>
 
             <div className='addressMapDiv'><Image src={LocationGif}/><h3>{JordanCities.find(i => i.value === item.city)?.value}, {item.en_data?.neighbourEN || item.neighbourhood}</h3></div>
           
             <h5 className='moreDetailsAfterPay'><Svgs name={'info'}/>The host will send you exact location details after confirming your reservation</h5>
 
             <div className='googleMapDiv' onClick={showMap}>
-                <span>See the location on the map</span>
+                <span>See the estimate location on the map</span>
                 <Image src={GoogleMapImage}/>
             </div>
           
           </div>
 
           <ul className='termsUL' style={{ display: !isTerms && 'none' }}>
-            <li id='hostLiTermsUL'><Svgs name={'host'}/><h3>Terms of service provider (The Host)</h3>
+            {item.terms_and_conditions?.length > 0 && <li id='hostLiTermsUL'><Svgs name={'host'}/><h3>Terms of service provider (The Host)</h3>
               <ul>
                 {item.terms_and_conditions.map((tc) => (
-                  <li key={tc}>{tc}</li>
+                  <li key={tc}>{item.en_data?.english_details?.find(i=>i.arName === tc)?.enName || tc}</li>
                 ))}
               </ul>
-            </li>
+            </li>}
             <li id='hostLiTermsUL'><Svgs name={'terms'}/><h3>Platform Terms of use and Conditions</h3>
                 <ul>
                   {myConditions(true).map((term) => (
@@ -1197,19 +1100,24 @@ const page = () => {
 
         </div>
 
-        <h2 id='checkoutDetailsH2'>Booking details</h2>
-
         <div className='checkout'>
+
+          <h2 id='checkoutDetailsH2'>Booking details</h2>
 
           {(isCalendar && !isCheckout) && <HeaderPopup type={'calendar'} isViewPage days={item.booked_days} setCalendarDoubleValue={setCalendarDoubleValue} isEnglish/>}
 
           <div className='nightsDiv' onClick={() => setIsReservationType(!isReservationType)}>
             <h3 id='res-type'>Select Type of reservation {'(daily, weekly, yearly ...etc)'}</h3>
-            <h3 style={{ color: 'var(--secondColorDark)' }}>{getPrice()}<span style={{ marginLeft: 8 }}> {currencyCode(true, true)} / {reservationType()?.find(i => i.id === resType?.id)?.oneEn}</span></h3>
-            <h3 style={{ color: '#777' }}><span style={{ marginRight: 8 }}>Number of {reservationType()?.find(i => i.id === resType?.id)?.oneEn + 's'}</span> {resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)}</h3>
-            {isReservationType && !isCheckout && <HeaderPopup type={'custom'} isCustom={isReservationType} selectedCustom={resType}
+            <h3 style={{ color: 'var(--secondColorDark)' }}>{getPrice('main price')}<span style={{ marginLeft: 8 }}> {currencyCode(true, true)} / {reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.oneEn}</span></h3>
+            <h3 style={{ color: '#777' }}>{getDetailedResTypeNum(true, resType, resTypeNum, true)}</h3>
+            {isReservationType && !isCheckout && <HeaderPopup type={'custom'} isCustom={isReservationType} selectedCustom={resType} setChanged={setPopupResTypeChange}
             setSelectedCustom={setResType} setIsCustom={setIsReservationType}
-            customArray={reservationType(true)} isEnglish myStyle={{ maxWidth: 360 }} />}
+            customArray={
+              item.specific_catagory === 'students' 
+              ? reservationType() 
+              : reservationType(null, null, null, item.specific_catagory === 'farm')?.filter((x,i)=>i !== 3)} 
+            isEnglish myStyle={{ maxWidth: 360 }} rightIconStyle={{ transform: 'rotate(45deg)' }}/>}
+            {!getPrice('test res type existence') && <p id='error'> {reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.enName} Reservation not exist {resType?.id !== 3 && 'The cost will be calculated by the closest available reservation type (monthly, weekly or daily)'}</p>}
           </div>
 
           <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
@@ -1222,16 +1130,38 @@ const page = () => {
             <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, true)}</h3>
           </div>
 
-          {resType?.id > 0 && <CustomInputDiv title={'Enter number of ' + reservationType()?.find(i => i.id === resType?.id)?.oneEn + 's'}
-          type={'number'} value={resTypeNum} listener={(e) => {
+          {(item.prices?.thursdayPrice > 0 || item.prices?.fridayPrice > 0 || item.prices?.saturdayPrice > 0) 
+            && resType?.id === 0 && getHoildays(true) && <div className='bookingDate' style={{ cursor: 'default' }}>
+            Special hoilday prices will be applied
+            {item.prices?.thursdayPrice > 0 && <h3>Thursday {item.prices?.thursdayPrice} {currencyCode(true, false)}</h3>}
+            {item.prices?.fridayPrice > 0 && <h3>Friday {item.prices?.fridayPrice} {currencyCode(true, false)}</h3>}
+            {item.prices?.saturdayPrice > 0 && <h3>Saturday {item.prices?.saturdayPrice} {currencyCode(true, false)}</h3>}
+          </div>}
+
+          {resType?.id > 0 && <CustomInputDiv title={'Enter number of ' + reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.oneEn + 's'}
+          type={'number'} value={resTypeNum?.toFixed(2)} listener={(e) => {
             setResTypeNum(Number(e.target.value));
           }} myStyle={{ marginBottom: 32 }}/>}
 
           <div className='cost' style={{ marginTop: 'auto' }}>
             <h3 style={{ display: (getNumOfBookDays(calendarDoubleValue) >= item.discount?.num_of_days_for_discount && item.discount?.percentage > 0)
-              ? null : 'none' }}>Discount {item.discount?.percentage}% <span>- {(resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue) * getPrice() * item.discount?.percentage / 100).toFixed(2)} {currencyCode(false, true)}</span></h3>
-            <h3>Total Cost of {resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)} {reservationType(null, resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue), true)?.find(i => i.id === resType?.id)?.oneEn + 's'} <span>{(((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice()) - (item.discount?.percentage ? ((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice() * item.discount.percentage / 100) : 0)).toFixed(2)} {currencyCode(true, true)}</span></h3>
+              ? null : 'none' }}>Discount {item.discount?.percentage}% <span>- {!isNaN(getPrice('cost price')) ? (getPrice('cost price') * item.discount?.percentage / 100).toFixed(2) : 'Price not exist'} {currencyCode(false, true)}</span></h3>
+            <h3>Total Cost of {getDetailedResTypeNum(true, resType, resTypeNum, true)} <span>{!isNaN(getPrice('cost price')) ? (getPrice('cost price') - (item.discount?.percentage > 0 ? (getPrice('cost price') * item.discount.percentage / 100) : 0)).toFixed(2) : 'Price not exist'} {currencyCode(true, true)}</span></h3>
           </div> 
+
+          {isMobile && typeof item?.cancellation === 'number' && <div style={{ cursor: 'text' }} className='bookingDate cancellationDiv'>
+            <Svgs name={'cancellation'}/>
+            Cancellation and Refund Policy
+            <h3>{cancellationsArray(true)?.at(item?.cancellation)}</h3>
+          </div>}
+
+          {isMobile && item?.details?.terms_and_conditions?.length > 0 && <div style={{ cursor: 'text' }} className='bookingDate cancellationDiv'>
+            <Svgs name={'host'}/>
+            Terms of reservation {'(By Host)'}
+            {item?.details?.terms_and_conditions?.map((trm) => (
+              <li>{item.en_data?.english_details?.find(i=>i.arName === trm)?.enName || trm}</li>
+            ))}
+          </div>}
 
           <button className='btnbackscndclr' id={(item.owner_id === userId || !canBook || (!booksIds.find(i => i.property_id === id) && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1)))) ? 'disable-button' : ''} 
             onClick={handleBook}>
@@ -1249,19 +1179,31 @@ const page = () => {
 
       </div>
 
-      {isMobile && <div className='mobileBookBtn'>
-        <button onClick={() => setIsCheckout(true)} className='btnbackscndclr'>Book now</button>
-        <div>
-          <span id={item.discount?.percentage > 0 ? 'old-price' : 'original-price'}>{getPrice()} {currencyCode(true, true)}</span>
-          {item.discount?.percentage > 0 && <span id='discounted-price'>{getPrice() - (getPrice() * (item.discount?.percentage)) / 100} {currencyCode(true, true)}</span>}
-          / {reservationType()?.find(i => i.id === resType?.id)?.oneEn}
+      {isMobile && <div className='mobileBookAndImages' style={isImagesLoader ? {
+          height:'100dvh',
+          top: 0,
+          bottom: 'unset'
+      } : undefined}>
+        
+        <ItemImagesLoader images={item?.images} videos={item?.videos}
+          isShow={isImagesLoader} setIsShow={setIsImageLoader}
+          setImageFullScreen={setImageFullScreen} isEnglish/>
+        
+        <div className='mobileBookBtn'>
+          <button onClick={() => setIsCheckout(true)} className='btnbackscndclr'>Book now</button>
+          <div>
+            <span id={item.discount?.percentage > 0 ? 'old-price' : 'original-price'}>{getPrice('main price')} {currencyCode(true, true)}</span>
+            {item.discount?.percentage > 0 && <span id='discounted-price'>{getPrice('main price') - (getPrice('main price') * (item.discount?.percentage)) / 100} {currencyCode(true, true)}</span>}
+            / {reservationType(true, false, false,item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.oneEn}
+          </div>
         </div>
+
       </div>}
 
       {(isMobile) && <div className={`checkout ${isCheckout ? 'mobile-checkout-popup' : 'mobile-checkout-popup-hidden'}`}>
 
-        {(isCalendar) && <span onClick={() => {
-          setIsCalendar(false);
+        {(isCalendar || isReservationType) && <span onClick={() => {
+          setIsCalendar(false); setIsReservationType(false);
         }} id='spanForClosingPopups'/>}
 
         <h2 id='checkoutDetailsH2'>Book Details </h2>
@@ -1272,11 +1214,16 @@ const page = () => {
 
         <div className='nightsDiv' onClick={() => setIsReservationType(!isReservationType)}>
         <h3 id='res-type'>Select Type of reservation {'(daily, weekly, yearly ...etc)'}</h3>
-          <h3 style={{ color: 'var(--secondColorDark)' }}>{getPrice()}<span> {currencyCode(true, true)} / {reservationType()?.find(i => i.id === resType?.id)?.oneEn}</span></h3>
-          <h3 style={{ color: '#777' }}><span>Number of {reservationType()?.find(i => i.id === resType?.id)?.oneEn + 's'}</span> {resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)}</h3>
-          {isReservationType && isCheckout && <HeaderPopup type={'custom'} isCustom={isReservationType} selectedCustom={resType}
+          <h3 style={{ color: 'var(--secondColorDark)' }}>{getPrice('main price')}<span> {currencyCode(true, true)} / {reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.oneEn}</span></h3>
+          <h3 style={{ color: '#777' }}>{getDetailedResTypeNum(true, resType, resTypeNum, true)}</h3>
+          {isReservationType && isCheckout && <HeaderPopup type={'custom'} isCustom={isReservationType} selectedCustom={resType} setChanged={setPopupResTypeChange}
           setSelectedCustom={setResType} setIsCustom={setIsReservationType}
-          customArray={reservationType()} isEnglish/>}
+          customArray={
+            item.specific_catagory === 'students' 
+            ? reservationType() 
+            : reservationType(null, null, null, item.specific_catagory === 'farm')?.filter((x,i)=>i !== 3)} 
+          isEnglish rightIconStyle={{ transform: 'rotate(45deg)' }}/>}
+          {!getPrice('test res type existence') && <p id='error'> {reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.enName} Reservation not exist {resType?.id !== 3 && 'The cost will be calculated by the closest available reservation type (monthly, weekly or daily)'}</p>}
         </div>
 
         <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
@@ -1289,16 +1236,46 @@ const page = () => {
           <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true, true)}</h3>
         </div>
 
-        {resType?.id > 0 && <CustomInputDiv title={'Enter number of ' + reservationType()?.find(i => i.id === resType?.id)?.oneEn + 's'}
-        type={'number'} value={resTypeNum} listener={(e) => {
+        {(item.prices?.thursdayPrice > 0 || item.prices?.fridayPrice > 0 || item.prices?.saturdayPrice > 0) 
+          && resType?.id === 0 && getHoildays(true) && <div className='bookingDate' style={{ cursor: 'default' }}>
+          Special hoilday prices will be applied
+          {item.prices?.thursdayPrice > 0 && <h3>Thursday {item.prices?.thursdayPrice} {currencyCode(true, false)}</h3>}
+          {item.prices?.fridayPrice > 0 && <h3>Friday {item.prices?.fridayPrice} {currencyCode(true, false)}</h3>}
+          {item.prices?.saturdayPrice > 0 && <h3>Saturday {item.prices?.saturdayPrice} {currencyCode(true, false)}</h3>}
+        </div>}
+
+        {resType?.id > 0 && <CustomInputDiv title={'Enter number of ' + reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.oneEn + 's'}
+        type={'number'} value={resTypeNum?.toFixed(2)} listener={(e) => {
           setResTypeNum(Number(e.target.value));
         }} myStyle={{ marginBottom: 32 }}/>}
 
         <div className='cost' style={{ marginTop: 'auto' }}>
-          <h3 style={{ display: (getNumOfBookDays(calendarDoubleValue) >= item.discount?.num_of_days_for_discount && item.discount?.percentage > 0)
-            ? null : 'none' }}>Discount {item.discount?.percentage}% <span>- {(resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue) * getPrice() * item.discount?.percentage / 100).toFixed(2)} {currencyCode(false, true)}</span></h3>
-          <h3>Total Cost {resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)} {reservationType(null, resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue), true)?.find(i => i.id === resType?.id)?.oneEn + 's'} <span>{(((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice()) - (item.discount?.percentage ? ((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice() * item.discount.percentage / 100) : 0)).toFixed(2)} {currencyCode(true, true)}</span></h3>
+            <h3 style={{ display: (getNumOfBookDays(calendarDoubleValue) >= item.discount?.num_of_days_for_discount && item.discount?.percentage > 0)
+              ? null : 'none' }}>Discount {item.discount?.percentage}% <span>- {!isNaN(getPrice('cost price')) ? (getPrice('cost price') * item.discount?.percentage / 100).toFixed(2) : 'Price not exist'} {currencyCode(false, true)}</span></h3>
+            <h3>Total Cost of {getDetailedResTypeNum(true, resType, resTypeNum, true)} <span>{!isNaN(getPrice('cost price')) ? (getPrice('cost price') - (item.discount?.percentage > 0 ? (getPrice('cost price') * item.discount.percentage / 100) : 0)).toFixed(2) : 'Price not exist'} {currencyCode(true, true)}</span></h3>
         </div> 
+
+        {isMobile && typeof item?.cancellation === 'number' && <div style={{ cursor: 'text' }} className='bookingDate cancellationDiv'>
+          <Svgs name={'cancellation'}/>
+          Cancellation and Refund Policy
+          <h3>{cancellationsArray(true)?.at(item?.cancellation)}</h3>
+        </div>}
+
+        {isMobile && item?.details?.terms_and_conditions?.length > 0 && <div style={{ cursor: 'text' }} className='bookingDate cancellationDiv'>
+          <Svgs name={'host'}/>
+          Terms of reservation {'(By Host)'}
+          {item?.details?.terms_and_conditions?.map((trm) => (
+            <li>{trm}</li>
+          ))}
+        </div>}
+
+        {isMobile && item?.details?.terms_and_conditions?.length > 0 && <div style={{ cursor: 'text' }} className='bookingDate cancellationDiv'>
+          <Svgs name={'host'}/>
+          Terms of reservation {'(By Host)'}
+          {item?.details?.terms_and_conditions?.map((trm) => (
+            <li>{item.en_data?.english_details?.find(i=>i.arName === trm)?.enName || trm}</li>
+          ))}
+        </div>}
 
         <button className='btnbackscndclr' id={(item.owner_id === userId || !canBook || (!booksIds.find(i => i.property_id === id) && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1)))) ? 'disable-button' : ''} 
           onClick={handleBook}>
@@ -1315,9 +1292,11 @@ const page = () => {
 
       </div>}
 
-      {(isCalendar || shareDiv || reportDiv || isReservationType) && <span onClick={() => {
-        setIsCalendar(false); setShareDiv(false); setReportDiv(false); setIsReservationType(false);
-      }} id='spanForClosingPopups'/>}
+      {(isCalendar || shareDiv || reportDiv || isReservationType || isImagesLoader) && <span onClick={() => {
+        setIsCalendar(false); setShareDiv(false); setReportDiv(false); setIsReservationType(false); setIsImageLoader(false);
+      }} id='spanForClosingPopups'>
+        <Svgs name={'cross'}/>    
+      </span>}
 
     </div>
   )

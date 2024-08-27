@@ -50,14 +50,14 @@ const page = () => {
     const [mapUsed, setMapUsed] = useState(false);
     const [triggerSectionError, setTriggerSectionError] = useState(false);
 
-    const [section, setSection] = useState(0);
+    const [section, setSection] = useState(3);
     const [sectionError, setSectionError] = useState('');
     const [freeSection, setFreeSection] = useState(false);
 
     const [expandPrices, setExpandPrices] = useState(false);
     const [pricesError, setPricesError] = useState([]);
 
-    const [customerType, setCustomerType] = useState('');
+    const [customerType, setCustomerType] = useState([]);
     const [isCustomerType, setIsCustomerType] = useState(false);
     const [capacity, setCapacity] = useState(0);
 
@@ -372,7 +372,17 @@ const page = () => {
             if(itemTitleEN?.length > 0) enObj.titleEN = itemTitleEN;
             if(itemDescEN?.length > 0) enObj.descEN = itemDescEN;
             if(itemNeighbourEN?.length > 0) enObj.neighbourEN = itemNeighbourEN;
-            if(customerType?.length > 0) enObj.customerTypeEN = cst;
+            if(customerType?.length > 0) enObj.customerTypeEN = customerType;
+            let arCST = [];
+            for (let i = 0; i < customerType?.length; i++) {
+                if(customersTypesArray(true).includes(customerType[i])){
+                    customersTypesArray(true).forEach((el, index) => {
+                        if(el === customerType[i]){
+                            arCST.push(customersTypesArray()[index]);
+                        }
+                    });
+                }
+            }
 
             let tempContacts = [];
 
@@ -390,7 +400,7 @@ const page = () => {
                 itemCity.value, itemNeighbour, [itemLong, itemLat], itemPrice, 
                 xDetails, conditionsAndTerms, area > 0 ? area : null,
                 tempContacts?.length > 0 ? tempContacts : null, null, token, 
-                capacity, customersTypesArray().find(i=>i === customerType) || customersTypesArray()[customersTypesArray(true).indexOf(customerType)], enObj, cancellationsArray().indexOf(cancellation),
+                capacity, arCST, enObj, cancellationsArray().indexOf(cancellation),
                 VehiclesTypes.find(i => i.value === vehicleType)?.id,
                 itemPrices, landArea, floor);
 
@@ -440,6 +450,14 @@ const page = () => {
               return itemPrices?.seasonly;
             case 'Yearly':
               return itemPrices?.yearly;
+            case 'eventsPrice':
+              return itemPrices?.eventsPrice;
+            case 'thursdayPrice':
+              return itemPrices?.thursdayPrice;
+            case 'fridayPrice':
+              return itemPrices?.fridayPrice;
+            case 'saturdayPrice':
+              return itemPrices?.saturdayPrice;
             default:
                 return null;
         };
@@ -454,6 +472,10 @@ const page = () => {
                     monthly: itemPrices?.monthly,
                     seasonly: itemPrices?.seasonly,
                     yearly: itemPrices?.yearly,
+                    eventsPrice: itemPrices?.eventsPrice,
+                    thursdayPrice: itemPrices?.thursdayPrice,
+                    fridayPrice: itemPrices?.fridayPrice,
+                    saturdayPrice: itemPrices?.saturdayPrice
                 });
             case 'Weekly':
                 return setItemPrices({
@@ -462,6 +484,10 @@ const page = () => {
                     monthly: itemPrices?.monthly,
                     seasonly: itemPrices?.seasonly,
                     yearly: itemPrices?.yearly,
+                    eventsPrice: itemPrices?.eventsPrice,
+                    thursdayPrice: itemPrices?.thursdayPrice,
+                    fridayPrice: itemPrices?.fridayPrice,
+                    saturdayPrice: itemPrices?.saturdayPrice
                 });
             case 'Monthly':
                 return setItemPrices({
@@ -470,6 +496,10 @@ const page = () => {
                     monthly: Number(e.target.value),
                     seasonly: itemPrices?.seasonly,
                     yearly: itemPrices?.yearly,
+                    eventsPrice: itemPrices?.eventsPrice,
+                    thursdayPrice: itemPrices?.thursdayPrice,
+                    fridayPrice: itemPrices?.fridayPrice,
+                    saturdayPrice: itemPrices?.saturdayPrice
                 });
             case 'Seasonly':
                 return setItemPrices({
@@ -478,6 +508,10 @@ const page = () => {
                     monthly: itemPrices?.monthly,
                     seasonly: Number(e.target.value),
                     yearly: itemPrices?.yearly,
+                    eventsPrice: itemPrices?.eventsPrice,
+                    thursdayPrice: itemPrices?.thursdayPrice,
+                    fridayPrice: itemPrices?.fridayPrice,
+                    saturdayPrice: itemPrices?.saturdayPrice
                 });
             case 'Yearly':
                 return setItemPrices({
@@ -486,6 +520,58 @@ const page = () => {
                     monthly: itemPrices?.monthly,
                     seasonly: itemPrices?.seasonly,
                     yearly: Number(e.target.value),
+                    eventsPrice: itemPrices?.eventsPrice,
+                    thursdayPrice: itemPrices?.thursdayPrice,
+                    fridayPrice: itemPrices?.fridayPrice,
+                    saturdayPrice: itemPrices?.saturdayPrice
+                });
+            case 'eventsPrice':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: itemPrices?.weekly,
+                    monthly: itemPrices?.monthly,
+                    seasonly: itemPrices?.seasonly,
+                    yearly: itemPrices?.yearly,
+                    eventsPrice: Number(e.target.value),
+                    thursdayPrice: itemPrices?.thursdayPrice,
+                    fridayPrice: itemPrices?.fridayPrice,
+                    saturdayPrice: itemPrices?.saturdayPrice
+                });
+            case 'thursdayPrice':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: itemPrices?.weekly,
+                    monthly: itemPrices?.monthly,
+                    seasonly: itemPrices?.seasonly,
+                    yearly: itemPrices?.yearly,
+                    eventsPrice: itemPrices?.eventsPrice,
+                    thursdayPrice: Number(e.target.value),
+                    fridayPrice: itemPrices?.fridayPrice,
+                    saturdayPrice: itemPrices?.saturdayPrice
+                });
+            case 'fridayPrice':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: itemPrices?.weekly,
+                    monthly: itemPrices?.monthly,
+                    seasonly: itemPrices?.seasonly,
+                    yearly: itemPrices?.yearly,
+                    eventsPrice: itemPrices?.eventsPrice,
+                    thursdayPrice: itemPrices?.thursdayPrice,
+                    fridayPrice: Number(e.target.value),
+                    saturdayPrice: itemPrices?.saturdayPrice
+                });
+            case 'saturdayPrice':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: itemPrices?.weekly,
+                    monthly: itemPrices?.monthly,
+                    seasonly: itemPrices?.seasonly,
+                    yearly: itemPrices?.yearly,
+                    eventsPrice: itemPrices?.eventsPrice,
+                    thursdayPrice: itemPrices?.thursdayPrice,
+                    fridayPrice: itemPrices?.fridayPrice,
+                    saturdayPrice: Number(e.target.value)
                 });
         };
     };
@@ -690,13 +776,17 @@ const page = () => {
                 detailsErrorMsg = detailsErrorMsg + ' floor ';
                 errorEncountered = true;
             }
-
-            if(customerType?.length > 0 && !(specificCatagory === 'students' ? studentsTypesArray(true) : customersTypesArray(true)).includes(customerType)){
-                setCustomerType('-1');
-                detailsErrorMsg = detailsErrorMsg + ' customerType ';
-                errorEncountered = true;
-            }
     
+            if(customerType?.length > 0){
+                for (let i = 0; i < customerType.length; i++) {
+                    if(!(specificCatagory === 'students' ? studentsTypesArray(true) : customersTypesArray(true)).includes(customerType[i])) {
+                        setCustomerType('-1');
+                        detailsErrorMsg = detailsErrorMsg + ' customerType ';
+                        errorEncountered = true;
+                    }
+                }
+            }
+
             if(typeof withDriver !== 'boolean'){
                 detailsErrorMsg = detailsErrorMsg + ' withDriver ';
                 errorEncountered = true;
@@ -834,6 +924,22 @@ const page = () => {
         return true;
 
     };
+
+    useEffect(() => {
+
+        window.addEventListener('beforeunload', function(e){
+            e.preventDefault();
+            event.returnValue = true;
+            return true;
+        });
+
+        return window.removeEventListener('beforeunload', function(e){
+            e.preventDefault();
+            event.returnValue = true;
+            return true;
+        });
+
+    }, []);
 
     useEffect(() => {
         setSpecificCatagory('-1');
@@ -1062,21 +1168,85 @@ const page = () => {
 
                 <p>Set a price for each booking period {'(Daily, weekly, monthly, seasonly and yearly)'}</p>
 
-                {(expandPrices ? reservationType() : [reservationType()[0]]).map((item) => (
-                    <div className='priceDiv' style={{ marginBottom: 16 }}>
-                        <CustomInputDiv isError={pricesError.includes(item.enName?.toLowerCase())} 
-                        errorText={'Set a price for the ' + item.oneEn} 
-                        title={`Price in ${currencyCode(true, true)}`} 
-                        listener={(e) => handlePriceChange(e, item.enName)} 
-                        min={0} value={getPriceValue(item.enName)}
-                        type={'number'} myStyle={{ marginBottom: 16 }}/>
+                {(expandPrices ? reservationType(true) : [reservationType(true)[0]]).map((item) => (
+                    <div className='priceDiv'>
+                        {item?.id !== 3 ? <><CustomInputDiv isError={pricesError.includes(item.enName?.toLowerCase())} 
+                            errorText={'Determine Price'}
+                            title={`Price in ${currencyCode(true, true)}`} 
+                            listener={(e) => handlePriceChange(e, item.enName)} min={0} value={getPriceValue(item.enName)}
+                            type={'number'} myStyle={{ marginBottom: 12 }}/>
                         <strong>/</strong>
-                        <h4>{item.oneEn}</h4>
+                        <h4>{item.oneEn}</h4></>
+                        : specificCatagory === 'students' && <><CustomInputDiv isError={pricesError.includes(item.enName?.toLowerCase())} 
+                            errorText={'Determine Price'}
+                            title={`Price in ${currencyCode(true, true)}`} 
+                            listener={(e) => handlePriceChange(e, item.enName)} min={0} value={getPriceValue(item.enName)}
+                            type={'number'} myStyle={{ marginBottom: 12 }}/>
+                        <strong>/</strong>
+                        <h4>{item.oneEn}</h4></>}
                     </div>
                 ))}
 
                 <button className='editDiv' onClick={() => setExpandPrices(!expandPrices)}>{expandPrices ? 'Less' : 'Expand'}</button>
 
+                <hr />
+                
+                <h3>Determine a special price for holidays</h3>
+
+                <p>Set a special price for each holiday {'(Thursday, Friday and Saturday)'}</p>
+
+                <div className='priceDiv'>
+                    <CustomInputDiv isError={pricesError.includes('thursdayPrice')} 
+                    errorText={'Thursday Price'} 
+                    title={`Price in ${currencyCode(true, true)}`} 
+                    listener={(e) => handlePriceChange(e, 'thursdayPrice')} 
+                    min={0} value={getPriceValue('thursdayPrice')}
+                    type={'number'} myStyle={{ marginBottom: 12 }}/>
+                    <strong>/</strong>
+                    <h4>{'Thursday'}</h4>
+                </div>
+
+                <div className='priceDiv'>
+                    <CustomInputDiv isError={pricesError.includes('fridayPrice')} 
+                    errorText={'Friday Price'} 
+                    title={`Price in ${currencyCode(true, true)}`} 
+                    listener={(e) => handlePriceChange(e, 'fridayPrice')} 
+                    min={0} value={getPriceValue('fridayPrice')}
+                    type={'number'} myStyle={{ marginBottom: 12 }}/>
+                    <strong>/</strong>
+                    <h4>{'Friday'}</h4>
+                </div>
+
+                <div className='priceDiv'>
+                    <CustomInputDiv isError={pricesError.includes('saturdayPrice')} 
+                    errorText={'Saturday Price'} 
+                    title={`Price in ${currencyCode(true, true)}`} 
+                    listener={(e) => handlePriceChange(e, 'saturdayPrice')} 
+                    min={0} value={getPriceValue('saturdayPrice')}
+                    type={'number'} myStyle={{ marginBottom: 12 }}/>
+                    <strong>/</strong>
+                    <h4>{'Saturday'}</h4>
+                </div>
+
+                {specificCatagory === 'farm' && <><hr />
+                
+                    <h3>Determine a special event price</h3>
+
+                    <p>Set a price per occasion</p>
+
+                    <div className='priceDiv'>
+                        <CustomInputDiv isError={pricesError.includes('eventsPrice')} 
+                        errorText={'set a price'} 
+                        title={`Price in ${currencyCode(true, true)}`} 
+                        listener={(e) => handlePriceChange(e, 'eventsPrice')} 
+                        min={0} value={getPriceValue('eventsPrice')}
+                        type={'number'}/>
+                        <strong>/</strong>
+                        <h4>{'Event'}</h4>
+                    </div>
+
+                </>}
+                
             </div>}
 
             {section === 4 && <div className='attachFiles' ref={attachImagesDivRef}>
@@ -1230,9 +1400,9 @@ const page = () => {
 
                 {selectedCatagories === '1' &&<div className='detailItem area-div' style={{ display: selectedCatagories === '0' ? 'none' : null}}>
                     <h3>Select the allowed guest category (optional)</h3>
-                    <InfoDiv title={'Allowed category'} divClick={() => setIsCustomerType(!isCustomerType)} value={customerType === '' ? 'Undefined' : customerType}/>
-                    {isCustomerType && <AddDetailsPopup array={customerType} setArray={setCustomerType} type={'customerType'} sections={'selections'} 
-                    isNotFacilities isSingleSelect setIsShow={setIsCustomerType} baseArr={specificCatagory === 'students' ? studentsTypesArray(true) : customersTypesArray(true)} isEnglish/>}
+                    <InfoDiv title={'Allowed category'} divClick={() => setIsCustomerType(!isCustomerType)} value={customerType?.length <= 0 ? 'Undefined' : customerType?.toString()?.replaceAll(',', ', ')}/>
+                    {isCustomerType && <AddDetailsPopup accompany={customerType} setAccompany={setCustomerType} type={'customerType'} sections={'selections'} isUndefinedElement isEnglish
+                    isNotFacilities setIsShow={setIsCustomerType} baseArr={specificCatagory === 'students' ? studentsTypesArray(true) : customersTypesArray(true)}/>}
                 </div>}
 
                 {selectedCatagories === '0' && <div className='insuranceDetail'>
@@ -1246,7 +1416,7 @@ const page = () => {
                     if(!isVehicleRentType) setIsVehicleRentType(true);
                 }} style={{ cursor: isVehicleRentType ? 'default' : undefined}}>
                     <h3>Specify the type of rental or the nature of use of the vehicle</h3>
-                    <InfoDiv title={'Rent type'} value={vehicleRentType === '' ? 'غير محدد' : vehicleRentType}/>
+                    <InfoDiv title={'Rent type'} value={vehicleRentType === '' ? 'Undefined' : vehicleRentType}/>
                     {isVehicleRentType && <AddDetailsPopup array={vehicleRentType} setArray={setVehicleRentType} type={'carRentType'} sections={'selections'} 
                     isNotFacilities isSingleSelect setIsShow={setIsVehicleRentType} baseArr={vehicleRentTypesArray(true)} isEnglish/>}
                     {detailsError.includes('rentType') && <p className='error2'>Invalid entry, please choose from one of the options</p>}
@@ -1272,7 +1442,7 @@ const page = () => {
                     listener={(e) => setCarYear(Number(e.target.value))} 
                     min={1901} max={2099} defaultValue={2016} value={carYear}/>
 
-                    <CustomInputDiv title={'اللون الخارجي ' + carColor} 
+                    <CustomInputDiv title={'Car Color ' + carColor} 
                     myStyle={{ marginBottom: 32 }} placholderValue={'Ex: White'} 
                     errorText={'Please enter valid color'} isError={detailsError.includes('carColor')}
                     listener={(e) => setCarColor(e.target.value)} value={carColor}/>
@@ -1423,6 +1593,8 @@ const page = () => {
                 <h4>- Add clear and expressive images</h4>
 
                 <h4>- Add as much information as possible in the details field</h4>
+
+                <h4>- The advertisement will be reviewed and approved within 24 hours of submission</h4>
 
                 <label id='error2' style={{ padding: error.length <= 0 && 0, margin: error.length <= 0 && 0 }}>{error}</label>
                 

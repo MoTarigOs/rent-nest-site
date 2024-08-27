@@ -12,7 +12,8 @@ const AddDetailsPopup = ({
     setIsShow, setArray, type, array, baseArr, 
     setIsAddDetails, sections, setAccompany,
     accompany, isEnglish, isVehicles, isSingleSelect,
-    initialValueIndex, isNotFacilities, detailsError
+    initialValueIndex, isNotFacilities, detailsError,
+    isUndefinedElement
 }) => {
 
     const [trigger, setTrigger] = useState(false);
@@ -71,7 +72,7 @@ const AddDetailsPopup = ({
   return (
     <div className='detailsPopupWrapper' dir={isEnglish ? 'ltr' : undefined}>
 
-        <span id='close-span' onClick={() => {
+        <span id='close-dtl-span' onClick={() => {
             setIsShow(false); 
             if(setIsAddDetails) setIsAddDetails(false);
             console.log('clicked');
@@ -157,7 +158,7 @@ const AddDetailsPopup = ({
                 customArray={baseArr} selectedCustom={isSingleSelect ? array : accompany}
                 setSelectedCustom={isSingleSelect ? setArray : setAccompany} initialValueIndex={initialValueIndex} isCustom
                 setIsCustom={()=>{}} myStyle={{ maxHeight: 'unset', height: 'fit-content' }} 
-                searchBarPlaceHolder={getSearchInputPlaceholder()} 
+                searchBarPlaceHolder={getSearchInputPlaceholder()} isUndefinedElement={isUndefinedElement}
                 itemCity={array} setItemCity={setArray} isEnglish={isEnglish}/>
 
             </div>}

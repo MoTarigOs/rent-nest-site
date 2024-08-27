@@ -59,7 +59,8 @@ export const getUserInfo = async(
     setUserUsernameEN, setNotifications,
     setUserLastName, setUserFirstName,
     setUserAccountType, setUserFirstNameEN,
-    setUserLastNameEN, setWaitingToBeHost
+    setUserLastNameEN, setWaitingToBeHost,
+    setIsNotifEnabled
 ) => {
 
     try {
@@ -87,6 +88,7 @@ export const getUserInfo = async(
         if(res.data.lastName) setUserLastName(res.data.lastName);
         if(res.data.lastNameEN) setUserLastNameEN(res.data.lastNameEN);
         if(res.data.accountType) setUserAccountType(res.data.accountType);
+        if(res.data.notifEnabled) setIsNotifEnabled(res.data.notifEnabled);
         setWaitingToBeHost(res.data.waitingToBeHost || false);
         setLoading(false);
         return { success: true, dt: res.data };
@@ -423,6 +425,26 @@ export const signOut = async(isEnglish) => {
 
 };
 
+export const handleNotifEnable = async(state, isEnglish) => {
+
+    try {
+        
+        const url = `${baseUrl}/user/enable-notif?state=${state}`;
+
+        const res = await axios.patch(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });;
+
+        if(!res?.status || res.status !== 200){
+            return { success: false, dt: getErrorText(res.data.message, isEnglish) };
+        }
+
+        return { success: true, dt: res.data };
+
+    } catch (err) {
+        return { success: false, dt: getErrorText(err.response.data.message, isEnglish) };
+    }
+
+};
+
 
 // property api methods
 
@@ -543,12 +565,12 @@ export const editProperty = async(
     discount, isEnglish, gRecaptchaToken,
     enObj, cancellation, capacity, customerType, 
     prices, landArea, floor, city, neighbourhood,
-    map_coordinates, type_is_vehicle
+    map_coordinates, type_is_vehicle, isAdmin
 ) => {
 
     try {
 
-        const url = `${baseUrl}/property/edit/${propertyId}`;
+        const url = `${baseUrl}/${isAdmin ? 'admin' : 'property'}/edit/${propertyId}`;
 
         const body = { 
             title, description, price, 
@@ -573,11 +595,11 @@ export const editProperty = async(
 
 };
 
-export const uploadFiles = async(files, id, key, email, isEnglish) => {
+export const uploadFiles = async(files, id, key, email, isEnglish, isAdmin) => {
 
     try {
 
-        const url = `${uploadServerBaseUrl}/upload/property/${id}?email=${email}`;
+        const url = `${uploadServerBaseUrl}/${isAdmin ? 'admin' : 'upload'}/property/${id}?email=${email}`;
         
         const data = new FormData();
 
@@ -767,12 +789,13 @@ export const getProperties = async(
     categoryArray,
     vehicleType,
     cardsPerPage,
-    isSearchMap
+    isSearchMap,
+    reservationType
 ) => {
 
     try {
 
-        const url = `${baseUrl}/property?${city?.length > 0 ? 'city=' + city.replaceAll(' ', '-') : ''}${(isType === true) ? '&type_is_vehicle=true' + (vehicleType >= 0 ? '&vehicleType=' + vehicleType : '') : ''}${categoryArray?.length > 0 ? '&categories=' + categoryArray.map(o=>o?.value).join(',') : (specific?.length > 0 ? '&specific=' + specific : '')}${(priceRange?.length > 1 && (priceRange[0] > 0 || priceRange[1] < maximumPrice)) ? '&price_range=' + priceRange.toString() : ''}${minRate > 0 ? '&min_rate=' + minRate : ''}${(searchText?.length > 0 || neighbourSearchText?.length > 0) ? '&text=' + searchText + neighbourSearchText : ''}${sort?.length > 0 ? '&sort=' + sort : ''}${long > 0 ? '&long=' + long : ''}${lat > 0 ? '&lat=' + lat : ''}${(typeof skip === 'number' && skip > 0) ? '&skip=' + skip : ''}${quickFilter?.length > 0 ? '&quickFilter=' + quickFilter.map(o => o.idName).join(",") : ''}${unitCode > 0 ? '&unitCode=' + unitCode : ''}${(bedroomFilter?.num || bedroomFilter?.single_beds || bedroomFilter?.double_beds) ? '&bedroomFilter=' + bedroomFilter?.num + ',' + bedroomFilter?.single_beds + ',' + bedroomFilter?.double_beds : ''}${(capacityFilter?.min >= 0 || capacityFilter?.max > 0) ? '&capacityFilter=' + capacityFilter.min + ',' + capacityFilter.max : ''}${poolFilter?.length > 0 ? '&poolFilter=' + poolFilter.toString() : ''}${customersTypesFilter?.length > 0 ? '&customers=' + customersTypesFilter.toString() : ''}${companiansFilter?.length > 0 ? '&companiansFilter=' + companiansFilter.toString() : ''}${bathroomsFilterNum > 0 ? '&bathroomsNum=' + bathroomsFilterNum : ''}${bathroomsCompaniansFilter?.length > 0 ? '&bathroomFacilities=' + bathroomsCompaniansFilter.toString() : ''}${kitchenFilter?.length > 0 ? '&kitchenFilter=' + kitchenFilter.toString() : ''}${cardsPerPage ? '&cardsPerPage=' + cardsPerPage : ''}${isSearchMap ? '&isSearchMap=' + isSearchMap : ''}`;
+        const url = `${baseUrl}/property?${city?.length > 0 ? 'city=' + city.replaceAll(' ', '-') : ''}${(isType === true) ? '&type_is_vehicle=true' + (vehicleType >= 0 ? '&vehicleType=' + vehicleType : '') : ''}${categoryArray?.length > 0 ? '&categories=' + categoryArray.map(o=>o?.value).join(',') : (specific?.length > 0 ? '&specific=' + specific : '')}${(priceRange?.length > 1 && (priceRange[0] > 0 || priceRange[1] < maximumPrice)) ? '&price_range=' + priceRange.toString() : ''}${minRate > 0 ? '&min_rate=' + minRate : ''}${(searchText?.length > 0 || neighbourSearchText?.length > 0) ? '&text=' + searchText + neighbourSearchText : ''}${sort?.length > 0 ? '&sort=' + sort : ''}${long > 0 ? '&long=' + long : ''}${lat > 0 ? '&lat=' + lat : ''}${(typeof skip === 'number' && skip > 0) ? '&skip=' + skip : ''}${quickFilter?.length > 0 ? '&quickFilter=' + quickFilter.map(o => o.idName).join(",") : ''}${unitCode > 0 ? '&unitCode=' + unitCode : ''}${(bedroomFilter?.num || bedroomFilter?.single_beds || bedroomFilter?.double_beds) ? '&bedroomFilter=' + bedroomFilter?.num + ',' + bedroomFilter?.single_beds + ',' + bedroomFilter?.double_beds : ''}${(capacityFilter?.min >= 0 || capacityFilter?.max > 0) ? '&capacityFilter=' + capacityFilter.min + ',' + capacityFilter.max : ''}${poolFilter?.length > 0 ? '&poolFilter=' + poolFilter.toString() : ''}${customersTypesFilter?.length > 0 ? '&customers=' + customersTypesFilter.toString() : ''}${companiansFilter?.length > 0 ? '&companiansFilter=' + companiansFilter.toString() : ''}${bathroomsFilterNum > 0 ? '&bathroomsNum=' + bathroomsFilterNum : ''}${bathroomsCompaniansFilter?.length > 0 ? '&bathroomFacilities=' + bathroomsCompaniansFilter.toString() : ''}${kitchenFilter?.length > 0 ? '&kitchenFilter=' + kitchenFilter.toString() : ''}${cardsPerPage ? '&cardsPerPage=' + cardsPerPage : ''}${isSearchMap ? '&isSearchMap=' + isSearchMap : ''}${reservationType ? '&reservationType=' + reservationType : ''}`;
 
         console.log('url: ', url);
 
@@ -942,7 +965,7 @@ export const deleteNotifications = async(ids, isEnglish) => {
 
 
 // Report api methods
-export const makeReport = async(text, propertyId, writerId) => {
+export const makeReport = async(text, propertyId, writerId, isEnglish) => {
 
     try {
 
@@ -954,23 +977,23 @@ export const makeReport = async(text, propertyId, writerId) => {
 
         const res = await axios.post(url, body, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
         
-        if(!res || !res.status || res.status !== 201) return { success: false, dt: getErrorText(res.data) };
+        if(!res || !res.status || res.status !== 201) return { success: false, dt: getErrorText(res.data, isEnglish) };
 
         return { success: true, dt: '' };
         
     } catch (err) {
-        return { success: false, dt: err?.response?.data ? getErrorText(err.response.data.message) : getErrorText('')}
+        return { success: false, dt: err?.response?.data ? getErrorText(err.response.data.message, isEnglish) : getErrorText('')}
     }
 
 };
 
 
 // Admin api methods
-export const getReports = async() => {
+export const getReports = async(isProps, cardsPerPage, skip) => {
 
     try {
 
-        const url = `${baseUrl}/admin/reports`;
+        const url = `${baseUrl}/admin/reports?${isProps ? 'isProps=true' : ''}${cardsPerPage ? '&&cardsPerPage=' + cardsPerPage : ''}${skip ? '&&skip=' + skip : ''}`;
 
         const res = await axios.get(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
         
@@ -986,14 +1009,14 @@ export const getReports = async() => {
     }
 };
 
-export const getAdminProps = async(type, skip) => {
+export const getAdminProps = async(type, skip, cardsPerPage) => {
 
     try {
 
         if(type !== 'check-properties' && type !== 'hidden-properties' && type !== 'properties-by-files')
             return { success: false, dt: 'اختر تصنيف' };
 
-        const url = `${baseUrl}/admin/${type}${skip > 0 ? '&skip=' + skip : ''}`;
+        const url = `${baseUrl}/admin/${type}?${skip > 0 ? '&skip=' + skip : ''}${cardsPerPage > 0 ? '&cardsPerPage=' + cardsPerPage : ''}`;
 
         const res = await axios.get(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
         
@@ -1001,14 +1024,14 @@ export const getAdminProps = async(type, skip) => {
 
         if(!res?.status || res.status !== 200) return { success: false, dt: getErrorText(res?.data?.message ? res.data.messsage : '') }
     
-        return { success: true, dt: res.data };
+        return { success: true,  dt: res.data?.properties, count: res.data?.count };
     
     } catch (err) {
         return { success: false, dt: err?.response?.data ? getErrorText(err.response.data.message) : getErrorText('')}
     }
 };
 
-export const getAdminErrors = async(type, skip) => {
+export const getAdminErrors = async(type, skip, cardsPerPage) => {
 
     try {
 
@@ -1020,7 +1043,7 @@ export const getAdminErrors = async(type, skip) => {
 
         if(!res?.status || res.status !== 200) return { success: false, dt: getErrorText(res?.data?.message ? res.data.messsage : '') }
     
-        return { success: true, dt: res.data };
+        return { success: true, dt: res.data?.errors, count: res.data?.count };
     
     } catch (err) {
         return { success: false, dt: err?.response?.data ? getErrorText(err.response.data.message) : getErrorText('')}
@@ -1033,10 +1056,9 @@ export const getUsersAdmin = async(type, skip) => {
 
         console.log(type);
 
-        if(!usersSections.includes(type))
-            return { success: false, dt: 'اختر تصنيف' };
+        if(!type) type = 'all-users';
 
-        const url = `${baseUrl}/admin/users?filterType=${type.value}${skip > 0 ? '&skip=' + skip: ''}`;
+        const url = `${baseUrl}/admin/users?filterType=${type}${skip > 0 ? '&skip=' + skip: ''}`;
 
         const res = await axios.get(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
         
@@ -1221,13 +1243,13 @@ export const deleteUserAccountFilesAdmin = async(userId, eCode, key, email, isEn
 
 };
 
-export const deleteReviewsAdmin = async(propertyId, filenamesArray, isEnglish) => {
+export const deleteReviewsAdmin = async(propertyId, reviewsArray, isEnglish) => {
 
     try {
 
         const url = `${baseUrl}/admin/delete-reviews/${propertyId}`;
 
-        const arr = filenamesArray.map(obj => obj.writer_id);
+        const arr = reviewsArray.map(obj => obj.writer_id);
 
         const body = {
             writerIds: arr
@@ -1430,6 +1452,69 @@ export const convertToBeHost = async(id) => {
         return { ok: false, dt: getErrorText(err?.response?.data?.message) };
     }
 };
+
+export const setBookableAdmin = async(propertyId, type, isEnglish) => {
+
+    try {
+
+        const url = `${baseUrl}/admin/${type}/${propertyId}`;
+
+        console.log('url: ', url);
+        
+        const res = await axios.put(url, null, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+        
+        if(!res || !res.status || res.status !== 201) return { success: false, dt: getErrorText(res.data, isEnglish) };
+
+        return { success: true, dt: res.data };
+        
+    } catch (err) {
+        return { success: false, dt: getErrorText(err?.response?.data?.message, isEnglish)}
+    }
+
+};
+
+export const setNewBookedDaysAdmin = async(propertyId, bookedDays, isEnglish) => {
+
+    try {
+
+        const url = `${baseUrl}/admin/booked-days/${propertyId}`;
+
+        console.log('url: ', url);
+
+        const body = {
+            bookedDays
+        }
+        
+        const res = await axios.put(url, body, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+        
+        if(!res || !res.status || res.status !== 201) return { success: false, dt: getErrorText(res.data, isEnglish) };
+
+        return { success: true, dt: res.data };
+        
+    } catch (err) {
+        return { success: false, dt: getErrorText(err?.response?.data?.message, isEnglish)};
+    }
+
+};
+
+export const getAdminNotif = async() => {
+
+    try {
+        
+        const url = `${baseUrl}/admin/notifs`;
+
+        const res = await axios.get(url, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+
+        if(!res || !res.status || res.status !== 200) return { success: false, dt: getErrorText(res.data, isEnglish) };
+
+        return { success: true, dt: res.data };
+
+    } catch (err) {
+        return { success: false, dt: getErrorText(err?.response?.data?.message, isEnglish)};
+    }
+
+};
+
 
 // test methods
 export const sendTest = async(key, email) => {

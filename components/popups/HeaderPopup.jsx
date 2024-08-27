@@ -15,7 +15,7 @@ const HeaderPopup = ({
     isCustom, setIsCustom, customArray, selectedCustom, 
     setSelectedCustom, initialValueIndex, isSingleSelection,
     isNotSearchBar, myStyle, searchBarPlaceHolder, isSearch,
-    sections
+    sections, isUndefinedElement, setChanged, rightIconStyle
 }) => {
 
     const [searched, setSearched] = useState(customArray ? customArray : JordanCities);
@@ -46,8 +46,8 @@ const HeaderPopup = ({
         return ProperitiesCatagories;
     }
 
-    const RightIconSpan = () => {
-        return <div id='righticonspan'><span /></div>
+    const RightIconSpan = ({ customStyle }) => {
+        return <div id='righticonspan' style={customStyle}><span /></div>
     }
 
   return (
@@ -195,7 +195,7 @@ const HeaderPopup = ({
             initial={{ opacity: 0, scale: 0.7 }}
             animate={{ opacity: 1, scale: 1 }}
         >
-                <MyCalendar setCalender={setCalendarDoubleValue} days={days} type={isViewPage ? 'view' : null}/>
+            <MyCalendar  setCalender={setCalendarDoubleValue} days={days} type={isViewPage ? 'view' : null}/>
         </motion.div>}
 
         {type === 'custom' && <motion.div className='addCity'
@@ -208,8 +208,9 @@ const HeaderPopup = ({
                     onClick={() => {
                         setSelectedCustom(cst);
                         setIsCustom(false);
+                        if(setChanged) setChanged(true);
                     }} key={cst.value}>
-                        <RightIconSpan />
+                        <RightIconSpan customStyle={rightIconStyle}/>
                         {isEnglish ? cst.value?.replaceAll('-', ' ')?.replaceAll('_', ' ') : cst.arabicName} 
                     </li>
                 ))}
@@ -245,6 +246,7 @@ const HeaderPopup = ({
             animate={{ opacity: isCustom ? 1 : 0, scale: isCustom ? 1 : 0 }}
         >
              <ul>
+
                 {!isNotSearchBar && <li id='searchBar'>
                     <Svgs name={'search'}/>
                     <input onChange={(e) => {
@@ -258,7 +260,17 @@ const HeaderPopup = ({
                         setSearched(arr);
                     }} placeholder={searchBarPlaceHolder} style={{ fontSize: '1rem' }}/>
                 </li>}
-                {searched.map((cst) => (
+
+                {isUndefinedElement && <li className={selectedCustom?.length <= 0 ? 'selectedCatagory' : undefined} 
+                onClick={() => {
+                    if(isSingleSelection) return setSelectedCustom('');
+                    setSelectedCustom([]);
+                }} key={'999'}>
+                    <RightIconSpan />
+                    {isEnglish ? 'Undefined' : 'غير محدد'}
+                </li>}
+
+                {searched.map((cst) => (<>
                     <li className={selectedCustom?.includes(cst) ? 'selectedCatagory' : undefined} 
                     onClick={() => {
                         if(isSingleSelection) return setSelectedCustom(cst);
@@ -272,7 +284,7 @@ const HeaderPopup = ({
                     }} key={cst}>
                         <RightIconSpan />
                         {cst}
-                    </li>
+                    </li></>
                 ))}
             </ul>
         </motion.div>}

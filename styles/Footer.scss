@@ -144,20 +144,29 @@
             flex-direction: column;
             gap: 24px;
             &:dir(ltr){
-                ul li{
-                    margin-right: 16px;
-                    margin-left: 8px;
+                ul {
+                    padding: 0;
+                    margin: 0 0 24px 0; 
+                    li{
+                        margin-right: 0;
+                        margin-left: 0;
+                    }
                 }
                 h4{
-                    margin-left: 8px;
+                    margin-left: 0;
                 }
             }    
             h4{
                 font-size: 1rem;
             }
-            ul li{
-                margin-right: 16px;
-                margin-left: 0px;
+            ul{
+                padding: 0;
+                margin: 0 0 24px 0;
+                flex-wrap: wrap;
+                li{
+                    margin-right: 0;
+                    margin-left: 0px;
+                }
             }
         }
     }

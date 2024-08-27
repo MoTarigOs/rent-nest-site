@@ -290,6 +290,12 @@ const page = () => {
       clearTimeout(timeoutid);
     });
 
+    // window.addEventListener('beforeunload', function(e){
+    //     e.preventDefault();
+    //     event.returnValue = true;
+    //     return true;
+    // });
+
     return () => {
       usernameInputRef?.current?.removeEventListener('keyup', () => {
         timeoutid = setTimeout(() => setUserStopsWriting(true), delay)
@@ -298,6 +304,11 @@ const page = () => {
         setUserStopsWriting(false);
         clearTimeout(timeoutid);
       });
+      // window.removeEventListener('beforeunload', function(e){
+      //   e.preventDefault();
+      //   event.returnValue = true;
+      //   return true;
+      // });
     }
   }, []);
 

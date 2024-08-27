@@ -4,13 +4,13 @@ import '../add/Add.scss';
 import { Suspense, useContext, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import CustomInputDiv from '@components/CustomInputDiv';
-import { deleteFiles, deleteProp, deletePropFiles, editProperty, fetchPropertyDetails, setBookable, setNewBookedDays, showProp, uploadFiles } from '@utils/api';
+import { deleteFiles, deleteProp, deletePropFiles, deletePropFilesAdmin, deleteReportOnProp, deleteReviewsAdmin, deleteSpecificPropFilesAdmin, editProperty, fetchPropertyDetails, handlePropAdmin, setBookableAdmin, setNewBookedDaysAdmin, showProp, uploadFiles } from '@utils/api';
 import { useSearchParams } from 'next/navigation';
 import Svgs from '@utils/Svgs';
 import { Context } from '@utils/Context';
 import Link from 'next/link';
 import GoogleMapImage from '@assets/images/google-map-image.jpg';
-import { getBookDateFormat, getOptimizedAttachedFiles, isValidContactURL, isValidNumber, isValidText } from '@utils/Logic';
+import { getBookDateFormat, getOptimizedAttachedFiles, isValidArrayOfStrings, isValidContactURL, isValidNumber, isValidText } from '@utils/Logic';
 import MyCalendar from '@components/MyCalendar';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
@@ -22,15 +22,17 @@ import { bathroomFacilities, customersTypesArray, facilities, kitchenFacilities,
 import LoadingCircle from '@components/LoadingCircle';
 import AddDetailsPopup from '@components/popups/AddDetailsPopup';
 import { getUserLocation } from '@utils/ServerComponents';
+import ReviewCard from '@components/ReviewCard';
 
 const Page = () => {
 
     const id = useSearchParams().get('id');
+    const isReportParam = useSearchParams().get('isReport');
 
     const {
         userId, storageKey, userEmail, loadingUserInfo, isVerified,
         arabicFont, setLatitude, setLongitude, setIsMap, setMapType,
-        latitude, longitude
+        latitude, longitude, userRole
     } = useContext(Context);
 
     const [fetchingOnce, setFetchingOnce] = useState(true);
@@ -50,11 +52,6 @@ const Page = () => {
     const [cityPopup, setCityPopup] = useState(false);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
-    
-    const [visiblityIsLoading, setVisiblityIsLoading] = useState(false);
-    const [isVisibilty, setIsVisibilty] = useState(false);
-    const [visibiltyError, setIsVisibiltyError] = useState('');
-    const [visibiltySuccess, setIsVisibiltySuccess] = useState('');
 
     const [section, setSection] = useState(0);
     const [sectionError, setSectionError] = useState('');
@@ -87,11 +84,6 @@ const Page = () => {
     const [selectBookedDays, setSelectBookedDays] = useState([]);
     const [triggerCalendarRender, setTriggerCalendarRender] = useState(true);
     const [calendarSelect, setCalenderSelect] = useState(null);
-
-    const [isDeletingProp, setIsDeletingProp] = useState(false);
-    const [isDeleteProp, setIsDeleteProp] = useState(false);
-    const [deleteError, setDeleteError] = useState('');
-    const [deleteSuccess, setDeleteSuccess] = useState('');
 
     const [itemTitle, setItemTitle] = useState('');
     const [itemTitleEN, setItemTitleEN] = useState('');
@@ -144,6 +136,26 @@ const Page = () => {
     
     const [filesToDelete, setFilesToDelete] = useState([]);
     const [isAddDetails, setIsAddDetails] = useState(false);
+
+    
+    const [adminSending, setAdminSending] = useState(false);
+    const [adminType, setAdminType] = useState('pass-property');
+    const [adminError, setAdminError] = useState('');
+    const [adminSuccess, setAdminSuccess] = useState('');
+
+    const [rejectReasons, setRejectReasons] = useState(['']);
+    const [rejectError, setRejectError] = useState('');
+
+    const [revsToDeleteAdmin, setRevsToDeleteAdmin] = useState([]);
+    const [deletingRevs, setDeletingRevs] = useState(false);
+    const [isDeleteRevs, setIsDeleteRevs] = useState(false);
+    const [deleteRevsError, setDeleteRevsError] = useState('');
+    const [deleteRevsSuccess, setDeleteRevsSuccess] = useState('');
+    const [revsNum, setRevsNum] = useState(0);
+    const revsNumIndexSlide = 8;
+
+    const [deletingReport, setDeletingReport] = useState(false);
+    const [isDeleteReport, setIsDeleteReport] = useState(false);
 
     const { executeRecaptcha } = useGoogleReCaptcha();
 
@@ -544,7 +556,8 @@ const Page = () => {
                         tempContacts?.length > 0 ? tempContacts : null, xDiscount(), null,
                         token, enObj, cancellationsArray().indexOf(cancellation), capacity, 
                         customerType, itemPrices, landArea, floor, 
-                        itemCity.value, itemNeighbour, [itemLong, itemLat], item.type_is_vehicle 
+                        itemCity.value, itemNeighbour, [itemLong, itemLat], item.type_is_vehicle,
+                        true
                     );
         
                     console.log('res: ', res);    
@@ -582,7 +595,8 @@ const Page = () => {
                     
                     if(optimizedFiles.optArr.length > 0) 
                         uploadFilesRes = await uploadFiles(
-                            optimizedFiles.optArr, id, storageKey, userEmail
+                            optimizedFiles.optArr, id, storageKey, userEmail, false,
+                            true
                         );
 
                     console.log('upload res: ', uploadFilesRes);
@@ -601,9 +615,11 @@ const Page = () => {
 
             const editDeleteFiles = async() => {
                 try {
-                    const deleteFilesRes = await deleteFiles(
+                    
+                    const deleteFilesRes = await deleteSpecificPropFilesAdmin(
                         id, filesToDelete, storageKey, userEmail
                     );
+
                     if(deleteFilesRes.success !== true){
                         setError(res.dt.toString());
                         return { success: false };
@@ -694,42 +710,13 @@ const Page = () => {
     
     };
 
-    const handleVisible = async() => {
-
-        try {
-
-            setVisiblityIsLoading(true);
-
-            const res = await showProp(id, item.visible ? 'hide' : 'show');
-
-            if(res.success !==true){
-                setIsVisibiltyError(res.dt);
-                setIsVisibiltySuccess('');
-                setVisiblityIsLoading(false);
-                return
-            };
-
-            setIsVisibiltyError('');
-            setIsVisibiltySuccess('تم تحديث الظهور بنجاح');
-            setItem(res.dt);
-            setVisiblityIsLoading(false);
-            
-        } catch (err) {
-            console.log(err.message);
-            setIsVisibiltyError('حدث خطأ ما');
-            setIsVisibiltySuccess('');
-            setVisiblityIsLoading(false);
-        }
-
-    };
-
     const handleBookable = async() => {
 
         try {
 
             setBookableIsLoading(true);
 
-            const res = await setBookable(id, item.is_able_to_book ? 'prevent-book' : 'able-to-book');
+            const res = await setBookableAdmin(id, item.is_able_to_book ? 'prevent-book' : 'able-to-book');
 
             if(res.success !==true){
                 setBookableError(res.dt);
@@ -752,52 +739,6 @@ const Page = () => {
 
     };
 
-    const handleDeleteProp = async() => {
-
-        try {
-
-            if(isDeletingProp) return;
-
-            setIsDeletingProp(true);
-
-            const deleteFilesRes = await deletePropFiles(id, userEmail, false, storageKey);
-
-            console.log(deleteFilesRes);
-
-            if(deleteFilesRes.success !== true){
-                setDeleteError(deleteFilesRes.dt);
-                setDeleteSuccess('');
-                setIsDeletingProp(false);
-                return;
-            }
-
-            const res = await deleteProp(id);
-
-            if(res.success !== true){
-                setDeleteError(res.dt || '');
-                setDeleteSuccess('');
-                setIsDeletingProp(false);
-                return
-            };
-
-            setDeleteError('');
-            setDeleteSuccess('تم حذف العرض');
-
-            setTimeout(() => {
-                setItem(null);
-            }, 10000);
-
-            setIsDeletingProp(false);
-            
-        } catch (err) {
-            console.log(err.message);
-            setDeleteError('حدث خطأ ما');
-            setDeleteSuccess('');
-            setIsDeletingProp(false);
-        }
-
-    };
-
     const handleNewBookedDays = async() => {
 
         if(bookDaysIsLoading || !isOkayNewBookedDays()) return;
@@ -806,7 +747,7 @@ const Page = () => {
 
             setBookDaysIsLoading(true);
 
-            const res = await setNewBookedDays(id, selectBookedDays);
+            const res = await setNewBookedDaysAdmin(id, selectBookedDays);
             
             if(res.success !== true){
                 setBookDaysError(res.dt);
@@ -1320,7 +1261,142 @@ const Page = () => {
         return true;
 
     };
+
+    const sendAdmin = async() => {
+
+        try {
     
+          if(adminSending) return;
+    
+          if(adminType === 'show-property' && item.visible) return;
+          if(adminType === 'hide-property' && !item.visible) return;
+          if(adminType === 'pass-property' && item.checked) return;
+          if(adminType === 'reject-property' && (item.isRejected || !isValidArrayOfStrings(rejectReasons))) {
+            setRejectError('الرجاء كتابة اسباب لرفض العرض');
+            return;
+          }
+          setRejectError('');
+          if(adminType === 'delete-property' && !item) return;
+    
+          setAdminSending(true);
+    
+          if(adminType === 'delete-property'){
+            const deleteFilesRes = await deletePropFilesAdmin(id, storageKey, userEmail);
+            if (deleteFilesRes.success !== true) {
+              setAdminError(deleteFilesRes.dt);
+              setAdminSuccess('');
+              setAdminSending(false);
+              return;
+            }
+          } else {
+            setAdminError('');
+            setAdminSuccess('');
+          };
+          
+          const res = await handlePropAdmin(id, adminType, rejectReasons);
+    
+          if(res.success !== true) {
+            setAdminError(res.dt);
+            setAdminSuccess('');
+            setAdminSending(false);
+            return;
+          }
+    
+          setAdminError('');
+          setAdminSuccess('تم التحديث بنجاح');
+    
+          if(adminType === 'pass-property') setItem(res.dt);
+    
+          if(adminType === 'reject-property') {
+            setItem(res.dt);
+            setAdminType('pass-property');
+          };
+    
+          if(adminType === 'hide-property') {
+            setItem(res.dt);
+            setAdminType('show-property');
+          };
+    
+          if(adminType === 'show-property') {
+            setItem(res.dt);
+            setAdminType('hide-property');
+          };
+    
+          if(adminType === 'delete-property') setTimeout(() => { setItem(null) }, [2000]);
+          setAdminSending(false);
+          
+        } catch (err) {
+          console.log(err.message);
+          setAdminError('حدث خطأ ما');
+          setAdminSuccess('');
+          setAdminSending(false);
+        }
+    
+    };
+    
+    const deleteReport = async() => {
+
+        if(deletingReport) return;
+
+        try {
+
+        setDeletingReport(true);
+
+        const res = await deleteReportOnProp(id);
+
+        if(!res.success !== true){
+            setDeletingReport(false);
+            return;
+        }
+
+        setItem(res.dt);
+        setDeletingReport(false);
+        
+        } catch (err) {
+        console.log(err);
+        setDeletingReport(false);
+        }
+    };
+    
+    const isAdmin = () => {
+        if(userRole === 'admin' || userRole === 'owner'){
+          return true;
+        } else {
+          return false;
+        }
+    };
+
+    const handleDeleteRevsAdmin = async() => {
+
+        try {
+    
+          if(deletingRevs) return;
+    
+          setDeletingRevs(true);
+    
+          const res = await deleteReviewsAdmin(id, revsToDeleteAdmin);
+    
+          if(res.success !== true) {
+            setDeleteRevsError(res.dt);
+            setDeleteRevsSuccess('');
+            setDeletingRevs(false);
+            return;
+          }
+    
+          setDeleteRevsError('');
+          setDeleteRevsSuccess('تم الحذف بنجاح');
+          setItem(res.dt);
+          setDeletingRevs(false);
+          
+        } catch (err) {
+          console.log(err.message);
+          setDeleteRevsError('حدث خطأ');
+          setDeleteRevsSuccess('');
+          setDeletingRevs(false);
+        }
+    
+    };
+
     useEffect(() => {
         setRunOnce(true);
         window.addEventListener('beforeunload', function(e){
@@ -1435,7 +1511,7 @@ const Page = () => {
         if(!loadingUserInfo && userId?.length > 0) setFetchingUserInfo(false);
     }, [fetchingUserInfo]);
 
-    if(!item || !userId?.length > 0 || !isVerified){
+    if(!item || !userId?.length > 0 || !isVerified || (userRole !== 'admin' && userRole !== 'owner')){
         return (
             (fetchingOnce || fetchingUserInfo) ? <MySkeleton isMobileHeader/> : <NotFound navToVerify={!isVerified} type={!isVerified ? 'not allowed' : undefined}/>
         )
@@ -1455,6 +1531,19 @@ const Page = () => {
 
             <div className='functionality'>
 
+                <h1 className='fun-h1'>هذه صفحة تعديل للإِعلان خاصة بالمسؤول {'(الأدمن)'} تتيح لك:</h1>
+
+                <ul className='fun-ul'>
+                    <li>الموافقة على الاعلان أو رفضه</li>
+                    <li>إِخفاء الاعلان أو إِظهاره</li>
+                    <li>إِزالة مراجعات {'(تعليقات)'}</li>
+                    <li>إِيقاف الحجوزات</li>
+                    <li>تحديد و تعديل الأيام المحجوزة</li>
+                    <li>تعديل كل معلومات الإِعلان مثل العنوان و الوصف و غيره</li>
+                </ul>
+
+                <hr />
+
                 {item.isRejected ? <div className='rejection-div'>
                     <div className='status'>العرض <span>مرفوض</span></div>
                     <h2>أسباب رفض العرض</h2>
@@ -1470,14 +1559,102 @@ const Page = () => {
                     <div style={{ margin: 0 }} className='status'>حالة العرض <span>{!item.checked ? 'تحت المراجعة' : 'مقبول'}</span></div>
                 </div>}
 
-                <button onClick={() => setIsVisibilty(!isVisibilty)} className={!isVisibilty ? 'editDiv' : 'editDiv chngpassbtn'}>ظهور العرض<Svgs name={'dropdown arrow'}/></button>
+                <hr />
 
-                <div className='hide-show-prop' style={{ display: !isVisibilty && 'none' }}>
-                    <span>الحالة <h4>{item.visible ? 'مرئي' : 'مخفي'}</h4></span>
-                    <p><Svgs name={'info'}/> اخفاء أو اظهار العرض للعامة, للعلم تستطيع تغيير الظهور في أي وقت.</p>
-                    <p style={{ display: (visibiltyError.length <= 0 && visibiltySuccess.length <= 0) && 'none', color: visibiltyError.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{visibiltyError.length > 0 ? visibiltyError : visibiltySuccess}</p>
-                    <button onClick={handleVisible} className='btnbackscndclr'>{(item.visible ? (visiblityIsLoading ? <LoadingCircle /> : 'اخفاء العرض') : (visiblityIsLoading ? <LoadingCircle /> : 'اظهار العرض'))}</button>
+                <div className='view-admin-section'>
+
+                    <h2>تحكم بالاعلان</h2>
+
+                    <div className='status'>حالة الاعلان <span>{item.visible ? 'مرئي' : 'مخفي'}</span> <span>{item.checked ? 'مقبول' : item.isRejected ? 'مرفوض' : 'غير مقبول'}</span></div>
+
+                    <h3>ماذا تريد الفعل بهذا الاعلان ؟</h3>
+
+                    <ul>
+                        <li id={item.checked ? 'unactive-btn' : null} className={adminType === 'pass-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('pass-property')}>قبول العرض</li>
+                        <li id={(item.isRejected || item.checked) ? 'unactive-btn' : null} className={adminType === 'reject-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('reject-property')}>رفض العرض</li>
+                        <li className={adminType === 'delete-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('delete-property')}>حذف العرض</li>
+                        <li className={(adminType === 'hide-property' || adminType === 'show-property') ? 'selected-admin-type' : ''} onClick={() => setAdminType(item.visible ? 'hide-property' : 'show-property')}>{item.visible ? 'إِخفاء العرض' : 'إِظهار العرض'}</li>
+                    </ul>
+
+                    <div className='reject-reasons' style={{ display: adminType === 'reject-property' ? null : 'none' }}>
+                        <h2>أضف أسباب رفض العرض</h2>
+                        {rejectReasons.map((reason, index) => (
+                            <div key={index}><CustomInputDiv placholderValue={!reason?.length > 0 ? 'أضف سبب للرفض' : reason} value={reason} deletable handleDelete={() => {
+                                let arr = [];
+                                for (let i = 0; i < rejectReasons.length; i++) {
+                                    if(i !== index){
+                                        arr.push(rejectReasons[i]);
+                                    }
+                                }
+                                setRejectReasons(arr);
+                            }} 
+                            listener={(e) => {
+                                let arr = [...rejectReasons];
+                                arr[index] = e.target.value;
+                                setRejectReasons(arr);
+                            }}/></div>
+                        ))}
+                        <button className='btnbackscndclr' onClick={() => setRejectReasons([...rejectReasons, ''])}>اضافة</button>
+                        <p id={rejectError?.length > 0 ? 'p-info-error' : ''}>{rejectError}</p>
+                    </div>
+
+                    <button className='btnbackscndclr' onClick={sendAdmin}>{adminSending ? <LoadingCircle /> : 'تأكيد'}</button>
+
+                    {(adminError || adminSuccess) && <p style={{ color: adminError?.length > 0 ? 'var(--softRed)' : null }}>{adminError?.length > 0 ? adminError : adminSuccess}</p>}
+
+                    {isReportParam && <>
+                    <hr />
+                    <button className={`editDiv ${isDeleteReport ? 'rotate-svg' : ''}`} onClick={() => setIsDeleteReport(!isDeleteReport)}>حذف الابلاغ عن هذا العرض <Svgs name={'dropdown arrow'}/></button>
+                    <span style={{ display: isDeleteReport ? 'block' : 'none', marginBottom: 16 }} id='info-span'>سيتم حذف الابلاغ عن هذا العرض أو اي ابلاغ عن مراجعة لهذا العرض</span>
+                    <button className='btnbackscndclr' style={{ display: isDeleteReport ? null : 'none' }} 
+                    onClick={deleteReport}>
+                        {deletingReport ? <LoadingCircle /> : 'حذف الابلاغ'}
+                    </button></>}
+
                 </div>
+
+                <hr />
+
+                <button className={`editDiv ${isDeleteRevs ? 'rotate-svg' : ''}`} onClick={() => setIsDeleteRevs(!isDeleteRevs)}>ازالة مراجعات <Svgs name={'dropdown arrow'}/></button>
+
+                {item?.reviews?.length > 0 ? <div className='reviews-del-container' style={{ display: !isDeleteRevs ? 'none' : null }}>
+                    
+                    {revsToDeleteAdmin?.length > 0 && <div className='files-to-delete revs-to-delete'>
+                         <span id='info-span'>
+                            <Svgs name={'info'}/>
+                            سيتم حذف هذه المراجعات, لالغاء التحديد اضغط على المراجعة
+                        </span>
+                        <ul className='revs-ul'>
+                            {revsToDeleteAdmin.map((rv, index) => (
+                                <ReviewCard key={index} isAdmin={isAdmin()} item={rv} 
+                                on_click={() => setRevsToDeleteAdmin(
+                                    revsToDeleteAdmin.filter(i => i.writer_id !== rv?.writer_id)
+                                )}/>
+                            ))}
+                        </ul>
+                        <button className='btnbackscndclr' onClick={handleDeleteRevsAdmin}>{deletingRevs ? <LoadingCircle /> : 'الحذف'}</button>
+                        <p style={{ color: deleteRevsError?.length > 0 ? 'var(--softRed)' : null }}>{deleteRevsError.length > 0 ? deleteRevsError : deleteRevsSuccess}</p>
+                    </div>}
+
+                    {revsToDeleteAdmin?.length > 0  && <hr />}
+
+                    <span id='choose-files-span'>اختر مراجعات لحذفها {'(عن طريق الضغط على أيقونة الحذف)'} </span>
+
+                    <ul className='revs-ul'>
+                        {item.reviews.slice(revsNum, revsNum + revsNumIndexSlide).map((rv) => (
+                            <ReviewCard item={rv}
+                            isAdmin={true} revsToDeleteAdmin={revsToDeleteAdmin} setRevsToDeleteAdmin={setRevsToDeleteAdmin}/>
+                        ))}
+                    </ul>
+
+                    <div className='btns-rev'>
+                        <button className={'btnbackscndclr' + (revsNum <= 0 ? ' not-available' : '')} onClick={() => { if(revsNum > 0) setRevsNum(revsNum - revsNumIndexSlide) }}>السابق</button>
+                        <button className={'btnbackscndclr' + (revsNum >= item.reviews?.length - revsNumIndexSlide ? ' not-available' : '')} onClick={() => { if(revsNum < item.reviews?.length - revsNumIndexSlide) setRevsNum(revsNum + revsNumIndexSlide) }}>التالي</button>
+                    </div>
+
+                </div> : <div  style={{ display: !isDeleteRevs ? 'none' : null, marginTop: 4 }}>
+                    لا يوجد مراجعات على هذا الاعلان
+                </div>}
 
                 <hr />
 
@@ -1514,17 +1691,7 @@ const Page = () => {
 
                 <hr />
 
-                <button onClick={() => setIsDeleteProp(!isDeleteProp)} className={!isDeleteProp ? 'editDiv' : 'editDiv chngpassbtn'}>حذف العرض<Svgs name={'dropdown arrow'}/></button>
-
-                <div className='hide-show-prop' style={{ display: !isDeleteProp && 'none' }}>
-                    <p><Svgs name={'info'}/>سيتم حذف هذا العرض نهائيا.</p>
-                    <p style={{ display: (deleteError?.length <= 0 && deleteSuccess.length <= 0) && 'none', color: deleteError?.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{deleteError?.length > 0 ? deleteError : deleteSuccess}</p>
-                    <button onClick={handleDeleteProp} className='btnbackscndclr'>{isDeletingProp ? <LoadingCircle /> : 'حذف'}</button>
-                </div>
-
-                <hr />
-
-                <Link target="_blank" href={`/view/item?id=${id}`} className='editDiv'>رؤية كما يظهر للآخرين<Svgs name={'show password'}/></Link>
+                <Link href={`/view/item?id=${id}`} target="_blank" className='editDiv'>رؤية كما يظهر للآخرين<Svgs name={'show password'}/></Link>
 
                 <hr />
             

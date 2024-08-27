@@ -1,12 +1,12 @@
 'use client';
 
 import '@styles/components_styles/PropertiesArray.scss';
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import Card from "./Card";
 import MySkeleton from "./MySkeleton";
 import NotFound from "./NotFound";
 import { Context } from "@utils/Context";
-import { getBooks, getFavourites, getLocation, getOwnerProperties, getProperties } from "@utils/api";
+import { getAdminProps, getBooks, getFavourites, getLocation, getOwnerProperties, getProperties, getReports } from "@utils/api";
 import PagesHandler from "./PagesHandler";
 import { isOkayBookDays } from '@utils/Logic';
 import { JordanCities } from '@utils/Data';
@@ -15,7 +15,7 @@ const PropertiesArray = ({
     type, isEdit, isHide, isSearchMap, title, userId, 
     catagoryParam, isEnglish, cardsPerPage, longitude,
     latitude, propsArr, setPropsArr, fetchingProp, setFetchingProp,
-    dontFetchWithHide
+    dontFetchWithHide, adminSectionType
 }) => {
 
     const [runOnce, setRunOnce] = useState(false);
@@ -27,8 +27,8 @@ const PropertiesArray = ({
     const { 
         rangeValue, city, catagory, categoryArray,
         ratingScore, triggerFetch, searchText, vehicleType,
-        arrangeValue, calendarDoubleValue, 
-        isCalendarValue,
+        arrangeValue, calendarDoubleValue, setCalendarDoubleValue,
+        isCalendarValue, booksIds,
         quickFilter,
         neighbourSearchText,
         unitCode,
@@ -39,7 +39,8 @@ const PropertiesArray = ({
         companiansFilter,
         bathroomsFilterNum,
         bathroomsCompaniansFilter,
-        kitchenFilter
+        kitchenFilter,
+        resType
     } = useContext(Context);
     
     const settingPropertiesArray = async(skipCount) => {
@@ -74,7 +75,8 @@ const PropertiesArray = ({
                             null,
                             null,
                             null,
-                            null, null, vehicleType, cardsPerPage
+                            null, null, vehicleType, cardsPerPage, null,
+                            resType?.value
                         );
                     case 'owner':
                         return getOwnerProperties(userId, skipCount, cardsPerPage);  
@@ -97,11 +99,14 @@ const PropertiesArray = ({
                             bathroomsFilterNum,
                             bathroomsCompaniansFilter,
                             kitchenFilter,
-                            categoryArray, null, cardsPerPage, isSearchMap
+                            categoryArray, null, cardsPerPage, isSearchMap,
+                            resType?.value
                         );
+                    case 'admin-properties':
+                        return getAdminProps(adminSectionType?.split(' ')?.at(1), skipCount, cardsPerPage);
                     default:
                         return getProperties(
-                            city.value, false, catagory, rangeValue,
+                            city.value, false, catagory || catagoryParam, rangeValue,
                             ratingScore, searchText, arrangeValue, addressLong, addressLat, skipCount,
                             quickFilter,
                             neighbourSearchText,
@@ -113,14 +118,13 @@ const PropertiesArray = ({
                             companiansFilter,
                             bathroomsFilterNum,
                             bathroomsCompaniansFilter,
-                            kitchenFilter, categoryArray, null, cardsPerPage
+                            kitchenFilter, categoryArray, null, cardsPerPage,
+                            null, resType?.value
                         );
                 }
-            }
+            };
             
             const res = await getRes();
-
-            console.log('res: ', res);
 
             if(res.success !== true || !res.dt?.length > 0) {
                 if(setPropsArr) setPropsArr([]);
@@ -167,11 +171,17 @@ const PropertiesArray = ({
     useEffect(() => {
         if(runOnce && catagory === catagoryParam)
             settingPropertiesArray(); 
-    }, [catagory]);
+    }, [catagory, catagoryParam]);
 
     useEffect(() => {
         if(!isHide && !dontFetchWithHide) settingPropertiesArray();
     }, [isHide]);
+
+    useEffect(() => {
+        if(type === 'admin-properties' 
+        && adminSectionType?.split(' ')?.at(0) === 'properties')
+            settingPropertiesArray();
+    }, [adminSectionType]);
 
     const getPropsArray = () => {
         return setPropsArr ? propsArr : properitiesArray;
@@ -182,10 +192,15 @@ const PropertiesArray = ({
         {title && <h3 id='title-h'>{title}</h3>}
         {(!fetching && getPropsArray()?.length > 0) ? <ul className="resultUL">
             {getPropsArray().map((item) => (
-                <Card type={isEdit ? 'myProp' : null} isEnglish={isEnglish} key={item._id} item={item}/>
-            ))}
+                <><Card useHooks={!type?.includes('admin')} isAdmin={type?.includes('admin')} type={isEdit ? 'myProp' : (type === 'books' ? 'booked' : null)} setCalenderDoubleValue={setCalendarDoubleValue} isEnglish={isEnglish} key={item._id} item={item}
+                    bookDatesValues={[
+                        new Date(booksIds?.find(i=>i.property_id === item._id)?.date_of_book_start),
+                        new Date(booksIds?.find(i=>i.property_id === item._id)?.date_of_book_end)
+                    ]} isReported={type === 'report props'}/>
+            </>))}
         </ul> : fetching ? <MySkeleton loadingType={'cards'}/> : <NotFound isEnglish={isEnglish}/>}
-        <PagesHandler centerTheDiv={type === 'search'} isHide={isHide} triggerPropsArrayFetch={settingPropertiesArray} isEnglish={isEnglish} 
+        <PagesHandler centerTheDiv={type === 'search'} isHide={isHide} 
+        triggerPropsArrayFetch={settingPropertiesArray} isEnglish={isEnglish} 
         indexSlide={indexSlide} city={city}
         setIndexSlide={setIndexSlide} properitiesArray={getPropsArray()} 
         cardsPerPage={cardsPerPage} foundItems={foundItems}/>

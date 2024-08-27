@@ -1,4 +1,4 @@
-import { ProperitiesCatagories, VehicleCatagories, contactsPlatforms } from "./Data";
+import { ProperitiesCatagories, VehicleCatagories, contactsPlatforms, reservationType } from "./Data";
 import imageCompression from 'browser-image-compression';
 
 // new Compressor(image, {      //npm install compressorjs
@@ -255,11 +255,28 @@ export const getNumOfBookDays = (bookDate) => {
   
     if(!bookDate || !bookDate[0] || !bookDate[1] || bookDate[0] === bookDate[1]) return 1;
 
-    const x = Math.ceil((bookDate[1].getTime() - bookDate[0].getTime()) / (1000 * 60 * 60 * 24)) - 1;
+    const x = Math.ceil((bookDate[1]?.getTime() - bookDate[0]?.getTime()) / (1000 * 60 * 60 * 24)) - 1;
 
     if(x > 1) return x;
 
     return 1;
+
+};
+
+function getMonthDaysCondition(doubleVal, daysBooked) {
+
+    const startDate = new Date(doubleVal[0]);
+    const endDate = new Date(doubleVal[1]);
+
+    const month = startDate?.getMonth();
+    const year = startDate?.getYear();
+    const daysInMonths = [31, (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+    if(startDate?.getDay() === 0){
+        if(daysBooked < daysInMonths[month - 1])
+            return false;
+    }
+
 
 };
 
@@ -615,4 +632,222 @@ export function decodeArabicUrl(url) {
     } catch (error) {
       return null; // Handle the error as needed
     }
-}
+};
+
+export   const getDetailedResTypeNum = (onlyText, resType, resTypeNum, isEn) => {
+
+    const dayName = (isAnd) => { return isEn ? ` Days ${isAnd ? '& ' : ''}` : ` يوم ${isAnd ? 'و ' : ''}` };
+    const weekName = (isAnd) => { return isEn ?  ` Weeks ${isAnd ? '& ' : ''}` : ` اسبوع ${isAnd ? 'و ' : ''}` };
+    const monthName = (isAnd) => { return isEn ? ` Months ${isAnd ? '& ' : ''}` : ` شهر ${isAnd ? 'و ' : ''}` };
+    const yearName = (isAnd) => { return isEn ?  ` Years ${isAnd ? '& ' : ''}` : ` سنة ${isAnd ? 'و ' : ''}` };
+    const seasonName = isEn ? ' Season ' : ' فصل' ;
+    const eventsName = isEn ? ' Event ' : ' مناسبة ';
+
+    const getMultipleName = (mulId) => {
+        return isEn 
+        ? reservationType()?.find(i => i.id === mulId)?.multipleEn + ' '
+        : reservationType()?.find(i => i.id === mulId)?.multipleAr
+    };
+
+    if(!onlyText)
+      switch(resType?.id){
+
+        case 0:
+          return resTypeNum;
+
+        case 1:
+          if((resTypeNum - Math.floor(resTypeNum)) === 0) 
+            return Math.floor(resTypeNum);
+          else 
+            return <>{Math.floor(resTypeNum)} <span>{isEn ? ' & ' : ' وعدد '} {getMultipleName(0)}</span> {' ' + Math.round((resTypeNum - Math.floor(resTypeNum)) * 7)}</>
+
+        case 2:
+          const daysBookedInThisBook = Math.round((resTypeNum - Math.floor(resTypeNum)) * 30);
+          const daysRemainingInWeeks = daysBookedInThisBook / 7;
+
+          if((resTypeNum - Math.floor(resTypeNum)) === 0) 
+            return Math.floor(resTypeNum);
+          else if(daysBookedInThisBook < 7)
+            return <>{Math.floor(resTypeNum)} <span>{(isEn ? ' & ' : ' و عدد ') + getMultipleName(0)}</span> {' ' + Math.round((resTypeNum - Math.floor(resTypeNum)) * 30)}</>
+          else if((daysRemainingInWeeks - Math.floor(daysRemainingInWeeks)) === 0)
+            return <>{Math.floor(resTypeNum)} <span>{(isEn ? ' & ' : ' و عدد ') + getMultipleName(1)}</span> {' ' + Math.floor(daysRemainingInWeeks)}</>
+          else
+            return <>{Math.floor(resTypeNum)} <span>{(isEn ? ' & ' : ' و عدد ') + getMultipleName(1)}</span> {' ' + Math.floor(daysRemainingInWeeks)} <span> {(isEn ? ' & ' : ' و عدد ') + getMultipleName(0)}</span> {' ' + Math.round((daysRemainingInWeeks - Math.floor(daysRemainingInWeeks)) * 7)}</>
+
+        case 3:
+          return resTypeNum;
+
+        case 4:
+          const daysBookedInThisBook2 = Math.round((resTypeNum - Math.floor(resTypeNum)) * 365);
+          const daysRemainingInMonths = daysBookedInThisBook2 / 30;
+          const daysRemainingInWeeks2 = Math.round((daysRemainingInMonths - Math.floor(daysRemainingInMonths)) * 30) / 7;
+
+          if((resTypeNum - Math.floor(resTypeNum)) === 0) 
+            return Math.floor(resTypeNum);
+
+          else if(daysBookedInThisBook2 >= 30 && (daysRemainingInMonths - Math.floor(daysRemainingInMonths)) === 0)
+            return <>{Math.floor(resTypeNum)} <span>{(isEn ? ' & ' : ' و عدد ') + getMultipleName(2)}</span> {' ' + Math.floor(daysRemainingInMonths)}</>
+
+          else if(daysBookedInThisBook2 >= 30 && (daysRemainingInWeeks2 - Math.floor(daysRemainingInWeeks2)) === 0)
+            return <>{Math.floor(resTypeNum)} <span>{(isEn ? ' & ' : ' و عدد ') + getMultipleName(2)}</span> {' ' + Math.floor(daysRemainingInMonths)} <span>{(isEn ? ' & ' : ' و عدد ') + getMultipleName(1)}</span> {' ' + Math.floor(daysRemainingInWeeks2)}</>
+
+          else if(daysBookedInThisBook2 < 30 && (daysRemainingInWeeks2 - Math.floor(daysRemainingInWeeks2)) === 0)
+            return <>{Math.floor(resTypeNum)} <span>{(isEn ? ' & ' : ' و عدد ') + getMultipleName(1)}</span> {' ' + Math.floor(daysRemainingInWeeks2)}</>
+
+          else if(daysBookedInThisBook2 < 30)
+            return <>{Math.floor(resTypeNum)} <span>{(isEn ? ' & ' : ' و عدد ') + getMultipleName(1)}</span> {' ' + Math.floor(daysRemainingInWeeks2)} <span> {(isEn ? ' & ' : ' و عدد ') + getMultipleName(0)}</span> {' ' + Math.round((daysRemainingInWeeks2 - Math.floor(daysRemainingInWeeks2)) * 7)}</>
+
+          else
+            return <>{Math.floor(resTypeNum)} <span>{(isEn ? ' & ' : ' و عدد ') + getMultipleName(2)}</span> {' ' + Math.floor(daysRemainingInMonths)} <span>{(isEn ? ' & ' : ' و عدد ') + getMultipleName(1)}</span> {' ' + Math.floor(daysRemainingInWeeks2)}<span> {(isEn ? ' & ' : ' و عدد ') + getMultipleName(0)}</span> {' ' + Math.round((daysRemainingInWeeks2 - Math.floor(daysRemainingInWeeks2)) * 7)}</>
+        
+        case 5:
+            return resTypeNum;
+            
+      }
+    else 
+      switch(resType?.id){
+
+        case 0:
+          return resTypeNum + dayName();
+
+        case 1:
+          if((resTypeNum - Math.floor(resTypeNum)) === 0) 
+            return Math.floor(resTypeNum) + weekName();
+          else 
+            return Math.floor(resTypeNum) + weekName(true) + Math.round((resTypeNum - Math.floor(resTypeNum)) * 7) + dayName();
+
+        case 2:
+          const daysBookedInThisBook = Math.round((resTypeNum - Math.floor(resTypeNum)) * 30);
+          const daysRemainingInWeeks = daysBookedInThisBook / 7;
+
+          if((resTypeNum - Math.floor(resTypeNum)) === 0) 
+            return Math.floor(resTypeNum) + monthName();
+          else if(daysBookedInThisBook < 7)
+            return Math.floor(resTypeNum) + monthName(true) + Math.round((resTypeNum - Math.floor(resTypeNum)) * 30) + dayName();
+          else if((daysRemainingInWeeks - Math.floor(daysRemainingInWeeks)) === 0)
+            return Math.floor(resTypeNum) + monthName(true) + Math.floor(daysRemainingInWeeks) + weekName();
+          else
+            return Math.floor(resTypeNum) + monthName(true) + Math.floor(daysRemainingInWeeks) + weekName(true) + Math.round((daysRemainingInWeeks - Math.floor(daysRemainingInWeeks)) * 7) + dayName();
+
+        case 3:
+          return resTypeNum + seasonName;
+
+        case 4:
+          const daysBookedInThisBook2 = Math.round((resTypeNum - Math.floor(resTypeNum)) * 365);
+          const daysRemainingInMonths = daysBookedInThisBook2 / 30;
+          const daysRemainingInWeeks2 = Math.round((daysRemainingInMonths - Math.floor(daysRemainingInMonths)) * 30) / 7;
+
+          if((resTypeNum - Math.floor(resTypeNum)) === 0) 
+            return Math.floor(resTypeNum) + yearName();
+
+          else if(daysBookedInThisBook2 >= 30 && (daysRemainingInMonths - Math.floor(daysRemainingInMonths)) === 0)
+            return Math.floor(resTypeNum) + yearName(true) + Math.floor(daysRemainingInMonths) + monthName();
+
+          else if(daysBookedInThisBook2 >= 30 && (daysRemainingInWeeks2 - Math.floor(daysRemainingInWeeks2)) === 0)
+            return Math.floor(resTypeNum) + yearName(true) + Math.floor(daysRemainingInMonths) + monthName(true) + Math.floor(daysRemainingInWeeks2) + weekName();
+
+          else if(daysBookedInThisBook2 < 30 && (daysRemainingInWeeks2 - Math.floor(daysRemainingInWeeks2)) === 0)
+            return Math.floor(resTypeNum) + yearName(true) + Math.floor(daysRemainingInWeeks2) + weekName();
+
+          else if(daysBookedInThisBook2 < 30)
+            return Math.floor(resTypeNum) + yearName(true) + Math.floor(daysRemainingInWeeks2) + weekName(true) + Math.round((daysRemainingInWeeks2 - Math.floor(daysRemainingInWeeks2)) * 7) + dayName();
+
+          else
+            return Math.floor(resTypeNum) + yearName(true) + Math.floor(daysRemainingInMonths) + monthName(true) + Math.floor(daysRemainingInWeeks2) + weekName(true) + ' ' + Math.round((daysRemainingInWeeks2 - Math.floor(daysRemainingInWeeks2)) * 7) + dayName();
+        
+        case 5:
+            return resTypeNum + eventsName;
+
+      }
+
+
+    //   switch(resType?.id){
+
+    //     case 0:
+    //       return isEn ? resTypeNum + ' days' : resTypeNum;
+
+    //     case 1:
+    //       if((resTypeNum - Math.floor(resTypeNum)) === 0) 
+    //         return Math.floor(resTypeNum) + (isEn && ' weeks');
+    //       else 
+    //         return <>{Math.floor(resTypeNum)}  {' ' + Math.round((resTypeNum - Math.floor(resTypeNum)) * 7)}</>
+
+    //     case 2:
+    //       const daysBookedInThisBook = Math.round((resTypeNum - Math.floor(resTypeNum)) * 30);
+    //       const daysRemainingInWeeks = daysBookedInThisBook / 7;
+
+    //       if((resTypeNum - Math.floor(resTypeNum)) === 0) 
+    //         return Math.floor(resTypeNum);
+    //       else if(daysBookedInThisBook < 7)
+    //         return <>{Math.floor(resTypeNum)} <span>{' و عدد ' + reservationType()?.find(i => i.id === 0)?.multipleAr}</span> {' ' + Math.round((resTypeNum - Math.floor(resTypeNum)) * 30)}</>
+    //       else if((daysRemainingInWeeks - Math.floor(daysRemainingInWeeks)) === 0)
+    //         return <>{Math.floor(resTypeNum)} <span>{' و عدد ' + reservationType()?.find(i => i.id === 1)?.multipleAr}</span> {' ' + Math.floor(daysRemainingInWeeks)}</>
+    //       else
+    //         return <>{Math.floor(resTypeNum)} <span>{' و عدد ' + reservationType()?.find(i => i.id === 1)?.multipleAr}</span> {' ' + Math.floor(daysRemainingInWeeks)} <span> {' و عدد ' + reservationType()?.find(i => i.id === 0)?.multipleAr}</span> {' ' + Math.round((daysRemainingInWeeks - Math.floor(daysRemainingInWeeks)) * 7)}</>
+
+    //     case 3:
+    //       return resTypeNum;
+
+    //     case 4:
+    //       const daysBookedInThisBook2 = Math.round((resTypeNum - Math.floor(resTypeNum)) * 365);
+    //       const daysRemainingInMonths = daysBookedInThisBook2 / 30;
+    //       const daysRemainingInWeeks2 = Math.round((daysRemainingInMonths - Math.floor(daysRemainingInMonths)) * 30) / 7;
+
+    //       if((resTypeNum - Math.floor(resTypeNum)) === 0) 
+    //         return Math.floor(resTypeNum);
+
+    //       else if(daysBookedInThisBook2 >= 30 && (daysRemainingInMonths - Math.floor(daysRemainingInMonths)) === 0)
+    //         return <>{Math.floor(resTypeNum)} <span>{' و عدد ' + reservationType()?.find(i => i.id === 2)?.multipleAr}</span> {' ' + Math.floor(daysRemainingInMonths)}</>
+
+    //       else if(daysBookedInThisBook2 >= 30 && (daysRemainingInWeeks2 - Math.floor(daysRemainingInWeeks2)) === 0)
+    //         return <>{Math.floor(resTypeNum)} <span>{' و عدد ' + reservationType()?.find(i => i.id === 2)?.multipleAr}</span> {' ' + Math.floor(daysRemainingInMonths)} <span>{' و عدد ' + reservationType()?.find(i => i.id === 1)?.multipleAr}</span> {' ' + Math.floor(daysRemainingInWeeks2)}</>
+
+    //       else if(daysBookedInThisBook2 < 30 && (daysRemainingInWeeks2 - Math.floor(daysRemainingInWeeks2)) === 0)
+    //         return <>{Math.floor(resTypeNum)} <span>{' و عدد ' + reservationType()?.find(i => i.id === 1)?.multipleAr}</span> {' ' + Math.floor(daysRemainingInWeeks2)}</>
+
+    //       else if(daysBookedInThisBook2 < 30)
+    //         return <>{Math.floor(resTypeNum)} <span>{' و عدد ' + reservationType()?.find(i => i.id === 1)?.multipleAr}</span> {' ' + Math.floor(daysRemainingInWeeks2)} <span> {' و عدد ' + reservationType()?.find(i => i.id === 0)?.multipleAr}</span> {' ' + Math.round((daysRemainingInWeeks2 - Math.floor(daysRemainingInWeeks2)) * 7)}</>
+
+    //       else
+    //         return <>{Math.floor(resTypeNum)} <span>{' و عدد ' + reservationType()?.find(i => i.id === 2)?.multipleAr}</span> {' ' + Math.floor(daysRemainingInMonths)} <span>{' و عدد ' + reservationType()?.find(i => i.id === 1)?.multipleAr}</span> {' ' + Math.floor(daysRemainingInWeeks2)}<span> {' و عدد ' + reservationType()?.find(i => i.id === 0)?.multipleAr}</span> {' ' + Math.round((daysRemainingInWeeks2 - Math.floor(daysRemainingInWeeks2)) * 7)}</>
+        
+    //   }
+};
+
+export const handleDays = (
+    calendarDoubleValue, setResType, setResTypeNum
+) => {
+
+    const daysBooked = getNumOfBookDays(calendarDoubleValue);
+
+    const setDayBook = () => {
+      setResType(reservationType()?.find(i=>i.id===0));
+      setResTypeNum(daysBooked);
+    };
+
+    const setWeekBook = () => {
+      setResType(reservationType()?.find(i=>i.id===1));
+      setResTypeNum(daysBooked / 7);
+    };
+
+    const setMonthBook = () => {
+      setResType(reservationType()?.find(i=>i.id===2));
+      setResTypeNum(daysBooked / 30);
+    };
+
+    const setYearBook = () => {
+      setResType(reservationType()?.find(i=>i.id===4));
+      setResTypeNum(daysBooked / 365);
+    };
+
+    const setResTypeFromDaysBooked = () => {
+      if(daysBooked < 7) return setDayBook();
+      if(daysBooked < 30) return setWeekBook();
+      if(daysBooked < 365) return setMonthBook();
+      return setYearBook();
+      // if(daysBooked < 7) return setSesBook();
+    }
+    
+    setResTypeFromDaysBooked();
+
+};

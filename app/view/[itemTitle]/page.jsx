@@ -11,27 +11,29 @@ import { useContext, useEffect, useState } from 'react';
 import ReviewCard from '@components/ReviewCard';
 import HeaderPopup from '@components/popups/HeaderPopup';
 import { useSearchParams } from 'next/navigation';
-import { deletePropFilesAdmin, deleteReportOnProp, deleteReviewsAdmin, deleteSpecificPropFilesAdmin, fetchPropertyDetails, getHost, getPropIdByUnitCode, handleBooksAddRemove, handleFavourite, handlePropAdmin, makeReport, sendReview } from '@utils/api';
+import { fetchPropertyDetails, getHost, getPropIdByUnitCode, handleBooksAddRemove, handleFavourite, makeReport, sendReview } from '@utils/api';
 import CustomInputDiv from '@components/CustomInputDiv';
 import { Context } from '@utils/Context';
-import { getBookDateFormat, getNumOfBookDays, getReadableDate, isOkayBookDays, isValidArrayOfStrings, isValidContactURL, isValidNumber } from '@utils/Logic';
+import { getDetailedResTypeNum, getNumOfBookDays, getReadableDate, isOkayBookDays, isValidContactURL, isValidNumber } from '@utils/Logic';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
 import Link from 'next/link';
 import LoadingCircle from '@components/LoadingCircle';
+import ItemImagesLoader from '@components/ItemImagesLoader';
 
 const page = () => {
 
   const { 
     favouritesIds, setFavouritesIds, booksIds, 
-    setBooksIds, userId, userRole, setIsMap, 
+    setBooksIds, userId, setIsMap, 
     setMapType, setLatitude, setLongitude,
     calendarDoubleValue, setCalendarDoubleValue,
-    storageKey, userEmail, isMobile, isVerified,
-    setIsModalOpened, userUsername
+    isMobile, isMobile960, isVerified,
+    setIsModalOpened, userUsername, resType, setResType,
+    resTypeNum, setResTypeNum, isMap
   } = useContext(Context);
   
-  const id = useSearchParams().get('id');
+  let id = useSearchParams().get('id');
   const unitCode = useSearchParams().get('unit');
   const isReportParam = useSearchParams().get('isReport');
 
@@ -48,32 +50,12 @@ const page = () => {
   const [shareDiv, setShareDiv] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const [adminSending, setAdminSending] = useState(false);
-  const [adminType, setAdminType] = useState('pass-property');
-  const [adminError, setAdminError] = useState('');
-  const [adminSuccess, setAdminSuccess] = useState('');
-
-  const [rejectReasons, setRejectReasons] = useState(['']);
-  const [rejectError, setRejectError] = useState('');
-  
-  const [filesToDeleteAdmin, setFilesToDeleteAdmin] = useState([]);
-  const [deletingFiles, setDeletingFiles] = useState(false);
-  const [isDeleteFiles, setIsDeleteFiles] = useState(false);
-  const [deleteFilesError, setDeleteFilesError] = useState('');
-  const [deleteFilesSuccess, setDeleteFilesSuccess] = useState('');
-
-  const [revsToDeleteAdmin, setRevsToDeleteAdmin] = useState([]);
-  const [deletingRevs, setDeletingRevs] = useState(false);
-  const [isDeleteRevs, setIsDeleteRevs] = useState(false);
-  const [deleteRevsError, setDeleteRevsError] = useState('');
-  const [deleteRevsSuccess, setDeleteRevsSuccess] = useState('');
-
   const [reviewsNumber, setReviewsNumber] = useState(6);
   const [isCalendar, setIsCalendar] = useState(false);
   const [bookDate, setBookDate] = useState(calendarDoubleValue);
   const [isSpecifics, setIsSpecifics] = useState(true);
   const [isReviews, setIsReviews] = useState(false);
-  const [isMap, setIsMapDiv] = useState(false);
+  const [isMapDiv, setIsMapDiv] = useState(false);
   const [isTerms, setIsTerms] = useState(false);
 
   const [sendingReview, setSendingReview] = useState(false);
@@ -87,12 +69,10 @@ const page = () => {
   const [reviewsNum, setReviewsNum] = useState(null);
   const [reportText, setReportText] = useState('');
   const [reporting, setReporting] = useState(false);
+  const [reportSuccess, setReportSuccess] = useState('');
 
   const [addingToFavs, setAddingToFavs] = useState(false);
   const [addingToBooks, setAddingToBooks] = useState(false);
-
-  const [deletingReport, setDeletingReport] = useState(false);
-  const [isDeleteReport, setIsDeleteReport] = useState(false);
 
   const [isGuestRooms, setIsGuestRooms] = useState(false);
   const [isKitchen, setIsKitchen] = useState(false);
@@ -104,15 +84,18 @@ const page = () => {
   const [isPool, setIsPool] = useState(false);
   const [isCheckout, setIsCheckout] = useState(false);
 
+  const [isImagesLoader, setIsImageLoader] = useState(false);
+
   const [isReservationType, setIsReservationType] = useState(false);
-  const [resType, setResType] = useState(reservationType()[0]);
-  const [resTypeNum, setResTypeNum] = useState(1);
+  const [popupResTypeChange, setPopupResTypeChange] = useState(false);
 
   const whatsappBaseUrl = 'https://wa.me/';
 
-  async function fetchItemDetails () {
+  async function fetchItemDetails (fetchedId) {
 
     try {
+
+      if(!id) id = fetchedId;
 
       if(!id || id.length < 10 || loading) return;
 
@@ -140,12 +123,11 @@ const page = () => {
 
   async function fetchItemDetailsByUnitCode() {
     try {
-      console.log('reached');
       setLoading(true);
       const res = await getPropIdByUnitCode(unitCode);
       console.log(res);
       if(!res?.ok === true) return setLoading(false);
-      location.href = `/view/item?id=${res.dt.id}`;
+      fetchItemDetails(res.dt.id);
     } catch (err) {
       console.log(err);
       setLoading(false);
@@ -217,7 +199,8 @@ const page = () => {
         reportText, id, writerId
       );
 
-      console.log(res);
+      if(res?.success === true) setReportSuccess('true');
+      else setReportSuccess(res?.dt || 'خطأ بالابلاغ');
 
       setReporting(false);
       
@@ -235,7 +218,7 @@ const page = () => {
 
       setAddingToFavs(true);
 
-      const res = await handleFavourite(id, favouritesIds.includes(id));
+      const res = await handleFavourite(id, favouritesIds?.includes(id));
 
       console.log(res);
 
@@ -254,9 +237,8 @@ const page = () => {
 
   const generateWhatsappText = (notLogined, isSimple) => {
     const text = !isSimple
-      ? `${(notLogined || !userId?.length > 0) ? '** تحذير: هذا المستخدم ليس مسجل بالمنصة ** \n\n• ' : ''}أنا صاحب الحساب "${userUsername || 'لا يوجد اسم'}" معرف: "${userId || 'لا يوجد معرف'}" \n\n• أريد أن احجز هذا العرض\n\n• عنوان العرض: "${item.title}" \n\n• كود الوحدة (معرف العرض): "${item.unit_code}"\n\n• نوع الحجز: ${resType?.arabicName} \n\n• بدءا من التاريخ: "${getReadableDate(calendarDoubleValue?.at(0), true)}" \n\n• وحتى التاريخ: "${getReadableDate(calendarDoubleValue?.at(1), true)}"\n\n• مدة الحجز: ${resTypeNum} ${reservationType(false, resTypeNum, true).find(i=>i.id === resType?.id)?.multipleAr}\n\n• السعر الظاهر لي: ${(((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice()) - (item.discount?.percentage ? ((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice() * item.discount.percentage / 100) : 0)).toFixed(2)} ${currencyCode(false, false)}`
-      : `${(notLogined || !userId?.length > 0) ? '** تحذير: هذا المستخدم ليس مسجل بالمنصة ** \n\n• ' : ''}أنا صاحب الحساب "${userUsername || 'لا يوجد اسم'}" معرف: "${userId || 'لا يوجد معرف'}" \n\n• أريد أن أتواصل معك بخصوص هذا العرض\n\n• عنوان العرض: "${item.title}" \n\n• كود الوحدة (معرف العرض): "${item.unit_code}`;
-    // console.log('url: ', encodeURIComponent(text));
+      ? `${(notLogined || !userId?.length > 0) ? '** تحذير: هذا المستخدم ليس مسجل بالمنصة ** \n\n• ' : ''}أنا صاحب الحساب "${userUsername || 'لا يوجد اسم'}" معرف: "${userId || 'لا يوجد معرف'}" \n\n• أريد أن احجز هذا العرض\n\n• عنوان العرض: "${item.title}" \n\n• كود الوحدة (معرف العرض): "${item.unit_code}"\n\n• نوع الحجز: ${resType?.arabicName} \n\n• بدءا من التاريخ: "${getReadableDate(calendarDoubleValue?.at(0), true)}" \n\n• وحتى التاريخ: "${getReadableDate(calendarDoubleValue?.at(1), true)}"\n\n• مدة الحجز: ${getDetailedResTypeNum(true, resType, resTypeNum)}\n\n• السعر الظاهر لي: ${(getPrice('cost price') - (item.discount?.percentage > 0 ? (getPrice('cost price') * item.discount.percentage / 100) : 0)).toFixed(2)} ${currencyCode(false, false)} ${getHoildays(true) ? '\n\n• ملاحظة: تم تطبيق أسعار خاصة بأيام العطل (الخميس و الجمعة و السبت)' : ''}`
+      : `${(notLogined || !userId?.length > 0) ? '** تحذير: هذا المستخدم ليس مسجل بالمنصة ** \n\n• ' : ''}أنا صاحب الحساب "${userUsername || 'لا يوجد اسم'}" معرف: "${userId || 'لا يوجد معرف'}" \n\n• أريد أن أتواصل معك بخصوص هذا العرض\n\n• عنوان العرض: "${item.title}" \n\n• كود الوحدة (معرف العرض): "${item.unit_code}\n\n • نوع الحجز: ${resType?.arabicName} \n\n• بدءا من التاريخ: "${getReadableDate(calendarDoubleValue?.at(0), true)}" \n\n• وحتى التاريخ: "${getReadableDate(calendarDoubleValue?.at(1), true)}"\n\n• مدة الحجز: ${getDetailedResTypeNum(true, resType, resTypeNum)}\n\n• السعر الظاهر لي: ${(getPrice('cost price') - (item.discount?.percentage > 0 ? (getPrice('cost price') * item.discount.percentage / 100) : 0)).toFixed(2)} ${currencyCode(false, false)} ${getHoildays(true) ? '\n\n• ملاحظة: تم تطبيق أسعار خاصة بأيام العطل (الخميس و الجمعة و السبت)' : ''}`;
     return encodeURIComponent(text);
   };
 
@@ -325,150 +307,7 @@ const page = () => {
 
   const getShareUrl = () => {
     return window.location.origin.toString() 
-    + (item.unit_code ? '/view/item?unit=' + item.unit_code : '/view/item?id=' + id);
-  };
-
-  const sendAdmin = async() => {
-
-    try {
-
-      if(adminSending) return;
-
-      if(adminType === 'show-property' && item.visible) return;
-      if(adminType === 'hide-property' && !item.visible) return;
-      if(adminType === 'pass-property' && item.checked) return;
-      if(adminType === 'reject-property' && (item.isRejected || !isValidArrayOfStrings(rejectReasons))) {
-        setRejectError('الرجاء كتابة اسباب لرفض العرض');
-        return;
-      }
-      setRejectError('');
-      if(adminType === 'delete-property' && !item) return;
-
-      setAdminSending(true);
-
-      if(adminType === 'delete-property'){
-        const deleteFilesRes = await deletePropFilesAdmin(id, storageKey, userEmail);
-        if (deleteFilesRes.success !== true) {
-          setAdminError(deleteFilesRes.dt);
-          setAdminSuccess('');
-          setAdminSending(false);
-          return;
-        }
-      } else {
-        setAdminError('');
-        setAdminSuccess('');
-      };
-      
-      const res = await handlePropAdmin(id, adminType, rejectReasons);
-
-      if(res.success !== true) {
-        setAdminError(res.dt);
-        setAdminSuccess('');
-        setAdminSending(false);
-        return;
-      }
-
-      setAdminError('');
-      setAdminSuccess('تم التحديث بنجاح');
-
-      if(adminType === 'pass-property') setItem(res.dt);
-
-      if(adminType === 'reject-property') {
-        setItem(res.dt);
-        setAdminType('pass-property');
-      };
-
-      if(adminType === 'hide-property') {
-        setItem(res.dt);
-        setAdminType('show-property');
-      };
-
-      if(adminType === 'show-property') {
-        setItem(res.dt);
-        setAdminType('hide-property');
-      };
-
-      if(adminType === 'delete-property') setTimeout(() => { setItem(null) }, [2000]);
-      setAdminSending(false);
-      
-    } catch (err) {
-      console.log(err.message);
-      setAdminError('حدث خطأ ما');
-      setAdminSuccess('');
-      setAdminSending(false);
-    }
-
-  };
-
-  const handleDeleteFilesAdmin = async() => {
-
-    try {
-
-      if(deletingFiles) return;
-
-      setDeletingFiles(true);
-
-      const res = await deleteSpecificPropFilesAdmin(
-        id, filesToDeleteAdmin, storageKey, userEmail
-      );
-
-      if(res.success !== true) {
-        setDeleteFilesError(res.dt);
-        setDeleteFilesSuccess('');
-        setDeletingFiles(false);
-        return;
-      }
-
-      setDeleteFilesError('');
-      setDeleteFilesSuccess('تم الحذف بنجاح');
-      setDeletingFiles(false);
-      
-    } catch (err) {
-      console.log(err.message);
-      setDeleteFilesError('حدث خطأ');
-      setDeleteFilesSuccess('');
-      setDeletingFiles(false);
-    }
-
-  };
-
-  const handleDeleteRevsAdmin = async() => {
-
-    try {
-
-      if(deletingRevs) return;
-
-      setDeletingRevs(true);
-
-      const res = await deleteReviewsAdmin(id, revsToDeleteAdmin);
-
-      if(res.success !== true) {
-        setDeleteRevsError(res.dt);
-        setDeleteRevsSuccess('');
-        setDeletingRevs(false);
-        return;
-      }
-
-      setDeleteRevsError('');
-      setDeleteRevsSuccess('تم الحذف بنجاح');
-      setItem(res.dt);
-      setDeletingRevs(false);
-      
-    } catch (err) {
-      console.log(err.message);
-      setDeleteRevsError('حدث خطأ');
-      setDeleteRevsSuccess('');
-      setDeletingRevs(false);
-    }
-
-  };
-
-  const isAdmin = () => {
-    if(userRole === 'admin' || userRole === 'owner'){
-      return true;
-    } else {
-      return false;
-    }
+    + `/view/unit${item.unit_code}?unit=${item.unit_code}`;
   };
 
   const showMap = () => {
@@ -498,31 +337,8 @@ const page = () => {
     if(!isOkayBookDays(calendarDoubleValue, item.booked_days)) return false;
     if(!userId?.length > 10) return false;
     if(userId?.length > 10 && !isVerified) return false;
+    if(isNaN(getPrice('cost price'))) return false;
     return true;
-  };
-
-  const deleteReport = async() => {
-
-    if(deletingReport) return;
-
-    try {
-
-      setDeletingReport(true);
-
-      const res = await deleteReportOnProp(id);
-
-      if(!res.success !== true){
-        setDeletingReport(false);
-        return;
-      }
-
-      setItem(res.dt);
-      setDeletingReport(false);
-      
-    } catch (err) {
-      console.log(err);
-      setDeletingReport(false);
-    }
   };
 
   const copyUrl = async() => {
@@ -579,6 +395,8 @@ const page = () => {
     if(userId?.length > 10 && !isVerified) return 'اثبت ملكية الحساب';
     if(!booksIds.find(i => i.property_id === id) 
     && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1))) return 'حدد أيام الحجز';
+    if(isNaN(getPrice('cost price'))) return 'طريقة حجز غير صالحة';
+    return 'لا يمكن الحجز';
   };
 
   const getPriceReservationType = () => {
@@ -587,16 +405,43 @@ const page = () => {
     if(item?.prices?.monthly) return setResType(reservationType()?.find(i=>i.value?.toLowerCase() === 'monthly'));
     if(item?.prices?.seasonly) return setResType(reservationType()?.find(i=>i.value?.toLowerCase() === 'seasonly'));
     if(item?.prices?.yearly) return setResType(reservationType()?.find(i=>i.value?.toLowerCase() === 'yearly'));
+    if(item?.prices?.events) return setResType(reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i=>i.value?.toLowerCase() === 'events'));
     return null;
   };
 
-  const getPrice = () => {
-    if(resType?.value?.toLowerCase() === 'daily') return item.prices?.daily || 'سعر غير محدد';
-    else if(resType?.value?.toLowerCase() === 'weekly') return item.prices?.weekly || 'سعر غير محدد';
-    else if(resType?.value?.toLowerCase() === 'monthly') return item.prices?.monthly || 'سعر غير محدد';
-    else if(resType?.value?.toLowerCase() === 'seasonly') return item.prices?.seasonly || 'سعر غير محدد';
-    else if(resType?.value?.toLowerCase() === 'yearly') return item.prices?.yearly || 'سعر غير محدد';
-    return 'سعر غير محدد';
+  const getPrice = (priceType) => {
+
+    switch(priceType){
+
+      case 'main price':
+        if(resType?.value?.toLowerCase() === 'daily') return item.prices?.daily || 'سعر غير محدد';
+        else if(resType?.value?.toLowerCase() === 'weekly') return item.prices?.weekly || 7 * item.prices?.daily || 'سعر غير محدد';
+        else if(resType?.value?.toLowerCase() === 'monthly') return item.prices?.monthly || Math.round(4.285714285 * item.prices?.weekly) || 30 * item.prices?.daily || 'سعر غير محدد';
+        else if(resType?.value?.toLowerCase() === 'seasonly') return item.prices?.seasonly || 'سعر غير محدد';
+        else if(resType?.value?.toLowerCase() === 'yearly') return item.prices?.yearly || Math.round(12.16666666 * item.prices?.monthly) || Math.round(52.1428571 * item.prices?.weekly) || 365 * item.prices?.daily || 'سعر غير محدد';
+        else if(resType?.value?.toLowerCase() === 'events') return item.prices?.eventsPrice || 'سعر غير محدد';
+        else return 'سعر غير محدد';
+
+      case 'cost price':
+        if(resType?.value?.toLowerCase() === 'daily') return getHoildays();
+        else if(resType?.value?.toLowerCase() === 'weekly') return resTypeNum * item.prices?.weekly || resTypeNum * 7 * item.prices?.daily || 'سعر غير محدد';
+        else if(resType?.value?.toLowerCase() === 'monthly') return resTypeNum * item.prices?.monthly || resTypeNum * Math.round(4.285714285 * item.prices?.weekly) || resTypeNum * 30 * item.prices?.daily || 'سعر غير محدد';
+        else if(resType?.value?.toLowerCase() === 'seasonly') return resTypeNum * item.prices?.seasonly || 'سعر غير محدد';
+        else if(resType?.value?.toLowerCase() === 'yearly') return resTypeNum * item.prices?.yearly || resTypeNum * Math.round(12.16666666 * item.prices?.monthly) || resTypeNum * Math.round(52.1428571 * item.prices?.weekly) || resTypeNum * 365 * item.prices?.daily || 'سعر غير محدد';
+        else if(resType?.value?.toLowerCase() === 'events') return resTypeNum * item.prices?.eventsPrice || 'سعر غير محدد';
+        else return 'سعر غير محدد';
+
+      case 'test res type existence':
+        if(resType?.value?.toLowerCase() === 'daily' && item.prices?.daily > 0) return true;
+        else if(resType?.value?.toLowerCase() === 'weekly' && item.prices?.weekly > 0) return true;
+        else if(resType?.value?.toLowerCase() === 'monthly' && item.prices?.monthly > 0) return true;
+        else if(resType?.value?.toLowerCase() === 'seasonly' && item.prices?.seasonly > 0) return true;
+        else if(resType?.value?.toLowerCase() === 'yearly' && item.prices?.yearly > 0) return true;
+        else if(resType?.value?.toLowerCase() === 'events' && item.prices?.eventsPrice > 0) return true;
+        else return false;
+
+    }
+
   };
 
   const getDetailText = (obj, objType, index) => {
@@ -646,9 +491,52 @@ const page = () => {
     return obj?.arabicName + ' ' + obj?.emoji;
   };
 
+  const getHoildays = (isExist) => {
+    let isThursday = false;
+    let isFriday = false;
+    let isSaturday = false;
+    console.log('calenderDoubleValue: ', calendarDoubleValue);
+    for (let i = calendarDoubleValue?.at(0)?.getTime() + 86400000; i <= calendarDoubleValue?.at(1)?.getTime(); i += 86400000) {
+        const dayNum = (new Date(i)).getDay();
+        if(dayNum === 4 && item.prices?.thursdayPrice > 0) isThursday = true;
+        if(dayNum === 5 && item.prices?.fridayPrice > 0) isFriday = true;
+        if(dayNum === 6 && item.prices?.saturdayPrice > 0) isSaturday = true;
+    }
+    if(isExist) return isThursday || isFriday || isSaturday || false;
+    if(!item.prices?.daily) return 'سعر غير محدد';
+    let pp = resTypeNum * item.prices?.daily;
+    if(isThursday) pp = pp - item.prices?.daily + item.prices?.thursdayPrice;
+    if(isFriday) pp = pp - item.prices?.daily + item.prices?.fridayPrice;
+    if(isSaturday) pp = pp - item.prices?.daily + item.prices?.saturdayPrice;
+    return pp;
+  };
+
+  const showAllSpecs = () => {
+    const xxx = !isAtleastOneSpecShowed();
+    setIsGuestRooms(xxx);
+    setIsKitchen(xxx);
+    setIsRooms(xxx);
+    setIsBathrooms(xxx);
+    setIsPlaces(xxx);
+    setIsFeatures(xxx);
+    setIsFacilities(xxx);
+    setIsPool(xxx);
+  };
+
+  const isAtleastOneSpecShowed = () => {
+    if(isGuestRooms
+      || isKitchen
+      || isRooms
+      || isBathrooms
+      || isPlaces
+      || isFeatures
+      || isFacilities
+      || isPool) return true;
+    else return false;
+  };
+
   useEffect(() => {
     setRunOnce(true);
-    setAdminSending(false);
     setCanBook(isAbleToBook());
   }, []);
 
@@ -683,21 +571,88 @@ const page = () => {
     setCanBook(isAbleToBook());
   }, [bookDate]);
 
-  useEffect(() => {
+  const handleDays = (isPopupChange) => {
+
+    const daysBooked = getNumOfBookDays(calendarDoubleValue);
+
+    const setDayBook = () => {
+      setResType(reservationType()?.find(i=>i.id===0));
+      setResTypeNum(daysBooked);
+    };
+
+    const setWeekBook = () => {
+      setResType(reservationType()?.find(i=>i.id===1));
+      setResTypeNum(daysBooked / 7);
+    };
+
+    const setMonthBook = () => {
+      setResType(reservationType()?.find(i=>i.id===2));
+      setResTypeNum(daysBooked / 30);
+    };
+
+    const setYearBook = () => {
+      setResType(reservationType()?.find(i=>i.id===4));
+      setResTypeNum(daysBooked / 365);
+    };
+
+    const setResTypeFromDaysBooked = () => {
+      if(daysBooked < 7) return setDayBook();
+      if(daysBooked < 30) return setWeekBook();
+      if(daysBooked < 365) return setMonthBook();
+      return setYearBook();
+      // if(daysBooked < 7) return setSesBook();
+    }
+    
+    if(!isPopupChange) setResTypeFromDaysBooked();
+    else if(resType?.id === 0) { 
+      setCalendarDoubleValue([
+        new Date(calendarDoubleValue?.at(0) || Date.now()), 
+        new Date((calendarDoubleValue?.at(0) || Date.now()) + 86400000)
+      ]); 
+      setResTypeNum(1); 
+    }
+    else setResTypeNum(1);
+
+    const setSeasonBook = () => {};
+
     setCanBook(isAbleToBook());
+
+  };
+
+  useEffect(() => {
+    handleDays();
   }, [calendarDoubleValue]);
+
+  useEffect(() => {
+    if(!popupResTypeChange) return;
+    if(popupResTypeChange) handleDays(true);
+    setPopupResTypeChange(false);
+  }, [popupResTypeChange]);
 
   useEffect(() => {
     if(!loading && item) setFetching(false);
   }, [loading, item]);
 
   useEffect(() => {
-    if(isCheckout) return setIsModalOpened(true);
+    if(isCheckout || isImagesLoader) return setIsModalOpened(true);
     setIsModalOpened(false);
-  }, [isCheckout]);
+  }, [isCheckout, isImagesLoader]);
+
+  useEffect(() => {
+    setIsImageLoader(false);
+    setIsCheckout(false);
+  }, [isMobile960]);
 
   const RightIconSpan = () => {
-    return <span id='righticonspan'/>
+    return <span id='righticonspann'/>
+  };
+
+  const DiscountSticker = ({ disNum }) => {
+    return <div className='dicount-sticker'>
+        <span style={{ color: 'white' }}>عرض لفترة محدودة</span>
+        <span style={{ color: 'white' }} id='main-num'>{disNum}%</span>
+        <span style={{ fontSize: '0.9rem', color: 'white' }}>تخفيض</span>
+    </div>
   };
 
   if(!item){
@@ -707,7 +662,10 @@ const page = () => {
   };
 
   return (
-    <div className="view" style={{ overflow: 'hidden' }}>
+    <div className="view" style={{ 
+      overflow: 'hidden', 
+      zIndex: isMap ? 1 : undefined
+    }}>
 
       {reportDiv && <div className='reportDiv'>
 
@@ -724,7 +682,9 @@ const page = () => {
             } else {
               report(null);
             }
-          }}>{reporting ? 'جاري الإِبلاغ...' : 'إِبلاغ'}</button>
+          }}>{reporting ? <LoadingCircle /> : 'إِبلاغ'}</button>
+
+          {reportSuccess?.length > 0 && <p style={{ marginTop: 12 }} id={reportSuccess === 'true' ? 'success' : 'error'}>{reportSuccess === 'true' ? 'تم الابلاغ بنجاح' : reportSuccess}</p>}
         </>}
 
       </div>}
@@ -741,143 +701,28 @@ const page = () => {
         </button>
       </div>}
 
-      {isAdmin() && <div className='view-admin-section'>
-
-        <h2>قسم المسؤول للتحكم بالعرض</h2>
-        
-        <div className='status'>حالة العرض <span>{item.visible ? 'مرئي' : 'مخفي'}</span> <span>{item.checked ? 'مقبول' : item.isRejected ? 'مرفوض' : 'غير مقبول'}</span></div>
-
-        <h3>ماذا تريد الفعل بهذا العرض ؟</h3>
-
-        <ul>
-          <li id={item.checked ? 'unactive-btn' : null} className={adminType === 'pass-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('pass-property')}>قبول العرض</li>
-          <li id={(item.isRejected || item.checked) ? 'unactive-btn' : null} className={adminType === 'reject-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('reject-property')}>رفض العرض</li>
-          <li className={adminType === 'delete-property' ? 'selected-admin-type' : ''} onClick={() => setAdminType('delete-property')}>حذف العرض</li>
-          <li className={(adminType === 'hide-property' || adminType === 'show-property') ? 'selected-admin-type' : ''} onClick={() => setAdminType(item.visible ? 'hide-property' : 'show-property')}>{item.visible ? 'إِخفاء العرض' : 'إِظهار العرض'}</li>
-        </ul>
-
-        <div className='reject-reasons' style={{ display: adminType === 'reject-property' ? null : 'none' }}>
-          <h2>أضف أسباب رفض العرض</h2>
-          {rejectReasons.map((reason, index) => (
-          <div key={index}><CustomInputDiv placholderValue={!reason?.length > 0 ? 'أضف سبب للرفض' : reason} value={reason} deletable handleDelete={() => {
-            let arr = [];
-            for (let i = 0; i < rejectReasons.length; i++) {
-                if(i !== index){
-                    arr.push(rejectReasons[i]);
-                }
-            }
-            setRejectReasons(arr);
-          }} 
-          listener={(e) => {
-            let arr = [...rejectReasons];
-            arr[index] = e.target.value;
-            setRejectReasons(arr);
-          }}/></div>
-          ))}
-          <button className='btnbackscndclr' onClick={() => setRejectReasons([...rejectReasons, ''])}>اضافة</button>
-          <p id={rejectError?.length > 0 ? 'p-info-error' : ''}>{rejectError}</p>
-        </div>
-
-        <button className='btnbackscndclr' onClick={sendAdmin}>{adminSending ? 'جاري تحديث حالة العرض...' : 'تأكيد'}</button>
-        
-        <p style={{ color: adminError?.length > 0 ? 'var(--softRed)' : null }}>{adminError?.length > 0 ? adminError : adminSuccess}</p>
-
-        <hr />
-
-        <button className={`editDiv ${isDeleteFiles ? 'rotate-svg' : ''}`} onClick={() => setIsDeleteFiles(!isDeleteFiles)}>حذف صور و ملفات <Svgs name={'dropdown arrow'}/></button>
-
-        <div className='files-to-delete' style={{ display: !isDeleteFiles ? 'none' : null }}>
-
-          {filesToDeleteAdmin?.length > 0 
-          ? <><span id='info-span'>
-            <Svgs name={'info'}/>
-            سيتم حذف هذه الملفات من العرض, لن يتأثر العرض بشكل كامل, انقر على الملف لحذفه
-          </span>
-          <ul>
-            {filesToDeleteAdmin.map((file, index) => (
-              <li onClick={() => {console.log('file: ', file); setFilesToDeleteAdmin(
-                filesToDeleteAdmin.filter(i => i !== file)
-              )}} 
-              key={index}>
-                {(file?.split('.')?.at(1) === 'png' || file?.split('.')?.at(1) === 'jpg')
-                ? <Image width={120} height={120} src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${file}`} alt='صور العرض'/>
-                : ((file?.split('.')?.at(1) === 'mp4' || file?.split('.')?.at(1) === 'avi') && <video src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${file}`}/>)}
-              </li>
-            ))}
-          </ul>
-          <button className='btnbackscndclr' onClick={handleDeleteFilesAdmin}>{deletingFiles? 'جاري الحذف...' : 'الحذف'}</button>
-          <p style={{ color: deleteFilesError?.length > 0 ? 'var(--softRed)' : null }}>{deleteFilesError?.length > 0 ? deleteFilesError : deleteFilesSuccess}</p>
-          </>
-          : <span id='choose-files-span'>اختر ملفات من العرض لحذفها</span>}
-
-        </div>
-
-        <hr />
-
-        <button className={`editDiv ${isDeleteRevs ? 'rotate-svg' : ''}`} onClick={() => setIsDeleteRevs(!isDeleteRevs)}>ازالة مراجعات <Svgs name={'dropdown arrow'}/></button>
-
-        <div className='files-to-delete revs-to-delete' style={{ display: !isDeleteRevs ? 'none' : null }}>
-
-          {revsToDeleteAdmin?.length > 0 
-          ? <><span id='info-span'>
-            <Svgs name={'info'}/>
-            سيتم حذف هذه المراجعات, لالغاء التحديد اضغط على المراجعة
-          </span>
-          <ul>
-            {revsToDeleteAdmin.map((rv, index) => (
-                <ReviewCard key={index} isAdmin={isAdmin()} item={rv} 
-                  on_click={() => setRevsToDeleteAdmin(
-                    revsToDeleteAdmin.filter(i => i.writer_id !== rv?.writer_id)
-                  )}/>
-            ))}
-          </ul>
-          <button className='btnbackscndclr' onClick={handleDeleteRevsAdmin}>{deletingRevs ? 'جاري الحذف...' : 'الحذف'}</button>
-          <p style={{ color: deleteRevsError?.length > 0 ? 'var(--softRed)' : null }}>{deleteRevsError.length > 0 ? deleteRevsError : deleteRevsSuccess}</p>
-          </>
-          : <span id='choose-files-span'>اختر مراجعات لحذفها </span>}
-
-        </div>
-
-        {isReportParam && <>
-        <hr />
-        <button className={`editDiv ${isDeleteReport ? 'rotate-svg' : ''}`} onClick={() => setIsDeleteReport(!isDeleteReport)}>حذف الابلاغ عن هذا العرض <Svgs name={'dropdown arrow'}/></button>
-        <span style={{ display: isDeleteReport ? 'block' : 'none', marginBottom: 16 }} id='info-span'>سيتم حذف الابلاغ عن هذا العرض أو اي ابلاغ عن مراجعة لهذا العرض</span>
-        <button className='btnbackscndclr' style={{ display: isDeleteReport ? null : 'none' }} 
-          onClick={deleteReport}>
-            {deletingReport ? 'جاري الحذف...' : 'حذف الابلاغ'}
-        </button></>}
-
-      </div>}
-
       {imageFullScreen !== '-1' && <div className='full-screen'>
         <Svgs name={'full screen down'} on_click={() => setImageFullScreen('-1')}/>
         <Image src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${imageFullScreen}`} fill={true} alt='صورة بوضع الشاشة الكامل عن العرض' />
       </div>}
 
-      {(item.isRejected && item.owner_id === userId) && <div className='rejection-div'>
-        <div className='status'>العرض <span>مرفوض</span></div>
-        <h2>أسباب رفض العرض</h2>
-        <ul>
-          {item?.reject_reasons?.map((reason, index) => (
-            <li key={index}>{reason}</li>
-          ))}
-        </ul>
-        <p><Svgs name={'info'}/> قم بتعديل العرض و ارساله مجددا من <Link href={`/edit-prop?id=${id}`}>هنا</Link></p>
-      </div>}
-
       <div className='intro'>
 
-        <div className='itemIntro'>
+        <div className='itemIntro desktopIntro'>
 
-          <h1>{item.title} <span id='mobile-unit-span'>{'(' + item.unit_code + ')'}</span> <h4 onClick={() => { setReportDiv(true); setWriterId(''); }}>إِبلاغ <Svgs name={'report'}/></h4><span id='desktop-unit-span'>معرف الوحدة {'(' + item.unit_code + ')'}</span></h1>
-
+          <h1>{item.title} 
+            <span id='mobile-unit-span'>{'(' + item.unit_code + ')'}</span>               
+            {item.discount?.percentage > 0 && <DiscountSticker disNum={45}/>}
+            <h4 onClick={() => { setReportDiv(true); setWriterId(''); }}>إِبلاغ <Svgs name={'report'}/></h4><span id='desktop-unit-span'>معرف الوحدة {'(' + item.unit_code + ')'}</span>
+          </h1>
+          
           <ul>
             <li><Svgs name={'star'}/> {Number(item.ratings?.val).toFixed(2)} ({item.ratings?.no} تقييم)</li>
             <li><Svgs name={item.type_is_vehicle ? 'loc vehicle' : 'location'}/> {JordanCities.find(i => i.value === item.city)?.arabicName}, {item.neighbourhood}</li>
-            {(!item.type_is_vehicle || item.area > 0) && <li><Svgs name={'area'}/> المساحة {item.area} م2</li>}
+            {(!item.type_is_vehicle && item.area > 0) && <li><Svgs name={'area'}/> المساحة {item.area} م²</li>}
             {getDesiredContact(true, true) && <li onClick={() => getDesiredContact(null, null, true)}><Svgs name={getDesiredContact(true, true)?.platform}/>{getDesiredContact(true, true)?.val}</li>}
-            <li id='giveThisMarginRight' onClick={handleFav}><Svgs name={`wishlist${favouritesIds.includes(id) ? ' filled' : ''}`}/> {addingToFavs ? 'جاري الاضافة...' : (favouritesIds.includes(id) ? 'أزل من المفضلة' : 'اضف الى المفضلة')}</li>
-            <li style={{ marginLeft: 0 }} onClick={() => setShareDiv(!shareDiv)}><Svgs name={'share'}/> مشاركة</li>
+            <li style={{ cursor: 'pointer' }} id='giveThisMarginRight' onClick={handleFav}><Svgs name={`wishlist${favouritesIds.includes(id) ? ' filled' : ''}`}/> {addingToFavs ? 'جاري الاضافة...' : (favouritesIds.includes(id) ? 'أزل من المفضلة' : 'اضف الى المفضلة')}</li>
+            <li style={{ marginLeft: 0, cursor: 'pointer' }} onClick={() => setShareDiv(!shareDiv)}><Svgs name={'share'}/> مشاركة</li>
           </ul>
 
         </div>
@@ -887,11 +732,24 @@ const page = () => {
             <button onClick={() => setIsVideosFiles(false)} className={!isVideosFiles && 'selectedFileType'}>الصور</button>
             <button onClick={() => setIsVideosFiles(true)} className={isVideosFiles && 'selectedFileType'}>الفيديوهات</button>
           </div>
-          <ImagesShow images={item.images} type={'view'} isAdmin={isAdmin()} 
+          <ImagesShow images={item.images} type={'view'} 
           setImageFullScreen={setImageFullScreen} videos={item.videos} 
-          type_is_video={isVideosFiles} filesToDeleteAdmin={filesToDeleteAdmin}
-          setFilesToDeleteAdmin={setFilesToDeleteAdmin}/>
+          type_is_video={isVideosFiles}
+          handleWishList={handleFav}/>   
         </div>
+
+        <div id='wishlistDiv' style={{
+          zIndex: isImagesLoader ? -1 : undefined
+        }}>
+          <span id='return-arrow' onClick={() => history.back()}><Svgs name={'dropdown arrow'}/></span>
+          <Svgs name={favouritesIds?.includes(id) ? 'wishlist filled' : 'wishlist'} on_click={handleFav}/>
+          <Svgs name={'share'} on_click={() => setShareDiv(!shareDiv)}/>
+          <Svgs name={'report'} on_click={() => { setReportDiv(true); setWriterId(''); }}/>
+        </div>    
+
+        {isMobile960 && <span id='open-images-loader' onClick={() => {
+          setIsImageLoader(true);
+        }}/>}
 
       </div>
 
@@ -899,7 +757,7 @@ const page = () => {
 
         <div className="details">
           
-          <label>الوصف</label>
+          <div className='desktopIntro'><label>الوصف</label>
 
           <p id='desc-p'>{item.description}</p>
 
@@ -911,29 +769,62 @@ const page = () => {
               <h4><Svgs name={'star'}/> تقييم {host?.rating || 0} {`(من ${host?.reviewsNum || 0} مراجعة)`}</h4>
             </div>
             <p>{host?.units || 0} وحدة على المنصة</p>
-          </Link>}
+          </Link>}</div>
 
           <ul className='tabButtons'>
             <li className={isSpecifics && 'selectedTab'} onClick={() => {setIsSpecifics(true); setIsReviews(false); setIsMapDiv(false); setIsTerms(false)}}>المواصفات</li>
             <li className={isReviews && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(true); setIsMapDiv(false); setIsTerms(false)}}>التقييمات</li>
-            <li className={isMap && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(false); setIsMapDiv(true); setIsTerms(false)}}>الخريطة</li>
-            <li className={isTerms && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(false); setIsMapDiv(false); setIsTerms(true)}}>الشروط و التواصل</li>
+            <li className={isMapDiv && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(false); setIsMapDiv(true); setIsTerms(false)}}>الخريطة</li>
+            <li className={isTerms && 'selectedTab'} onClick={() => {setIsSpecifics(false); setIsReviews(false); setIsMapDiv(false); setIsTerms(true)}}>{isMobile ? 'الشروط' : 'الشروط و التواصل'}</li>
           </ul>
+          
+          {isSpecifics && <div className='mobileIntro'><div className='itemIntro mobileIntro'>
 
-          <h2>{isSpecifics ? 'المواصفات' : isReviews ? 'التقييمات' : isMap ? 'الخريطة' : isTerms ? 'الأحكام و الشروط' : ''}</h2>
+              <h1>{item.title} <span id='mobile-unit-span'>{'(' + item.unit_code + ')'}</span><span id='desktop-unit-span'>معرف الوحدة {'(' + item.unit_code + ')'}</span></h1>
+
+              <ul>
+                <li><Svgs name={'star'} pathStyle={{ fill: 'var(--secondColor)', stroke: 'var(--secondColor)' }}/> {Number(item.ratings?.val).toFixed(2)} ({item.ratings?.no} تقييم)</li>
+                <li><Svgs name={item.type_is_vehicle ? 'loc vehicle' : 'location'}/> {JordanCities.find(i => i.value === item.city)?.arabicName}, {item.neighbourhood}</li>
+                {(!item.type_is_vehicle && item.area > 0) && <li><Svgs name={'area'}/> المساحة {item.area} م²</li>}
+                {getDesiredContact(true, true) && <li onClick={() => getDesiredContact(null, null, true)}><Svgs name={getDesiredContact(true, true)?.platform}/>{getDesiredContact(true, true)?.val}</li>}
+                {typeof item?.details?.insurance === 'boolean' && <li><Svgs name={'insurance'}/>{item.details.insurance === true ? 'يتطلب تأمين قبل الحجز' : 'لا يتطلب تأمين'}</li>}
+                {item.customer_type?.toString()?.length > 0 && <li><Svgs name={'customers'}/>مخصص ل {item.customer_type?.toString()?.replaceAll(',', ', ')}</li>}
+                {(item.specific_catagory === 'farm' && item.landArea?.length > 0 && Number(item.landArea) !== 0) && <li><Svgs name={'area'}/>{`مساحة الأرض ${item.landArea}`}</li>}
+              </ul>
+
+              {item.discount?.percentage > 0 && <DiscountSticker disNum={45}/>}
+
+            </div>
+            
+            <label style={{ fontSize: '1rem', marginTop: 24 }}>الوصف</label>
+
+            <p id='desc-p'>{item.description}</p>
+
+            {host && <Link href={`/host?id=${item.owner_id}`} className='the-host'>
+              <h3 className='header-host'>المعلن <span className='disable-text-copy'>تفاصيل عنه <Svgs name={'dropdown arrow'}/></span></h3>
+              <span id='image-span' className='disable-text-copy'>{host?.firstName?.at(0) || host?.lastName?.at(0) || host?.username?.at(0)}</span>
+              <div>
+                <h3>{host?.firstName || host?.lastName || host?.username}</h3>
+                <h4><Svgs name={'star'}/> تقييم {host?.rating || 0} {`(من ${host?.reviewsNum || 0} مراجعة)`}</h4>
+              </div>
+              <p>{host?.units || 0} وحدة على المنصة</p>
+            </Link>}
+          
+          </div>}
+
+          <h2>{isSpecifics ? <span>المواصفات {isMobile960 && <button onClick={showAllSpecs}>{!isAtleastOneSpecShowed() ? 'إِظهار الكل' : 'إِخفاء الكل'}</button>}</span> : isReviews ? 'التقييمات' : isMapDiv ? 'الخريطة' : isTerms ? 'الأحكام و الشروط' : ''}</h2>
 
           <ul className='specificationsUL disable-text-copy' style={{ display: !isSpecifics && 'none' }}>
             
-            {item?.details?.insurance && <li><Svgs name={'insurance'}/><h3>{item.details.insurance === true ? 'يتطلب تأمين قبل الحجز' : 'لا يتطلب تأمين'}</h3></li>}
-            {(item.cancellation >= 0 && item.cancellation < cancellationsArray().length) && <li><Svgs name={'cancellation'}/><h3>{cancellationsArray()?.at(item.cancellation)}</h3></li>}
+            {!isMobile960 && item?.details?.insurance && <li><Svgs name={'insurance'}/><h3>{item.details.insurance === true ? 'يتطلب تأمين قبل الحجز' : 'لا يتطلب تأمين'}</h3></li>}
+            {(!isMobile960 && item.cancellation >= 0 && item.cancellation < cancellationsArray().length) && <li><Svgs name={'cancellation'}/><h3>{cancellationsArray()?.at(item.cancellation)}</h3></li>}
 
             {!item.type_is_vehicle ? <>
 
-              {item.customer_type && <li><Svgs name={'customers'}/><h3>الفئة المسموحة {item?.customer_type}</h3></li>}
+              {item.customer_type && !isMobile960 && <li><Svgs name={'customers'}/><h3>الفئة المسموحة {item?.customer_type}</h3></li>}
               {item.capacity > 0 && <li><Svgs name={'guests'}/><h3>{`أقصى عدد للنزلاء ${item.capacity} نزيل`}</h3></li>}
               {(item.specific_catagory === 'apartment' && item.floor?.length > 0) && <li><Svgs name={'steps'}/><h3>{`الطابق ${item.floor}`}</h3></li>}
-              {item.area > 0 && <li><Svgs name={'area'}/><h3>{`مساحة العقار ${item.area} متر مربع`}</h3></li>}
-              {(item.specific_catagory === 'farm' && item.landArea?.length > 0) && <li><Svgs name={'area'}/><h3>{`مساحة الأرض ${item.landArea}`}</h3></li>}
+              {(item.specific_catagory === 'farm' && item.landArea?.length > 0 && !isMobile960) && <li><Svgs name={'area'}/><h3>{`مساحة الأرض ${item.landArea}`}</h3></li>}
               
               {item.details?.guest_rooms?.length > 0 && <li onClick={() => setIsGuestRooms(!isGuestRooms)}>
                 <Svgs name={'guest room'}/>
@@ -1079,7 +970,7 @@ const page = () => {
             <ul>
               {item.reviews.slice(0, reviewsNumber).map((rv) => (
                 <ReviewCard item={rv} setReportDiv={setReportDiv} setWriterId={setWriterId}
-                  isAdmin={isAdmin()} revsToDeleteAdmin={revsToDeleteAdmin} setRevsToDeleteAdmin={setRevsToDeleteAdmin}/>
+                  />
               ))}
             </ul>
 
@@ -1087,27 +978,27 @@ const page = () => {
 
           </div>
 
-          <div className='mapDiv' style={{ display: !isMap && 'none' }}>
+          <div className='mapDiv' style={{ display: !isMapDiv && 'none' }}>
 
             <div className='addressMapDiv'><Image src={LocationGif}/><h3>{JordanCities.find(i => i.value === item.city)?.arabicName}, {item.neighbourhood}</h3></div>
           
             <h5 className='moreDetailsAfterPay'><Svgs name={'info'}/>سيرسل لك المضيف تفاصيل دقيقة عن الموقع بعد تأكيد الحجز</h5>
 
             <div className='googleMapDiv' onClick={showMap}>
-                <span>رؤية الموقع على الخريطة</span>
+                <span>رؤية الموقع التقريبي على الخريطة</span>
                 <Image src={GoogleMapImage}/>
             </div>
           
           </div>
 
           <ul className='termsUL' style={{ display: !isTerms && 'none' }}>
-            <li id='hostLiTermsUL'><Svgs name={'host'}/><h3>شروط مقدم الخدمة (المضيف)</h3>
+            {item.terms_and_conditions?.length > 0 && <li id='hostLiTermsUL'><Svgs name={'host'}/><h3>شروط مقدم الخدمة (المضيف)</h3>
               <ul>
                 {item.terms_and_conditions.map((tc) => (
                   <li key={tc}>{tc}</li>
                 ))}
               </ul>
-            </li>
+            </li>}
             <li id='hostLiTermsUL'><Svgs name={'terms'}/><h3>شروط و أحكام المنصة</h3>
                 <ul>
                   {myConditions().map((term) => (
@@ -1115,13 +1006,13 @@ const page = () => {
                   ))}
                 </ul>
             </li>
-            <li id='hostLiTermsUL'><Svgs name={'communicate'}/><h3>طرق التواصل مع المضيف</h3>
+            {item.contacts?.length > 0 && <li id='hostLiTermsUL'><Svgs name={'communicate'}/><h3>طرق التواصل مع المضيف</h3>
                 <ul>
                   {item.contacts?.map((contact, index) => (
                     isValidContactURL(contact) && <li style={{ cursor: 'pointer' }} key={index} onClick={() => openContactURL(contact)}>{contact.platform}</li>
                   ))}
                 </ul>
-            </li>
+            </li>}
           </ul>
 
         </div>
@@ -1134,11 +1025,16 @@ const page = () => {
 
           <div className='nightsDiv' onClick={() => setIsReservationType(!isReservationType)}>
             <h3 id='res-type'>اختر طريقة الحجز {'(يومي, شهري, سنوي ...الخ)'}</h3>
-            <h3 style={{ color: 'var(--secondColorDark)' }}>{getPrice()}<span> {currencyCode(null, true)} / {reservationType()?.find(i => i.id === resType?.id)?.oneAr}</span></h3>
-            <h3 style={{ color: '#777' }}><span>عدد {reservationType()?.find(i => i.id === resType?.id)?.multipleAr}</span> {resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)}</h3>
+            <h3 style={{ color: 'var(--secondColorDark)' }}>{getPrice('main price')}<span> {currencyCode()} / {reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.oneAr}</span></h3>
+            <h3 style={{ width: '100%', color: '#777', display: 'flex', flexWrap: 'wrap' }}><span>عدد {reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.multipleAr}</span> {resType?.id > 0 ? getDetailedResTypeNum(false, resType, resTypeNum) : getNumOfBookDays(calendarDoubleValue)}</h3>
             {isReservationType && !isCheckout && <HeaderPopup type={'custom'} isCustom={isReservationType} selectedCustom={resType}
             setSelectedCustom={setResType} setIsCustom={setIsReservationType}
-            customArray={reservationType()} />}
+            customArray={
+              item.specific_catagory === 'students' 
+              ? reservationType() 
+              : reservationType(null, null, null, item?.specific_catagory === 'farm')?.filter((x,i)=>i !== 3)} 
+            setChanged={setPopupResTypeChange} rightIconStyle={{ transform: 'rotate(45deg)' }}/>}
+            {!getPrice('test res type existence') && <p id='error'> لا يوجد حجز {reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.arName} {resType?.id !== 3 && 'سيتم حساب التكلفة بأقرب طريقة حجز متاحة (شهر أو أسبوع أو يوم)'}</p>}
           </div>
 
           <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
@@ -1151,16 +1047,38 @@ const page = () => {
             <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true)}</h3>
           </div>
 
-          {resType?.id > 0 && <CustomInputDiv title={'ادخل عدد ' + reservationType()?.find(i => i.id === resType?.id)?.multipleAr}
-           type={'number'} value={resTypeNum} listener={(e) => {
+          {(item.prices?.thursdayPrice > 0 || item.prices?.fridayPrice > 0 || item.prices?.saturdayPrice > 0) 
+            && resType?.id === 0 && getHoildays(true) && <div className='bookingDate' style={{ cursor: 'default' }}>
+            سيتم تطبيق أسعار خاصة بأيام العطل
+            {item.prices?.thursdayPrice > 0 && <h3>الخميس {item.prices?.thursdayPrice} {currencyCode()}</h3>}
+            {item.prices?.fridayPrice > 0 && <h3>الجمعة {item.prices?.fridayPrice} {currencyCode()}</h3>}
+            {item.prices?.saturdayPrice > 0 && <h3>السبت {item.prices?.saturdayPrice} {currencyCode()}</h3>}
+          </div>}
+
+          {resType?.id > 0 && <CustomInputDiv title={'ادخل عدد ' + reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.multipleAr}
+           type={'number'} value={resTypeNum?.toFixed(2)} listener={(e) => {
             setResTypeNum(Number(e.target.value));
-           }} myStyle={{ marginBottom: 32 }}/>}
+          }} myStyle={{ marginBottom: 32 }} />}
 
           <div className='cost' style={{ marginTop: 'auto' }}>
             <h3 style={{ display: (getNumOfBookDays(calendarDoubleValue) >= item.discount?.num_of_days_for_discount && item.discount?.percentage > 0)
-              ? null : 'none' }}>تخفيض {item.discount?.percentage}% <span>- {(resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue) * getPrice() * item.discount?.percentage / 100).toFixed(2)} {currencyCode(false, true)}</span></h3>
-            <h3>اجمالي تكلفة {resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)} {reservationType(null, resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue), true)?.find(i => i.id === resType?.id)?.multipleAr} <span>{(((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice()) - (item.discount?.percentage ? ((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice() * item.discount.percentage / 100) : 0)).toFixed(2)} {currencyCode(false, true)}</span></h3>
+              ? null : 'none' }}>تخفيض {item.discount?.percentage}% <span>- {!isNaN(getPrice()) ? (resType?.id > 0 ? resTypeNum : getPrice('cost price') * item.discount?.percentage / 100).toFixed(2) : 'سعر غير موجود'} {currencyCode(false, true)}</span></h3>
+            <h3>اجمالي تكلفة {getDetailedResTypeNum(true, resType, resTypeNum)} <span>{!isNaN(getPrice('main price')) ? (getPrice('cost price') - (item.discount?.percentage ? (getPrice('cost price') * item.discount.percentage / 100) : 0)).toFixed(2) : 'سعر غير موجود'} {currencyCode(false, true)}</span></h3>
           </div>
+
+          {isMobile && typeof item?.cancellation === 'number' && <div style={{ cursor: 'text' }} className='bookingDate cancellationDiv'>
+            <Svgs name={'cancellation'}/>
+            سياسة الالغاء و الاسترجاع
+            <h3>{cancellationsArray()?.at(item?.cancellation)}</h3>
+          </div>}
+
+          {isMobile && item?.details?.terms_and_conditions?.length > 0 && <div style={{ cursor: 'text' }} className='bookingDate cancellationDiv'>
+            <Svgs name={'host'}/>
+            شروط الحجز {'(من قبل المعلن)'}
+            {item?.details?.terms_and_conditions?.map((trm) => (
+              <li>{trm}</li>
+            ))}
+          </div>}
 
           <button className='btnbackscndclr' id={(item.owner_id === userId || !canBook || (!booksIds.find(i => i.property_id === id) && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1)))) ? 'disable-button' : ''} 
             onClick={handleBook}>
@@ -1179,13 +1097,25 @@ const page = () => {
 
       </div>
 
-      {isMobile && <div className='mobileBookBtn'>
-        <button onClick={() => setIsCheckout(true)} className='btnbackscndclr'>الحجز</button>
-        <div>
-          <span id={item.discount?.percentage > 0 ? 'old-price' : 'original-price'} className={item.discount?.percentage > 0 ? 'old-price' : undefined}>{getPrice()} {currencyCode(false, true)}</span>
-          {item.discount?.percentage > 0 && <span id='discounted-price'>{getPrice() - (getPrice() * (item.discount?.percentage)) / 100} {currencyCode(false, true)}</span>}
-          / {reservationType()?.find(i => i.id === resType?.id)?.oneAr}
+      {isMobile && <div className='mobileBookAndImages' style={isImagesLoader ? {
+          height:'100dvh',
+          top: 0,
+          bottom: 'unset'
+      } : undefined}>
+        
+        <ItemImagesLoader images={item?.images} videos={item?.videos}
+          isShow={isImagesLoader} setIsShow={setIsImageLoader}
+          setImageFullScreen={setImageFullScreen}/>
+        
+        <div className='mobileBookBtn'>
+          <button onClick={() => setIsCheckout(true)} className='btnbackscndclr'>الحجز</button>
+          <div>
+            <span id={item.discount?.percentage > 0 ? 'old-price' : 'original-price'} className={item.discount?.percentage > 0 ? 'old-price' : undefined}>{getPrice('main price')} {currencyCode(false, true)}</span>
+            {item.discount?.percentage > 0 && <span id='discounted-price'>{getPrice('main price') - (getPrice('main price') * (item.discount?.percentage)) / 100} {currencyCode(false, true)}</span>}
+            / {reservationType(false, false, false,item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.oneAr}
+          </div>
         </div>
+
       </div>}
 
       {(isMobile) && <div className={`checkout ${isCheckout ? 'mobile-checkout-popup' : 'mobile-checkout-popup-hidden'}`}>
@@ -1198,15 +1128,21 @@ const page = () => {
 
         <div id='close-checkout' onClick={() => setIsCheckout(false)}><Svgs name={'cross'}/></div>
 
-        {(isCalendar && isCheckout) && <HeaderPopup type={'calendar'} isViewPage days={item.booked_days} setCalendarDoubleValue={setCalendarDoubleValue}/>}
+        {(isCalendar && isCheckout) && <HeaderPopup type={'calendar'} isViewPage days={item.booked_days} 
+          setCalendarDoubleValue={setCalendarDoubleValue}/>}
 
         <div className='nightsDiv' onClick={() => setIsReservationType(!isReservationType)}>
           <h3 id='res-type'>اختر طريقة الحجز {'(يومي, شهري, سنوي ...الخ)'}</h3>
-          <h3 style={{ color: 'var(--secondColorDark)' }}>{getPrice()}<span> {currencyCode(true, true)} / {reservationType()?.find(i => i.id === resType?.id)?.oneAr}</span></h3>
-          <h3 style={{ color: '#777' }}><span>عدد {reservationType()?.find(i => i.id === resType?.id)?.multipleAr}</span> {resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)}</h3>
-          {isReservationType && isCheckout && <HeaderPopup type={'custom'} isCustom={isReservationType} selectedCustom={resType}
+          <h3 style={{ color: 'var(--secondColorDark)' }}>{getPrice('main price')}<span> {currencyCode()} / {reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.oneAr}</span></h3>
+          <h3 style={{ color: '#777' }}><span>عدد {reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.multipleAr}</span> {resType?.id > 0 ? getDetailedResTypeNum(false, resType, resTypeNum) : getNumOfBookDays(calendarDoubleValue)} </h3>
+          {isReservationType && isCheckout && <HeaderPopup type={'custom'} isCustom={isReservationType} selectedCustom={resType} setChanged={setPopupResTypeChange}
           setSelectedCustom={setResType} setIsCustom={setIsReservationType}
-          customArray={reservationType()}/>}
+          customArray={
+            item.specific_catagory === 'students' 
+            ? reservationType() 
+            : reservationType(null, null, null, item.specific_catagory === 'farm')?.filter((x,i)=>i !== 3)}
+          rightIconStyle={{ transform: 'rotate(45deg)' }}/>}
+          {!getPrice('test res type existence') && <p id='error'> لا يوجد حجز {reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.arName} {resType?.id !== 3 && 'سيتم حساب التكلفة بأقرب طريقة حجز متاحة (شهر أو أسبوع أو يوم)'}</p>}
         </div>
 
         <div className='bookingDate' onClick={() => setIsCalendar(!isCalendar)}>
@@ -1219,16 +1155,38 @@ const page = () => {
           <h3 suppressHydrationWarning>{getReadableDate(calendarDoubleValue?.at(1), true)}</h3>
         </div>
 
-        {resType?.id > 0 && <CustomInputDiv title={'ادخل عدد ' + reservationType()?.find(i => i.id === resType?.id)?.multipleAr}
-        type={'number'} value={resTypeNum} listener={(e) => {
+        {(item.prices?.thursdayPrice > 0 || item.prices?.fridayPrice > 0 || item.prices?.saturdayPrice > 0) 
+          && resType?.id === 0 && getHoildays(true) && <div className='bookingDate' style={{ cursor: 'default' }}>
+          سيتم تطبيق أسعار خاصة بأيام العطل
+          {item.prices?.thursdayPrice > 0 && <h3>الخميس {item.prices?.thursdayPrice} {currencyCode()}</h3>}
+          {item.prices?.fridayPrice > 0 && <h3>الجمعة {item.prices?.fridayPrice} {currencyCode()}</h3>}
+          {item.prices?.saturdayPrice > 0 && <h3>السبت {item.prices?.saturdayPrice} {currencyCode()}</h3>}
+        </div>}
+
+        {resType?.id > 0 && <CustomInputDiv title={'ادخل عدد ' + reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.multipleAr}
+        type={'number'} value={resTypeNum?.toFixed(2)} listener={(e) => {
           setResTypeNum(Number(e.target.value));
         }} myStyle={{ marginBottom: 32 }}/>}
 
         <div className='cost' style={{ marginTop: 'auto' }}>
           <h3 style={{ display: (getNumOfBookDays(calendarDoubleValue) >= item.discount?.num_of_days_for_discount && item.discount?.percentage > 0)
-            ? null : 'none' }}>تخفيض {item.discount?.percentage}% <span>- {(resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue) * getPrice() * item.discount?.percentage / 100).toFixed(2)} {currencyCode(false, true)}</span></h3>
-          <h3>اجمالي تكلفة {resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)} {reservationType(null, resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue), true)?.find(i => i.id === resType?.id)?.multipleAr} <span>{(((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice()) - (item.discount?.percentage ? ((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice() * item.discount.percentage / 100) : 0)).toFixed(2)} {currencyCode(false, true)}</span></h3>
+            ? null : 'none' }}>تخفيض {item.discount?.percentage}% <span>- {!getPrice('cost price') ? (resType?.id > 0 ? resTypeNum : getPrice('cost price') * item.discount?.percentage / 100).toFixed(2) : 'سعر غير موجود'} {currencyCode(false, true)}</span></h3>
+          <h3>اجمالي تكلفة {getDetailedResTypeNum(true, resType, resTypeNum)} <span>{!isNaN(getPrice('cost price')) ? (getPrice('cost price') - (item.discount?.percentage ? ((resType?.id > 0 ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice() * item.discount.percentage / 100) : 0)).toFixed(2) : 'سعر غير موجود'} {currencyCode(false, true)}</span></h3>
         </div> 
+
+        {isMobile && typeof item?.cancellation === 'number' && <div style={{ cursor: 'text' }} className='bookingDate cancellationDiv'>
+          <Svgs name={'cancellation'}/>
+          سياسة الالغاء و الاسترجاع
+          <h3>{cancellationsArray()?.at(item?.cancellation)}</h3>
+        </div>}
+
+        {isMobile && item?.details?.terms_and_conditions?.length > 0 && <div style={{ cursor: 'text' }} className='bookingDate cancellationDiv'>
+          <Svgs name={'host'}/>
+          شروط الحجز {'(من قبل المعلن)'}
+          {item?.details?.terms_and_conditions?.map((trm) => (
+            <li>{trm}</li>
+          ))}
+        </div>}
 
         <button className='btnbackscndclr' id={(item.owner_id === userId || !canBook || (!booksIds.find(i => i.property_id === id) && (!calendarDoubleValue?.at(0) || !calendarDoubleValue?.at(1)))) ? 'disable-button' : ''} 
           onClick={handleBook}>
@@ -1245,9 +1203,11 @@ const page = () => {
 
       </div>}
 
-      {(isCalendar || shareDiv || reportDiv || isReservationType) && <span onClick={() => {
-        setIsCalendar(false); setShareDiv(false); setReportDiv(false); setIsReservationType(false);
-      }} id='spanForClosingPopups'/>}
+      {(isCalendar || shareDiv || reportDiv || isReservationType || isImagesLoader) && <span onClick={() => {
+        setIsCalendar(false); setShareDiv(false); setReportDiv(false); setIsReservationType(false); setIsImageLoader(false);
+      }} id='spanForClosingPopups'>
+        <Svgs name={'cross'}/>  
+      </span>}
 
     </div>
   )

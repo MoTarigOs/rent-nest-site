@@ -564,6 +564,13 @@
                 }
             }
         }
+
+        .notif-profile-btns{
+            margin-top: 24px;
+            max-width: 480px;
+            display: flex;
+            gap: 16px;
+        }
     }
     
     .convert-to-host-div{

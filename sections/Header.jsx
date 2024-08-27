@@ -17,7 +17,7 @@ const GoogleMapPopup = dynamic(() => import('@components/popups/GoogleMapPopup')
 const MobileFilter = dynamic(() => import('@components/popups/MobileFilter'));
 import { Context } from '@utils/Context';
 import { getUserInfo, refresh } from '@utils/api';
-import { getArabicNameCatagory, getNameByLang, getReadableDate } from '@utils/Logic';
+import { getArabicNameCatagory, getNameByLang, getReadableDate, handleDays } from '@utils/Logic';
 import { isLoginedCookie, isPreviouslyLogined } from '@utils/ServerComponents';
 import { VehiclesTypes, contactInfo } from '@utils/Data';
 
@@ -25,7 +25,6 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
     const [isScrolled, setIsScrolled] = useState(false);
     const [runOnce, setRunOnce] = useState(false);
-    const [isMobile960, setIsMobile960] = useState(false);
     const [isMenu, setIsMenu] = useState(false);
     const [isCityFilter, setIsCityFilter] = useState(false);
     const [isCatagoryFilter, setIsCatagoryFilter] = useState(false);
@@ -37,6 +36,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
     const mobileSearchDivRef = useRef();
 
     const id = useSearchParams().get('id');
+    const viewUnit = useSearchParams().get('unit');
 
     const { 
       userId, userUsername, userRole, setUserId, 
@@ -44,6 +44,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       catagory, setCatagory, triggerFetch, setTriggerFetch,
       arrangeValue, setArrangeValue, setUserEmail, setIsVerified,
       setUserPhone, setUserAddress, setBooksIds, 
+      isMobile960, setIsMobile960,
       setFavouritesIds, mapType, mapArray, isMap, setIsMap, 
       latitude, setLatitude, longitude, setLongitude,
       calendarDoubleValue, setIsMobileHomeFilter, notifications,
@@ -55,7 +56,8 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       isArrange, setIsArrange, setUserLastName, setUserFirstName,
       setUserLastNameEN, setUserFirstNameEN, userFirstName,
       userLastName, userFirstNameEN, triggerUserInfo, storageKey,
-      setWaitingToBeHost
+      setWaitingToBeHost, setIsNotifEnabled, resType, setResType,
+      resTypeNum, setResTypeNum
     } = useContext(Context);
 
     const settingMobile = () => {
@@ -116,14 +118,13 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
           }
         case 'lang':
           if(pathname.includes('/en')){
-            console.log('id: ', id);
-            if(id){
-              return pathname === '/en' ? '/' : pathname.replace('/en', '') + `?id=${id}`;
+            if(id || viewUnit){
+              return pathname === '/en' ? '/' : pathname.replace('/en', '') + `${id ? ('?id=' + id) : ('?unit=' + viewUnit)}`;
             }
             return pathname === '/en' ? '/' : pathname.replace('/en', '');
           } else {
-            if(id){
-              return '/en' + pathname + `?id=${id}`;
+            if(id || viewUnit){
+              return '/en' + pathname + `${id ? ('?id=' + id) : ('?unit=' + viewUnit)}`;
             }
             return '/en' + pathname;
           }
@@ -171,7 +172,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
         setLoadingUserInfo, setStorageKey, setUserAddressEN, 
         null, setNotifications, setUserLastName, 
         setUserFirstName, setUserAccountType, setUserFirstNameEN,
-        setUserLastNameEN, setWaitingToBeHost
+        setUserLastNameEN, setWaitingToBeHost, setIsNotifEnabled
       );
 
       if(!infoRes?.success || infoRes.success !== true) return;
@@ -182,27 +183,20 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
       if(res?.success === true) {
         setLoadingUserInfo(true);
-        getUserInfo(
+        await getUserInfo(
           setUserId, setUserUsername, setUserRole, 
           setUserEmail, setIsVerified, setUserAddress,
           setUserPhone, setBooksIds, setFavouritesIds, 
-          setLoadingUserInfo, setStorageKey
+          setLoadingUserInfo, setStorageKey, setUserAddressEN, 
+          null, setNotifications, setUserLastName, 
+          setUserFirstName, setUserAccountType, setUserFirstNameEN,
+          setUserLastNameEN, setWaitingToBeHost, setIsNotifEnabled
         );
       };
 
     };
 
-    const triggerServers = async() => {
-      try {
-        await fetch(`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/test`);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
     useEffect(() => {
-
-      // triggerServers();
       
       settingMobile();
 
@@ -257,6 +251,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
     useEffect(() => {
       setTriggerFetch(!triggerFetch);
       setIsCalendarValue(true);
+      handleDays(calendarDoubleValue, setResType, setResTypeNum);
     }, [calendarDoubleValue]);
 
     useEffect(() => {

@@ -57,7 +57,7 @@ const page = () => {
     const [expandPrices, setExpandPrices] = useState(false);
     const [pricesError, setPricesError] = useState([]);
 
-    const [customerType, setCustomerType] = useState('');
+    const [customerType, setCustomerType] = useState([]);
     const [isCustomerType, setIsCustomerType] = useState(false);
     const [capacity, setCapacity] = useState(0);
 
@@ -334,15 +334,17 @@ const page = () => {
             if(itemTitleEN?.length > 0) enObj.titleEN = itemTitleEN;
             if(itemDescEN?.length > 0) enObj.descEN = itemDescEN;
             if(itemNeighbourEN?.length > 0) enObj.neighbourEN = itemNeighbourEN;
-            if(customersTypesArray().includes(customerType)){
-                let cst = '';
-                customersTypesArray().forEach((element, index) => {
-                    if(customerType === element){
-                        cst = customersTypesArray(true)[index];
-                    }
-                });
-                if(cst?.length > 0) enObj.customerTypeEN = cst;
+            let enCST = [];
+            for (let i = 0; i < customerType?.length; i++) {
+                if(customersTypesArray().includes(customerType[i])){
+                    customersTypesArray().forEach((el, index) => {
+                        if(el === customerType[i]){
+                            enCST.push(customersTypesArray(true)[index]);
+                        }
+                    });
+                }
             }
+            if(enCST?.length > 0) enObj.customerTypeEN = enCST;
 
             let tempContacts = [];
 
@@ -414,8 +416,129 @@ const page = () => {
               return itemPrices?.seasonly;
             case 'Yearly':
               return itemPrices?.yearly;
+            case 'eventsPrice':
+              return itemPrices?.eventsPrice;
+            case 'thursdayPrice':
+              return itemPrices?.thursdayPrice;
+            case 'fridayPrice':
+              return itemPrices?.fridayPrice;
+            case 'saturdayPrice':
+              return itemPrices?.saturdayPrice;
             default:
                 return null;
+        };
+    };
+
+    const handlePriceChange = (e, reservationType) => {
+        switch(reservationType){
+            case 'Daily':
+                return setItemPrices({
+                    daily: Number(e.target.value),
+                    weekly: itemPrices?.weekly,
+                    monthly: itemPrices?.monthly,
+                    seasonly: itemPrices?.seasonly,
+                    yearly: itemPrices?.yearly,
+                    eventsPrice: itemPrices?.eventsPrice,
+                    thursdayPrice: itemPrices?.thursdayPrice,
+                    fridayPrice: itemPrices?.fridayPrice,
+                    saturdayPrice: itemPrices?.saturdayPrice
+                });
+            case 'Weekly':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: Number(e.target.value),
+                    monthly: itemPrices?.monthly,
+                    seasonly: itemPrices?.seasonly,
+                    yearly: itemPrices?.yearly,
+                    eventsPrice: itemPrices?.eventsPrice,
+                    thursdayPrice: itemPrices?.thursdayPrice,
+                    fridayPrice: itemPrices?.fridayPrice,
+                    saturdayPrice: itemPrices?.saturdayPrice
+                });
+            case 'Monthly':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: itemPrices?.weekly,
+                    monthly: Number(e.target.value),
+                    seasonly: itemPrices?.seasonly,
+                    yearly: itemPrices?.yearly,
+                    eventsPrice: itemPrices?.eventsPrice,
+                    thursdayPrice: itemPrices?.thursdayPrice,
+                    fridayPrice: itemPrices?.fridayPrice,
+                    saturdayPrice: itemPrices?.saturdayPrice
+                });
+            case 'Seasonly':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: itemPrices?.weekly,
+                    monthly: itemPrices?.monthly,
+                    seasonly: Number(e.target.value),
+                    yearly: itemPrices?.yearly,
+                    eventsPrice: itemPrices?.eventsPrice,
+                    thursdayPrice: itemPrices?.thursdayPrice,
+                    fridayPrice: itemPrices?.fridayPrice,
+                    saturdayPrice: itemPrices?.saturdayPrice
+                });
+            case 'Yearly':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: itemPrices?.weekly,
+                    monthly: itemPrices?.monthly,
+                    seasonly: itemPrices?.seasonly,
+                    yearly: Number(e.target.value),
+                    eventsPrice: itemPrices?.eventsPrice,
+                    thursdayPrice: itemPrices?.thursdayPrice,
+                    fridayPrice: itemPrices?.fridayPrice,
+                    saturdayPrice: itemPrices?.saturdayPrice
+                });
+            case 'eventsPrice':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: itemPrices?.weekly,
+                    monthly: itemPrices?.monthly,
+                    seasonly: itemPrices?.seasonly,
+                    yearly: itemPrices?.yearly,
+                    eventsPrice: Number(e.target.value),
+                    thursdayPrice: itemPrices?.thursdayPrice,
+                    fridayPrice: itemPrices?.fridayPrice,
+                    saturdayPrice: itemPrices?.saturdayPrice
+                });
+            case 'thursdayPrice':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: itemPrices?.weekly,
+                    monthly: itemPrices?.monthly,
+                    seasonly: itemPrices?.seasonly,
+                    yearly: itemPrices?.yearly,
+                    eventsPrice: itemPrices?.eventsPrice,
+                    thursdayPrice: Number(e.target.value),
+                    fridayPrice: itemPrices?.fridayPrice,
+                    saturdayPrice: itemPrices?.saturdayPrice
+                });
+            case 'fridayPrice':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: itemPrices?.weekly,
+                    monthly: itemPrices?.monthly,
+                    seasonly: itemPrices?.seasonly,
+                    yearly: itemPrices?.yearly,
+                    eventsPrice: itemPrices?.eventsPrice,
+                    thursdayPrice: itemPrices?.thursdayPrice,
+                    fridayPrice: Number(e.target.value),
+                    saturdayPrice: itemPrices?.saturdayPrice
+                });
+            case 'saturdayPrice':
+                return setItemPrices({
+                    daily: itemPrices?.daily,
+                    weekly: itemPrices?.weekly,
+                    monthly: itemPrices?.monthly,
+                    seasonly: itemPrices?.seasonly,
+                    yearly: itemPrices?.yearly,
+                    eventsPrice: itemPrices?.eventsPrice,
+                    thursdayPrice: itemPrices?.thursdayPrice,
+                    fridayPrice: itemPrices?.fridayPrice,
+                    saturdayPrice: Number(e.target.value)
+                });
         };
     };
 
@@ -453,51 +576,6 @@ const page = () => {
             setLocObj(null);
             setFetchingLocation(false);
         }
-    };
-
-    const handlePriceChange = (e, reservationType) => {
-        switch(reservationType){
-            case 'Daily':
-                return setItemPrices({
-                    daily: Number(e.target.value),
-                    weekly: itemPrices?.weekly,
-                    monthly: itemPrices?.monthly,
-                    seasonly: itemPrices?.seasonly,
-                    yearly: itemPrices?.yearly,
-                });
-            case 'Weekly':
-                return setItemPrices({
-                    daily: itemPrices?.daily,
-                    weekly: Number(e.target.value),
-                    monthly: itemPrices?.monthly,
-                    seasonly: itemPrices?.seasonly,
-                    yearly: itemPrices?.yearly,
-                });
-            case 'Monthly':
-                return setItemPrices({
-                    daily: itemPrices?.daily,
-                    weekly: itemPrices?.weekly,
-                    monthly: Number(e.target.value),
-                    seasonly: itemPrices?.seasonly,
-                    yearly: itemPrices?.yearly,
-                });
-            case 'Seasonly':
-                return setItemPrices({
-                    daily: itemPrices?.daily,
-                    weekly: itemPrices?.weekly,
-                    monthly: itemPrices?.monthly,
-                    seasonly: Number(e.target.value),
-                    yearly: itemPrices?.yearly,
-                });
-            case 'Yearly':
-                return setItemPrices({
-                    daily: itemPrices?.daily,
-                    weekly: itemPrices?.weekly,
-                    monthly: itemPrices?.monthly,
-                    seasonly: itemPrices?.seasonly,
-                    yearly: Number(e.target.value),
-                });
-        };
     };
 
     const getDtlItemSections = (idName) => {
@@ -660,10 +738,14 @@ const page = () => {
                 errorEncountered = true;
             }
 
-            if(customerType?.length > 0 && !(specificCatagory === 'students' ? studentsTypesArray() : customersTypesArray()).includes(customerType)){
-                setCustomerType('-1');
-                detailsErrorMsg = detailsErrorMsg + ' customerType ';
-                errorEncountered = true;
+            if(customerType?.length > 0){
+                for (let i = 0; i < customerType.length; i++) {
+                    if(!(specificCatagory === 'students' ? studentsTypesArray() : customersTypesArray()).includes(customerType[i])) {
+                        setCustomerType('-1');
+                        detailsErrorMsg = detailsErrorMsg + ' customerType ';
+                        errorEncountered = true;
+                    }
+                }
             }
     
             if(typeof withDriver !== 'boolean'){
@@ -803,6 +885,22 @@ const page = () => {
         return true;
 
     };
+
+    useEffect(() => {
+
+        window.addEventListener('beforeunload', function(e){
+            e.preventDefault();
+            event.returnValue = true;
+            return true;
+        });
+
+        return window.removeEventListener('beforeunload', function(e){
+            e.preventDefault();
+            event.returnValue = true;
+            return true;
+        });
+
+    }, []);
 
     useEffect(() => {
         setSpecificCatagory('-1');
@@ -1028,18 +1126,83 @@ const page = () => {
                 <p>قم بتحديد سعر لكل مدة حجز {'(يومي, اسبوعي, شهري, فصلي و سنوي)'}</p>
 
                 {(expandPrices ? reservationType() : [reservationType()[0]]).map((item) => (
-                    <div className='priceDiv'>
-                        <CustomInputDiv isError={pricesError.includes(item.enName?.toLowerCase())} 
-                        errorText={'حدد سعر لليوم'} 
-                        title={`السعر بال${currencyCode(false, true)}`} 
-                        listener={(e) => handlePriceChange(e, item.enName)} min={0} value={getPriceValue(item.enName)}
-                        type={'number'}/>
+                        <div className='priceDiv'>
+                        {item?.id !== 3 ? <><CustomInputDiv isError={pricesError.includes(item.enName?.toLowerCase())} 
+                            errorText={'حدد سعر'} 
+                            title={`السعر بال${currencyCode(false, true)}`} 
+                            listener={(e) => handlePriceChange(e, item.enName)} min={0} value={getPriceValue(item.enName)}
+                            type={'number'}/>
                         <strong>/</strong>
-                        <h4>{item.oneAr}</h4>
+                        <h4>{item.oneAr}</h4></>
+                        : specificCatagory === 'students' && <><CustomInputDiv isError={pricesError.includes(item.enName?.toLowerCase())} 
+                            errorText={'حدد سعر'} 
+                            title={`السعر بال${currencyCode(false, true)}`} 
+                            listener={(e) => handlePriceChange(e, item.enName)} min={0} value={getPriceValue(item.enName)}
+                            type={'number'}/>
+                        <strong>/</strong>
+                        <h4>{item.oneAr}</h4></>}
                     </div>
                 ))}
 
                 <button className={'editDiv ' + arabicFont} onClick={() => setExpandPrices(!expandPrices)}>{expandPrices ? 'أقل' : 'تمديد'}</button>
+
+                <hr />
+                
+                <h3>تحديد سعر خاص بأيام العطل</h3>
+
+                <p>قم بتحديد سعر خاص لكل يوم من أيام العطل {'(خميس, جمعة و سبت)'}</p>
+
+                <div className='priceDiv'>
+                    <CustomInputDiv isError={pricesError.includes('thursdayPrice')} 
+                    errorText={'سعر يوم الخميس'} 
+                    title={`السعر بال${currencyCode(false, true)}`} 
+                    listener={(e) => handlePriceChange(e, 'thursdayPrice')} 
+                    min={0} value={getPriceValue('thursdayPrice')}
+                    type={'number'}/>
+                    <strong>/</strong>
+                    <h4>{'الخميس'}</h4>
+                </div>
+
+                <div className='priceDiv'>
+                    <CustomInputDiv isError={pricesError.includes('fridayPrice')} 
+                    errorText={'سعر يوم الجمعة'} 
+                    title={`السعر بال${currencyCode(false, true)}`} 
+                    listener={(e) => handlePriceChange(e, 'fridayPrice')} 
+                    min={0} value={getPriceValue('fridayPrice')}
+                    type={'number'}/>
+                    <strong>/</strong>
+                    <h4>{'الجمعة'}</h4>
+                </div>
+
+                <div className='priceDiv'>
+                    <CustomInputDiv isError={pricesError.includes('saturdayPrice')} 
+                    errorText={'سعر يوم السبت'} 
+                    title={`السعر بال${currencyCode(false, true)}`} 
+                    listener={(e) => handlePriceChange(e, 'saturdayPrice')} 
+                    min={0} value={getPriceValue('saturdayPrice')}
+                    type={'number'}/>
+                    <strong>/</strong>
+                    <h4>{'السبت'}</h4>
+                </div>
+
+                {specificCatagory === 'farm' && <><hr />
+                
+                    <h3>تحديد سعر مناسبات خاص</h3>
+
+                    <p>قم بتحديد سعر للمناسبة الواحدة</p>
+
+                    <div className='priceDiv'>
+                        <CustomInputDiv isError={pricesError.includes('eventsPrice')} 
+                        errorText={'حدد سعر'} 
+                        title={`السعر بال${currencyCode(false, true)}`} 
+                        listener={(e) => handlePriceChange(e, 'eventsPrice')} 
+                        min={0} value={getPriceValue('eventsPrice')}
+                        type={'number'}/>
+                        <strong>/</strong>
+                        <h4>{'المناسبة'}</h4>
+                    </div>
+
+                </>}
 
             </div>}
 
@@ -1199,9 +1362,10 @@ const page = () => {
                     if(!isCustomerType) setIsCustomerType(true);
                 }}>
                     <h3>حدد فئة النزلاء المسموحة (اختياري)</h3>
-                    <InfoDiv title={'الفئة المسموحة'} divClick={() => setIsCustomerType(!isCustomerType)} value={customerType === '' ? 'غير محدد' : customerType}/>
-                    {isCustomerType && <AddDetailsPopup array={customerType} setArray={setCustomerType} type={'customerType'} sections={'selections'} 
-                    isNotFacilities isSingleSelect setIsShow={setIsCustomerType} baseArr={specificCatagory === 'students' ? studentsTypesArray() : customersTypesArray(false)}/>}
+                    <InfoDiv title={'الفئة المسموحة'} divClick={() => setIsCustomerType(!isCustomerType)} value={customerType?.length <= 0 ? 'غير محدد' : customerType?.toString()?.replaceAll(',', ', ')}/>
+                    {isCustomerType && <AddDetailsPopup accompany={customerType} setAccompany={setCustomerType} type={'customerType'} sections={'selections'} isUndefinedElement
+                    isNotFacilities setIsShow={setIsCustomerType} baseArr={specificCatagory === 'students' ? studentsTypesArray() : customersTypesArray(false)}/>}
+
                 </div>}
 
                 {selectedCatagories === '0' && <div className='insuranceDetail'>
@@ -1382,6 +1546,8 @@ const page = () => {
                 <h4>- قم بإِضافة صور واضحة و معبرة</h4>
 
                 <h4>- أضف أكبر قدر من المعلومات في قسم التفاصيل</h4>
+
+                <h4>- سيتم مراجعة الاعلان و الموافقة عليه خلال 24 ساعة من الارسال</h4>
 
                 <label id='error2' style={{ padding: error.length <= 0 && 0, margin: error.length <= 0 && 0 }}>{error}</label>
                 

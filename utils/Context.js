@@ -1,13 +1,14 @@
 'use client';
 
 import { createContext, useState } from "react";
-import { JordanCities, maximumPrice, minimumPrice } from "./Data";
+import { JordanCities, maximumPrice, minimumPrice, reservationType } from "./Data";
 export const Context = createContext(null);
 
 function DataContext({ children }) {
 
     const [isSearchPage, setIsSearchPage] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const [isMobile960, setIsMobile960] = useState(false);
     const [isEnglish, setIsEnglish] = useState(false);
     const [userId, setUserId] = useState('');
     const [userUsername, setUserUsername] = useState('');
@@ -23,6 +24,7 @@ function DataContext({ children }) {
     const [userPhone, setUserPhone] = useState('');
     const [triggerUserInfo, setTriggerUserInfo] = useState('');
     const [notifications, setNotifications] = useState([]);
+    const [isNotifEnabled, setIsNotifEnabled] = useState(null);
     const [loadingUserInfo, setLoadingUserInfo] = useState(false);
     const [isVerified, setIsVerified] = useState('');
     const [userRole, setUserRole] = useState('');
@@ -56,7 +58,8 @@ function DataContext({ children }) {
     const [mapArray, setMapArray] = useState([]);
     const [longitude, setLongitude] = useState(JordanCities[0].long);
     const [latitude, setLatitude] = useState(JordanCities[1].lat);
-
+    const [resType, setResType] = useState(reservationType()[0]);
+    const [resTypeNum, setResTypeNum] = useState(1);
 
     // Advance filter
     const [quickFilter, setQuickFilter] = useState([]);
@@ -76,6 +79,7 @@ function DataContext({ children }) {
         <Context.Provider value={{ 
             isSearchPage, setIsSearchPage,
             isMobile, setIsMobile,
+            isMobile960, setIsMobile960,
             isEnglish, setIsEnglish,
             userId, setUserId,
             userUsername, setUserUsername,
@@ -91,6 +95,7 @@ function DataContext({ children }) {
             userPhone, setUserPhone,
             triggerUserInfo, setTriggerUserInfo,
             notifications, setNotifications,
+            isNotifEnabled, setIsNotifEnabled,
             loadingUserInfo, setLoadingUserInfo,
             isVerified, setIsVerified,
             userRole, setUserRole,
@@ -124,7 +129,8 @@ function DataContext({ children }) {
             isArrange, setIsArrange,
             longitude, setLongitude,
             latitude, setLatitude,
-            
+            resType, setResType,
+            resTypeNum, setResTypeNum,
             
             // Advacne filter
             rangeValue, setRangeValue,

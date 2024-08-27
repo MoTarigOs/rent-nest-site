@@ -15,10 +15,20 @@ import Image from 'next/image';
 import Skeleton from 'react-loading-skeleton';
 import { errorsSection } from '@utils/Data';
 import LoadingCircle from '@components/LoadingCircle';
+import PropertiesArray from '@components/PropertiesArray';
+import Notif from '@components/popups/Notif';
+import PagesHandler from '@components/PagesHandler';
+import { motion } from 'framer-motion';
 
 const page = () => {
 
-    const { userId, userEmail, userRole, loadingUserInfo, storageKey } = useContext(Context);
+    const { 
+        userId, userEmail, userRole, 
+        loadingUserInfo, storageKey, isMobile960 
+    } = useContext(Context);
+
+    const [sectionType, setSectionType] = useState('notif');
+    const [isSideNav, setIsSideNav] = useState(false);
 
     const [fetchingUserInfo, setFetchingUserInfo] = useState(true);
 
@@ -31,6 +41,8 @@ const page = () => {
     const [reportPropsSkip, setReportPropsSkip] = useState(0);
     const [reportRevsSkip, setReportRevsSkip] = useState(0);
     const [fetchingReports, setFetchingReports] = useState(false);
+    const [foundReports, setFoundReports] = useState(0);
+    const [foundRevsReports, setRevsFoundReports] = useState(0);
 
     const [isProps, setIsProps] = useState(false);
     const [isPropsFilterDiv, setIsPropsFilterDiv] = useState(false);
@@ -64,6 +76,7 @@ const page = () => {
     const [errorsSkip, setErrorsSkip] = useState(0);
     const [fetchingErrors, setFetchingErrors] = useState(false);
     const [errors, setErrors] = useState([]);
+    const [foundErrors, setFoundErros] = useState(0);
 
     const [deletingSpecificFile, setDeletingSpecificFile] = useState(false);
     const [isFileDelete, setIsFileDelete] = useState(false);
@@ -71,7 +84,9 @@ const page = () => {
     const [fileDeleteSuccess, setFileDeleteSuccess] = useState('');
     const [filename, setFilename] = useState('');
 
-    const fetchReports = async() => {
+    const cardsPerPage = 100;
+
+    const fetchReports = async(skipCount) => {
 
         try {
 
@@ -79,10 +94,12 @@ const page = () => {
 
             setFetchingReports(true);
 
-            const res = await getReports();
+            const res = await getReports(false, cardsPerPage, skipCount || 0);
 
             if(res.success !== true){
                 setFetchingReports(false);
+                setFoundReports(0);
+                setRevsFoundReports(0);
                 return;
             };
 
@@ -91,6 +108,7 @@ const page = () => {
 
             const responedReports = res.dt.reports;
             const responedProps = res.dt.properties;
+            const count = res.dt.count;
 
             for (let i = 0; i < responedReports.length; i++) {
                 const xProp = responedProps.find(item => item._id === responedReports[i].reported_id);
@@ -114,13 +132,20 @@ const page = () => {
 
             console.log('final arr: ', finalArrProps, finalArrRevs);
 
+            if(finalArrProps?.length <= 0) setFoundReports(0);
+            if(finalArrRevs?.length <= 0) setRevsFoundReports(0);
+
             setAllReportProps(responedProps);
             setReportsProps(finalArrProps);
             setReportsRevs(finalArrRevs);
+            setRevsFoundReports(finalArrRevs?.length);
+            setFoundReports(count);
             setFetchingReports(false);
             
         } catch (err) {
             console.log(err.message);
+            setFoundReports(0);
+            setRevsFoundReports(0);
             setFetchingReports(false);
         }
 
@@ -135,7 +160,7 @@ const page = () => {
 
             setFetchingProps(true);
 
-            const res = await getAdminProps(propsFilter.value, propsSkip);
+            const res = await getAdminProps(sectionType?.split(' ')?.at(1), propsSkip);
 
             console.log(res);
 
@@ -163,7 +188,7 @@ const page = () => {
 
             setFetchingUsers(true);
 
-            const res = await getUsersAdmin(userFilter, usersSkip);
+            const res = await getUsersAdmin(sectionType?.split(' ')?.at(1), usersSkip);
 
             console.log(res);
 
@@ -219,6 +244,8 @@ const page = () => {
 
     const fetchFiles = async() => {
 
+        console.log('fetch files');
+
         if(fetchingFiles) return;
 
         try {
@@ -226,6 +253,8 @@ const page = () => {
             setFetchingFiles(true);
 
             const res = await getFiles(storageKey, userEmail);
+
+            console.log('fetch files res: ', res);
 
             if(!res.ok === true){
                 setFetchingFiles(false);
@@ -286,7 +315,7 @@ const page = () => {
 
     };
 
-    const fetchErrors = async() => {
+    const fetchErrors = async(skipCount) => {
 
         try {
 
@@ -294,15 +323,19 @@ const page = () => {
 
             setFetchingErrors(true);
 
-            const res = await getAdminErrors(errorsFilter.value, errorsSkip);
+            const res = await getAdminErrors(errorsFilter.value, skipCount || 0, cardsPerPage);
+
+            console.log(res);
 
             if(res.success !== true) {
                 setErrors([]);
                 setFetchingErrors(false);
+                setFoundErros(0);
                 return;
             };
 
             setErrors(res.dt);
+            setFoundErros(res.count);
             setFetchingErrors(false);
             
         } catch (err) {
@@ -317,7 +350,7 @@ const page = () => {
         if(deletingSpecificFile) return;
 
         if(!isValidFilename(filename)){
-            setFileDeleteError('invalid filename');
+            setFileDeleteError('اسم ملف غير صالح');
             return;
         }
 
@@ -335,7 +368,7 @@ const page = () => {
             }
 
             setFileDeleteError('');
-            setFileDeleteSuccess('The file has been deleted successfully');
+            setFileDeleteSuccess('تم حذف الملف بنجاح');
             setDeletingSpecificFile(false);
 
         } catch (err) {
@@ -349,32 +382,42 @@ const page = () => {
         setErrors(errors.filter(i => i._id !== errorId));
     };
 
-    useEffect(() => {
-        if(isReportsProps || isReportsRevs) fetchReports();
-    }, [isReportsProps, isReportsRevs]);
+    const handleSectiontype = () => {
+        switch (sectionType?.split(' ')?.at(0)) {
+            case 'reports':
+                if(sectionType?.split(' ')?.at(1) === 'errors')
+                    return fetchErrors();
+                return fetchReports();
+            case 'properties':
+                return fetchProps();
+            case 'users':
+                return fetchUsers();
+            case 'files':
+                if(sectionType?.split(' ')?.at(1) === 'all-files')
+                    return fetchFiles();
+                return;
+        }
+    };
 
     useEffect(() => {
-        if(isProps) fetchProps();
-    }, [isProps, propsFilter, propsSkip]);
-
-    useEffect(() => {
-        if(isUsers) fetchUsers();
-    }, [isUsers, userFilter, usersSkip]);
-    
-    useEffect(() => {
-        if(isFiles) fetchFiles();
-    }, [isFiles]);
-
-    useEffect(() => {
-        if(isErrors) fetchErrors();
-    }, [isErrors, errorsFilter, errorsSkip]);
+        handleSectiontype();
+    }, [sectionType]);
 
     useEffect(() => {
         let timeout;
         if(loadingUserInfo === false) 
-            timeout = setTimeout(() => setFetchingUserInfo(false), [1500]);
-        return () => clearTimeout(timeout)
+            timeout = setTimeout(() => setFetchingUserInfo(false), 10000);
+        return () => clearTimeout(timeout);
+    }, [loadingUserInfo]);
+
+    useEffect(() => {
+        if(loadingUserInfo === false && userId?.length > 0 && (userRole !== 'admin' || userRole === 'owner')) 
+            setFetchingUserInfo(false);
     }, [userId, userRole]);
+
+    useEffect(() => {
+        if(sectionType === 'files all-files') fetchFiles();
+    }, [storageKey]);
 
     const navigateToViewFromReview = (rv) => {
 
@@ -382,7 +425,7 @@ const page = () => {
             if(allReportProps[i].reviews?.length > 0){
                 for (let j = 0; j < allReportProps[i].reviews.length; j++) {
                     if(allReportProps[i]?.reviews[j]?._id === rv._id){
-                        location.href = `/view/${allReportProps[i].title.replaceAll(' ', '-')}?id=${allReportProps[i]._id}`
+                        location.href = `/en/view/${allReportProps[i].title.replaceAll(' ', '-')}?id=${allReportProps[i]._id}`
                     }
                 }
             }
@@ -391,121 +434,213 @@ const page = () => {
 
     if(!userId?.length > 0 || (userRole !== 'admin' && userRole !== 'owner')){
         return (
-            fetchingUserInfo ? <MySkeleton isMobileHeader/> : <NotFound isEnglish type={'not allowed'}/>
+            fetchingUserInfo ? <MySkeleton isMobileHeader/> : <NotFound type={'not allowed'} isEnglish/>
         )
     }
+
+    const SideNavOptions = () => {
+
+        const XX = ({
+            options
+        }) => { 
+            return <ul className='side-nav-options-ul'>
+                {options?.map((op) => (
+                    <li onClick={op.handleClick} 
+                        className={sectionType?.split(' ')?.at(1) === (op.nameId) 
+                        ? 'side-nav-option-li-selected' : ''}>{op.name}</li>
+                ))}
+            </ul>
+        };
+
+        const reportsSections = [
+            {nameId: 'props', handleClick: () => setSectionType('reports props'), name: 'Units Reports'},
+            {nameId: 'reviews', handleClick: () => setSectionType('reports reviews'), name: 'Reviews Reports'},
+            {nameId: 'errors', handleClick: () => setSectionType('reports errors'), name: 'Errors & Issues'},
+        ];
+
+        const usersSection = [
+            { nameId: 'all-users', handleClick: () => setSectionType('users all-users'), name: 'All Users' },
+            { nameId: 'Host_requests', handleClick: () => setSectionType('users Host_requests'), name: 'Requests for Being Host' },
+            { nameId: 'blocked-true', handleClick: () => setSectionType('users blocked-true'), name: 'Blocked Users' },
+            { nameId: 'blocked-false', handleClick: () => setSectionType('users blocked-false'), name: 'Not Blocked Users' },
+            { nameId: 'email_verified-true', handleClick: () => setSectionType('users email_verified-true'), name: 'Activated Accounts' },
+            { nameId: 'email_verified-false', handleClick: () => setSectionType('users email_verified-false'), name: 'Un-Activated Accounts' },
+            { nameId: 'user', handleClick: () => setSectionType('users user'), name: 'Normal Users' },
+            { nameId: 'admin', handleClick: () => setSectionType('users admin'), name: 'Admins' },
+            { nameId: 'owner', handleClick: () => setSectionType('users owner'), name: 'Owners' },
+            { nameId: 'find-by-email', handleClick: () => setSectionType('users find-by-email'), name: 'Find User By Emai' },
+        ];
+
+        const propsSections = [
+            { nameId: 'check-properties', handleClick: () => setSectionType('properties check-properties'), name: 'Waiting to Approve' },
+            { nameId: 'hidden-properties', handleClick: () => setSectionType('properties hidden-properties'), name: 'Hidden Units' },
+            { nameId: 'properties-by-files', handleClick: () => setSectionType('properties properties-by-files'), name: 'Units by Files Size' },
+        ];
+
+        const filesSections = [
+            { nameId: 'all-files', handleClick: () => setSectionType('files all-files'), name: 'Uploaded Files' },
+            { nameId: 'delete', handleClick: () => setSectionType('files delete'), name: 'Delete File' }
+        ];
+
+        switch (sectionType?.split(' ')[0]) {
+            case 'reports':
+                return <XX options={reportsSections}/>
+            case 'users':
+                return <XX options={usersSection}/>
+            case 'properties':
+                return <XX options={propsSections}/>
+            case 'files':
+                return <XX options={filesSections}/>
+        }
+
+    };
 
   return (
 
     <div className='admin-wrapper' dir='ltr'>
 
-        <div className='admin'>
+        <div className='admin-header'>
+            <div className='menu-icon' onClick={() => {
+                if(isMobile960) setIsSideNav(!isSideNav)
+            }}>
+                <span/>
+                <span/>
+                <span style={{ marginBottom: 0 }}/>
+            </div>
+        </div>
 
-            <h1 id='intro-h1'>Your admin page</h1>
+        <motion.div className='admin-side-nav'
+            initial={{
+                left: isMobile960 ? '-300px' : 0
+            }}
+            animate={{
+                left: (!isMobile960 || isSideNav) ? 0 : '-300px'
+            }}
+        >
+                <h2>Admin Dashboard</h2>
+                <ul className='side-nav-ul'>
 
-            <p id='intro-p'>Control the site and users, such as blocking users, deleting offers, deleting files, etc.</p>
+                    <li onClick={() => setSectionType('notif')} className={'side-nav-ul-li' + (sectionType?.split(' ')?.at(0) === 'notif' ? ' side-nav-li-selected' : '')}><Svgs name={'report'}/> Notifications</li>
+                    
+                    <li onClick={() => setSectionType('reports props')} className={'side-nav-ul-li' + (sectionType?.split(' ')?.at(0) === 'reports' ? ' side-nav-li-selected' : '')}><span /><Svgs name={'report'}/> Reports</li>
+                    {sectionType?.split(' ')?.at(0) === 'reports' && <SideNavOptions />}
 
-            <hr />
+                    <li onClick={() => setSectionType('properties check-properties')} className={'side-nav-ul-li' + (sectionType?.split(' ')?.at(0) === 'properties' ? ' side-nav-li-selected' : '')}><span /><Svgs name={'advertise'}/> Units to Review</li>
+                    {sectionType?.split(' ')?.at(0) === 'properties' && <SideNavOptions />}
 
-            <AdminPart trigger={() => setIsReportsRevs(false)} title={'Reports'} isFetching={fetchingReports} type={'reports'} array={reportsProps} isShow={isReportsProps} setIsShow={setIsReportsProps} skip={reportPropsSkip} setSkip={setReportPropsSkip} isEnglish/>
+                    <li onClick={() => setSectionType('users all-users')} className={'side-nav-ul-li' + (sectionType?.split(' ')?.at(0) === 'users' ? ' side-nav-li-selected' : '')}><span /><Svgs name={'profile'}/> Users Menu</li>
+                    {sectionType?.split(' ')?.at(0) === 'users' && <SideNavOptions />}
+
+                    <li onClick={() => setSectionType('files all-files')} className={'side-nav-ul-li' + (sectionType?.split(' ')?.at(0) === 'files' ? ' side-nav-li-selected' : '')}><span /><Svgs name={'layer'}/> Files</li>
+                    {sectionType?.split(' ')?.at(0) === 'files' && <SideNavOptions />}
+
+                </ul>
+        </motion.div>
+
+        <div className='admin-content'>
+
+            <div style={{ display: sectionType?.split(' ')?.at(0) !== 'properties' ? 'none' : undefined }}>
+                <PropertiesArray isEnglish type={'admin-properties'} adminSectionType={sectionType} isEdit cardsPerPage={cardsPerPage}/>
+            </div>
+
+            <div className='notifications' style={{ display: sectionType?.split(' ')?.at(0) !== 'notif' ? 'none' : undefined }}>
+                <Notif isEnglish isAdmin adminSectionType={sectionType}/>
+            </div>
+
+            <div style={{ 
+                display: sectionType !== 'reports props' ? 'none' : undefined 
+            }}>
+                <AdminPart trigger={() => setIsReportsRevs(false)} title={'Units Reports'} isFetching={fetchingReports} type={'reports'} array={reportsProps} isShow={isReportsProps} setIsShow={setIsReportsProps} skip={reportPropsSkip} setSkip={setReportPropsSkip} fetchArr={fetchReports}
+                    cardsPerPage={cardsPerPage}foundItems={foundReports} isEnglish/>
+            </div>
+
+            <div style={{ 
+                display: sectionType !== 'reports reviews' ? 'none' : undefined 
+            }}>
+                <AdminPart trigger={() => setIsReportsProps(false)} title={'Reviews Reports'} isFetching={fetchingReports} type={'reviews'} array={reportsRevs} isShow={isReportsRevs} setIsShow={setIsReportsRevs} skip={reportRevsSkip} setSkip={setReportRevsSkip} handleReviewNav={navigateToViewFromReview}
+                fetchArr={fetchReports}
+                cardsPerPage={cardsPerPage} foundItems={foundRevsReports} isEnglish/>
+            </div>
+
+            <div style={{ 
+                display: sectionType !== 'reports errors' ? 'none' : undefined 
+            }}>
+                <AdminPart isEnglish={true} title={'Errors & Issues'} isFetching={fetchingErrors} type={'users'} array={errors} removeFromList={removeFromList}isShow={isErrors} setIsShow={setIsErrors} skip={errorsSkip} setSkip={setErrorsSkip} isPartFilter={isErrorsFilterDiv} setIsPartFilter={setIsErrorsFilterDiv} selected={errorsFilter}setSelected={setErrorsFilter} filterArray={errorsSection} isFilter={true}
+                fetchArr={fetchErrors}
+                cardsPerPage={cardsPerPage} foundItems={foundErrors}/>
+            </div>
             
-            <hr />
-            
-            <AdminPart trigger={() => setIsReportsProps(false)} title={'Reviews reports'} isFetching={fetchingReports} type={'reviews'} array={reportsRevs} isShow={isReportsRevs} setIsShow={setIsReportsRevs} skip={reportRevsSkip} setSkip={setReportRevsSkip} handleReviewNav={navigateToViewFromReview} isEnglish/>
-            
-            <hr />
-
-            <AdminPart title={'Offers'} isFetching={fetchingProps} type={'properties'} array={props} 
-            isShow={isProps} setIsShow={setIsProps} skip={propsSkip} 
-            setSkip={setPropsSkip} isPartFilter={isPropsFilterDiv} 
-            setIsPartFilter={setIsPropsFilterDiv} selected={propsFilter}
-            setSelected={setPropsFilter} isEnglish filterArray={propsSections} isFilter={true}/>
-            
-            <hr />
-
-            <AdminPart title={'Platform users'} isFetching={fetchingUsers} type={'users'} array={users} 
-            isShow={isUsers} setIsShow={setIsUsers} skip={usersSkip} setSkip={setUsersSkip} isEnglish
-            isFilter={true} filterArray={usersSections} isPartFilter={isUsersFilterDiv}
-            setIsPartFilter={setIsUsersFilterDiv} selected={userFilter} 
-            setSelected={setUserFilter}/>
-
-            <hr />
-
-            <button className={isUserByEmail ? 'editDiv chngpassbtn' : 'editDiv'} onClick={() => setIsUserByEmail(!isUserByEmail)}>
-                Find a user by email 
-                <Svgs name={'dropdown arrow'}/>
-            </button>
-        
-            <div className='find-user-by-email' style={{ display: !isUserByEmail ? 'none' : '' }}>
-
-                <CustomInputDiv title={'Enter the user email'} isError={userFindError.length > 0} errorText={userFindError === '-1' ? 'invalid email' : ''} value={userFindEmail} listener={(e) => setUserFindEmail(e.target.value)}/>
+            <div className='find-user-by-email' style={{
+                display: sectionType?.split(' ')?.at(1) !== 'find-by-email' ? 'none' : undefined
+            }}>
+                
+                <CustomInputDiv title={'Enter User Email'} isError={userFindError.length > 0} errorText={userFindError === '-1' ? 'Invalid Email' : ''} value={userFindEmail} listener={(e) => setUserFindEmail(e.target.value)} type={'text'}/>
             
                 <button className='btnbackscndclr' onClick={findUserByEmail}>{findingUser ? <LoadingCircle /> : 'Search'}</button>
 
-                <p id={userFindError?.length > 0 ? 'p-info-error' : 'p-info'}>{userFindError === '-1' ? '' : userFindError}</p>
+                <p>{userFindError === '-1' ? '' : userFindError}</p>
 
                 <UserDiv isEnglish isShow={userByEmailItem?._id ? true : false} item={userByEmailItem}/>
 
             </div>
 
-            <hr />
+            <div style={{
+                display: 
+                    (sectionType?.split(' ')?.at(0) !== 'users' 
+                    || sectionType?.split(' ')?.at(1) === 'find-by-email')
+                    ? 'none' : undefined  
+            }}>
+                <AdminPart title={'Users'} isFetching={fetchingUsers} type={'users'} array={users} 
+                isShow={isUsers} setIsShow={setIsUsers} skip={usersSkip} setSkip={setUsersSkip}
+                isFilter={true} filterArray={usersSections} isPartFilter={isUsersFilterDiv}
+                setIsPartFilter={setIsUsersFilterDiv} selected={userFilter} 
+                setSelected={setUserFilter} isEnglish/>
+            </div> 
 
-            <button className={isUserByEmail ? 'editDiv chngpassbtn' : 'editDiv'} onClick={() => setIsFiles(!isFiles)}>
-                Files uploaded to the platform 
-                <Svgs name={'dropdown arrow'}/>
-            </button>
-
-            <div className='files-uploaded' style={{ display: isFiles ? null : 'none' }}>
-
+            <div className='files-uploaded' style={{
+                display:
+                    (sectionType?.split(' ')?.at(0) !== 'files' 
+                        || sectionType?.split(' ')?.at(1) !== 'all-files')
+                        ? 'none' : undefined  
+            }}>
                 <button className='filter-btn'>
-                    Total files size <span>{fetchingFiles ? 'Calculating...' : storageSize}</span>
+                    Total Files Size <span>{fetchingFiles ? 'Calculating...' : storageSize}</span>
                 </button>
-
-                <ul>
-                    {(!files?.length > 0 && fetchingFiles) && <li>
+                <ul>  
+                    {(!files?.length > 0 && fetchingFiles) &&
                         <Skeleton height={299} width={299}/>    
-                    </li>}
+                    }
                     {files.map((file, index) => (
                         <li key={index}>
                             {getExtension(file) === 'img' ? 
                             <Image width={299} height={299} src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${file}`}/>
                             : getExtension(file) === 'video' && <video width={299} height={299} controls autoPlay loop src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${file}`}/>}
-                            <button className='btnbackscndclr' onClick={() => deleteThisFile(file)}>{deleteingFile === file ? 'Deleting...' : 'Delete'}</button>
+                            <label>{file}</label>
+                            <button className='btnbackscndclr' onClick={() => deleteThisFile(file)}>{deleteingFile === file ?<LoadingCircle /> : 'Delete'}</button>
                         </li>
                     ))}
                 </ul>
-
             </div>
 
-            <hr />
+            <div className='find-user-by-email' style={{
+                display:
+                (sectionType?.split(' ')?.at(0) !== 'files' 
+                        || sectionType?.split(' ')?.at(1) === 'all-files')
+                        ? 'none' : undefined  
+            }}>
 
-            <button className={isFileDelete ? 'editDiv chngpassbtn' : 'editDiv'} onClick={() => setIsFileDelete(!isFileDelete)}>
-                Delete file by name
-                <Svgs name={'dropdown arrow'}/>
-            </button>
-        
-            <div className='find-user-by-email' style={{ display: !isFileDelete ? 'none' : '' }}>
-
-                <CustomInputDiv title={'Enter the file name'} isError={filename === '-1'} errorText={'invalid filename'} value={filename} listener={(e) => setFilename(e.target.value)}/>
+                <CustomInputDiv title={'Enter File name'} isError={filename === '-1'} errorText={'Invalid Filename'} value={filename} listener={(e) => setFilename(e.target.value)}/>
             
-                <button className='btnbackscndclr' onClick={deleteFileByName}>{deletingSpecificFile ? <LoadingCircle /> : 'Delete the file'}</button>
+                <button className='btnbackscndclr' onClick={deleteFileByName}>{deletingSpecificFile ? <LoadingCircle /> : 'Delete the File'}</button>
 
                 <p id={fileDeleteError?.length > 0 ? 'p-info-error' : 'p-info'}>{fileDeleteError?.length > 0 ? fileDeleteError : fileDeleteSuccess}</p>
 
             </div>
 
-            <hr />
-
-            <AdminPart title={'Errors and problems'} isFetching={fetchingErrors} type={'users'} array={errors} removeFromList={removeFromList}
-            isShow={isErrors} setIsShow={setIsErrors} skip={errorsSkip} 
-            setSkip={setErrorsSkip} isPartFilter={isErrorsFilterDiv} isEnglish
-            setIsPartFilter={setIsErrorsFilterDiv} selected={errorsFilter}
-            setSelected={setErrorsFilter} filterArray={errorsSection} isFilter={true}/>
-
         </div>
 
-        {(isUsersFilterDiv || isPropsFilterDiv) && <span 
-        id='closePopups' onClick={() => { setIsUsersFilterDiv(false); setIsPropsFilterDiv(false)}}/>}
+        {isSideNav && <span 
+        id='closePopups' onClick={() => setIsSideNav(false)}/>}
 
     </div>
   )

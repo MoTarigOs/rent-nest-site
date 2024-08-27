@@ -177,6 +177,231 @@
             }
         }
 
+        .view-admin-section{
+            width: 100%;
+            padding: 16px;
+            margin-top: -32px;
+    
+            h2{
+                margin-bottom: 12px;
+                font-weight: 400;
+            }
+    
+            .status{
+                margin-bottom: 12px;
+            }
+
+            p{
+                font-size: 0.9rem;
+                font-weight: 500;
+                margin-top: 6px;
+                color: var(--secondColor);
+            }
+    
+            h3{
+                font-weight: 400;
+                margin-bottom: 24px;
+            }
+    
+            ul{
+                display: flex;
+                flex-wrap: wrap;
+                list-style: none;
+                margin-bottom: 24px;
+    
+                li{
+                    padding: 12px 24px;
+                    background: var(--darkWhiteHover);
+                    margin-left: 12px;
+                    margin-bottom: 12px;
+                    font-weight: 500;
+                    color: rgb(92, 92, 92);
+                    border-radius: 4px;
+                    white-space: nowrap;
+                    cursor: pointer;
+    
+                    &:dir(ltr){
+                        margin-left: 0;
+                        margin-right: 12px;
+                    }
+                }
+    
+                li:hover{
+                    opacity: 0.7;
+                }
+    
+                .selected-admin-type{
+                    background: var(--secondColor);
+                    color: white;
+                }
+            }
+    
+            .reject-reasons{
+                width: 100%;
+                max-width: 480px;
+                display: flex;
+                flex-direction: column;
+                border: 2px solid var(--secondColor);
+                padding: 12px;
+                border-radius: 8px;
+                margin-bottom: 32px;
+    
+                h2{
+                    color: var(--secondColor);
+                    font-size: 1.3rem;
+                }
+    
+                .inputDiv{
+                    margin-bottom: 24px;
+                    input{
+                        border-radius: 4px;
+                    }
+                }
+    
+                #p-info-error{
+                    color: var(--softRed);
+                }
+
+                svg{
+                    background: white;
+                }
+            }
+    
+            button{
+                width: fit-content;  
+                padding: 12px 24px;
+            }
+    
+            .show-files-to-delete-div{
+                display: none;
+            }
+        }
+
+        .reviews-del-container{
+            width: 100%;
+            margin-top: 24px;
+            border-radius: 8px;
+            background: var(--darkWhite);
+            padding-bottom: 4px;
+            padding-top: 8px;
+
+            .revs-to-delete{
+                padding-top: 12px;
+                ul {
+                    max-height: 200px;
+                    .reviewCard{
+                        cursor: pointer;
+
+                        label{
+                            cursor: pointer;
+                        }
+
+                        &:hover{
+                            border: 2px solid rgb(197, 197, 197);
+                        }
+                    }
+                }
+                button{
+                    width: fit-content;
+                    padding: 12px 24px;
+                    margin: 8px;
+                }
+                #info-span{
+                    display: flex;
+                    align-items: center;
+                    color: rgb(83, 83, 83);
+                    margin: 0 8px 4px 8px;
+                    
+                    svg{
+                        width: 16px;
+                        min-width: 16px;
+                        height: 16px;
+                        min-height: 16px;
+                        margin-left: 8px;
+                    }
+    
+                    &:dir(ltr){
+                        svg{
+                            margin-left: 0;
+                            margin-right: 0;
+                            margin-left: 0;
+                            margin-right: 8px;
+                        }
+                    }
+                }
+            }
+
+            .revs-ul{
+                max-height: 480px;
+                padding: 8px;
+                overflow-y: scroll;
+
+                .reviewCard{
+                    background: white;
+                    margin-bottom: 8px;
+
+                    .delete-file{
+                        margin-right: auto;
+                        font-size: 0.8rem;
+                        color: var(--softRed);
+                        font-weight: 100;
+                        cursor: pointer;
+
+                        svg{
+                            width: 24px;
+                            height: 24px;
+                        }
+
+                        &:dir(ltr){
+                            margin-right: unset;
+                            margin-left: auto;
+                        }
+                    }
+                }
+            }
+
+            .btns-rev{
+                width: 100%;
+                display: flex;
+                margin-top: 2px;
+
+                button{
+                    width: 100%;
+                    max-width: 152px;
+                    margin: 6px;
+                }
+
+                .not-available{
+                    background: white;
+                    cursor: default;
+                    color: grey;
+                }
+            }
+
+            #choose-files-span{
+                display: block;
+                margin: 4px 8px 4px 8px;
+            }
+
+            hr{
+                margin: 24px 12px;
+            }
+        }
+
+        .fun-h1{
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: rgb(79, 79, 79);
+        }
+
+        .fun-ul{
+            margin: 0 32px;
+            margin-bottom: 24px;
+            li{
+                font-size: 0.8rem;
+            }
+        }
+
         h2{
             color: var(--secondColor);
             margin-bottom: 24px;
@@ -281,9 +506,19 @@
         .selectKind{
             width: 100%;
             margin-bottom: 48px;
+            position: relative;
 
             &:dir(ltr){
                 margin-bottom: 32px;
+
+                ::after{
+                    left: unset;
+                    right: 16px;
+                    -webkit-transform: rotate(90deg);
+                    -moz-transform: rotate(90deg);
+                    -ms-transform: rotate(90deg);
+                    transform: rotate(90deg);
+                }
             }
 
             select{
@@ -296,6 +531,31 @@
                 cursor: pointer;
                 outline: none;
                 border: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                &::-ms-expand {
+                    display: none;
+                }
+
+            }
+            
+            ::after {
+                position: absolute;
+                pointer-events: none;
+                display: flex;
+                align-items: center;
+                content: '>';
+                font-size: 16px;
+                font-family: 'Consolas', monospace, 'sans-serif';
+                color: #ffffff;
+                -webkit-transform: rotate(-90deg);
+                -moz-transform: rotate(-90deg);
+                -ms-transform: rotate(-90deg);
+                transform: rotate(-90deg);
+                left: 16px;
+                top: 12px;
+                scale: 1.8 1.6;
             }
         }
 
@@ -1098,6 +1358,12 @@
             background: var(--secondColorHover);
             transition: all 0.2s ease-in;
         }
+
+        .rotate-svg{
+            svg{
+                transform: rotate(180deg);
+            }
+        }
     }
 
     .editProp{
@@ -1125,10 +1391,9 @@
             height: 280px;
             max-height: 280px;
             min-height: 280px;
-            width: 280px;
+            width: 100%;
             max-width: 280px;
-            min-width: 280px;
-            margin-bottom: 32px;
+            margin-bottom: 24px;
         }
     }
 
@@ -1181,6 +1446,10 @@
 
     button{
         font-family: inherit;
+    }
+
+    select{
+        background: red;
     }
 }
 

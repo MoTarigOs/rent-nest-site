@@ -13,8 +13,9 @@ import { motion } from 'framer-motion';
 const ImagesShow = ({ 
     isEnglish, images, videos, isAdmin, setFilesToDeleteAdmin, 
     filesToDeleteAdmin,
-    handleWishList, type, type_is_video, 
-    setImageFullScreen
+    handleWishList, isFaved,
+    type, type_is_video, 
+    setImageFullScreenm, useHooks
 }) => {
 
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -27,14 +28,14 @@ const ImagesShow = ({
     const nextButtonVideoRef = useRef(null);
     let cardImages = [];
 
-    if(type === 'card'){
+    if(type === 'card' && !isAdmin && useHooks){
         images.forEach((_, i) => {
             cardImages.push({ ref: useRef(null), url: images[i] });
         });
     }
 
     const getImagesArray = () => {
-        if(type === 'card'){
+        if(type === 'card' && !isAdmin && useHooks){
             return cardImages;
         } else {
             return images;
@@ -55,48 +56,50 @@ const ImagesShow = ({
 
     };
 
-    useEffect(() => {
-        swiper = type === 'card' ? null : new Swiper('.swiper-images-show', {
-            // Optional parameters
-            direction: "horizontal",
-            loop: false,
-            slidesPerView: 1,
-            
-            // Navigation arrows
-            navigation: {
-                nextEl: ".leftArrow",
-                prevEl: ".rightArrow",
-            },
-            
-            on: {
-                sliderMove: (pointermove) => {
-                    setTimeout(() => handleChange(pointermove), 100);
-                },
-                slideChange: (pointermove) => {
-                    setTimeout(() => handleChange(pointermove), 100);
-                },
-            }
-        });
-        const tick = () => {
-            if(swiper){
-                if(swiper?.activeIndex >= images.length - 1){
-                    swiper?.slideTo(0);
-                    setSelectedImageIndex(0);
-                } else {
-                    swiper?.slideTo(swiper.activeIndex + 1);
-                }
-            }
-        }
-        if(type === 'landing') {
-            const id = setInterval(tick, 3000);
-            setIntervalId(id);
-            return () => clearInterval(id);
-        }
-    }, []);
-
     const stopAutoScroll = () => { clearInterval(intervalId); setIntervalId(null); };
     
-    useEffect(() => {
+    if(!isAdmin && useHooks){
+        
+        useEffect(() => {
+            swiper = type === 'card' ? null : new Swiper('.swiper-images-show', {
+                // Optional parameters
+                direction: "horizontal",
+                loop: false,
+                slidesPerView: 1,
+                
+                // Navigation arrows
+                navigation: {
+                    nextEl: ".leftArrow",
+                    prevEl: ".rightArrow",
+                },
+                
+                on: {
+                    sliderMove: (pointermove) => {
+                        setTimeout(() => handleChange(pointermove), 100);
+                    },
+                    slideChange: (pointermove) => {
+                        setTimeout(() => handleChange(pointermove), 100);
+                    },
+                }
+            });
+            const tick = () => {
+                if(swiper){
+                    if(swiper?.activeIndex >= images.length - 1){
+                        swiper?.slideTo(0);
+                        setSelectedImageIndex(0);
+                    } else {
+                        swiper?.slideTo(swiper.activeIndex + 1);
+                    }
+                }
+            }
+            if(type === 'landing') {
+                const id = setInterval(tick, 3000);
+                setIntervalId(id);
+                return () => clearInterval(id);
+            }
+        }, []);
+
+        useEffect(() => {
 
             if(!type_is_video){
                 if(prevButtonRef.current){
@@ -112,20 +115,22 @@ const ImagesShow = ({
                 }
             }
 
-    }, [type_is_video]);
+        }, [type_is_video]);
 
-    useEffect(() => {
-        if(type === 'card'){
-            scrollDivRef.current.scrollTo({
-                top: 0,
-                left: cardImages[selectedImageIndex]?.ref?.current?.offsetLeft,
-                behavior: 'smooth'
-            })
-        }
-    }, [selectedImageIndex]);
+        useEffect(() => {
+            if(type === 'card'){
+                scrollDivRef.current.scrollTo({
+                    top: 0,
+                    left: cardImages[selectedImageIndex]?.ref?.current?.offsetLeft,
+                    behavior: 'smooth'
+                })
+            }
+        }, [selectedImageIndex]);
+        
+    }
 
   return (
-    <div className='imagesDiv' dir={isEnglish ? 'ltr' : null} style={{ height: type === 'view' ? 420 : undefined, borderRadius: type === 'landing' ? 0 : undefined }}>
+    <div className='imagesDiv' dir={isEnglish ? 'ltr' : null} style={{ borderRadius: type === 'landing' ? 0 : undefined }}>
 
         <div className='swiper-images-show'>
 
@@ -152,7 +157,7 @@ const ImagesShow = ({
                             <div className='content-div' style={{ width: '100%' }}>
                                 <motion.h2 initial={{ x: '100%' }} animate={{ x: index === selectedImageIndex ? 0 : '100%' }} transition={{ delay: 0.1, type: 'spring', damping: 12 }}>{img.title}</motion.h2>
                                 <motion.p initial={{ opacity: 0, x: 0 }} animate={{ opacity: index === selectedImageIndex ? 1 : 0 }} transition={{ delay: 0.3 }}>{img.desc}</motion.p>
-                                <motion.div initial={{ opacity: 0, x: 0 }} animate={{ opacity: index === selectedImageIndex ? 1 : 0 }} transition={{ delay: 0.3 }}><Link href={img.btnLink ? img.btnLink : ''}>{img.btnTitle}</Link></motion.div>
+                                <motion.div initial={{ opacity: 0, x: 0 }} animate={{ opacity: index === selectedImageIndex ? 1 : 0 }} transition={{ delay: 0.3 }}><Link href={img.btnLink ? img.btnLink + '?city=' + img.btnCity?.value : ''}>{img.btnTitle}</Link></motion.div>
                             </div>
                         </div>
                         {(type === 'landing' && img.state) && <span id='landing-item-span'/>}
@@ -192,24 +197,16 @@ const ImagesShow = ({
                 <div className='arrow rightArrow' ref={prevButtonVideoRef}><Svgs name={'dropdown arrow'}/></div>
             </>}</>}
 
-            {(type === 'view' && !type_is_video) && <div style={{ zIndex: 1 }} className='full-screen-svg-div'>
+            {(type === 'view' && !type_is_video) && <div style={{ zIndex: 1000, cursor: 'pointer' }} className='full-screen-svg-div'>
                 <Svgs name={'full screen up'} on_click={() => setImageFullScreen(images[selectedImageIndex])}/>
-            </div>}
-
-            {(isAdmin && ((type_is_video && videos?.length > 0) || (!type_is_video && images?.length > 0))) && <div className='delete-file' style={{ 
-                display: filesToDeleteAdmin.includes(type_is_video ? videos[selectedImageIndex] : images[selectedImageIndex]) 
-                    ? 'none' 
-                    : null
-            }} onClick={() => setFilesToDeleteAdmin([
-                ...filesToDeleteAdmin, type_is_video ? videos[selectedImageIndex] : images[selectedImageIndex]
-            ])}>
-                {isEnglish ? 'Add to Bin' : 'اضافة الى السلة'}
-                <Svgs name={'delete'}/>
-            </div>}
+            </div>} 
 
         </div>
 
-        <div id='wishlistDiv' style={{ display: type === 'view' ? 'none' : undefined }}><Svgs name={'wishlist'} on_click={handleWishList ? handleWishList() : null}/></div>
+        {/* <div id='wishlistDiv' style={{ zIndex: 10000, cursor: 'pointer' }}>
+            <Svgs name={isFaved ? 'wishlist' : 'wishlist'} on_click={handleWishList}/>
+            <Svgs name={'share'} on_click={handleWishList}/>
+        </div>         */}
 
         {!type_is_video ? <ul style={{ display: (type !== 'landing' && type !== 'view' && type !== 'card') ? 'none' : undefined }} className={type === 'landing' ? 'dots landingDots' : 'dots'}>
             {images?.map((obj, index) => (

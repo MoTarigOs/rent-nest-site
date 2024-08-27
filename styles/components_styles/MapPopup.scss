@@ -265,6 +265,7 @@
         flex-direction: row-reverse;
         margin-top: 0;
         top: calc(var(--headerHeight) + 0px);
+        left: calc(50vw - 650px);
         padding: 0;
         height: calc(100vh - var(--headerHeight) - 0px);
         gap: 16px;

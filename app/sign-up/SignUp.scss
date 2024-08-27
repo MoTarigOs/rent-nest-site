@@ -7,14 +7,13 @@
     align-items: center;
     background: var(--white);
     padding: 24px;
-    margin-top: var(--headerHeight);
+    margin-top: var(--headerHeightMobile);
 
     .formDiv{
         width: 100%;
         max-width: 680px;
         padding: 32px;
         border-radius: 4px;
-        border: 2px solid var(--secondColor);
 
         h1{
             margin-bottom: 40px;
@@ -65,9 +64,19 @@
             width: 100%;
             margin-bottom: 48px;
             margin-top: 0;
+            position: relative;
 
             &:dir(ltr){
                 margin-bottom: 32px;
+                ::after{
+                    left: unset;
+                    right: 16px;
+                    top: 40px;
+                    -webkit-transform: rotate(90deg);
+                    -moz-transform: rotate(90deg);
+                    -ms-transform: rotate(90deg);
+                    transform: rotate(90deg);
+                }
             }
 
             h3{
@@ -86,6 +95,30 @@
                 cursor: pointer;
                 outline: none;
                 border: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                &::-ms-expand {
+                    display: none;
+                }
+            }
+
+            ::after {
+                position: absolute;
+                pointer-events: none;
+                display: flex;
+                align-items: center;
+                content: '>';
+                font-size: 16px;
+                font-family: 'Consolas', monospace, 'sans-serif';
+                color: #ffffff;
+                -webkit-transform: rotate(-90deg);
+                -moz-transform: rotate(-90deg);
+                -ms-transform: rotate(-90deg);
+                transform: rotate(-90deg);
+                left: 16px;
+                top: 58px;
+                scale: 1.8 1.6;
             }
         }
 
@@ -146,6 +179,7 @@
             text-align: center;
             font-size: 1.3rem;
             font-weight: 500;
+            cursor: pointer;
             transition: all 0.2s ease-in;
         }
 
@@ -207,10 +241,18 @@
     .SignUp{
         align-items: start;
         min-height: unset;
-        padding: 12px;
+        padding: 12px 16px;
 
         .formDiv{
-            padding: 12px;
+            margin-top: 24px;
+            padding: 0;
+        }
+
+        #success{
+            flex-direction: column;
+            a{
+                margin-top: 2px;
+            }
         }
     }
 }

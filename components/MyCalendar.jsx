@@ -13,7 +13,7 @@ const MyCalendar = ({ setCalender, type, days, isNotDeleteBtn }) => {
   const { isMobile } = useContext(Context);
 
   return (
-    <div style={{ width: type === 'mobile-filter' ? '100%' : undefined }} suppressHydrationWarning>
+    <div className='mycalender-div' style={{ width: type === 'mobile-filter' ? '100%' : undefined }} suppressHydrationWarning>
       {!isNotDeleteBtn && <span id='clear-calendar' onClick={() => setCalender(null)}><Svgs name={'delete'}/></span>}
       <Calendar 
           onChange={setCalender}

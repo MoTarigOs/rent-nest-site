@@ -99,7 +99,7 @@ const Component = ({ isEnglish, isMobile960 }) => {
               <ul>
                   <li style={{ width: '100%' }} onClick={() => { setSelectedCatagories([]); setCatagory(''); }}
                     className={selectedCatagories?.length === 0 ? 'selectedCatagory' : undefined}>
-                      <Image src={ImageAsLogo}/>
+                      <Svgs name={'layer'}/>
                       {getNameByLang('كل التصنيفات', isEnglish)}
                       <RightIconSpan />
                   </li>
@@ -113,7 +113,7 @@ const Component = ({ isEnglish, isMobile960 }) => {
                           setSelectedCatagories([...selectedCatagories, ctg]);
                         }
                       }} className={selectedCatagories.includes(ctg) ? 'selectedCatagory' : undefined}>
-                          <Image src={ImageAsLogo}/>
+                          <Svgs name={ctg?.value}/>
                           {getNameByLang(ctg.arabicName, isEnglish)}
                           <RightIconSpan />
                       </li>

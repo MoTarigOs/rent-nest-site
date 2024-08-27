@@ -25,19 +25,21 @@ const ReviewCard = ({
         </div>
       </div>
 
-      {!isHost && <><h4 style={{ display: (isAdmin && !revsToDeleteAdmin) ? 'none' : null }} 
+      {!isHost && <>{!isAdmin && <h4 
         onClick={() => { 
           if(item.writer_id){ 
             setReportDiv(true); 
             setWriterId(item.writer_id); 
           }
-      }}>{isEnglish ? 'Report' : 'إِبلاغ'} <Svgs name={'report'}/></h4>
-      {(isAdmin && revsToDeleteAdmin) && <h3 className='delete-file' style={{ display: revsToDeleteAdmin.includes(item) ? 'none' : null }} onClick={() => {
-        if(!revsToDeleteAdmin.includes(item.writer_id))
+      }}><Svgs name={'report'}/></h4>}
+      {(isAdmin && revsToDeleteAdmin) 
+      && <h3 className='delete-file' onClick={() => {
+        if(!revsToDeleteAdmin?.find(i => i.writer_id === item.writer_id))
           setRevsToDeleteAdmin([...revsToDeleteAdmin, item]);
       }}>
-        {isEnglish ? 'Add to delete basket' : 'اضافة الى السلة'}
-        <Svgs name={'delete'}/>
+        {!revsToDeleteAdmin?.find(i => i.writer_id === item.writer_id)
+          ? <Svgs name={'delete'}/>
+          : 'تم الاضافة الى قائمة الحذف'}
       </h3>}</>}
 
       {item.updatedAt && <label id='wrote-date'>{getReadableDate(new Date(item.updatedAt), true, isEnglish)}</label>}

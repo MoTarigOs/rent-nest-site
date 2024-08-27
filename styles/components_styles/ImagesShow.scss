@@ -203,18 +203,23 @@
         position: absolute;
         left: 0;
         top: 0;
-        margin-top: 12px;
-        margin-left: 12px;
-        width: 24px;
-        height: 24px;
+        margin-top: 16px;
+        margin-left: 16px;
+        width: fit-content;
         cursor: pointer;
+        display: flex;
+        gap: 24px;
+        z-index: 100;
 
         svg{
-            width: 100%;
-            height: 100%;
+            height: 22px;
+            width: 22px;
+            margin-right: 16px;
+            cursor: pointer;
         
             path{
-                fill: white;
+                fill: transparent;
+                stroke: var(--darkWhite);
             }
         }
     }
@@ -403,6 +408,15 @@
                         }
                     }
                 }
+            }
+        }
+        .arrow:hover{
+            background: unset;
+            transition: unset;
+    
+            svg{
+                scale: 1;
+                transition: unset;
             }
         }
     }

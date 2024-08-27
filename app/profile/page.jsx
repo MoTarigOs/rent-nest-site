@@ -3,7 +3,7 @@
 import './Profile.scss';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Context } from '@utils/Context';
-import { askToBeHost, changeMyPass, checkUsername, deleteMyAccount, editUser, getGuests, removeGuest, sendCode, signOut, verifyGuest, verifyMyEmail } from '@utils/api';
+import { askToBeHost, changeMyPass, checkUsername, deleteMyAccount, editUser, getGuests, handleNotifEnable, removeGuest, sendCode, signOut, verifyGuest, verifyMyEmail } from '@utils/api';
 import InfoDiv from '@components/InfoDiv';
 import CustomInputDiv from '@components/CustomInputDiv';
 import Svgs from '@utils/Svgs';
@@ -24,7 +24,8 @@ const page = () => {
       selectedTab, setSelectedTab, userUsernameEN, userAddressEN,
       setUserAddress, setUserAddressEN, setUserPhone, userFirstName, userLastName,
       userAccountType, userFirstNameEN, userLastNameEN, setUserFirstName, setUserLastName,
-      setUserFirstNameEN, setUserLastNameEN, setIsModalOpened, waitingToBeHost
+      setUserFirstNameEN, setUserLastNameEN, setIsModalOpened, waitingToBeHost,
+      setIsNotifEnabled, isNotifEnabled
     } = useContext(Context);
 
     const [isProfileDetails, setIsProfileDetails] = useState(true);
@@ -35,7 +36,10 @@ const page = () => {
 
     const [fetchingUserInfo, setFetchingUserInfo] = useState(true);
 
-    const [isNotifShow, setIsNotifShow] = useState(true);
+    const [isNotifShow, setIsNotifShow] = useState(isNotifEnabled === true);
+    const [isOpenedNotif, setIsOpenedNotif] = useState(false);
+    const [handlingEnablingNotif, setHandlingEnablingNotif] = useState(false);
+    const [enablingNotifError, setEnablingNotifError] = useState('');
 
     // const [loadingItems, setLoadingItems] = useState(false);
     const [loadingGuests, setLoadingGuests] = useState(false);
@@ -212,7 +216,7 @@ const page = () => {
 
         if(!userId) return;
 
-        if(!isSentCodeEmail) return setVerifyError('الرجاء ارسال رمز الى بريدك الالكتروني اولا');
+        if(!isSentCodeEmail) return setVerifyError('الرجاء ارسال رمز تحقق الى بريدك الالكتروني اولا');
 
         setIsVerifyFetching(true);
 
@@ -225,7 +229,7 @@ const page = () => {
         }
 
         setVerifyError('');
-        setVerifySuccess('تم التوثيق بنجاح, الرجاء اعادة تحميل الصفحة');
+        setVerifySuccess('تم التفعيل بنجاح, الرجاء اعادة تحميل الصفحة');
         setIsVerifyFetching(false);
         
       } catch (err) {
@@ -461,6 +465,23 @@ const page = () => {
   
     };
 
+    const handleNotifEnabling = async() => {
+      try {
+        setHandlingEnablingNotif(true);
+        const res = await handleNotifEnable(!isNotifEnabled);
+        if(res?.success === true){
+          setIsNotifEnabled(!isNotifEnabled);
+          setEnablingNotifError('');
+        } else {
+          setEnablingNotifError(res.dt);
+        }
+        setHandlingEnablingNotif(false);
+      } catch (err) {
+        console.log(err);
+        setHandlingEnablingNotif(false);
+      }
+    };
+
     let timeoutid;
     const delay = 1000;
   
@@ -564,7 +585,7 @@ const page = () => {
             </div>
           </div>}
 
-          {isNotifShow && <Notif setIsShow={setIsNotifShow}/>}
+          {isNotifShow && <Notif setIsShow={setIsNotifShow} setIsOpened={setIsOpenedNotif} isOpened={isOpenedNotif}/>}
 
           <div className="details">
             
@@ -583,20 +604,35 @@ const page = () => {
             <div className='profileDetails' style={{ display: !isProfileDetails ? 'none' : undefined }}>
 
                 <InfoDiv title={'البريد الالكتروني'} value={userEmail} 
-                isInfo={!isVerified && true} info={'هذا الحساب غير موثق'}
+                isInfo={!isVerified && true} info={'هذا الحساب غير مفعل'}
                 btnState={isVerifing}
                 handleClick={() => setIsVerifing(!isVerifing)} type={'email'}
-                btnAfterClck={'التوثيق لاحقا'} btnTitle={'توثيق الحساب'}/>
+                btnAfterClck={'التفعيل لاحقا'} btnTitle={'تفعيل الحساب'}/>
 
                 <div className='verifyEmailDiv' style={{ display: !isVerifing && 'none' }}>
-                  <button className='btnbackscndclr' onClick={() => sendCodeToEmail(null)}>{!sendingCode ? `ارسال رمز الى ${userEmail}` : <LoadingCircle myStyle={{ height: 'fit-content' }}/>}</button>
+                  <button className='btnbackscndclr' onClick={() => sendCodeToEmail(null)}>{!sendingCode ? `ارسال رمز تخقق الى ${userEmail}` : <LoadingCircle myStyle={{ height: 'fit-content' }}/>}</button>
                   <p style={{ color: sendCodeError.length > 0 && 'var(--softRed)' }}>{sendCodeError.length > 0 ? sendCodeError : (verifySuccess.length > 0 ? verifySuccess : sendCodeSuccess)}</p>
                   <div>
                     <CustomInputDiv title={'ادخل الرمز'} isError={verifyError.length > 0 && true} errorText={verifyError} listener={(e) => setCode(e.target.value)}/>
-                    <button className='btnbackscndclr' onClick={verifyEmail}>{isVerifyFetching ? <LoadingCircle myStyle={{ height: 'fit-content' }}/> : 'التوثيق'}</button>
+                    <button className='btnbackscndclr' onClick={verifyEmail}>{isVerifyFetching ? <LoadingCircle myStyle={{ height: 'fit-content' }}/> : 'التفعيل'}</button>
                   </div>
                 </div>
 
+                <hr />
+
+                <InfoDiv title={'الاشعارات'} value={isNotifEnabled ? 'مفعلة' : 'متوقفة'}/>
+
+                {enablingNotifError?.length > 0 && <p style={{ marginTop: 8, color: 'var(--softRed)' }}>{enablingNotifError}</p>}
+                
+                <div className='notif-profile-btns'>
+                  <button className='btnbackscndclr' onClick={handleNotifEnabling}>
+                    {handlingEnablingNotif ? <LoadingCircle /> : (isNotifEnabled ? 'ايقاف' : 'تشغيل') + ' الاشعارات'}
+                  </button>
+                  <button className='btnbackscndclr' onClick={() => {
+                    setIsNotifShow(true); setIsOpenedNotif(true);
+                  }}>فتح الاشعارات</button>
+                </div>
+                
                 <hr />
 
                 <InfoDiv title={'الرتبة'} value={getRoleArabicName(userRole)}/>
@@ -622,7 +658,7 @@ const page = () => {
                   </button>
                   <div className='verifyEmailDiv' style={{ display: !isChangePasswordDiv && 'none' }}>
                     <button className='btnbackscndclr first-btn' onClick={() => sendCodeToEmail(true, true)}>{!sendingCode ? `ارسال رمز الى ${userEmail}` : <LoadingCircle myStyle={{ height: 'fit-content' }}/>}</button>
-                    <p style={{ color: sendCodeErrorPass.length > 0 && 'var(--softRed)' }}>
+                    <p style={{ color: sendCodeErrorPass.length > 0 ? 'var(--softRed)' : undefined }}>
                       {sendCodeErrorPass.length > 0 ? sendCodeErrorPass : (changePasswordSuccess ? changePasswordSuccess : sendCodeSuccess)}</p>
                     <CustomInputDiv title={'ادخل كلمة السر الجديدة'} 
                     isError={changePasswordError.length > 0 && true}

@@ -11,6 +11,7 @@ import { Context } from '@utils/Context';
 import { getNameByLang } from '@utils/Logic';
 import { getCityImage } from '@utils/Cities';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 const HeroSection = ({ isEnglish }) => {
 
@@ -29,7 +30,7 @@ const HeroSection = ({ isEnglish }) => {
     const [selectedCity, setSelectedCity] = useState(cities[3]);
     const [swiper, setSwiper] = useState(null);
 
-    const { setIsMobileHomeFilter, setCity, setSection } = useContext(Context);
+    const { setIsMobileHomeFilter, setCity, setSection, setSearchText } = useContext(Context);
         
     const handleChange = () => {
         
@@ -173,7 +174,10 @@ const HeroSection = ({ isEnglish }) => {
             <div className='allOffersCatagories'>
                 <ul>
                     {homePageCatagories(isEnglish).map((ctg, index) => (
-                        <li key={index}><h3>{ctg}</h3></li>
+                        <li key={index}><Link href={(isEnglish ? '/en/search' : '/search') + '?hmctg_id=' + ctg.id} onClick={() => {
+                            setCity(ctg.city);
+                            setSearchText(ctg?.searchTxt);
+                        }}><h3>{ctg.txt}</h3></Link></li>
                     ))}
                 </ul>
             </div>
@@ -182,7 +186,6 @@ const HeroSection = ({ isEnglish }) => {
 
                 <VerticalList list={[{image: getCityImage('Ajloun')}, {image: getCityImage('Zarqa')}, {image: getCityImage('Wadi Rum and Petra')}]}/>
                 <VerticalList list={[{image: getCityImage('Tafilah')}, {image: getCityImage('As-Salt')}, {image: getCityImage('Amman')}]}/>
-
 
                 <div className='text'>
                     <h2>{getNameByLang('عروضنا المميزة', isEnglish)}</h2>

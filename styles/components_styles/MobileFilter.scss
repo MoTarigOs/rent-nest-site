@@ -180,10 +180,14 @@
                     font-size: 0.9rem;
                     transition: all 0.2s ease-out;
 
-                    img{
-                        width: 48px;
-                        height: 48px;
+                    svg{
+                        width: 24px;
+                        height: 24px;
                         margin-left: 12px;
+
+                        path{
+                            fill: var(--secondColor);
+                        }
                     }
 
                     #righticonspan{
@@ -193,9 +197,9 @@
 
                     &:dir(ltr){
 
-                        img{
+                        svg{
                             margin-left: 0;
-                            margin-right: 8px;
+                            margin-right: 12px;
                         }
 
                         #righticonspan{

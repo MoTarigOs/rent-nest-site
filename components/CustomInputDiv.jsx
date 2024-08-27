@@ -22,11 +22,12 @@ const CustomInputDiv = ({
         <input defaultValue={defaultValue} ref={myRef} onFocus={settingFocused} readOnly={isCity ? true : false}
         value={value} placeholder={placholderValue} max={max} min={min}
         type={type ? (type === 'password' ? (passwordTypeShow ? 'text' : 'password') : type) : 'text'} 
-        onChange={listener} style={{ borderColor: isError ? 'var(--softRed)' : undefined }}/>
+        onChange={listener} style={{ borderColor: isError ? 'var(--softRed)' : undefined }}
+        onWheel={ event => event.currentTarget.blur() }/>
         : <textarea defaultValue={defaultValue} onChange={listener} style={{ borderColor: isError && 'var(--softRed)' }}/>}
       <span id="title-input-div-span" style={{ color: isError ? 'var(--softRed)' : undefined }}>{title}</span>
       {deletable && <Svgs name={'delete'} on_click={handleDelete}/>}
-      {type === 'password' && <div id="show-password">
+      {type === 'password' && <div id="show-password" style={{ height: '100%' }}>
         <Svgs name={'show password'} on_click={() => setPasswordTypeShow(!passwordTypeShow)}/>
         <span style={{ display: !passwordTypeShow && 'none' }}/>
       </div>}

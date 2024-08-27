@@ -104,6 +104,10 @@ const page = () => {
   };
 
   useEffect(() => {
+    if(successLogin) location.href = `/profile?id=${userId}`;
+  }, [userId]);
+
+  useEffect(() => {
     if(emailError.length > 0 || passwordError.length > 0){
         setError('ادخل بيانات صالحة');
       } else {

@@ -196,8 +196,8 @@ const Filter = ({
                         defaultValue={rangeValue}
                         value={rangeValue}
                     />
-                    <span>{isEnglish ? 'Min ' : 'السعر الأقل:'} {rangeValue[0]} {currencyCode(isEnglish)}</span>
-                    <span>{isEnglish ? 'Max ' : 'السعر الأقصى'} {rangeValue[1]} {currencyCode(isEnglish)}</span></>}
+                    <span>{isEnglish ? 'Min ' : 'السعر الأقل:'} {rangeValue[0]} {currencyCode(isEnglish)} {isEnglish ? '/ Night' : '/ الليلة'}</span>
+                    <span>{isEnglish ? 'Max ' : 'السعر الأقصى'} {rangeValue[1]} {currencyCode(isEnglish)} {isEnglish ? '/ Night' : '/ الليلة'}</span></>}
                 </div> 
 
                 <FilterSectionMultipleSelections item={filters.find(i => i.idName === 'quick')}/>

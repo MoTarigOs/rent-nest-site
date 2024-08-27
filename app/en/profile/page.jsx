@@ -4,7 +4,7 @@ import '../../profile/Profile.scss';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Context } from '@utils/Context';
 import Card from '@components/Card';
-import { askToBeHost, changeMyPass, checkUsername, deleteMyAccount, editUser, getBooks, getFavourites, getGuests, getOwnerProperties, removeGuest, sendCode, signOut, verifyGuest, verifyMyEmail } from '@utils/api';
+import { askToBeHost, changeMyPass, checkUsername, deleteMyAccount, editUser, getBooks, getFavourites, getGuests, getOwnerProperties, handleNotifEnable, removeGuest, sendCode, signOut, verifyGuest, verifyMyEmail } from '@utils/api';
 import InfoDiv from '@components/InfoDiv';
 import CustomInputDiv from '@components/CustomInputDiv';
 import Svgs from '@utils/Svgs';
@@ -25,7 +25,8 @@ const page = () => {
     selectedTab, setSelectedTab, userUsernameEN, userAddressEN,
     setUserAddress, setUserAddressEN, setUserPhone, userFirstName, userLastName,
     userAccountType, userFirstNameEN, userLastNameEN, setUserFirstName, setUserLastName,
-    setUserFirstNameEN, setUserLastNameEN, waitingToBeHost
+    setUserFirstNameEN, setUserLastNameEN, waitingToBeHost,
+    setIsNotifEnabled, isNotifEnabled
   } = useContext(Context);
 
     const [isProfileDetails, setIsProfileDetails] = useState(true);
@@ -37,7 +38,10 @@ const page = () => {
     const [fetchingUserInfo, setFetchingUserInfo] = useState(true);
 
     const [isNotifShow, setIsNotifShow] = useState(true);
-    
+    const [isOpenedNotif, setIsOpenedNotif] = useState(false);
+    const [handlingEnablingNotif, setHandlingEnablingNotif] = useState(false);
+    const [enablingNotifError, setEnablingNotifError] = useState('');
+
     const [loadingItems, setLoadingItems] = useState(false);
     const [loadingGuests, setLoadingGuests] = useState(false);
     const [confirmingGuest, setConfirmingGuest] = useState(-1);
@@ -212,7 +216,7 @@ const page = () => {
 
         if(!userId) return;
 
-        if(!isSentCodeEmail) return setVerifyError('Please send the code to your email first');
+        if(!isSentCodeEmail) return setVerifyError('Please send verification code to your email first');
 
         setIsVerifyFetching(true);
 
@@ -225,7 +229,7 @@ const page = () => {
         }
 
         setVerifyError('');
-        setVerifySuccess('Verification has been completed successfully, please reload the page');
+        setVerifySuccess('Your Account has been successfully Activated, please reload the page');
         setIsVerifyFetching(false);
         
       } catch (err) {
@@ -461,6 +465,23 @@ const page = () => {
   
     };
 
+    const handleNotifEnabling = async() => {
+      try {
+        setHandlingEnablingNotif(true);
+        const res = await handleNotifEnable(!isNotifEnabled, true);
+        if(res?.success === true){
+          setIsNotifEnabled(!isNotifEnabled);
+          setEnablingNotifError('');
+        } else {
+          setEnablingNotifError(res.dt);
+        }
+        setHandlingEnablingNotif(false);
+      } catch (err) {
+        console.log(err);
+        setHandlingEnablingNotif(false);
+      }
+    };
+
     let timeoutid;
     const delay = 1000;
   
@@ -559,7 +580,8 @@ const page = () => {
             </div>
           </div>}
 
-          {isNotifShow && <Notif setIsShow={setIsNotifShow} isEnglish />}
+          {isNotifShow && <Notif setIsShow={setIsNotifShow} isEnglish 
+            setIsOpened={setIsOpenedNotif} isOpened={isOpenedNotif}/>}
 
           <div className="details">
             
@@ -578,18 +600,33 @@ const page = () => {
             <div className='profileDetails' style={{ display: !isProfileDetails ? 'none' : undefined }}>
 
                 <InfoDiv isEnglish title={'Email'} value={userEmail} 
-                isInfo={!isVerified && true} info={'This account is not verified'}
+                isInfo={!isVerified && true} info={'This account is not Activated'}
                 btnState={isVerifing}
                 handleClick={() => setIsVerifing(!isVerifing)} type={'email'}
-                btnAfterClck={'Verify Later'} btnTitle={'Verify Email'}/>
+                btnAfterClck={'Activate Later'} btnTitle={'Activate Account'}/>
 
                 <div className='verifyEmailDiv' style={{ display: !isVerifing && 'none' }}>
-                  <button className='btnbackscndclr' onClick={() => sendCodeToEmail(null)}>{!sendingCode ? `Send code to ${userEmail}` : <LoadingCircle myStyle={{ height: 'fit-content' }}/>}</button>
+                  <button className='btnbackscndclr' onClick={() => sendCodeToEmail(null)}>{!sendingCode ? `Send verification code to ${userEmail}` : <LoadingCircle myStyle={{ height: 'fit-content' }}/>}</button>
                   <p style={{ color: sendCodeError.length > 0 && 'var(--softRed)' }}>{sendCodeError.length > 0 ? sendCodeError : (verifySuccess.length > 0 ? verifySuccess : sendCodeSuccess)}</p>
                   <div>
                     <CustomInputDiv title={'Enter code'} isError={verifyError.length > 0 && true} errorText={verifyError} listener={(e) => setCode(e.target.value)}/>
-                    <button className='btnbackscndclr' onClick={verifyEmail}>{isVerifyFetching ? <LoadingCircle myStyle={{ height: 'fit-content' }}/> : 'Verify'}</button>
+                    <button className='btnbackscndclr' onClick={verifyEmail}>{isVerifyFetching ? <LoadingCircle myStyle={{ height: 'fit-content' }}/> : 'Activate Account'}</button>
                   </div>
+                </div>
+
+                <hr />
+
+                <InfoDiv title={'Notifications'} value={isNotifEnabled ? 'Enabled' : 'Disabled'}/>
+
+                {enablingNotifError?.length > 0 && <p style={{ marginTop: 8, color: 'var(--softRed)' }}>{enablingNotifError}</p>}
+
+                <div className='notif-profile-btns'>
+                  <button className='btnbackscndclr' onClick={handleNotifEnabling}>
+                    {handlingEnablingNotif ? <LoadingCircle /> : (isNotifEnabled ? 'Disable' : 'Enable') + ' Notifications'}
+                  </button>
+                  <button className='btnbackscndclr' onClick={() => {
+                    setIsNotifShow(true); setIsOpenedNotif(true);
+                  }}>Open Notifications</button>
                 </div>
 
                 <hr />

@@ -84,7 +84,6 @@
     .notif-ul{
         overflow-y: scroll;
         height: calc(100% - 64px);
-        align-items: center;
         padding: 12px;
         max-height: 100%;
     }
@@ -96,28 +95,39 @@
     .host-request{
         border: 1px solid rgba(0, 0, 0, 0.188);
     }
+
+    .ask-for-host{
+        background: white;
+        padding: 12px;
+        border-radius: 12px;
+        border: 1px solid rgb(198, 198, 198);
+        .userDiv{
+            margin-top: 12px;
+        }
+    }
 }
 
 .prop-related{
     width: 320px;
+    max-width: 100%;
     background: white;
     padding: 24px;
     border-radius: 12px;
-    margin: 12px;
-
-    p{
-        margin-bottom: 16px;
-        font-weight: 600;
-        color: var(--secondColorDark);
-    }
-
-    .card{
-
+    
+    .card {
+        width: 100%;
+        min-width: unset;
     }
 
     .card:hover{
         scale: 1;
     }
+}
+
+.main-p{
+    margin-bottom: 16px;
+    font-weight: 600;
+    color: var(--secondColorDark);
 }
 
 .notif-show{
@@ -144,7 +154,7 @@
 
     .btns{
         display: flex;
-        margin: 12px -8px 8px -8px;
+        margin: 24px -8px 8px -8px;
         button{
             margin: 0 8px;
         }
@@ -181,11 +191,15 @@
 .notif-ul{
     display: flex;
     flex-wrap: wrap;
-    margin-right: -12px;
+    gap: 16px;
 
     &:dir(ltr){
         margin-right: 0;
-        margin-left: -12px;
+    }
+
+    .prop-related{
+        margin: 0;
+        padding: 12px;
     }
 }
 

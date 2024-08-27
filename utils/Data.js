@@ -609,35 +609,35 @@ export const ProperitiesCatagories = [
 
 export const homePageCatagories = (isEn) => {
   return !isEn ? [
-    'البتراء احد عجائب الدنيا السبع',
-    'البحر الميت',
-    'وادي رم',
-    'مادبا الفسيفساء القديمة',
-    'أراضي جيراش الأثرية',
-    'العقبة',
-    'محمية وادي موجب',
-    'القصور الصحراوية',
-    'مرتفعات عجلون',
-    'جبل نيبو',
-    'الزرقاء ارض فنون و الثقافة',
-    'قلاع الكرك',
-    'طبيعة الطفيلة',
-    'السلط'
+    { id: 0, city: JordanCities.find(c=>c.city_id === 4), searchTxt: '', txt: 'البتراء احد عجائب الدنيا السبع' },
+    { id: 1, city: JordanCities.find(c=>c.city_id === 3), searchTxt: '', txt: 'البحر الميت' },
+    { id: 2, city: JordanCities.find(c=>c.city_id === 4), searchTxt: '', txt: 'وادي رم' },
+    { id: 3, city: JordanCities.find(c=>c.city_id === 9), searchTxt: '', txt: 'مادبا الفسيفساء القديمة' },
+    { id: 4, city: JordanCities.find(c=>c.city_id === 1), searchTxt: '', txt: 'أراضي جيراش الأثرية' },
+    { id: 5, city: JordanCities.find(c=>c.city_id === 7), searchTxt: '', txt: 'العقبة' },
+    { id: 6, city: JordanCities.find(c=>c.city_id === 3), searchTxt: 'وادي موجب', txt: 'محمية وادي موجب' },
+    { id: 7, city: JordanCities.find(c=>c.city_id === 0), searchTxt: 'قصر', txt: 'القصور الصحراوية' },
+    { id: 8, city: JordanCities.find(c=>c.city_id === 2), searchTxt: '', txt: 'مرتفعات عجلون' },
+    { id: 9, city: JordanCities.find(c=>c.city_id === 9), searchTxt: 'نيبو', txt: 'جبل نيبو' },
+    { id: 10, city: JordanCities.find(c=>c.city_id === 12), searchTxt: '', txt: 'الزرقاء ارض فنون و الثقافة' },
+    { id: 11, city: JordanCities.find(c=>c.city_id === 10), searchTxt: '', txt: 'قلاع الكرك' },
+    { id: 12, city: JordanCities.find(c=>c.city_id === 13), searchTxt: '', txt: 'طبيعة الطفيلة' },
+    { id: 13, city: JordanCities.find(c=>c.city_id === 6), searchTxt: '', txt: 'السلط' }
   ] : [
-    'Petra: One of the Seven Wonders of the World',
-    'Dead Sea',
-    'Wadi Rum',
-    'Madaba: Home to ancient mosaics,',
-    'Jerash Historical Ruins',
-    'Aqaba',
-    'Wadi Mujib Reserve',
-    'Desert Castles',
-    'Ajloun Highlands',
-    'Mount Nebo',
-    'Zarqa land of arts and culture',
-    'Kerak Castle',
-    'Nature of Tafilah',
-    'Salt'
+    { id: 0, city: JordanCities.find(c=>c.city_id === 4), searchTxt: '', txt: 'Petra: One of the Seven Wonders of the World' },
+    { id: 1, city: JordanCities.find(c=>c.city_id === 3), searchTxt: '', txt: 'Dead Sea' },
+    { id: 2, city: JordanCities.find(c=>c.city_id === 4), searchTxt: '', txt: 'Wadi Rum' },
+    { id: 3, city: JordanCities.find(c=>c.city_id === 9), searchTxt: '', txt: 'Madaba: Home to ancient mosaics,' },
+    { id: 4, city: JordanCities.find(c=>c.city_id === 1), searchTxt: '', txt: 'Jerash Historical Ruins' },
+    { id: 5, city: JordanCities.find(c=>c.city_id === 7), searchTxt: '', txt: 'Aqaba' },
+    { id: 6, city: JordanCities.find(c=>c.city_id === 3), searchTxt: 'Wadi mujib', txt: 'Wadi Mujib Reserve' },
+    { id: 7, city: JordanCities.find(c=>c.city_id === 0), searchTxt: 'Castle', txt: 'Desert Castles' },
+    { id: 8, city: JordanCities.find(c=>c.city_id === 2), searchTxt: '', txt: 'Ajloun Highlands' },
+    { id: 9, city: JordanCities.find(c=>c.city_id === 9), searchTxt: 'Nebo', txt: 'Mount Nebo' },
+    { id: 10, city: JordanCities.find(c=>c.city_id === 12), searchTxt: '', txt: 'Zarqa land of arts and culture' },
+    { id: 11, city: JordanCities.find(c=>c.city_id === 10), searchTxt: '', txt: 'Kerak Castle' },
+    { id: 12, city: JordanCities.find(c=>c.city_id === 13), searchTxt: '', txt: 'Nature of Tafilah' },
+    { id: 13, city: JordanCities.find(c=>c.city_id === 6), searchTxt: '', txt: 'Salt' }
   ];
 };
 
@@ -853,14 +853,18 @@ export const currencyCode = (isEn, fullName) => {
   }
 };
 
-export const reservationType = (isEn, num, noEL) => {
-  return [
+export const reservationType = (isEn, num, noEL, isEventsPrice) => {
+  const arr = [
     { id: 0,  value: 'Daily', multipleAr: (!num || num < 10) ? (noEL ? '' : 'ال') + 'أيام' : 'يوم', multipleEn: 'Days', enName: 'Daily', arabicName: 'يومي', arName: 'يومي', oneAr: 'اليوم', oneEn: 'Day' },
     { id: 1,  value: 'Weekly', multipleAr: (!num || num < 10) ? (noEL ? '' : 'ال') + 'أسابيع' : 'اسبوع', multipleEn: 'Days', enName: 'Weekly', arabicName: 'اسبوعي', arName: 'اسبوعي', oneAr: 'الاسبوع', oneEn: 'Week' },
     { id: 2,  value: 'Monthly', multipleAr: (!num || num < 10) ? (noEL ? '' : 'ال') + 'شهور' : 'شهر', multipleEn: 'Days', enName: 'Monthly', arabicName: 'شهري', arName: 'شهري', oneAr: 'الشهر', oneEn: 'Month' },
     { id: 3,  value: 'Seasonly', multipleAr: (!num || num < 10) ? (noEL ? '' : 'ال') + 'مواسم' : 'موسم', multipleEn: 'Days', enName: 'Seasonly', arabicName: 'فصلي', arName: 'فصلي', oneAr: 'الفصل', oneEn: 'Season' },
     { id: 4,  value: 'Yearly', multipleAr: (!num || num < 10) ? (noEL ? '' : 'ال') + 'سنين' : 'سنة', multipleEn: 'Days', enName: 'Yearly', arabicName: 'سنوي', arName: 'سنوي', oneAr: 'السنة', oneEn: 'Year' },
   ];
+  if(isEventsPrice) arr.push({
+    id: 5,  value: 'Events', multipleAr: (!num || num < 10) ? (noEL ? '' : 'ال') + 'مناسبات' : 'مناسبة', multipleEn: 'Events', enName: 'Event', arabicName: 'مناسبات', arName: 'مناسبات', oneAr: 'المناسبة', oneEn: 'Event'
+  })
+  return arr;
 };
 
 export const ratingsSections = [
@@ -872,4 +876,4 @@ export const ratingsSections = [
 ];
 
 export const minimumPrice = 5;
-export const maximumPrice = 8000;
+export const maximumPrice = 1000;

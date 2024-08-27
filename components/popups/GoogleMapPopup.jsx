@@ -17,8 +17,8 @@ const GoogleMapPopup = ({
   setSearchHere
 }) => {
 
-    const AMMAN_LAT = JordanCities[5].lat;
-    const AMMAN_LONG = JordanCities[5].long;
+    const AMMAN_LAT = JordanCities[0].lat;
+    const AMMAN_LONG = JordanCities[0].long;
 
     const { 
       latitude, longitude, setLatitude, setLongitude 
@@ -71,9 +71,11 @@ const GoogleMapPopup = ({
         <div id='cross-close-map' onClick={() => setIsShow(false)}><Svgs name={'cross'}/></div>
 
         {mapType === 'search' && <button id='more-btn' style={{ background: fetching ? 'var(--darkWhite)' : undefined }} onClick={() => {
-          setLatitude(map?.center?.lat());
-          setLongitude(map?.center?.lng());
-          setSearchHere(true);
+          if(isInsideJordan(map?.center?.lng(), map?.center?.lat())) {
+            setLatitude(map?.center?.lat());
+            setLongitude(map?.center?.lng());
+            setSearchHere(true);
+          }
         }}>{fetching ? <LoadingCircle isLightBg/> : (isEnglish ? 'Search on this area' : 'البحث في هذه المنطقة')}</button>}
 
         <div className='google-map-popup' style={mapType === 'search' ? style : undefined}>
@@ -81,8 +83,8 @@ const GoogleMapPopup = ({
             {isLoaded && <GoogleMap
                 mapContainerStyle={containerStyle}
                 center={{
-                  lat: latitude || AMMAN_LONG,
-                  lng: longitude || AMMAN_LAT
+                  lat: latitude ? (isInsideJordan(longitude, latitude) ? latitude : AMMAN_LAT) : AMMAN_LAT,
+                  lng: longitude ? (isInsideJordan(longitude, latitude) ? longitude : AMMAN_LONG) : AMMAN_LONG
                 }}
                 onLoad={onLoad}
                 zoom={12}

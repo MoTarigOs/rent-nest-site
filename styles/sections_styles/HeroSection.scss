@@ -147,6 +147,10 @@
                 max-width: 280px;
                 padding: 4px 0;
 
+                a{
+                    text-decoration: none;
+                }
+
                 h3{
                     color: var(--secondColorDark);
                     font-size: 1.2rem;
