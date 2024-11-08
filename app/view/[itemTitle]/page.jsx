@@ -463,11 +463,12 @@ const page = () => {
   };
 
   const settingReviewsNum = () => {
-    const five = item?.num_of_reviews_percentage?.five;
-    const four = item?.num_of_reviews_percentage?.four;
-    const three = item?.num_of_reviews_percentage?.three;
-    const two = item?.num_of_reviews_percentage?.two;
-    const one = item?.num_of_reviews_percentage?.one;
+    if(!item) return;
+    const five = item?.num_of_reviews_percentage?.five || 0;
+    const four = item?.num_of_reviews_percentage?.four || 0;
+    const three = item?.num_of_reviews_percentage?.three || 0;
+    const two = item?.num_of_reviews_percentage?.two || 0;
+    const one = item?.num_of_reviews_percentage?.one || 0;
     const total = five + four + three + two + one;
     if(total <= 0) return;
     setReviewsNum({
@@ -549,9 +550,9 @@ const page = () => {
   }, []);
 
   useEffect(() => {
+    settingReviewsNum();
     setCanBook(isAbleToBook());
     getPriceReservationType();
-    settingReviewsNum();
   }, [item]);
 
   useEffect(() => {

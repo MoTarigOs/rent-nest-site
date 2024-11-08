@@ -183,7 +183,7 @@ const ImagesShow = ({
 
             {(type === 'landing' && intervalId) && <span id='auto-scroll' onClick={stopAutoScroll}><Svgs name={'pause'}/></span>}
 
-            {!type_is_video ? <>{images?.length > 0 && <>
+            {(!type_is_video && !isAdmin) ? <>{images?.length > 0 && <>
                 <div className={`arrow ${isEnglish ? 'rightArrow' : 'leftArrow'}`} ref={nextButtonRef} onClick={() => {
                     if(type === 'card' && selectedImageIndex < images.length - 1){
                         setSelectedImageIndex(selectedImageIndex + 1);
@@ -210,7 +210,7 @@ const ImagesShow = ({
             <Svgs name={'share'} on_click={handleWishList}/>
         </div>         */}
 
-        {!type_is_video ? <ul style={{ display: (type !== 'landing' && type !== 'view' && type !== 'card') ? 'none' : undefined }} className={type === 'landing' ? 'dots landingDots' : 'dots'}>
+        {(!type_is_video && !isAdmin) ? <ul style={{ display: (type !== 'landing' && type !== 'view' && type !== 'card') ? 'none' : undefined }} className={type === 'landing' ? 'dots landingDots' : 'dots'}>
             {images?.map((obj, index) => (
                 <li key={index} onClick={() => {
                     if(selectedImageIndex - index > 0){
