@@ -7,7 +7,7 @@ import GoogleMapImage from '@assets/images/google-map-image.jpg';
 import Image from "next/image";
 import LocationGif from '@assets/icons/location.gif';
 import Svgs from '@utils/Svgs';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import ReviewCard from '@components/ReviewCard';
 import HeaderPopup from '@components/popups/HeaderPopup';
 import { useSearchParams } from 'next/navigation';
@@ -20,6 +20,7 @@ import NotFound from '@components/NotFound';
 import Link from 'next/link';
 import LoadingCircle from '@components/LoadingCircle';
 import ItemImagesLoader from '@components/ItemImagesLoader';
+import Badge from '@components/Badge';
 
 const page = () => {
 
@@ -30,10 +31,11 @@ const page = () => {
     calendarDoubleValue, setCalendarDoubleValue,
     isMobile, isMobile960, isVerified,
     setIsModalOpened, userUsername, resType, setResType,
-    resTypeNum, setResTypeNum, isMap
+    resTypeNum, setResTypeNum, isMap, userRole 
   } = useContext(Context);
   
   let id = useSearchParams().get('id');
+  const calenderValParam = useSearchParams().get('calender')?.split(',');
   const unitCode = useSearchParams().get('unit');
   const isReportParam = useSearchParams().get('isReport');
 
@@ -48,6 +50,7 @@ const page = () => {
   const [isVideosFiles, setIsVideosFiles] = useState(false);
   const [imageFullScreen, setImageFullScreen] = useState('-1');
   const [shareDiv, setShareDiv] = useState(false);
+  const adminEditPropRef = useRef(null);
   const [copied, setCopied] = useState(false);
 
   const [reviewsNumber, setReviewsNumber] = useState(6);
@@ -535,6 +538,11 @@ const page = () => {
     else return false;
   };
 
+  const isAdmin = () => {
+    if(userRole === 'admin' || userRole === 'owner') return true;
+    else return false;
+  };
+
   useEffect(() => {
     setRunOnce(true);
     setCanBook(isAbleToBook());
@@ -554,6 +562,12 @@ const page = () => {
         fetchItemDetailsByUnitCode();
       } else {
         setFetching(false);
+      }
+      if(calenderValParam) {
+        setCalendarDoubleValue([
+          new Date(Number(calenderValParam[0]) || Date.now()),
+          new Date(Number(calenderValParam[1]) || (Date.now() + 86400000))
+        ]);
       }
       const obj = booksIds.find(i => i.property_id === id);
       if(obj && obj.date_of_book_start > Date.now()){
@@ -713,7 +727,8 @@ const page = () => {
           <h1>{item.title} 
             <span id='mobile-unit-span'>{'(' + item.unit_code + ')'}</span>               
             {item.discount?.percentage > 0 && <DiscountSticker disNum={item?.discount?.percentage}/>}
-            <h4 onClick={() => { setReportDiv(true); setWriterId(''); }}>إِبلاغ <Svgs name={'report'}/></h4><span id='desktop-unit-span'>معرف الوحدة {'(' + item.unit_code + ')'}</span>
+            {isAdmin() && <Link style={{ marginRight: 'auto', marginLeft: 0 }} href={`/admin-edit-prop?id=${id}`}>ادارة الوحدة <Svgs name={'management'}/></Link>}
+            <h4 style={{ marginRight: isAdmin() ? 16 : undefined }} onClick={() => { setReportDiv(true); setWriterId(''); }}>إِبلاغ <Svgs name={'report'}/></h4><span id='desktop-unit-span'>معرف الوحدة {'(' + item.unit_code + ')'}</span>
           </h1>
           
           <ul>
@@ -735,7 +750,7 @@ const page = () => {
           <ImagesShow images={item.images} type={'view'} 
           setImageFullScreen={setImageFullScreen} videos={item.videos} 
           type_is_video={isVideosFiles}
-          handleWishList={handleFav}/>   
+          handleWishList={handleFav} useHooks/>   
         </div>
 
         <div id='wishlistDiv' style={{
@@ -744,6 +759,8 @@ const page = () => {
           <span id='return-arrow' onClick={() => history.back()}><Svgs name={'dropdown arrow'}/></span>
           <Svgs name={favouritesIds?.includes(id) ? 'wishlist filled' : 'wishlist'} on_click={handleFav}/>
           <Svgs name={'share'} on_click={() => setShareDiv(!shareDiv)}/>
+          {isAdmin() && <Svgs name={'management'} on_click={() => adminEditPropRef?.current?.click()}/>}
+          <Link style={{ display: 'none' }} href={`/admin-edit-prop?id=${id}`} ref={adminEditPropRef}></Link>
           <Svgs name={'report'} on_click={() => { setReportDiv(true); setWriterId(''); }}/>
         </div>    
 
@@ -756,7 +773,9 @@ const page = () => {
       <div className="aboutItem">
 
         <div className="details">
-          
+
+          {item.isBadge && <Badge myStyle={{ margin: '0 0 16px 0'}}/>}
+
           <div className='desktopIntro'><label>الوصف</label>
 
           <p id='desc-p'>{item.description}</p>

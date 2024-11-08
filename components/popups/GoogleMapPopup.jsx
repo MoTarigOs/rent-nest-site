@@ -3,10 +3,11 @@
 import '@styles/components_styles/GoogleMapPopup.scss';
 import { Autocomplete, Circle, GoogleMap, Marker, OverlayView, OverlayViewF, useJsApiLoader } from "@react-google-maps/api";
 import { memo, useContext, useState } from 'react';
-import { JordanCities, isInsideJordan } from '@utils/Data';
+import { JordanCities, currencyCode, isInsideJordan } from '@utils/Data';
 import Svgs from '@utils/Svgs';
 import LoadingCircle from '@components/LoadingCircle';
 import { Context } from '@utils/Context';
+import { getDetailedResTypeNum, getNumOfBookDays } from '@utils/Logic';
 
 const GoogleMapPopup = ({ 
   isShow, setIsShow, mapType, 
@@ -21,7 +22,9 @@ const GoogleMapPopup = ({
     const AMMAN_LONG = JordanCities[0].long;
 
     const { 
-      latitude, longitude, setLatitude, setLongitude 
+      latitude, longitude, setLatitude, setLongitude,
+      resType, resTypeNum, calendarDoubleValue,
+      arabicFont
     } = useContext(Context);
 
     const { isLoaded } = useJsApiLoader({
@@ -61,9 +64,76 @@ const GoogleMapPopup = ({
       setLatitude(eLat);
     };
 
+    const getResType = () => {
+      return (!isEnglish ? 'ال' : '') + getDetailedResTypeNum(true, resType, resTypeNum, isEnglish, true)?.split(' ')?.at(1);
+    };
+
+    const getPrice = (priceType, item) => {
+
+      const getHoildays = (isExist, item) => {
+        let isThursday = false;
+        let isFriday = false;
+        let isSaturday = false;
+        console.log('calenderDoubleValue: ', calendarDoubleValue);
+        for (let i = calendarDoubleValue?.at(0)?.getTime() + 86400000; i <= calendarDoubleValue?.at(1)?.getTime(); i += 86400000) {
+            const dayNum = (new Date(i)).getDay();
+            if(dayNum === 4 && item?.prices?.thursdayPrice > 0) isThursday = true;
+            if(dayNum === 5 && item?.prices?.fridayPrice > 0) isFriday = true;
+            if(dayNum === 6 && item?.prices?.saturdayPrice > 0) isSaturday = true;
+        }
+        if(isExist) return isThursday || isFriday || isSaturday || false;
+        if(!item?.prices?.daily) return 'سعر غير محدد';
+        let pp = resTypeNum * item?.prices?.daily;
+        if(isThursday) pp = pp - item?.prices?.daily + item?.prices?.thursdayPrice;
+        if(isFriday) pp = pp - item?.prices?.daily + item?.prices?.fridayPrice;
+        if(isSaturday) pp = pp - item?.prices?.daily + item?.prices?.saturdayPrice;
+        return pp;
+      };
+
+      switch(priceType){
+  
+        case 'main price':
+          if(resType?.value?.toLowerCase() === 'daily') return item.prices?.daily || 'سعر غير محدد';
+          else if(resType?.value?.toLowerCase() === 'weekly') return item.prices?.weekly || 7 * item.prices?.daily || 'سعر غير محدد';
+          else if(resType?.value?.toLowerCase() === 'monthly') return item.prices?.monthly || Math.round(4.285714285 * item.prices?.weekly) || 30 * item.prices?.daily || 'سعر غير محدد';
+          else if(resType?.value?.toLowerCase() === 'seasonly') return item.prices?.seasonly || 'سعر غير محدد';
+          else if(resType?.value?.toLowerCase() === 'yearly') return item.prices?.yearly || Math.round(12.16666666 * item.prices?.monthly) || Math.round(52.1428571 * item.prices?.weekly) || 365 * item.prices?.daily || 'سعر غير محدد';
+          else if(resType?.value?.toLowerCase() === 'events') return item.prices?.eventsPrice || 'سعر غير محدد';
+          else return 'سعر غير محدد';
+  
+        case 'cost price':
+          if(resType?.value?.toLowerCase() === 'daily') return getHoildays(false, item);
+          else if(resType?.value?.toLowerCase() === 'weekly') return resTypeNum * item.prices?.weekly || resTypeNum * 7 * item.prices?.daily || 'سعر غير محدد';
+          else if(resType?.value?.toLowerCase() === 'monthly') return resTypeNum * item.prices?.monthly || resTypeNum * Math.round(4.285714285 * item.prices?.weekly) || resTypeNum * 30 * item.prices?.daily || 'سعر غير محدد';
+          else if(resType?.value?.toLowerCase() === 'seasonly') return resTypeNum * item.prices?.seasonly || 'سعر غير محدد';
+          else if(resType?.value?.toLowerCase() === 'yearly') return resTypeNum * item.prices?.yearly || resTypeNum * Math.round(12.16666666 * item.prices?.monthly) || resTypeNum * Math.round(52.1428571 * item.prices?.weekly) || resTypeNum * 365 * item.prices?.daily || 'سعر غير محدد';
+          else if(resType?.value?.toLowerCase() === 'events') return resTypeNum * item.prices?.eventsPrice || 'سعر غير محدد';
+          else return 'سعر غير محدد';
+  
+        case 'test res type existence':
+          if(resType?.value?.toLowerCase() === 'daily' && item.prices?.daily > 0) return true;
+          else if(resType?.value?.toLowerCase() === 'weekly' && item.prices?.weekly > 0) return true;
+          else if(resType?.value?.toLowerCase() === 'monthly' && item.prices?.monthly > 0) return true;
+          else if(resType?.value?.toLowerCase() === 'seasonly' && item.prices?.seasonly > 0) return true;
+          else if(resType?.value?.toLowerCase() === 'yearly' && item.prices?.yearly > 0) return true;
+          else if(resType?.value?.toLowerCase() === 'events' && item.prices?.eventsPrice > 0) return true;
+          else return false;
+  
+      }
+  
+    };
+
+    const getRealPrice = (item) => {
+      const pr = (getPrice('main price', item) - (item?.discount?.percentage 
+            ? ((resType?.id > 0 
+                ? resTypeNum : getNumOfBookDays(calendarDoubleValue)) * getPrice('main price', item) * item?.discount.percentage / 100) 
+                : 0)).toFixed(2);
+       return isNaN(pr) ? '-' : pr;
+    };
+
   return (
     <div className={mapType === 'search' ? "google-map-popup-wrapper search-map" : "google-map-popup-wrapper" }
-      style={mapType !== 'search' ? { left: isShow ? null : '-200vw' } : style}
+      style={{...mapType !== 'search' ? { left: isShow ? null : '-200vw' } : style, fontFamily: arabicFont}}
       dir={isEnglish ? 'ltr' : undefined}>
 
         <span onClick={() => setIsShow(false)}/>
@@ -133,6 +203,16 @@ const GoogleMapPopup = ({
                   fillOpacity: 0.3, // Opacity (0 to 1)
                 }} visible={mapType === 'view' ? true : false}/>
 
+                                                  
+                <Circle center={{ 
+                    lat: 32.03442699083755120,
+                    lng: 35.713704416849
+                  }} radius={200} options={{
+                    strokeColor: '#000000', // Red outline
+                    fillColor: '#ff0000', // Red fill
+                    fillOpacity: 0.3, // Opacity (0 to 1)
+                  }} visible={true}/>
+
                 {props?.length > 0 && props.map((item) => (<OverlayViewF
                   position={{
                     lat: item?.map_coordinates?.at(1), lng: item?.map_coordinates?.at(0)
@@ -150,7 +230,8 @@ const GoogleMapPopup = ({
                     color: selectedProp === item ? 'white' : undefined,
                     zIndex: selectedProp === item ? 10 : undefined
                   }}>
-                    {isEnglish ? `$${item.price} per Night` : `${item.price} دولار / الليلة`}
+                    {isEnglish ? `${getRealPrice(item)} ${currencyCode(true)} / ${getResType()}` : `${getRealPrice(item)} ${currencyCode(false)} / ${getResType()}`}
+                    {item?.discount?.percentage > 0 && <div id='discount-div'>{isEnglish ? 'Discount' : 'تخفيض'}</div>}
                   </div>
                 </OverlayViewF>))}
 

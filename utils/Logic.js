@@ -512,7 +512,7 @@ export const getErrorText = (errorName, isEnglish) => {
             case 'attempts exceeded':
                 return 'The intended login attempts number has been exceeded. Please change your password from the Forgot Password page.';
             default:
-                return errorName;
+                return errorName || 'Error occured';
         }
 
     } else {
@@ -547,7 +547,7 @@ export const getErrorText = (errorName, isEnglish) => {
             case 'attempts exceeded':
                 return 'تم تجاوز عدد محاولات تسجيل الدخول المسموح, الرجاء تغيير كلمة من صفحة نسيت كلمة السر.';
             default:
-                    return errorName;
+                return errorName || 'حدث خطأ';
         }
            
     }
@@ -634,12 +634,12 @@ export function decodeArabicUrl(url) {
     }
 };
 
-export   const getDetailedResTypeNum = (onlyText, resType, resTypeNum, isEn) => {
+export const getDetailedResTypeNum = (onlyText, resType, resTypeNum, isEn, noPuralS) => {
 
-    const dayName = (isAnd) => { return isEn ? ` Days ${isAnd ? '& ' : ''}` : ` يوم ${isAnd ? 'و ' : ''}` };
-    const weekName = (isAnd) => { return isEn ?  ` Weeks ${isAnd ? '& ' : ''}` : ` اسبوع ${isAnd ? 'و ' : ''}` };
-    const monthName = (isAnd) => { return isEn ? ` Months ${isAnd ? '& ' : ''}` : ` شهر ${isAnd ? 'و ' : ''}` };
-    const yearName = (isAnd) => { return isEn ?  ` Years ${isAnd ? '& ' : ''}` : ` سنة ${isAnd ? 'و ' : ''}` };
+    const dayName = (isAnd) => { return isEn ? ` Day${noPuralS ? '' : 's'} ${isAnd ? '& ' : ''}` : ` يوم ${isAnd ? 'و ' : ''}` };
+    const weekName = (isAnd) => { return isEn ?  ` Week${noPuralS ? '' : 's'} ${isAnd ? '& ' : ''}` : ` اسبوع ${isAnd ? 'و ' : ''}` };
+    const monthName = (isAnd) => { return isEn ? ` Month${noPuralS ? '' : 's'} ${isAnd ? '& ' : ''}` : ` شهر ${isAnd ? 'و ' : ''}` };
+    const yearName = (isAnd) => { return isEn ?  ` Year${noPuralS ? '' : 's'} ${isAnd ? '& ' : ''}` : ` سنة ${isAnd ? 'و ' : ''}` };
     const seasonName = isEn ? ' Season ' : ' فصل' ;
     const eventsName = isEn ? ' Event ' : ' مناسبة ';
 

@@ -1,0 +1,140 @@
+.properitiesPage{
+    width: 100%;
+    max-width: 1300px;
+    position: relative;
+    padding: 32px 16px;
+    margin-top: var(--headerHeight);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+
+    .skeleton{
+        margin-top: -32px;
+    }
+
+    .book-date{
+        position: relative;
+        display: none;
+        gap: 24px;
+        width: 100%;
+        max-width: 480px;
+        margin: 8px 8px 32px 8px;
+        padding: 24px;
+        border-radius: 8px;
+        box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.173);
+
+        .calendar-div{
+            border: 2px solid rgb(242, 242, 242);
+            box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.137);
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+            position: absolute;
+            top: 110%;
+            right: 0;
+            left: unset;
+            width: 100%;
+            max-width: fit-content;
+            z-index: 11;
+            height: fit-content;
+
+            &:dir(ltr){
+                right: unset;
+                left: 0;
+            }
+        }
+
+        .bookingDate{
+            color: grey;
+            cursor: pointer;
+            width: 100%;
+            font-size: 0.9rem;
+
+            h3{
+                color: var(--secondColorDark);
+                margin-top: 4px;
+                font-weight: 500;
+                font-size: 0.96rem;
+            }
+        }
+    }
+
+    .filterHeaderDiv{
+        background: var(--secondColor);
+        position: absolute;
+        top: 90vh;
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        color: white;
+
+        button{
+            background: var(--secondColor);
+            padding: 12px;
+            border-top-right-radius: 50px;
+            border-bottom-right-radius: 50px;
+            border: none;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.1s ease-in;
+        }
+
+        #secondFilterHeaderDivBtn{
+            border-top-right-radius: unset;
+            border-bottom-right-radius: unset;
+            border-top-left-radius: 50px;
+            border-bottom-left-radius: 50px;
+        }
+
+        button:hover{
+            background: var(--secondColorHover);
+            transition: all 0.1s ease-in;
+        }
+
+        svg{
+            width: 20px;
+            height: 20px;
+            margin-left: 8px;
+            
+            path{
+                stroke: white;
+                fill: white;
+            }
+        }
+
+        span{
+            height: 24px;
+            width: 1px;
+            background: white;
+        }
+    }
+
+    #moreProperties{
+        color: var(--secondColor);
+        background: transparent;
+        cursor: pointer;
+        border: none;
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin-top: 32px;
+        
+        &:hover{
+            text-decoration: underline;
+        }
+    }
+}
+
+@media screen and (max-width: 1160px){
+    .properitiesPage{
+        margin-top: var(--headerHeightMobile);
+        padding: 32px 12px;
+
+        .book-date{
+            display: flex;
+        } 
+    }
+}

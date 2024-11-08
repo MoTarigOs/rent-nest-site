@@ -11,7 +11,12 @@ const ReviewCard = ({
 
   const getRatingText = (score) => {
     const obj = ratingsSections.find(i=>i.value === Math.round(score));
-    return (isEnglish ? obj.value : obj.arabicName) + ' ' + obj?.emoji;
+    return (isEnglish ? obj.enName : obj.arabicName) + ' ' + obj?.emoji;
+  };
+
+  const isAddedToDeletion = () => {
+    if(revsToDeleteAdmin?.find(i => i._id === item._id)) return true;
+    else return false;
   };
 
   return (
@@ -34,12 +39,12 @@ const ReviewCard = ({
       }}><Svgs name={'report'}/></h4>}
       {(isAdmin && revsToDeleteAdmin) 
       && <h3 className='delete-file' onClick={() => {
-        if(!revsToDeleteAdmin?.find(i => i.writer_id === item.writer_id))
+        if(!isAddedToDeletion())
           setRevsToDeleteAdmin([...revsToDeleteAdmin, item]);
       }}>
-        {!revsToDeleteAdmin?.find(i => i.writer_id === item.writer_id)
+        {!isAddedToDeletion()
           ? <Svgs name={'delete'}/>
-          : 'تم الاضافة الى قائمة الحذف'}
+          : (isEnglish ? 'Added to Delete List' : 'تم الاضافة الى قائمة الحذف')}
       </h3>}</>}
 
       {item.updatedAt && <label id='wrote-date'>{getReadableDate(new Date(item.updatedAt), true, isEnglish)}</label>}

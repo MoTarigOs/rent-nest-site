@@ -1249,10 +1249,19 @@ export const deleteReviewsAdmin = async(propertyId, reviewsArray, isEnglish) => 
 
         const url = `${baseUrl}/admin/delete-reviews/${propertyId}`;
 
-        const arr = reviewsArray.map(obj => obj.writer_id);
+        // const arr = reviewsArray.map(obj => obj.writer_id);
+
+        let arrWriterIds = [];
+        let arrIds = [];
+
+        for (let i = 0; i < reviewsArray.length; i++) {
+            if(reviewsArray[i]?.writer_id) arrWriterIds.push(reviewsArray[i].writer_id);
+            else arrIds.push(reviewsArray[i]._id);    
+        }
 
         const body = {
-            writerIds: arr
+            writerIds: arrWriterIds,
+            ids: arrIds
         };
     
         const res = await axios.post(url, body, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
@@ -1515,6 +1524,93 @@ export const getAdminNotif = async() => {
 
 };
 
+export const addBadge = async(propertyId) => {
+    try {
+        
+        const url = `${baseUrl}/admin/add-badge/${propertyId}`;
+
+        const res = await axios.put(url, null, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+
+        if(!res || !res.status || res.status !== 200) return { success: false, dt: getErrorText(res.data, isEnglish) };
+
+        return { success: true, dt: res.data };
+
+    } catch (err) {
+        return { success: false, dt: getErrorText(err?.response?.data?.message, isEnglish)};
+    }
+};
+
+export const removeBadge = async(propertyId) => {
+    try {
+        
+        const url = `${baseUrl}/admin/remove-badge/${propertyId}`;
+
+        const res = await axios.put(url, null, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+        
+        if(!res || !res.status || res.status !== 200) return { success: false, dt: getErrorText(res.data, isEnglish) };
+
+        return { success: true, dt: res.data };
+
+    } catch (err) {
+        return { success: false, dt: getErrorText(err?.response?.data?.message, isEnglish)};
+    }
+};
+
+export const addDeal = async(propertyId) => {
+    try {
+        
+        const url = `${baseUrl}/admin/add-deal/${propertyId}`;
+
+        const res = await axios.put(url, null, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+
+        if(!res || !res.status || res.status !== 200) return { success: false, dt: getErrorText(res.data, isEnglish) };
+
+        return { success: true, dt: res.data };
+
+    } catch (err) {
+        return { success: false, dt: getErrorText(err?.response?.data?.message, isEnglish)};
+    }
+};
+
+export const removeDeal = async(propertyId) => {
+    try {
+        
+        const url = `${baseUrl}/admin/remove-deal/${propertyId}`;
+
+        const res = await axios.put(url, null, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+
+        if(!res || !res.status || res.status !== 200) return { success: false, dt: getErrorText(res.data, isEnglish) };
+
+        return { success: true, dt: res.data };
+
+    } catch (err) {
+        return { success: false, dt: getErrorText(err?.response?.data?.message, isEnglish)};
+    }
+};
+
+export const sendReviewAdmin = async(score, text, propertyId, isEnglish, username) => {
+
+    try {
+
+        const url = `${baseUrl}/admin/write-review/${propertyId}`;
+
+        const body = {
+            text,
+            user_rating: score,
+            username
+        };
+
+        const res = await axios.put(url, body, { withCredentials: true, 'Access-Control-Allow-Credentials': true });
+        
+        if(!res || !res.status || res.status !== 201) return { success: false, dt: getErrorText(res.data, true) };
+
+        return { success: true, dt: res.data };
+        
+    } catch (err) {
+        return { success: false, dt: getErrorText(err?.response?.data?.message, isEnglish) }
+    }
+
+};
 
 // test methods
 export const sendTest = async(key, email) => {

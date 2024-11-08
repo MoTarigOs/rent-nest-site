@@ -9,13 +9,14 @@ import Swiper from 'swiper/bundle';
 import 'swiper/swiper-bundle.css';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import EmbeddedVideo from './EmbeddedVideo';
 
 const ImagesShow = ({ 
     isEnglish, images, videos, isAdmin, setFilesToDeleteAdmin, 
     filesToDeleteAdmin,
     handleWishList, isFaved,
     type, type_is_video, 
-    setImageFullScreenm, useHooks
+    setImageFullScreen, useHooks
 }) => {
 
     let [intervalId, setIntervalId] = useState(null);
@@ -38,8 +39,8 @@ const ImagesShow = ({
                 
                 // Navigation arrows
                 navigation: {
-                    nextEl: ".leftArrow",
-                    prevEl: ".rightArrow",
+                    nextEl: !isEnglish ? ".leftArrow" : ".rightArrow",
+                    prevEl: !isEnglish ? ".rightArrow" : ".leftArrow",
                 },
                 
                 on: {
@@ -170,7 +171,7 @@ const ImagesShow = ({
                 </>}</> : <>
                     {videos?.length > 0 ? <>{videos.map((vd, index) => (
                         <div key={index} className='swiper-slide'>
-                            <video controls src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${vd}`}/>
+                            <EmbeddedVideo isControl isContain url={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${vd}`}/>
                         </div>
                     ))}</> : <>
                         <div className='not-exist'>

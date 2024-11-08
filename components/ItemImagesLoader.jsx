@@ -2,6 +2,7 @@ import Svgs from "@utils/Svgs";
 import Image from "next/image";
 import '@styles/components_styles/ItemImagesLoader.scss';
 import { motion } from "framer-motion";
+import EmbeddedVideo from "./EmbeddedVideo";
 
 const ItemImagesLoader = ({ 
     images, videos, isEnglish, isShow, 
@@ -31,13 +32,13 @@ const ItemImagesLoader = ({
             {images?.length > 0 && images?.map((img, index) => (
                 <li onClick={() => setImageFullScreen(img)}>
                     <Image loading={'lazy'}
-                        src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${img}`} width={100} height={100} alt={isEnglish ? 'Image about the offer' : 'صورة عن العرض'}
+                        src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${img}`} width={720} height={720} alt={isEnglish ? 'Image about the offer' : 'صورة عن العرض'}
                         />
                 </li>
             ))}
             {videos?.length > 0 && videos?.map((vd) => (
                 <li>
-                    <video controls src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${vd}`}/>
+                    <EmbeddedVideo isControl url={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${vd}`}/>
                 </li>
             ))}
         </ul> 

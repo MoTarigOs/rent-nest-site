@@ -104,6 +104,23 @@ const PropertiesArray = ({
                         );
                     case 'admin-properties':
                         return getAdminProps(adminSectionType?.split(' ')?.at(1), skipCount, cardsPerPage);
+                    case 'deals':
+                        return getProperties(
+                            city.value, false, catagory || catagoryParam, rangeValue,
+                            ratingScore, searchText, arrangeValue, addressLong, addressLat, skipCount,
+                            [{"idName":"discounts","enName":"Best offers & discounts","arabicName":"العروض و الخصومات"}],
+                            neighbourSearchText,
+                            unitCode,
+                            bedroomFilter,
+                            capacityFilter,
+                            poolFilter,
+                            customersTypesFilter,
+                            companiansFilter,
+                            bathroomsFilterNum,
+                            bathroomsCompaniansFilter,
+                            kitchenFilter, categoryArray, null, cardsPerPage,
+                            null, resType?.value
+                        );
                     default:
                         return getProperties(
                             city.value, false, catagory || catagoryParam, rangeValue,
@@ -147,7 +164,7 @@ const PropertiesArray = ({
             else setProperitiesArray(((isCalendarValue && calendarDoubleValue) ? arr : res?.dt));
 
             if(!res?.count <= 0) setFoundItems(res?.count);
-
+            
             (isSearchMap && setFetchingProp) ? setFetchingProp(false) : setFetching(false);
 
         } catch (err) {

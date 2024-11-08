@@ -673,10 +673,24 @@ const page = () => {
 
         const testSec4 = () => {
 
-            console.log('test4');
+            console.log('test4: ', attachedFilesUrls);
+
+            const isNotSupported = () => {
+                for (let i = 0; i < attachedFilesUrls.length; i++) {
+                    const element = attachedFilesUrls[i];
+                    const dotsArr = element?.name?.split('.');
+                    const extension = dotsArr[dotsArr?.length - 1];
+                    if(extension !== 'jpg' && extension !== 'png' && extension !== 'mp4' && extension !== 'avi')
+                        return true;
+                };
+                return false;
+            };
 
             if(attachedFilesUrls?.length <= 0){
                 setSectionError('أضف صور و فيديوهات تعبر عن ' + (selectedCatagories === '0' ? 'السيارة' : 'العقار'));
+                return false;
+            } else if(isNotSupported()){
+                setSectionError('اصدار الملف غير مدعوم');
                 return false;
             } else {
                 setSectionError('');

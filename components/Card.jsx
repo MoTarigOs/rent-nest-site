@@ -8,6 +8,7 @@ import { JordanCities, currencyCode } from '@utils/Data';
 import dynamic from 'next/dynamic';
 import { useContext } from 'react';
 import { Context } from '@utils/Context';
+import Badge from './Badge';
 const ImagesShow = dynamic(() => import('./ImagesShow'), { ssr: false });
 
 const Card = ({ 
@@ -17,14 +18,14 @@ const Card = ({
   useHooks
 }) => {
 
-    const { resType } = useContext(Context);
+    const { resType, calendarDoubleValue } = useContext(Context);
 
     const getUrl = () => {
       switch(type){
         case 'myProp':
-          return `${isEnglish ? '/en' : ''}/${isAdmin ? 'admin-' : ''}edit-prop?id=${item._id}${isReported ? '&isReport=true' : ''}`;
+          return `${isEnglish ? '/en' : ''}/${isAdmin ? 'admin-' : ''}edit-prop?id=${item._id}${isReported ? '&isReport=true' : ''}&calender=${calendarDoubleValue?.at(0)?.getTime()},${calendarDoubleValue?.at(1)?.getTime()}`;
         default:
-          return `${isEnglish ? '/en' : ''}/view/${item?.title?.replaceAll(' ', '-')}?id=${item._id}`;
+          return `${isEnglish ? '/en' : ''}/view/${item?.title?.replaceAll(' ', '-')}?id=${item._id}&calender=${calendarDoubleValue?.at(0)?.getTime()},${calendarDoubleValue?.at(1)?.getTime()}`;
       }
     };
 
@@ -84,9 +85,8 @@ const Card = ({
 
               <strong><Image src={RatingStar} alt='rating star image'/>{Number(item?.ratings?.val).toFixed(2)} ({item?.ratings?.no})</strong> 
 
-              <h4 style={{ display: item?.discount?.percentage > 0 ? null : 'none' }}>
-                {isEnglish ? 'discount' : 'خصم'} {item?.discount?.percentage}%
-              </h4>
+              <h4 style={{ display: (item?.discount?.percentage > 0 || item.isDeal) ? null : 'none' }}>
+                {!item.isDeal ? (isEnglish ? 'discount' : 'خصم') : (isEnglish ? 'Special Deal' : 'عرض خاص')} {!item.isDeal ? `${item?.discount?.percentage}%` : ''}</h4>
 
           </div>
 

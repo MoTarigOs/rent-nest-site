@@ -1,0 +1,171 @@
+.Badge{
+    cursor: pointer;
+    width: 100%;
+    padding: 8px 16px 16px 16px;
+    border-radius: 16px;
+    border: 2px solid rgba(143, 143, 143, 0.203);
+    margin: 16px 0;
+
+    &:dir(ltr){
+        .mainBadgeDiv{
+            svg{
+                margin-right: 0;
+                margin-left: auto;
+                transform: rotate(-90deg);
+            }
+        }
+        .expandedBadgeTexts{
+            padding-right: 0;
+            padding-left: 72px;
+            ul{
+                margin-right: 0;
+                margin-left: 24px;
+            }
+        }
+    }
+
+    .mainBadgeDiv{
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 16px;
+
+        .badgeTexts{
+            padding-top: 8px;
+        }
+
+        svg{
+            transform: rotate(90deg);
+            margin-right: auto;
+            margin-top: 8px;
+            path{
+                fill: grey;
+            }
+        }
+    }
+
+    .expBadgeContainer{
+        padding-right: 72px;
+        padding-top: 24px;
+        padding-bottom: 12px;
+        display: none;
+
+        .expandedBadgeTexts{
+            h3{
+                font-size: 1rem;
+                font-weight: 500;
+            }
+            .isMobileBadgeDiv{
+                display: none;
+                flex-direction: column;
+                align-items: center;
+                margin-bottom: 24px;
+                .badgeHeader{
+                    width: 100%;
+                    display: flex;
+                    border-bottom: 2px solid rgba(128, 128, 128, 0.304);
+                    padding-bottom: 16px;
+                    margin-bottom: 24px;
+                    align-items: center;
+                    svg{
+                        width: 44px;
+                        height: 44px;
+                        padding: 4px;
+                        &:hover{
+                            background: rgba(128, 128, 128, 0.182);
+                            border-radius: 50%;
+                        }
+                    }
+                    p{
+                        width: 100%;
+                        text-align: center;
+                        font-weight: 600;
+                        font-size: 1.2rem;
+                        color: rgba(0, 0, 0, 0.675);
+                    }
+                }
+            }
+            ul{
+                margin-right: 24px;
+                margin-top: 16px;
+                font-weight: 600;
+            }
+            button{
+                background: var(--secondColor);
+                color: white;
+                border-radius: 6px;
+                padding: 8px 24px;
+                border: none;
+                font-weight: 600;
+                cursor: pointer;
+                margin-top: 24px;
+                margin-right: auto;
+                &:hover{
+                    background: var(--secondColorHover);
+                }
+            }
+        }
+    }
+
+    img{
+        width: 64px;
+        height: 64px;
+    }
+}
+
+.DealBadge{
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    border: 4px solid var(--thirdColor);
+    background: var(--secondColor);
+    color: white;
+    font-weight: 700;
+    padding: 12px;
+    text-align: center;
+    line-height: 24px;
+    flex-wrap: wrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media screen and (max-width: 960px){
+    .Badge{
+        background: var(--darkWhite);
+        .mainBadgeDiv{
+            .badgeTexts{
+                p{
+                    color: var(--secondColorDark);
+                }
+            }
+        }
+        .expBadgeContainer{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100dvh;
+            background: rgba(0, 0, 0, 0.244);
+            padding-right: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+
+            .expandedBadgeTexts{
+                background: white;
+                height: fit-content;
+                max-width: 80%;
+                padding: 16px 24px;
+                border-radius: 8px;
+
+                .isMobileBadgeDiv{
+                    display: flex;
+                }
+            }
+        }
+    }
+}

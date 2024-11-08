@@ -241,7 +241,7 @@ const Svgs = ({ name, on_click, styling, pathStyle }) => {
             </svg>}
 
             {name === 'management' && <svg fill="#777" height="24px" width="24px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" 
-	        viewBox="0 0 477.08 477.08" xmlSpace="preserve">
+	        viewBox="0 0 477.08 477.08" xmlSpace="preserve" onClick={on_click}>
             <g>
                 <path d="M477.064,203.08c0-10.801-8.759-19.56-19.56-19.56h-40.182c-3.487-11.337-8.061-22.175-13.526-32.48l28.465-28.465
                     c3.673-3.673,5.731-8.65,5.731-13.837s-2.066-10.164-5.731-13.837l-50.128-50.106c-7.641-7.64-20.026-7.64-27.667,0l-28.465,28.465

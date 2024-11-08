@@ -1,3 +1,7 @@
+*{
+    font-family: inherit;
+}
+
 .google-map-popup-wrapper{
     position: fixed;
     top: 0;
@@ -79,20 +83,48 @@
         font-size: 1rem;
         font-weight: 500;
         color: rgb(68, 68, 68);
-        font-family: inherit;
         display: flex;
         flex-direction: column;
         align-items: center;
-        font-family: sans-serif;
         gap: 12px;
         border-radius: 50px;
-        transform: translate(64px, -24px);
+        transform: translate(86px, -24px);
+
+        &:dir(ltr){
+            transform: translate(-86px, -24px);
+            #discount-div{
+                left: unset;
+                right: -32px;
+                transform: rotate(25deg);
+                top: -36px;
+                width: 58px;
+                height: 58px;
+            }
+        }
 
         img{
             width: 72px;
             height: 72px;
             border-radius: 12px;
             display: none;
+        }
+
+        #discount-div{
+            border-radius: 100px;
+            width: 52px;
+            height: 52px;
+            border: 2px solid var(--secondColor);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000000;
+            background: white;
+            color: var(--secondColor);
+            font-size: 0.72rem;
+            position: absolute;
+            top: -28px;
+            left: -24px;
+            transform: rotate(-25deg);
         }
     }
 

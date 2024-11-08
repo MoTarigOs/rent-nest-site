@@ -4,7 +4,7 @@ import '../../add/Add.scss';
 import { Suspense, useContext, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import CustomInputDiv from '@components/CustomInputDiv';
-import { deleteFiles, deleteProp, deletePropFiles, deletePropFilesAdmin, deleteReportOnProp, deleteReviewsAdmin, deleteSpecificPropFilesAdmin, editProperty, fetchPropertyDetails, handlePropAdmin, setBookableAdmin, setNewBookedDaysAdmin, showProp, uploadFiles } from '@utils/api';
+import { addBadge, addDeal, deleteFiles, deleteProp, deletePropFiles, deletePropFilesAdmin, deleteReportOnProp, deleteReviewsAdmin, deleteSpecificPropFilesAdmin, editProperty, fetchPropertyDetails, handlePropAdmin, removeBadge, removeDeal, sendReviewAdmin, setBookableAdmin, setNewBookedDaysAdmin, showProp, uploadFiles } from '@utils/api';
 import { useSearchParams } from 'next/navigation';
 import Svgs from '@utils/Svgs';
 import { Context } from '@utils/Context';
@@ -14,7 +14,7 @@ import { getBookDateFormat, getOptimizedAttachedFiles, isValidArrayOfStrings, is
 import MyCalendar from '@components/MyCalendar';
 import MySkeleton from '@components/MySkeleton';
 import NotFound from '@components/NotFound';
-import { JordanCities, cancellationsArray, carFuelTypesArray, carGearboxes, contactsPlatforms, currencyCode, getContactPlaceHolder, getNames, isInsideJordan, reservationType, vehicleRentTypesArray } from '@utils/Data';
+import { JordanCities, cancellationsArray, carFuelTypesArray, carGearboxes, contactsPlatforms, currencyCode, getContactPlaceHolder, getNames, isInsideJordan, ratingsSections, reservationType, vehicleRentTypesArray } from '@utils/Data';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import CustomInputDivWithEN from '@components/CustomInputDivWithEN';
 import InfoDiv from '@components/InfoDiv';
@@ -23,6 +23,8 @@ import LoadingCircle from '@components/LoadingCircle';
 import AddDetailsPopup from '@components/popups/AddDetailsPopup';
 import { getUserLocation } from '@utils/ServerComponents';
 import ReviewCard from '@components/ReviewCard';
+import Badge from '@components/Badge';
+import EmbeddedVideo from '@components/EmbeddedVideo';
 
 const Page = () => {
 
@@ -108,6 +110,14 @@ const Page = () => {
     const [discountPer, setDiscountPer] = useState(0);
     const [discountNights, setDiscountNights] = useState(0);
 
+    const [sendingReview, setSendingReview] = useState(false);
+    const [sendReviewError, setSendReviewError] = useState('');
+    const [sendReviewSuccess, setSendReviewSuccess] = useState('');
+    const [scoreRate, setScoreRate] = useState(null);
+    const [isAdminReview, setIsAdminReview] = useState(false);
+    const [reviewText, setReviewText] = useState('');
+    const [reviewUsername, setReviewUsername] = useState('');
+
     const [cancellation, setCancellation] = useState('');
     const [isCancellation, setIsCancellation] = useState('');
     const [capacity, setCapacity] = useState(0);
@@ -136,7 +146,11 @@ const Page = () => {
     
     const [filesToDelete, setFilesToDelete] = useState([]);
     const [isAddDetails, setIsAddDetails] = useState(false);
-
+    const [isDeal, setIsDeal] = useState(false);
+    const [isDealing, setIsDealing] = useState(false);
+    const [dealError, setDealError] = useState(false);
+    const [dealSuccess, setDealSuccess] = useState(false);
+    const [isDealDiv, setIsDealDiv] = useState(false);
     
     const [adminSending, setAdminSending] = useState(false);
     const [adminType, setAdminType] = useState('pass-property');
@@ -154,6 +168,12 @@ const Page = () => {
     const [revsNum, setRevsNum] = useState(0);
     const revsNumIndexSlide = 8;
 
+    const [isBadgeDiv, setIsBadgeDiv] = useState(false);
+    const [badge, setBadge] = useState(false);
+    const [badgeError, setBadgeError] = useState('');
+    const [badgeSuccess, setBadgeSuccess] = useState('');
+    const [settingBadge, setSettingBadge] = useState(false);
+    
     const [deletingReport, setDeletingReport] = useState(false);
     const [isDeleteReport, setIsDeleteReport] = useState(false);
 
@@ -1055,8 +1075,22 @@ const Page = () => {
 
             console.log('test4');
 
+            const isNotSupported = () => {
+                for (let i = 0; i < attachedFilesUrls.length; i++) {
+                    const element = attachedFilesUrls[i];
+                    const dotsArr = element?.name?.split('.');
+                    const extension = dotsArr[dotsArr?.length - 1];
+                    if(extension !== 'jpg' && extension !== 'png' && extension !== 'mp4' && extension !== 'avi')
+                        return true;
+                };
+                return false;
+            };
+
             if(item.images?.length - filesToDelete?.length <= 0){
-                setSectionError('The last image cannot be deleted, please add more images & submit then delete this image');
+                setSectionError('The last image cannot be deleted, please add more images before deleting those images');
+                return false;
+            } else if(isNotSupported()){
+                setSectionError('File type is not supported');
                 return false;
             } else {
                 setSectionError('');
@@ -1382,6 +1416,7 @@ const Page = () => {
           setDeleteRevsError('');
           setDeleteRevsSuccess('Deleted Successfully');
           setItem(res.dt);
+          setRevsToDeleteAdmin([]);
           setDeletingRevs(false);
           
         } catch (err) {
@@ -1389,6 +1424,132 @@ const Page = () => {
           setDeleteRevsError('Error Occured');
           setDeleteRevsSuccess('');
           setDeletingRevs(false);
+        }
+    
+    };
+
+    const handleBadgeBtn = async() => {
+        try {
+            
+            if(settingBadge) return;
+    
+            setSettingBadge(true);
+    
+            let res = null;
+            
+            if(badge) res = await removeBadge(id);
+            else res = await addBadge(id);
+    
+            if(res.success != true){
+                setBadgeError(res.dt);
+                setBadgeSuccess('');
+                setSettingBadge(false);
+                return;
+            }
+    
+            setBadgeError('');
+            setItem(res.dt);
+            setBadgeSuccess(badge ? 'The Warranty has been removed successfully.' : 'The Warranty has been added successfully.');
+            setSettingBadge(false);
+            
+        } catch (err) {
+            console.log(err);
+            setBadgeError('حدث خطأ!');
+            setSettingBadge(false);
+        }
+    };
+
+    const handleDealBtn = async() => {
+        try {
+            
+            if(isDealing) return;
+
+            setIsDealing(true);
+
+            let res = null;
+            
+            if(isDeal) res = await removeDeal(id);
+            else res = await addDeal(id);
+
+            if(res.success != true){
+                setDealError(res.dt);
+                setDealSuccess('');
+                setIsDealing(false);
+                return;
+            }
+
+            setDealError('');
+            setItem(res.dt);
+            setDealSuccess(isDeal ? 'Removed from special deals' : 'Added to special deals');
+            setIsDealing(false);
+            
+        } catch (err) {
+            console.log(err);
+            setDealError('حدث خطأ!');
+            setIsDealing(false);
+        }
+    };
+
+    const getReviewTextHolder = () => {
+        const x = Math.round(scoreRate);
+        if(x === 5) return 'Glad to know that you liked the ' + (item.type_is_vehicle ? 'Vehicle' : 'Property') + ', please write a simple description of your experience.';
+        if(x === 4) return 'Good to know that you liked the ' + (item.type_is_vehicle ? 'Vehicle' : 'Property') + ', please write about your experince and what can be improved.';
+        if(x === 3) return 'What problems did you encounter or areas that you suggest improving?';
+        if(x === 2) return "We are sorry to hear that, why don't you like the " + (item.type_is_vehicle ? 'Vehicle' : 'Property') + ' ?';
+        if(x === 1) return 'We are very sorry for the bad experience you had. Please write about the problems you encountered that made your experience bad.';
+    };
+
+    const getRatingText = () => {
+        const x = Math.round(scoreRate);
+        const obj = ratingsSections.find(i=>i.value === x);
+        return obj?.enName + ' ' + obj?.emoji;
+    };
+
+    const writeReview = async() => {
+
+        try {
+
+          if(!isValidText(reviewUsername)) {
+            setSendReviewError('Add Customer name');
+            setSendReviewSuccess('');
+            return;
+          }
+    
+          if(!scoreRate || typeof scoreRate !== 'number') {
+            setSendReviewError('Choose a rating for the unit');
+            setSendReviewSuccess('');
+            return;
+          }
+    
+          if(!reviewText){
+            setSendReviewError('Write about why this rating in the text field');
+            setSendReviewSuccess('');
+            return;
+          }
+    
+          setSendingReview(true);
+    
+          const res = await sendReviewAdmin(scoreRate, reviewText, id, true, reviewUsername);
+    
+          console.log('write review res: ', res);
+
+          if(res.success !== true) {
+            setSendReviewError(res.dt);
+            setSendReviewSuccess('');
+            setSendingReview(false);
+            return;
+          };
+    
+          setSendReviewError('');
+          setSendReviewSuccess('Review Added Successfully');
+          if(res.dt) setItem(res.dt);
+          setSendingReview(false);
+          
+        } catch (err) {
+          console.log(err.message);
+          setSendReviewError('Something went wrong');
+          setSendReviewSuccess('');
+          setSendingReview(false);
         }
     
     };
@@ -1445,7 +1606,9 @@ const Page = () => {
             setCarFuelType(carFuelTypesArray(true)?.find(i=>i === item.details?.vehicle_specifications?.fuel_type) || carFuelTypesArray(true)[carFuelTypesArray().indexOf(item.details?.vehicle_specifications?.fuel_type)]);
             setLongitude(item.map_coordinates[0] || JordanCities.find(i=>i.value === item.city)?.long);
             setLatitude(item.map_coordinates[1] || JordanCities.find(i=>i.value === item.city)?.lat);
-            
+            setBadge(item.isBadge);
+            setIsDeal(item.isDeal);
+
             if(item.type_is_vehicle){
                 setVehicleFeatures(item.details?.features);
                 setVehicleFeaturesEN(getEnglishDetailsArray('features', null, true));
@@ -1624,7 +1787,7 @@ const Page = () => {
                             {revsToDeleteAdmin.map((rv, index) => (
                                 <ReviewCard isEnglish key={index} isAdmin={isAdmin()} item={rv} 
                                 on_click={() => setRevsToDeleteAdmin(
-                                    revsToDeleteAdmin.filter(i => i.writer_id !== rv?.writer_id)
+                                    revsToDeleteAdmin.filter(i => i._id !== rv?._id)
                                 )}/>
                             ))}
                         </ul>
@@ -1651,6 +1814,39 @@ const Page = () => {
                 </div> : <div  style={{ display: !isDeleteRevs ? 'none' : null, marginTop: 4 }}>
                     No Reviews yet on this Unit
                 </div>}
+
+                <hr />
+
+                <button onClick={() => setIsAdminReview(!isAdminReview)} className={!isAdminReview ? 'editDiv' : 'editDiv chngpassbtn'}>Add Review (Rating)<Svgs name={'dropdown arrow'}/></button>
+
+                <div className='hide-show-prop calendar-edit-prop' style={{ display: !isAdminReview ? 'none' : null }}>
+                    <p><Svgs name={'info'}/>Add Review (Rating) to this Unit.</p>
+                    
+                    <div className='write-review'>
+                        <h3>Unit Evaluation (Rating) on behalf of a customer</h3>
+
+                        <CustomInputDiv title={'Customer Name'} listener={(e) => setReviewUsername(e.target.value)}
+                            placholderValue={'Add customer name whom want to evaluate'} value={reviewUsername}
+                            myStyle={{ marginBottom: 32 }}/>
+
+                        {scoreRate !== null && <h4>{getRatingText()}</h4>}
+
+                        <div className="rating">
+                            <Svgs name={'star'} styling={Math.round(scoreRate) > 0 ? true : false} on_click={() => setScoreRate(1)}/>
+                            <Svgs name={'star'} styling={Math.round(scoreRate) > 1 ? true : false} on_click={() => setScoreRate(2)}/>
+                            <Svgs name={'star'} styling={Math.round(scoreRate) > 2 ? true : false} on_click={() => setScoreRate(3)}/>
+                            <Svgs name={'star'} styling={Math.round(scoreRate) > 3 ? true : false} on_click={() => setScoreRate(4)}/>
+                            <Svgs name={'star'} styling={Math.round(scoreRate) > 4 ? true : false} on_click={() => setScoreRate(5)}/>
+                        </div>
+
+                        <textarea onChange={(e) => setReviewText(e.target.value)} placeholder={getReviewTextHolder()}/>
+                        <button onClick={writeReview}>{sendingReview ? <LoadingCircle /> : 'Send'}</button>
+                        <p style={{ color: sendReviewError?.length > 0 && 'var(--softRed)' }}>
+                        {sendReviewError?.length > 0 ? sendReviewError : sendReviewSuccess}
+                        </p>
+                    </div>
+
+                </div>
 
                 <hr />
 
@@ -1683,6 +1879,28 @@ const Page = () => {
                     {!(bookDaysError?.length <= 0 && bookDaysSuccess.length <= 0) && <p style={{ color: bookDaysError?.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{bookDaysError?.length > 0 ? bookDaysError : bookDaysSuccess}</p>}
                     <button id={isOkayNewBookedDays() ? '' : 'disable-button'} onClick={handleNewBookedDays} className='btnbackscndclr'>{bookDaysIsLoading ? <LoadingCircle /> : 'Update the list of days'}</button>
 
+                </div>
+
+                <hr />
+
+                <button onClick={() => setIsBadgeDiv(!isBadgeDiv)} className={!isBadgeDiv ? 'editDiv' : 'editDiv chngpassbtn'}>Add Warranty<Svgs name={'dropdown arrow'}/></button>
+
+                <div className='hide-show-prop calendar-edit-prop' style={{ display: !isBadgeDiv ? 'none' : null }}>
+                    <p><Svgs name={'info'}/>The preamble means that the offer is authenticated by the admin and is shown to users.</p>
+                    <Badge isEnglish/>
+                    {(badgeError?.length > 0 || badgeSuccess?.length > 0) && <p style={{ color: badgeError?.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{badgeError?.length > 0 ? badgeError : badgeSuccess}</p>}
+                    <button onClick={handleBadgeBtn} className='btnbackscndclr'>{settingBadge ? <LoadingCircle /> : (badge ? 'Remove Warranty' : 'Add Warranty')}</button>
+                </div>
+
+                <hr />
+
+                <button onClick={() => setIsDealDiv(!isDealDiv)} className={!isDealDiv ? 'editDiv' : 'editDiv chngpassbtn'}>Convert to Special Deal<Svgs name={'dropdown arrow'}/></button>
+
+                <div className='hide-show-prop calendar-edit-prop' style={{ display: !isDealDiv ? 'none' : null }}>
+                    <p><Svgs name={'info'}/>Add or remove this offer from the special offers page.</p>
+                    <Badge isDeal={true} myStyle={{ marginBottom: 24, flexWrap: 'wrap'}} isEnglish/>
+                    {(dealError?.length > 0 || dealSuccess?.length > 0) && <p style={{ color: dealError?.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{dealError?.length > 0 ? dealError : dealSuccess}</p>}
+                    <button onClick={handleDealBtn} className='btnbackscndclr'>{isDealing ? <LoadingCircle /> : (isDeal ? 'Remove from Special Deals' : 'Add to Special Deals')}</button>
                 </div>
 
                 <hr />
@@ -1914,7 +2132,7 @@ const Page = () => {
                             }}>
                                 {(myUrl.split("").reverse().join("").split('.')[0] === 'gpj' || myUrl.split("").reverse().join("").split('.')[0] === 'gnp')
                                 ? <Image src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${myUrl}`} width={1200} height={1200}/>
-                                : <video autoPlay loop src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${myUrl}`} />
+                                : <EmbeddedVideo url={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${myUrl}`} />
                                 }
                                 <span style={{ 
                                     display: !filesToDelete.includes(myUrl) && 'none'

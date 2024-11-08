@@ -714,8 +714,22 @@ const page = () => {
 
             console.log('test4');
 
+            const isNotSupported = () => {
+                for (let i = 0; i < attachedFilesUrls.length; i++) {
+                    const element = attachedFilesUrls[i];
+                    const dotsArr = element?.name?.split('.');
+                    const extension = dotsArr[dotsArr?.length - 1];
+                    if(extension !== 'jpg' && extension !== 'png' && extension !== 'mp4' && extension !== 'avi')
+                        return true;
+                };
+                return false;
+            };
+
             if(attachedFilesUrls?.length <= 0){
                 setSectionError('Add pictures and videos that express the ' + (selectedCatagories === '0' ? 'Vehicle' : 'Property'));
+                return false;
+            } else if(isNotSupported()){
+                setSectionError('File type is not supported');
                 return false;
             } else {
                 setSectionError('');

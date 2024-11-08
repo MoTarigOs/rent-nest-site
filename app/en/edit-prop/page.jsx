@@ -22,6 +22,8 @@ import { bathroomFacilities, customersTypesArray, facilities, kitchenFacilities,
 import LoadingCircle from '@components/LoadingCircle';
 import AddDetailsPopup from '@components/popups/AddDetailsPopup';
 import { getUserLocation } from '@utils/ServerComponents';
+import axios from 'axios';
+import EmbeddedVideo from '@components/EmbeddedVideo';
 
 const Page = () => {
 
@@ -1127,8 +1129,22 @@ const Page = () => {
 
             console.log('test4');
 
+            const isNotSupported = () => {
+                for (let i = 0; i < attachedFilesUrls.length; i++) {
+                    const element = attachedFilesUrls[i];
+                    const dotsArr = element?.name?.split('.');
+                    const extension = dotsArr[dotsArr?.length - 1];
+                    if(extension !== 'jpg' && extension !== 'png' && extension !== 'mp4' && extension !== 'avi')
+                        return true;
+                };
+                return false;
+            };
+
             if(item.images?.length - filesToDelete?.length <= 0){
-                setSectionError('The last image cannot be deleted, please add more images & submit then delete this image');
+                setSectionError('The last image cannot be deleted, please add more images before deleting those images');
+                return false;
+            } else if(isNotSupported()){
+                setSectionError('File type is not supported');
                 return false;
             } else {
                 setSectionError('');
@@ -1755,7 +1771,7 @@ const Page = () => {
                             }}>
                                 {(myUrl.split("").reverse().join("").split('.')[0] === 'gpj' || myUrl.split("").reverse().join("").split('.')[0] === 'gnp')
                                 ? <Image src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${myUrl}`} width={1200} height={1200}/>
-                                : <video autoPlay loop src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${myUrl}`} />
+                                : <EmbeddedVideo url={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${myUrl}`} />
                                 }
                                 <span style={{ 
                                     display: !filesToDelete.includes(myUrl) && 'none'

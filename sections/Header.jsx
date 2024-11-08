@@ -313,7 +313,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
             <div className='user disable-text-copy' style={{ maxWidth: !userId?.length > 0 ? 'unset' : null }}>
               <span id='notif-span' style={{ display: !notifications?.length > 0 ? 'none' : undefined }}>{userId?.length > 10 && notifications.length}</span>
-              <Link href={userId?.length > 0 ? getHref('profile', userId) : getHref('sign-up')}>
+              <Link href={userId?.length > 0 ? getHref('profile', userId) : getHref('sign-in')}>
                 <div className='profileSvg'><Svgs name={'profile'}/></div>
                 <p>{userId?.length > 0 ? (pathname.includes('/en') ? userFirstNameEN || userUsername || userFirstName : userFirstName || userUsername || userLastName) : getNameByLang('الدخول أو انشاء حساب', pathname.includes('/en'))}</p>
                 <div className='arrowSvg'><Svgs name={'dropdown arrow'}/></div>
@@ -371,7 +371,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
           </div>
           <span id='rightSpanHeaderSearch'/>
           <span id='leftSpanHeaderSearch'/>
-        </motion.div> : (pathname === '/vehicles' || pathname.includes('search') || pathname === '/properties' || pathname === '/en/vehicles' || pathname === '/en/properties') && <div className='headerSearchOtherDiv'>
+        </motion.div> : (pathname === '/vehicles' || pathname.includes('search') || pathname === '/properties' || pathname === '/en/vehicles' || pathname === '/en/properties' || pathname.includes('deals')) && <div className='headerSearchOtherDiv'>
           <ul className='headerNavUL disable-text-copy'>
             <li className='headerNavLi ' id='searchLiHeaderOther'><Svgs name={'search'}/></li>
             <li className='headerNavLi' onClick={() => {setIsCityFilter(true); setIsCatagoryFilter(false); setIsCalendarFilter(false);}}><h4>{!city.value ? getNameByLang('كل المدن', pathname.includes('/en')) : pathname.includes('/en') ? city.value : city.arabicName}</h4>{isCityFilter && <HeaderPopup pathname={pathname} type={'city'}/>}</li>
@@ -391,7 +391,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
           
           <div className='user disable-text-copy'>
             <span id='notif-span' style={{ display: !notifications?.length > 0 ? 'none' : undefined }}>{userId?.length > 10 && notifications.length}</span>
-            <Link href={userId?.length > 0 ? getHref('profile', userId) : getHref('sign-up')}>
+            <Link href={userId?.length > 0 ? getHref('profile', userId) : getHref('sign-in')}>
               <div className='profileSvg'><Svgs name={'profile'}/></div>
               <p>{userId?.length > 0 ? userUsername : getNameByLang('الدخول أو انشاء حساب', pathname.includes('/en'))}</p>
               <div className='arrowSvg'><Svgs name={'dropdown arrow'}/></div>
@@ -492,7 +492,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
           setIsCityFilter(false); setIsCatagoryFilter(false); setIsCalendarFilter(false); setIsMenu(false);
         }} style={{ background: (isMenu && isMobile) ? 'rgba(0, 0, 0, 0.24)' : undefined }}/>}
 
-        {!(isSearchMap && pathname.includes('/search')) && (pathname === '/properties' || pathname === '/vehicles' || pathname === '/en/properties' || pathname === '/en/vehicles' || pathname.includes('search')) 
+        {!(isSearchMap && pathname.includes('/search')) && (pathname === '/properties' || pathname === '/vehicles' || pathname === '/en/properties' || pathname === '/en/vehicles' || pathname.includes('search') || pathname.includes('deals')) 
         && <div className='filterHeaderDiv'>
           <button onClick={() => setIsFilter(true)}><Svgs name={'filter'}/>{getNameByLang('تصفية', pathname.includes('/en'))}</button>
           <span />

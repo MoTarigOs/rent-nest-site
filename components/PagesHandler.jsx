@@ -38,7 +38,8 @@ const PagesHandler = ({
     <div className="pagesHandler" style={{ 
         display: isHide ? 'none' : undefined,
         justifyContent: centerTheDiv ? 'center' : undefined,
-        flexDirection: centerTheDiv ? 'column' : undefined
+        flexDirection: centerTheDiv ? 'column' : undefined,
+        flexDirection: 'row'
     }} dir={isEnglish ? 'ltr' : undefined}>
 
         <div className="pagination-text">
