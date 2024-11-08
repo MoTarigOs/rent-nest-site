@@ -2135,7 +2135,7 @@ const Page = () => {
                             }}>
                                 {(myUrl.split("").reverse().join("").split('.')[0] === 'gpj' || myUrl.split("").reverse().join("").split('.')[0] === 'gnp')
                                 ? <Image src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${myUrl}`} width={1200} height={1200}/>
-                                : <EmbeddedVideo url={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${myUrl}`} />
+                                : <EmbeddedVideo isControl isMuted url={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${myUrl}`} />
                                 }
                                 <span style={{ 
                                     display: !filesToDelete.includes(myUrl) && 'none'

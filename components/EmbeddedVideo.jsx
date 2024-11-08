@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const EmbeddedVideo = ({ url, isControl, isContain }) => {
+const EmbeddedVideo = ({ url, isControl, isContain, isMuted }) => {
     const [src, setSrc] = useState();
     
     const settingVideoSource = async() => {
@@ -18,7 +18,7 @@ const EmbeddedVideo = ({ url, isControl, isContain }) => {
         settingVideoSource();
     }, []);
     
-    return <video style={{ objectFit: isContain ? 'contain' : undefined }} autoPlay loop controls={isControl} src={src}/>
+    return <video muted={isMuted} style={{ objectFit: isContain ? 'contain' : undefined }} autoPlay loop controls={isControl} src={src}/>
 };
 
 export default EmbeddedVideo;

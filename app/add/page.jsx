@@ -1245,7 +1245,7 @@ const page = () => {
                         }}>
                             {attachedFile.type.split('/')[0] === 'image'
                             ? <Image src={URL.createObjectURL(attachedFile)} width={100} height={100}/>
-                            : <video autoPlay controls loop src={URL.createObjectURL(attachedFile)}/>
+                            : <video autoPlay controls muted loop src={URL.createObjectURL(attachedFile)}/>
                             }
                         </li>
                     ))}
