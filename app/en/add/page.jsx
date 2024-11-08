@@ -714,6 +714,17 @@ const page = () => {
 
             console.log('test4');
 
+            const imageExist = () => {
+                let exist = false;
+                for (let i = 0; i < attachedFilesUrls.length; i++) {
+                    const element = attachedFilesUrls[i];
+                    const dotsArr = element?.name?.split('.');
+                    const extension = dotsArr[dotsArr?.length - 1];
+                    if(extension === 'png' || extension === 'jpg') exist = true;
+                }
+                return exist;
+            };
+            
             const isNotSupported = () => {
                 for (let i = 0; i < attachedFilesUrls.length; i++) {
                     const element = attachedFilesUrls[i];
@@ -727,6 +738,9 @@ const page = () => {
 
             if(attachedFilesUrls?.length <= 0){
                 setSectionError('Add pictures and videos that express the ' + (selectedCatagories === '0' ? 'Vehicle' : 'Property'));
+                return false;
+            } else if(!imageExist()) {
+                setSectionError('Add at least one picture');
                 return false;
             } else if(isNotSupported()){
                 setSectionError('File type is not supported');
@@ -1274,7 +1288,7 @@ const page = () => {
                         }}>
                             {attachedFile.type.split('/')[0] === 'image'
                             ? <Image src={URL.createObjectURL(attachedFile)} width={100} height={100}/>
-                            : <video autoPlay loop src={URL.createObjectURL(attachedFile)}/>
+                            : <video autoPlay controls loop src={URL.createObjectURL(attachedFile)}/>
                             }
                         </li>
                     ))}
