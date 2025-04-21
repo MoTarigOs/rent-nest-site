@@ -50,7 +50,7 @@ const Filter = ({
     const deleteFilters = () => {
         setRangeValue([]);
         setQuickFilter([]);
-        setnNeighbourSearchText();
+        setSearchText('');
         setnNeighbourSearchText('');
         setUnitCode('');
         setRangeValue([0, maximumPrice]);

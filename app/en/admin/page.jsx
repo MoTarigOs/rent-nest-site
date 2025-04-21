@@ -84,7 +84,7 @@ const page = () => {
     const [fileDeleteSuccess, setFileDeleteSuccess] = useState('');
     const [filename, setFilename] = useState('');
 
-    const cardsPerPage = 100;
+    const cardsPerPage = 36;
 
     const fetchReports = async(skipCount) => {
 

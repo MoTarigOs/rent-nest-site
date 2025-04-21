@@ -1974,6 +1974,9 @@
         }
         .mobile-checkout-popup{
             display: block;
+            .calenderPopup{
+                max-width: fit-content;
+            }
         }
         .mobileBookBtn{
             display: flex;

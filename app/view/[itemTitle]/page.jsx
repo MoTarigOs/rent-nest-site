@@ -1118,7 +1118,7 @@ const page = () => {
 
       </div>
 
-      {isMobile && <div className='mobileBookAndImages' style={isImagesLoader ? {
+      {isMobile960 && <div className='mobileBookAndImages' style={isImagesLoader ? {
           height:'100dvh',
           top: 0,
           bottom: 'unset'
@@ -1139,7 +1139,7 @@ const page = () => {
 
       </div>}
 
-      {(isMobile) && <div className={`checkout ${isCheckout ? 'mobile-checkout-popup' : 'mobile-checkout-popup-hidden'}`}>
+      {(isMobile960) && <div className={`checkout ${isCheckout ? 'mobile-checkout-popup' : 'mobile-checkout-popup-hidden'}`}>
 
         {(isCalendar || isReservationType) && <span onClick={() => {
           setIsCalendar(false); setIsReservationType(false);

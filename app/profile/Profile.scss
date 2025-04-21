@@ -808,6 +808,25 @@
                 }
             }
 
+            .addCity{
+                z-index: 1000000;
+                background: white;
+                position: absolute;
+                border-radius: 8px;
+                top: 0;
+                left: 0;
+                max-width: 480px;
+
+                #righticonspan{
+                    span{
+                        transform: translate(-9px, 4px) rotate(45deg);  
+                        &:dir(ltr){
+                            transform: translate(8px, 4px) rotate(45deg);        
+                        }
+                    }
+                }
+            }
+
             .inputDiv{
                 margin-bottom: 28px;
             }

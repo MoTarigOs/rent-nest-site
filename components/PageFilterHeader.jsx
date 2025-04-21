@@ -93,7 +93,7 @@ const PageFilterHeader = ({
                 {isEnglish ? (city?.value || 'Undefined') : (city?.arabicName || 'المدينة غير محددة')} 
                 <h3 suppressHydrationWarning>{isEnglish ? 'Booking' : 'الحجز'} {getReadableDate(calendarDoubleValue?.at(0), true, isEnglish)} - {getReadableDate(calendarDoubleValue?.at(1), true, isEnglish)}</h3>
             </div>
-            <Link href={isEnglish ? '/en/search' : '/search'}><Image onClick={() => setIsSearchMap(true)} src={MapGif} /></Link>
+            <Link href={isEnglish ? '/en/search' : '/search'} id='page-filter-header-image-container'><Image onClick={() => setIsSearchMap(true)} src={MapGif} /></Link>
         </div>}
     </div>
   )

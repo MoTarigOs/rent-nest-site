@@ -1041,11 +1041,11 @@ const page = () => {
         return <span id='righticonspan'/>
     }
 
-    // if(!userId?.length > 0 || !isVerified || userAccountType !== 'host'){
-    //     return (
-    //         fetching ? <MySkeleton isMobileHeader={true}/> : <NotFound navToVerify={!isVerified} type={'not allowed'} isEnglish/>
-    //     )
-    // }
+    if(!userId?.length > 0 || !isVerified || userAccountType !== 'host'){
+        return (
+            fetching ? <MySkeleton isMobileHeader={true}/> : <NotFound navToVerify={!isVerified} type={'not allowed'} isEnglish/>
+        )
+    }
 
   return (
     <div className='add' dir='ltr'>

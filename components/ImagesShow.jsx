@@ -230,7 +230,7 @@ const ImagesShow = ({
                 <li key={index} onClick={() => {
                     if(selectedImageIndex - index > 0){
                         if(type === 'card') {
-                            setSelectedImageIndex(selectedImageIndex - Math.abs(selectedImageIndex - index));
+                            setSelectedImageIndex(selectedImageIndex - (Math.abs(selectedImageIndex - index) * (isEnglish ? -1 : 1)));
                             setTriggerScroll(!triggerScroll);   
                             return;
                         };
@@ -239,7 +239,7 @@ const ImagesShow = ({
                         }
                     } else if(selectedImageIndex - index < 0){
                         if(type === 'card') {
-                            setSelectedImageIndex(selectedImageIndex + Math.abs(selectedImageIndex - index));
+                            setSelectedImageIndex(selectedImageIndex + (Math.abs(selectedImageIndex - index) * (isEnglish ? -1 : 1)) );
                             setTriggerScroll(!triggerScroll);   
                             return;
                         };

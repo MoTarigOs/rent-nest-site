@@ -41,15 +41,19 @@
 
         div{
             width: 100%;
-            flex: 1;
             white-space: nowrap;
             margin-left: auto;
             font-size: 1rem;
+            overflow-wrap: break-word;
+            overflow: hidden;
 
             h3{
                 font-size: 0.9rem;
                 font-weight: 400;
                 color: grey;
+                overflow-wrap: break-word;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
         }
 
@@ -58,7 +62,12 @@
             padding: 0;
             cursor: pointer;
             width: 32px;
+            flex: 1;
+            min-width: 32px;
+            max-width: 32px;
             height: 32px;
+            min-height: 32px;
+            max-height: 32px;
         
             img{
                 margin: 0;
@@ -107,6 +116,10 @@
         left: 0;
         background: rgba(0, 0, 0, 0.411);
         z-index: 10;
+    }
+
+    #page-filter-header-image-container{
+        
     }
 }
 
