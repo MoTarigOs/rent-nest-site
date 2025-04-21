@@ -389,7 +389,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
           <span id='menu-active-background' style={{ display: !isMenu ? 'none' : undefined }}/>
           
-          <div className='user disable-text-copy'>
+          <div className='user disable-text-copy' onClick={() => setIsMenu(false)}>
             <span id='notif-span' style={{ display: !notifications?.length > 0 ? 'none' : undefined }}>{userId?.length > 10 && notifications.length}</span>
             <Link href={userId?.length > 0 ? getHref('profile', userId) : getHref('sign-in')}>
               <div className='profileSvg'><Svgs name={'profile'}/></div>
@@ -398,7 +398,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
             </Link>
           </div>
 
-          <Link style={{ 
+          <Link onClick={() => setIsMenu(false)} style={{ 
             display: (isScrolled && (pathname === '/' || pathname === '/en')) ? 'none' : null,
             zIndex: isMenu ? 15 : undefined
           }} 

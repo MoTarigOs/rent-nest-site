@@ -609,7 +609,7 @@
 
                 ::after{
                     left: unset;
-                    right: 16px;
+                    right: 12px;
                     -webkit-transform: rotate(90deg);
                     -moz-transform: rotate(90deg);
                     -ms-transform: rotate(90deg);
@@ -633,6 +633,8 @@
                 &::-ms-expand {
                     display: none;
                 }
+                
+                z-index: 1;
 
             }
             
@@ -640,6 +642,7 @@
                 position: absolute;
                 pointer-events: none;
                 display: flex;
+                justify-content: center;
                 align-items: center;
                 content: '>';
                 font-size: 16px;
@@ -649,8 +652,10 @@
                 -moz-transform: rotate(-90deg);
                 -ms-transform: rotate(-90deg);
                 transform: rotate(-90deg);
-                left: 16px;
-                top: 12px;
+                left: 12px;
+                top: calc(50% - 8px);
+                height: 16px;
+                width: 16px;
                 scale: 1.8 1.6;
             }
         }
@@ -1546,6 +1551,7 @@
 
     select{
         background: red;
+        font-family: inherit;
     }
 }
 

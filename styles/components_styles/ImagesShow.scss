@@ -133,9 +133,8 @@
         }
 
         .cards-images-container{
-            overflow-x: scroll;
-            scroll-snap-type: mandatory x;
-            scroll-snap-align: center;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
             -ms-overflow-style: none; 
             scrollbar-width: none;
             
@@ -346,6 +345,19 @@
     border-radius: 50px;
 }
 
+@media screen and (max-width: 1160px){
+    .imagesDiv{
+        .arrow:hover{
+            background: unset;
+            transition: unset;
+            svg{
+                scale: 1;
+                transition: unset;
+            }
+        }
+    }
+}
+
 @media screen and (max-width: 960px){
     .imagesDiv{
         .swiper-images-show{
@@ -374,10 +386,6 @@
                     }
                 }
             }
-        }
-        #auto-scroll{
-            bottom: 14px;
-            left: 16px;
         }
     }
 }

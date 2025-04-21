@@ -453,9 +453,9 @@
             }
         }
 
-        .menuIconDiv:hover::after{
-                background: rgba(0, 0, 0, 0.055);
-        }
+        // .menuIconDiv:hover::after{
+        //         background: rgba(0, 0, 0, 0.055);
+        // }
         
         .activeMenu{
             transform: translateY(2px);
@@ -1188,10 +1188,6 @@
         .user:hover{
             a{
                 background: unset;
-            }
-            &::after{
-                background: rgba(0, 0, 0, 0.056);
-                transition: all 0.2s ease-in;
             }
         }
     }

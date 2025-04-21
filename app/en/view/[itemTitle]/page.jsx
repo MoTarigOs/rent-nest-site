@@ -645,6 +645,7 @@ const page = () => {
     setCanBook(isAbleToBook());
     getPriceReservationType();
     settingReviewsNum();
+    handleDays();
   }, [item]);
 
   useEffect(() => {

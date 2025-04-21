@@ -27,6 +27,7 @@ const ImagesShow = ({
     const prevButtonVideoRef = useRef(null);
     const nextButtonVideoRef = useRef(null);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+    const [triggerScroll, setTriggerScroll] = useState(false);
 
     if(!isAdmin && useHooks){
         
@@ -95,8 +96,12 @@ const ImagesShow = ({
                     behavior: 'smooth'
                 })
             }
-        }, [selectedImageIndex]);
-        
+        }, [triggerScroll]);
+
+        useEffect(() => {
+            if(type === 'card') 
+                scrollDivRef?.current.addEventListener('scroll', setIndexFromDefaultScroll);
+        }, [scrollDivRef?.current]);
     }
 
     let cardImages = [];
@@ -127,6 +132,14 @@ const ImagesShow = ({
 
         setSelectedImageIndex(index);
 
+    };
+
+    const setIndexFromDefaultScroll = () => {
+        const scrollOffset = scrollDivRef.current.scrollLeft;
+        const offsetWidth = scrollDivRef.current.offsetWidth;
+        let ppo = Math.round(scrollOffset / offsetWidth);
+        setSelectedImageIndex(ppo * -1);
+        console.log('scroll: ', scrollOffset, ' \t\t offsetWidth: ', offsetWidth, ' \t\t ppo: ', ppo);
     };
 
     const stopAutoScroll = () => { clearInterval(intervalId); setIntervalId(null); };
@@ -187,11 +200,13 @@ const ImagesShow = ({
                 <div className={`arrow ${isEnglish ? 'rightArrow' : 'leftArrow'}`} ref={nextButtonRef} onClick={() => {
                     if(type === 'card' && selectedImageIndex < images.length - 1){
                         setSelectedImageIndex(selectedImageIndex + 1);
+                        setTriggerScroll(!triggerScroll);
                     }
                 }}><Svgs name={'dropdown arrow'}/></div>
                 <div className={`arrow ${isEnglish ? 'leftArrow' : 'rightArrow'}`} ref={prevButtonRef} onClick={() => {
                     if(type === 'card' && selectedImageIndex > 0){
                         setSelectedImageIndex(selectedImageIndex - 1);
+                        setTriggerScroll(!triggerScroll);
                     }
                 }}><Svgs name={'dropdown arrow'}/></div>
             </>}</> : <>{videos?.length > 0 && <>
@@ -214,10 +229,20 @@ const ImagesShow = ({
             {images?.map((obj, index) => (
                 <li key={index} onClick={() => {
                     if(selectedImageIndex - index > 0){
+                        if(type === 'card') {
+                            setSelectedImageIndex(selectedImageIndex - Math.abs(selectedImageIndex - index));
+                            setTriggerScroll(!triggerScroll);   
+                            return;
+                        };
                         for (let i = selectedImageIndex; i > index; i--) {
                             prevButtonRef?.current?.click();
                         }
                     } else if(selectedImageIndex - index < 0){
+                        if(type === 'card') {
+                            setSelectedImageIndex(selectedImageIndex + Math.abs(selectedImageIndex - index));
+                            setTriggerScroll(!triggerScroll);   
+                            return;
+                        };
                         for (let i = selectedImageIndex; i < index; i++) {
                             nextButtonRef?.current?.click();
                         }

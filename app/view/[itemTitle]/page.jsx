@@ -544,48 +544,6 @@ const page = () => {
     else return false;
   };
 
-  useEffect(() => {
-    setRunOnce(true);
-    setCanBook(isAbleToBook());
-  }, []);
-
-  useEffect(() => {
-    settingReviewsNum();
-    setCanBook(isAbleToBook());
-    getPriceReservationType();
-  }, [item]);
-
-  useEffect(() => {
-    if(runOnce === true) {
-      if(id) {
-        fetchItemDetails();
-      } else if(unitCode) {
-        fetchItemDetailsByUnitCode();
-      } else {
-        setFetching(false);
-      }
-      if(calenderValParam) {
-        setCalendarDoubleValue([
-          new Date(Number(calenderValParam[0]) || Date.now()),
-          new Date(Number(calenderValParam[1]) || (Date.now() + 86400000))
-        ]);
-      }
-      const obj = booksIds.find(i => i.property_id === id);
-      if(obj && obj.date_of_book_start > Date.now()){
-        setBookDate([
-          new Date(obj.date_of_book_start),
-          new Date(obj.date_of_book_end)
-        ]);
-      }
-    }
-  }, [runOnce]);
-
-  useEffect(() => {
-    if(calendarDoubleValue?.at(1)?.getTime() - calendarDoubleValue?.at(0)?.getTime() < 80000000)
-      setBookDate([new Date, new Date(Date.now() + 86400000)]);
-    setCanBook(isAbleToBook());
-  }, [bookDate]);
-
   const handleDays = (isPopupChange) => {
 
     const daysBooked = getNumOfBookDays(calendarDoubleValue);
@@ -633,6 +591,49 @@ const page = () => {
     setCanBook(isAbleToBook());
 
   };
+
+  useEffect(() => {
+    setRunOnce(true);
+    setCanBook(isAbleToBook());
+  }, []);
+
+  useEffect(() => {
+    settingReviewsNum();
+    setCanBook(isAbleToBook());
+    getPriceReservationType();
+    handleDays();
+  }, [item]);
+
+  useEffect(() => {
+    if(runOnce === true) {
+      if(id) {
+        fetchItemDetails();
+      } else if(unitCode) {
+        fetchItemDetailsByUnitCode();
+      } else {
+        setFetching(false);
+      }
+      if(calenderValParam) {
+        setCalendarDoubleValue([
+          new Date(Number(calenderValParam[0]) || Date.now()),
+          new Date(Number(calenderValParam[1]) || (Date.now() + 86400000))
+        ]);
+      }
+      const obj = booksIds.find(i => i.property_id === id);
+      if(obj && obj.date_of_book_start > Date.now()){
+        setBookDate([
+          new Date(obj.date_of_book_start),
+          new Date(obj.date_of_book_end)
+        ]);
+      }
+    }
+  }, [runOnce]);
+
+  useEffect(() => {
+    if(calendarDoubleValue?.at(1)?.getTime() - calendarDoubleValue?.at(0)?.getTime() < 80000000)
+      setBookDate([new Date, new Date(Date.now() + 86400000)]);
+    setCanBook(isAbleToBook());
+  }, [bookDate]);
 
   useEffect(() => {
     handleDays();
@@ -775,7 +776,7 @@ const page = () => {
 
         <div className="details">
 
-          {!item.isBadge && <Badge myStyle={{ margin: '0 0 16px 0'}}/>}
+          {item.isBadge && <Badge myStyle={{ margin: '0 0 16px 0'}}/>}
 
           <div className='desktopIntro'><label>الوصف</label>
 
