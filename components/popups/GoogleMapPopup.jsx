@@ -8,6 +8,17 @@ import Svgs from '@utils/Svgs';
 import LoadingCircle from '@components/LoadingCircle';
 import { Context } from '@utils/Context';
 import { getDetailedResTypeNum, getNumOfBookDays } from '@utils/Logic';
+import Image from 'next/image';
+import { Roboto, Cairo } from 'next/font/google'
+import HouseMapIcon from '@assets/icons/threed_house.png';
+import FarmMapIcon from '@assets/icons/threed_farm.png';
+import ResortMapIcon from '@assets/icons/threed_resort.png';
+import StudentMapIcon from '@assets/icons/threed_student_housing.png';
+import CarMapIcon from '@assets/icons/threed_car.png';
+
+
+const roboto = Roboto({ weight: '400', subsets: ['latin'] });
+const cairo = Cairo({ weight: '400', subsets: ['latin'] });
 
 const GoogleMapPopup = ({ 
   isShow, setIsShow, mapType, 
@@ -21,10 +32,11 @@ const GoogleMapPopup = ({
     const AMMAN_LAT = JordanCities[0].lat;
     const AMMAN_LONG = JordanCities[0].long;
 
+    let mouseDownTime = null;
+
     const { 
       latitude, longitude, setLatitude, setLongitude,
-      resType, resTypeNum, calendarDoubleValue,
-      arabicFont
+      resType, resTypeNum, calendarDoubleValue
     } = useContext(Context);
 
     const { isLoaded } = useJsApiLoader({
@@ -131,10 +143,36 @@ const GoogleMapPopup = ({
        return isNaN(pr) ? '-' : pr;
     };
 
+    const getItemIcon = (item) => {
+      if(item.specific_catagory === "resort") return ResortMapIcon;
+      if(item.specific_catagory === "farm") return FarmMapIcon;
+      if(item.specific_catagory === "transports") return CarMapIcon;
+      if(item.specific_catagory === "students") return StudentMapIcon;
+      else return HouseMapIcon;
+    };
+
+    const handleMouseDown = (e) => {
+      mouseDownTime = Date.now();
+    };
+
+    const handleMouseUp = (e) => {
+      mouseDownTime = Date.now() - mouseDownTime;
+    };
+
+    const handleItemClick = (item) => {
+      if(mouseDownTime && mouseDownTime > 300) {
+        mouseDownTime = null;
+        return;
+      }
+      setLatitude(item?.map_coordinates?.at(1));
+      setLongitude(item?.map_coordinates?.at(0));
+      setSelectedProp(item);
+    };
+
   return (
     <div className={mapType === 'search' ? "google-map-popup-wrapper search-map" : "google-map-popup-wrapper" }
-      style={{...mapType !== 'search' ? { left: isShow ? null : '-200vw' } : style, fontFamily: arabicFont}}
-      dir={isEnglish ? 'ltr' : undefined}>
+      style={{...mapType !== 'search' ? { left: isShow ? null : '-200vw' } : style}}
+      dir={isEnglish ? 'ltr' : undefined} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
 
         <span onClick={() => setIsShow(false)}/>
 
@@ -148,7 +186,7 @@ const GoogleMapPopup = ({
           }
         }}>{fetching ? <LoadingCircle isLightBg/> : (isEnglish ? 'Search on this area' : 'البحث في هذه المنطقة')}</button>}
 
-        <div className='google-map-popup' style={mapType === 'search' ? style : undefined}>
+        <div className={'google-map-popup'} style={mapType === 'search' ? style : undefined}>
 
             {isLoaded && <GoogleMap
                 mapContainerStyle={containerStyle}
@@ -216,20 +254,22 @@ const GoogleMapPopup = ({
                 {props?.length > 0 && props.map((item) => (<OverlayViewF
                   position={{
                     lat: item?.map_coordinates?.at(1), lng: item?.map_coordinates?.at(0)
-                  }}
+                  }} 
                   mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                 >
-                  <div dir={isEnglish ? 'ltr' : undefined} onClick={() => {
-                    setLatitude(item?.map_coordinates?.at(1));
-                    setLongitude(item?.map_coordinates?.at(0));
-                    setSelectedProp(item);
-                  }} className={'custom-marker'} style={{ 
+                  <div dir={isEnglish ? 'ltr' : undefined} onClick={() => handleItemClick(item)} 
+                    className={'custom-marker ' + cairo.className} style={{ 
                     borderRadius: 24,
                     display: !item ? 'none' : null, 
                     background: selectedProp === item ? 'var(--secondColor)' : undefined,
                     color: selectedProp === item ? 'white' : undefined,
-                    zIndex: selectedProp === item ? 10 : undefined
+                    zIndex: selectedProp === item ? 10 : undefined,
+                    fontFamily: isEnglish ? roboto.style.fontFamily : cairo.style.fontFamily
                   }}>
+                    <p>
+                      {isEnglish ? item?.en_data?.titleEN || item?.title : item?.title}
+                    </p>
+                    <Image src={getItemIcon(item)}/>
                     {isEnglish ? `${getRealPrice(item)} ${currencyCode(true)} / ${getResType()}` : `${getRealPrice(item)} ${currencyCode(false)} / ${getResType()}`}
                     {item?.discount?.percentage > 0 && <div id='discount-div'>{isEnglish ? 'Discount' : 'تخفيض'}</div>}
                   </div>

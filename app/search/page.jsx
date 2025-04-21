@@ -20,7 +20,7 @@ const Page = () => {
   const { 
       city, catagory, setLatitude, 
       setLongitude, longitude, latitude,
-      isSearchMap, setCity, setSearchText
+      isSearchMap, setCity
   } = useContext(Context);
 
   const getMyLoc = async() => {

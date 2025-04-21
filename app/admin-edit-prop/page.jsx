@@ -1454,7 +1454,7 @@ const Page = () => {
 
             setBadgeError('');
             setItem(res.dt);
-            setBadgeSuccess(badge ? 'تم ازالة الديباجة بنجاح' : 'تم اضافة الديباجة بنجاح');
+            setBadgeSuccess(badge ? 'تم ازالة شهادة التوثيق بنجاح' : 'تم اضافة شهادة التوثيق بنجاح');
             setSettingBadge(false);
             
         } catch (err) {
@@ -1729,7 +1729,7 @@ const Page = () => {
 
                     <h2>تحكم بالاعلان</h2>
 
-                    <div className='status'>حالة الاعلان <span>{item.visible ? 'مرئي' : 'مخفي'}</span> <span>{item.checked ? 'مقبول' : item.isRejected ? 'مرفوض' : 'غير مقبول'}</span> {badge && <span>موثق بديباجة</span>}</div>
+                    <div className='status'>حالة الاعلان <span>{item.visible ? 'مرئي' : 'مخفي'}</span> <span>{item.checked ? 'مقبول' : item.isRejected ? 'مرفوض' : 'غير مقبول'}</span> {badge && <span>موثق من المنصة ✓</span>}</div>
 
                     <h3>ماذا تريد الفعل بهذا الاعلان ؟</h3>
 
@@ -1888,13 +1888,13 @@ const Page = () => {
 
                 <hr />
 
-                <button onClick={() => setIsBadgeDiv(!isBadgeDiv)} className={!isBadgeDiv ? 'editDiv' : 'editDiv chngpassbtn'}>اضافة ديباجة<Svgs name={'dropdown arrow'}/></button>
+                <button onClick={() => setIsBadgeDiv(!isBadgeDiv)} className={!isBadgeDiv ? 'editDiv' : 'editDiv chngpassbtn'}>اضافة شهادة توثيق<Svgs name={'dropdown arrow'}/></button>
 
                 <div className='hide-show-prop calendar-edit-prop' style={{ display: !isBadgeDiv ? 'none' : null }}>
-                    <p><Svgs name={'info'}/>الديباجة تعني أن العرض موثق من قبل الأدمن و تظهر للمستخدمين.</p>
+                    <p><Svgs name={'info'}/>شهادة التوثيق تعني أن العرض موثق من قبل الأدمن و تظهر للمستخدمين.</p>
                     <Badge />
                     {(badgeError?.length > 0 || badgeSuccess?.length > 0) && <p style={{ color: badgeError?.length > 0 ? 'var(--softRed)' : 'var(--secondColor)' }}>{badgeError?.length > 0 ? badgeError : badgeSuccess}</p>}
-                    <button onClick={handleBadgeBtn} className='btnbackscndclr'>{settingBadge ? <LoadingCircle /> : (badge ? 'ازالة الديباجة' : 'اضافة ديباجة')}</button>
+                    <button onClick={handleBadgeBtn} className='btnbackscndclr'>{settingBadge ? <LoadingCircle /> : (badge ? 'ازالة شهادة التوثيق' : 'اضافة شهادة توثيق')}</button>
                 </div>
 
                 <hr />

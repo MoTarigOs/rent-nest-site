@@ -75,11 +75,13 @@
 
     .custom-marker{
         width: fit-content;
+        max-width: 15vw;
+        white-space: break-spaces;
         cursor: pointer;
         position: absolute;
         background: white;
-        padding: 12px 16px;
-        white-space: nowrap;
+        padding: 12px 16px 16px 16px;
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.395);
         font-size: 1rem;
         font-weight: 500;
         color: rgb(68, 68, 68);
@@ -88,6 +90,9 @@
         align-items: center;
         gap: 12px;
         border-radius: 50px;
+        white-space: break-spaces;
+        overflow-wrap: break-word;
+        overflow: hidden;
         transform: translate(86px, -24px);
 
         &:dir(ltr){
@@ -102,11 +107,19 @@
             }
         }
 
+        p{
+            font-size: 0.9rem;
+            width: 100%;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            text-align: center;
+        }
         img{
-            width: 72px;
-            height: 72px;
+            width: 10vw;
+            height: 8vw;
+            object-fit: contain;
+            margin-bottom: -8px;
             border-radius: 12px;
-            display: none;
         }
 
         #discount-div{
@@ -121,9 +134,10 @@
             background: white;
             color: var(--secondColor);
             font-size: 0.72rem;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.226);
             position: absolute;
-            top: -28px;
-            left: -24px;
+            top: -16px;
+            left: -12px;
             transform: rotate(-25deg);
         }
     }

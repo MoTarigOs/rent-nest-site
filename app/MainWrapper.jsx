@@ -3,9 +3,9 @@
 import Footer from "@sections/Footer";
 import Header from "@sections/Header";
 import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
-import { Roboto, Cairo } from 'next/font/google'
+import { Roboto, Cairo } from 'next/font/google';
 import { usePathname } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { Context } from "@utils/Context";
  
 const roboto = Roboto({ weight: '400', subsets: ['latin'] });
@@ -18,7 +18,7 @@ const MainWrapper = ({ children }) => {
   const { isModalOpened, setArabicFont, setEnglishFont } = useContext(Context);
 
   useEffect(() => {
-    setArabicFont(cairo.className);
+    setArabicFont(roboto.style.fontFamily);
     setEnglishFont(roboto.className);
   }, []);
 

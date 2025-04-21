@@ -77,7 +77,7 @@ const Card = ({
 
         {!isVertical 
           ? <ImagesShow useHooks={useHooks} type={'card'} isEnglish={isEnglish} images={item.images} itemId={item._id} handleWishList={handleWishList} isVertical={isVertical} isAdmin={isAdmin}/>
-          : <div className='vertical-img' style={{ padding: 0 }}><Image src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${item?.images[0]}`} width={200} height={162}/></div>}
+          : <div className='vertical-img' style={{ padding: 0 }}><Image src={`${process.env.NEXT_PUBLIC_DOWNLOAD_BASE_URL}/download/${item?.images?.at(0)}`} width={200} height={162}/></div>}
 
         <div className='card-content' style={{ margin: 0 }}>
 

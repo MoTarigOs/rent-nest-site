@@ -432,11 +432,11 @@ const page = () => {
         }
     };
 
-    if(!userId?.length > 0 || (userRole !== 'admin' && userRole !== 'owner')){
-        return (
-            fetchingUserInfo ? <MySkeleton isMobileHeader/> : <NotFound type={'not allowed'}/>
-        )
-    };
+    // if(!userId?.length > 0 || (userRole !== 'admin' && userRole !== 'owner')){
+    //     return (
+    //         fetchingUserInfo ? <MySkeleton isMobileHeader/> : <NotFound type={'not allowed'}/>
+    //     )
+    // };
 
     const SideNavOptions = () => {
 

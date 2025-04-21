@@ -775,7 +775,7 @@ const page = () => {
 
         <div className="details">
 
-          {item.isBadge && <Badge myStyle={{ margin: '0 0 16px 0'}}/>}
+          {!item.isBadge && <Badge myStyle={{ margin: '0 0 16px 0'}}/>}
 
           <div className='desktopIntro'><label>الوصف</label>
 
