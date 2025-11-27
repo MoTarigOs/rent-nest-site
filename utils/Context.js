@@ -3,8 +3,42 @@
 import { createContext, useState } from "react";
 import { JordanCities, maximumPrice, minimumPrice, reservationType } from "./Data";
 export const Context = createContext(null);
+import { getCookie } from 'cookies-next';
 
 function DataContext({ children }) {
+
+    const setCalenderCookie = () => {
+
+        const coo = getCookie('calender_d_val');
+
+        if (!coo) {
+            console.log("cookie empty");
+            return null;
+        }
+
+        let parsed;
+
+        try {
+            parsed = JSON.parse(coo);   // Safe parse
+        } catch (e) {
+            console.log("cookie is not JSON array");
+            return null;
+        }
+
+        if (!Array.isArray(parsed) || parsed.length < 2) {
+            console.log("cookie JSON is not an array of two elements");
+            return null;
+        }
+
+        const dates = [
+            new Date(parsed[0]),
+            new Date(parsed[1])
+        ];
+
+        console.log("Parsed dates:", dates);
+        return dates;
+
+    };
 
     const [isSearchPage, setIsSearchPage] = useState(false);
     const [isMobile, setIsMobile] = useState(false);

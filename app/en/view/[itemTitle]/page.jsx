@@ -572,14 +572,17 @@ const page = () => {
     }
     
     if(!isPopupChange) setResTypeFromDaysBooked();
-    else if(resType?.id === 0) { 
-      setCalendarDoubleValue([
-        new Date(calendarDoubleValue?.at(0) || Date.now()), 
-        new Date((calendarDoubleValue?.at(0) || Date.now()) + 86400000)
-      ]); 
-      setResTypeNum(1); 
+    else { 
+      // setCalendarDoubleValue([
+      //   new Date(calendarDoubleValue?.at(0) || Date.now()), 
+      //   new Date((calendarDoubleValue?.at(0) || Date.now()) + 86400000)
+      // ]); 
+      setResTypeNum(resType?.id); 
+      if(resType?.id === 0) setDayBook();
+      else if(resType?.id === 1) setWeekBook();
+      else if(resType?.id === 2) setMonthBook();
+      else if(resType?.id === 4) setYearBook();
     }
-    else setResTypeNum(1);
 
     const setSeasonBook = () => {};
 

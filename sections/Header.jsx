@@ -20,6 +20,7 @@ import { getUserInfo, refresh } from '@utils/api';
 import { getArabicNameCatagory, getNameByLang, getReadableDate, handleDays } from '@utils/Logic';
 import { isLoginedCookie, isPreviouslyLogined } from '@utils/ServerComponents';
 import { VehiclesTypes, contactInfo } from '@utils/Data';
+import { setCookie, getCookie } from 'cookies-next';
 
 const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }) => {
 
@@ -30,6 +31,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
     const [isCatagoryFilter, setIsCatagoryFilter] = useState(false);
     const [isCalendarFilter, setIsCalendarFilter] = useState(false);
     const [isLogined, setIsLogined] = useState(false);
+    const [calenderCookieIsOkToSet, setCalenderCookieIsOkToSet] = useState(false);
     
     const [isPrevLogined, setIsPrevLogined] = useState(false);
 
@@ -57,7 +59,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       setUserLastNameEN, setUserFirstNameEN, userFirstName,
       userLastName, userFirstNameEN, triggerUserInfo, storageKey,
       setWaitingToBeHost, setIsNotifEnabled, resType, setResType,
-      resTypeNum, setResTypeNum
+      resTypeNum, setResTypeNum, setCalendarDoubleValue
     } = useContext(Context);
 
     const settingMobile = () => {
@@ -196,6 +198,41 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
 
     };
 
+    const setCalenderCookie = () => {
+
+      const coo = getCookie('calender_d_val');
+
+      setCalenderCookieIsOkToSet(true);
+
+      if (!coo) {
+          console.log("cookie empty");
+          return null;
+      }
+
+      let parsed;
+
+      try {
+          parsed = JSON.parse(coo);   // Safe parse
+      } catch (e) {
+          console.log("cookie is not JSON array");
+          return null;
+      }
+
+      if (!Array.isArray(parsed) || parsed.length < 2) {
+          console.log("cookie JSON is not an array of two elements");
+          return null;
+      }
+
+      const dates = [
+          new Date(parsed[0]),
+          new Date(parsed[1])
+      ];
+
+      console.log("Parsed dates:", dates);
+      return dates;
+      
+    };
+
     useEffect(() => {
       
       settingMobile();
@@ -203,6 +240,8 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       settingScroll();
 
       settingLogined();
+
+      setCalendarDoubleValue(setCalenderCookie());
 
       window.addEventListener('scroll', () => {
         settingScroll();
@@ -252,6 +291,7 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       setTriggerFetch(!triggerFetch);
       setIsCalendarValue(true);
       handleDays(calendarDoubleValue, setResType, setResTypeNum);
+      if(calenderCookieIsOkToSet) setCookie('calender_d_val', calendarDoubleValue);
     }, [calendarDoubleValue]);
 
     useEffect(() => {

@@ -577,14 +577,17 @@ const page = () => {
     }
     
     if(!isPopupChange) setResTypeFromDaysBooked();
-    else if(resType?.id === 0) { 
-      setCalendarDoubleValue([
-        new Date(calendarDoubleValue?.at(0) || Date.now()), 
-        new Date((calendarDoubleValue?.at(0) || Date.now()) + 86400000)
-      ]); 
-      setResTypeNum(1); 
+    else { 
+      // setCalendarDoubleValue([
+      //   new Date(calendarDoubleValue?.at(0) || Date.now()), 
+      //   new Date((calendarDoubleValue?.at(0) || Date.now()) + 86400000)
+      // ]); 
+      setResTypeNum(resType?.id); 
+      if(resType?.id === 0) setDayBook();
+      else if(resType?.id === 1) setWeekBook();
+      else if(resType?.id === 2) setMonthBook();
+      else if(resType?.id === 4) setYearBook();
     }
-    else setResTypeNum(1);
 
     const setSeasonBook = () => {};
 
@@ -1076,7 +1079,7 @@ const page = () => {
             {item.prices?.saturdayPrice > 0 && <h3>السبت {item.prices?.saturdayPrice} {currencyCode()}</h3>}
           </div>}
 
-          {resType?.id > 0 && <CustomInputDiv title={'ادخل عدد ' + reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.multipleAr}
+          {resType?.id > 0 && <CustomInputDiv min={1} title={'ادخل عدد ' + reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.multipleAr}
            type={'number'} value={resTypeNum?.toFixed(2)} listener={(e) => {
             setResTypeNum(Number(e.target.value));
           }} myStyle={{ marginBottom: 32 }} />}
@@ -1184,7 +1187,7 @@ const page = () => {
           {item.prices?.saturdayPrice > 0 && <h3>السبت {item.prices?.saturdayPrice} {currencyCode()}</h3>}
         </div>}
 
-        {resType?.id > 0 && <CustomInputDiv title={'ادخل عدد ' + reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.multipleAr}
+        {resType?.id > 0 && <CustomInputDiv min={1} title={'ادخل عدد ' + reservationType(null, null, null, item.specific_catagory === 'farm')?.find(i => i.id === resType?.id)?.multipleAr}
         type={'number'} value={resTypeNum?.toFixed(2)} listener={(e) => {
           setResTypeNum(Number(e.target.value));
         }} myStyle={{ marginBottom: 32 }}/>}
