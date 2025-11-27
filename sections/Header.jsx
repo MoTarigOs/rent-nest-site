@@ -291,7 +291,11 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       setTriggerFetch(!triggerFetch);
       setIsCalendarValue(true);
       handleDays(calendarDoubleValue, setResType, setResTypeNum);
-      if(calenderCookieIsOkToSet) setCookie('calender_d_val', calendarDoubleValue);
+      if(calenderCookieIsOkToSet) setCookie('calender_d_val', calendarDoubleValue, {
+        secure: true,
+        sameSite: 'none',
+        path: '/',
+      });
     }, [calendarDoubleValue]);
 
     useEffect(() => {
