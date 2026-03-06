@@ -3,7 +3,7 @@
 import '@styles/components_styles/MapPopup.scss';
 import Svgs from '@utils/Svgs';
 import Card from '@components/Card';
-import { useContext, useEffect, useState } from 'react';
+import { Suspense, useContext, useEffect, useState } from 'react';
 import { Context } from '@utils/Context';
 import PropertiesArray from '@components/PropertiesArray';
 import { getNameByLang } from '@utils/Logic';
@@ -11,7 +11,7 @@ import GoogleMapPopup from '@components/popups/GoogleMapPopup';
 import { useSearchParams } from 'next/navigation';
 
 
-const MapPopup = () => {
+const Page = () => {
 
     const searchParams = useSearchParams();
 
@@ -100,4 +100,10 @@ const MapPopup = () => {
   )
 };
 
-export default MapPopup;
+const SuspenseWrapper = () => (
+	<Suspense>
+		<Page />
+	</Suspense>
+);
+
+export default SuspenseWrapper;
