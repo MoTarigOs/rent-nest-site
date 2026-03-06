@@ -321,6 +321,9 @@ const HeaderComponent = ({ englishFontClassname, arabicFontClassname, pathname }
       return (<></>)
     };
 
+    
+  if(pathname.includes('app-map-webview')) return <></>
+
   return (
 
     <div suppressContentEditableWarning className={(pathname.includes('/en') ? 'header englishHeader' : 'header')} style={{ 

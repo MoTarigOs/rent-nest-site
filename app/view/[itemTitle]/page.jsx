@@ -2,7 +2,7 @@
 
 import '../view-style/View.scss';
 import ImagesShow from "@components/ImagesShow";
-import { JordanCities, VehiclesTypes, cancellationsArray, carFuelTypesArray, carGearboxes, currencyCode, getNames, myConditions, ratingsSections, reservationType, vehicleRentTypesArray } from "@utils/Data";
+import { JordanCities, VehiclesTypes, cancellationsArray, carFuelTypesArray, carGearboxes, currencyCode, getNames, myConditions, ratingsSections, reservationType, roomTypesArray, vehicleRentTypesArray } from "@utils/Data";
 import GoogleMapImage from '@assets/images/google-map-image.jpg';
 import Image from "next/image";
 import LocationGif from '@assets/icons/location.gif';

@@ -81,7 +81,7 @@ function DataContext({ children }) {
     const [ratingScore, setRatingScore] = useState(0);
     const [triggerFetch, setTriggerFetch] = useState(false);
     const [isMobileHomeFilter, setIsMobileHomeFilter] = useState(false);
-    const [isSearchMap, setIsSearchMap] = useState(false);
+    const [isSearchMap, setIsSearchMap] = useState(true);
     const [searchText, setSearchText] = useState('');
     const [arrangeValue, setArrangeValue] = useState('default');
     const [isMap, setIsMap] = useState(false);

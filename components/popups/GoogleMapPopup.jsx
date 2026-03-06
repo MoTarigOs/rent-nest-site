@@ -176,9 +176,9 @@ const GoogleMapPopup = ({
 
         <span onClick={() => setIsShow(false)}/>
 
-        <div id='cross-close-map' onClick={() => setIsShow(false)}><Svgs name={'cross'}/></div>
+        {fetching != null && <div id='cross-close-map' onClick={() => setIsShow(false)}><Svgs name={'cross'}/></div>}
 
-        {mapType === 'search' && <button id='more-btn' style={{ background: fetching ? 'var(--darkWhite)' : undefined }} onClick={() => {
+        {(mapType === 'search' && fetching != null) && <button id='more-btn' style={{ background: fetching ? 'var(--darkWhite)' : undefined }} onClick={() => {
           if(isInsideJordan(map?.center?.lng(), map?.center?.lat())) {
             setLatitude(map?.center?.lat());
             setLongitude(map?.center?.lng());
@@ -189,7 +189,7 @@ const GoogleMapPopup = ({
         <div className={'google-map-popup'} style={mapType === 'search' ? style : undefined}>
 
             {isLoaded && <GoogleMap
-                mapContainerStyle={containerStyle}
+                mapContainerStyle={{...containerStyle, zIndex: 10000 }}
                 center={{
                   lat: latitude ? (isInsideJordan(longitude, latitude) ? latitude : AMMAN_LAT) : AMMAN_LAT,
                   lng: longitude ? (isInsideJordan(longitude, latitude) ? longitude : AMMAN_LONG) : AMMAN_LONG

@@ -13,6 +13,8 @@ const Footer = ({ pathname }) => {
   if(!pathname){
     return (<DynamicNotFound />)
   }
+
+  if(pathname.includes('app-map-webview')) return <></>
   
   return (
     <div className="footer" style={{
